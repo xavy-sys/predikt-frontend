@@ -1,3 +1,14 @@
+<!--
+  Proyecto: PREDIKT™
+  Archivo: index.html
+  Versión: v2.1 Enterprise Screen-Based
+  Fecha: 2026-06-04
+  Fabricante: JVSys
+  Descripción: HomePage pública mobile-first estructurada por pantallas claras.
+  Líneas versión anterior: 253 aprox.
+  Líneas versión nueva: 267 aprox.
+-->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,7 +19,7 @@
 
   <meta
     name="description"
-    content="PREDIKT™ es la plataforma deportiva para pronosticar partidos, competir con amigos y subir en rankings. Predice, compite y gana."
+    content="PREDIKT™ es la plataforma deportiva para pronosticar partidos, competir con amigos y subir en rankings."
   />
 
   <link rel="stylesheet" href="css/styles.css" />
@@ -17,13 +28,13 @@
 <body>
   <header class="site-header">
     <div class="header-container">
-      <a href="#" class="brand-link" aria-label="Ir al inicio de PREDIKT">
+      <a href="#inicio" class="brand-link" aria-label="Ir al inicio de PREDIKT">
         <img src="assets/predikt-logo.png" alt="Logo PREDIKT" class="site-logo" />
       </a>
 
       <nav class="main-nav" aria-label="Navegación principal">
-        <a href="#partidos">Partidos</a>
-        <a href="#index">Index</a>
+        <a href="#inicio">Inicio</a>
+        <a href="#partido">Partido</a>
         <a href="#ranking">Ranking</a>
         <a href="#registro" class="nav-cta">Entrar</a>
       </nav>
@@ -31,9 +42,15 @@
   </header>
 
   <main>
-    <section class="hero-section hero-split">
+    <!-- Pantalla 1: Inicio -->
+    <section id="inicio" class="app-screen hero-section hero-split">
+      <div class="screen-header">
+        <p class="section-label">Inicio</p>
+        <h2>PREDIKT™ Mundial FIFA 2026</h2>
+      </div>
+
       <div class="hero-content">
-        <p class="hero-badge">Mundial FIFA 2026 • Multi deporte</p>
+        <p class="hero-badge">Predice • Compite • Gana</p>
 
         <h1>Demuestra que sabes más de deportes que tus amigos.</h1>
 
@@ -44,12 +61,20 @@
 
         <div class="hero-actions">
           <a href="#registro" class="primary-button">Comenzar gratis</a>
-          <a href="#partidos" class="secondary-button">Ver partidos</a>
+          <a href="#partido" class="secondary-button">Ver partido</a>
         </div>
+      </div>
+    </section>
+
+    <!-- Pantalla 2: Partido destacado -->
+    <section id="partido" class="app-screen section-block">
+      <div class="screen-header">
+        <p class="section-label">Partido destacado</p>
+        <h2>México vs Alemania</h2>
       </div>
 
       <article class="match-card hero-match">
-        <div class="match-status">Partido destacado</div>
+        <div class="match-status">Mundial FIFA 2026</div>
 
         <div class="teams-row">
           <div class="team">
@@ -76,53 +101,15 @@
 
         <a href="#registro" class="primary-button full-button">Pronosticar ahora</a>
       </article>
+
+      <section class="sponsor-strip" aria-label="Espacio publicitario superior">
+        <p>Espacio reservado para patrocinador deportivo oficial</p>
+      </section>
     </section>
 
-    <section class="sponsor-strip" aria-label="Espacio publicitario superior">
-      <p>Espacio reservado para patrocinador deportivo oficial</p>
-    </section>
-
-    <section id="partidos" class="section-block">
-      <div class="section-header">
-        <p class="section-label">Próximos partidos</p>
-        <h2>Elige tu próximo pronóstico</h2>
-      </div>
-
-      <div class="matches-grid">
-        <article class="match-card">
-          <div class="teams-row">
-            <div class="team"><span class="flag">🇲🇽</span><strong>México</strong></div>
-            <div class="versus">VS</div>
-            <div class="team"><span class="flag">🇩🇪</span><strong>Alemania</strong></div>
-          </div>
-          <p class="match-info">Sábado 15 junio • 13:00 CDMX</p>
-          <a href="#registro" class="primary-button full-button">Pronosticar</a>
-        </article>
-
-        <article class="match-card">
-          <div class="teams-row">
-            <div class="team"><span class="flag">🇪🇸</span><strong>España</strong></div>
-            <div class="versus">VS</div>
-            <div class="team"><span class="flag">🇯🇵</span><strong>Japón</strong></div>
-          </div>
-          <p class="match-info">Sábado 15 junio • 16:00 CDMX</p>
-          <a href="#registro" class="secondary-button full-button">Por pronosticar</a>
-        </article>
-
-        <article class="match-card">
-          <div class="teams-row">
-            <div class="team"><span class="flag">🇧🇷</span><strong>Brasil</strong></div>
-            <div class="versus">VS</div>
-            <div class="team"><span class="flag">🇨🇭</span><strong>Suiza</strong></div>
-          </div>
-          <p class="match-info">Sábado 15 junio • 19:00 CDMX</p>
-          <a href="#registro" class="secondary-button full-button">Por pronosticar</a>
-        </article>
-      </div>
-    </section>
-
-    <section id="index" class="section-block">
-      <div class="section-header">
+    <!-- Pantalla 3: PREDIKT Index -->
+    <section id="index" class="app-screen section-block">
+      <div class="screen-header">
         <p class="section-label">PREDIKT™ Index</p>
         <h2>Análisis simple para decidir mejor</h2>
       </div>
@@ -147,18 +134,18 @@
 
         <div class="risk-row">
           <span>Confianza: <strong>Alta</strong></span>
-          <span>Riesgo sorpresa: <strong>Medio</strong></span>
+          <span>Riesgo: <strong>Medio</strong></span>
         </div>
 
         <p class="index-comment">
-          México llega mejor posicionado y con ventaja local. Alemania sigue siendo rival peligroso:
-          el riesgo de sorpresa no debe ignorarse.
+          México llega mejor posicionado y con ventaja local. Alemania sigue siendo rival peligroso.
         </p>
       </article>
     </section>
 
-    <section id="ranking" class="section-block">
-      <div class="section-header">
+    <!-- Pantalla 4: Ranking -->
+    <section id="ranking" class="app-screen section-block">
+      <div class="screen-header">
         <p class="section-label">Ranking global</p>
         <h2>Compite por subir posiciones</h2>
       </div>
@@ -190,8 +177,9 @@
       </article>
     </section>
 
-    <section id="torneos" class="section-block">
-      <div class="section-header">
+    <!-- Pantalla 5: Torneos -->
+    <section id="torneos" class="app-screen section-block">
+      <div class="screen-header">
         <p class="section-label">Torneos</p>
         <h2>Una plataforma para muchos deportes</h2>
       </div>
@@ -205,8 +193,9 @@
       </div>
     </section>
 
-    <section class="section-block how-section">
-      <div class="section-header">
+    <!-- Pantalla 6: Cómo funciona -->
+    <section class="app-screen section-block">
+      <div class="screen-header">
         <p class="section-label">Cómo funciona</p>
         <h2>Predice. Compite. Gana.</h2>
       </div>
@@ -232,8 +221,9 @@
       </div>
     </section>
 
-    <section id="registro" class="section-block register-section">
-      <div class="section-header">
+    <!-- Pantalla 7: Registro -->
+    <section id="registro" class="app-screen section-block register-section">
+      <div class="screen-header">
         <p class="section-label">Registro rápido</p>
         <h2>Crea tu cuenta gratis</h2>
       </div>
