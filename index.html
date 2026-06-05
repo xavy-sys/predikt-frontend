@@ -1,12 +1,12 @@
 <!--
   Proyecto: PREDIKT™
   Archivo: index.html
-  Versión: v3.0 Hero Premium Match Experience
+  Versión: v3.1 Hero Premium Match Experience + Favicon + Powered by JVSys
   Fecha: 2026-06-04
   Fabricante: JVSys
-  Descripción: HomePage pública mobile-first con Hero Premium Match Experience, partido destacado México vs Alemania, PREDIKT™ Index visual, CTA principal de pronóstico y logo fantasma premium sin invadir el texto.
-  Líneas versión anterior: 260
-  Líneas versión nueva: 990
+  Descripción: HomePage pública mobile-first con Hero Premium Match Experience, partido destacado México vs Alemania, PREDIKT™ Index visual, CTA principal de pronóstico, favicon PREDIKT™, Powered by JVSys visible y CTA DÓNDE VERLO.
+  Líneas versión anterior: 990
+  Líneas versión nueva: 1053
 -->
 
 <!DOCTYPE html>
@@ -16,6 +16,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>PREDIKT™ | Predice • Compite • Gana</title>
+
+  <link rel="icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/predikt-logo.png" />
 
   <meta
     name="description"
@@ -72,7 +75,7 @@
     }
 
     .header-container {
-      width: min(1120px, calc(100% - 32px));
+      width: min(1280px, calc(100% - 32px));
       min-height: 72px;
       margin: 0 auto;
       display: flex;
@@ -91,6 +94,26 @@
       width: 146px;
       height: auto;
       display: block;
+    }
+
+    .brand-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .powered-header {
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .powered-header strong {
+      color: var(--predikt-gold);
+      font-weight: 900;
     }
 
     .main-nav {
@@ -123,10 +146,10 @@
     }
 
     .app-screen {
-      width: min(1120px, calc(100% - 32px));
+      width: min(1280px, calc(100% - 32px));
       min-height: calc(100vh - 72px);
       margin: 0 auto;
-      padding: 34px 0;
+      padding: 26px 0;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -143,7 +166,7 @@
       top: 56px;
       width: 310px;
       max-width: 54vw;
-      opacity: 0.05;
+      opacity: 0.08;
       pointer-events: none;
       user-select: none;
       filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.45));
@@ -153,8 +176,8 @@
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-columns: minmax(0, 1.04fr) minmax(330px, 0.76fr);
-      gap: 26px;
+      grid-template-columns: minmax(0, 1.12fr) minmax(360px, 0.88fr);
+      gap: 22px;
       align-items: stretch;
     }
 
@@ -171,7 +194,7 @@
 
     .hero-copy {
       position: relative;
-      min-height: 548px;
+      min-height: 500px;
       padding: 34px;
       display: flex;
       flex-direction: column;
@@ -284,7 +307,7 @@
     }
 
     .featured-match-card {
-      min-height: 548px;
+      min-height: 500px;
       padding: 26px;
       display: flex;
       flex-direction: column;
@@ -591,7 +614,7 @@
 
     .sponsor-card,
     .sponsor-strip {
-      width: min(1120px, calc(100% - 32px));
+      width: min(1280px, calc(100% - 32px));
       margin: 0 auto 32px;
       padding: 18px;
       border: 1px dashed rgba(246, 201, 69, 0.42);
@@ -607,7 +630,7 @@
     }
 
     .site-footer {
-      width: min(1120px, calc(100% - 32px));
+      width: min(1280px, calc(100% - 32px));
       margin: 0 auto;
       padding: 28px 0 38px;
       color: var(--predikt-muted);
@@ -718,13 +741,16 @@
 <body>
   <header class="site-header">
     <div class="header-container">
-      <a href="#inicio" class="brand-link" aria-label="Ir al inicio de PREDIKT">
-        <img src="assets/predikt-logo.png" alt="Logo PREDIKT" class="site-logo" />
-      </a>
+      <div class="brand-stack">
+        <a href="#inicio" class="brand-link" aria-label="Ir al inicio de PREDIKT">
+          <img src="assets/predikt-logo.png" alt="Logo PREDIKT" class="site-logo" />
+        </a>
+        <span class="powered-header">Powered by <strong>JVSys</strong></span>
+      </div>
 
       <nav class="main-nav" aria-label="Navegación principal">
         <a href="#inicio">Inicio</a>
-        <a href="#partido">Partido</a>
+        <a href="#donde-verlo">Dónde verlo</a>
         <a href="#ranking">Ranking</a>
         <a href="#registro" class="nav-cta">Entrar</a>
       </nav>
@@ -762,7 +788,7 @@
 
             <div class="hero-actions">
               <a href="#registro" class="primary-button">Comenzar gratis</a>
-              <a href="#partido" class="secondary-button">Ver partido</a>
+              <a href="#donde-verlo" class="secondary-button">Dónde verlo</a>
             </div>
           </div>
         </article>
@@ -778,14 +804,16 @@
 
             <div class="teams-row">
               <div class="team">
-                <img src="assets/flags/mx.svg" alt="Bandera de México" class="team-flag" />
+                <img src="assets/flags/mx.svg" alt="Bandera de México" class="team-flag" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                <span class="flag-fallback" aria-hidden="true">🇲🇽</span>
                 <strong>México</strong>
               </div>
 
               <div class="versus">VS</div>
 
               <div class="team">
-                <img src="assets/flags/de.svg" alt="Bandera de Alemania" class="team-flag" />
+                <img src="assets/flags/de.svg" alt="Bandera de Alemania" class="team-flag" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                <span class="flag-fallback" aria-hidden="true">🇩🇪</span>
                 <strong>Alemania</strong>
               </div>
             </div>
@@ -838,7 +866,42 @@
       </div>
     </section>
 
-    <!-- Pantalla 2: PREDIKT Index -->
+    <!-- Pantalla 2: Dónde verlo -->
+    <section id="donde-verlo" class="app-screen section-block">
+      <div class="screen-header">
+        <p class="section-label">Dónde verlo</p>
+        <h2>México vs Alemania en vivo</h2>
+      </div>
+
+      <article class="section-card">
+        <p class="index-comment">
+          Consulta horario, canales y plataformas disponibles antes de hacer tu pronóstico.
+        </p>
+
+        <div class="steps-grid">
+          <article class="step-card">
+            <span>TV</span>
+            <h3>Televisión abierta</h3>
+            <p>Canales por confirmar según derechos oficiales de transmisión.</p>
+          </article>
+
+          <article class="step-card">
+            <span>APP</span>
+            <h3>Streaming</h3>
+            <p>Plataformas digitales por confirmar cuando exista calendario oficial.</p>
+          </article>
+
+          <article class="step-card">
+            <span>MX</span>
+            <h3>Horario CDMX</h3>
+            <p>Sábado 15 Junio · 13:00 CDMX.</p>
+          </article>
+        </div>
+      </article>
+    </section>
+
+
+    <!-- Pantalla 3: PREDIKT Index -->
     <section id="index" class="app-screen section-block">
       <div class="screen-header">
         <p class="section-label">PREDIKT™ Index</p>
@@ -870,7 +933,7 @@
       </article>
     </section>
 
-    <!-- Pantalla 3: Ranking -->
+    <!-- Pantalla 4: Ranking -->
     <section id="ranking" class="app-screen section-block">
       <div class="screen-header">
         <p class="section-label">Ranking global</p>
@@ -904,7 +967,7 @@
       </article>
     </section>
 
-    <!-- Pantalla 4: Torneos -->
+    <!-- Pantalla 5: Torneos -->
     <section id="torneos" class="app-screen section-block">
       <div class="screen-header">
         <p class="section-label">Torneos</p>
@@ -921,7 +984,7 @@
       </div>
     </section>
 
-    <!-- Pantalla 5: Cómo funciona -->
+    <!-- Pantalla 6: Cómo funciona -->
     <section class="app-screen section-block">
       <div class="screen-header">
         <p class="section-label">Cómo funciona</p>
@@ -949,7 +1012,7 @@
       </div>
     </section>
 
-    <!-- Pantalla 6: Registro -->
+    <!-- Pantalla 7: Registro -->
     <section id="registro" class="app-screen section-block register-section">
       <div class="screen-header">
         <p class="section-label">Registro rápido</p>
