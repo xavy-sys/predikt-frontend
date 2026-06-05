@@ -1,12 +1,12 @@
 /* =========================================================
    Proyecto: PREDIKT™
    Archivo: css/styles.css
-   Versión: v2.1 Enterprise Screen-Based
+   Versión: v2.2 Clean Hero
    Fecha: 2026-06-04
    Fabricante: JVSys
-   Descripción: Estilos mobile-first por pantallas completas para HomePage PREDIKT™.
-   Líneas versión anterior: 430 aprox.
-   Líneas versión nueva: 505 aprox.
+   Descripción: Estilos mobile-first por pantallas completas. Se elimina logo fantasma del Hero para mejorar limpieza visual.
+   Líneas versión anterior: 505 aprox.
+   Líneas versión nueva: 495 aprox.
    ========================================================= */
 
 :root {
@@ -45,8 +45,8 @@ body {
   min-height: 100vh;
   font-family: Arial, Helvetica, sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(29, 155, 240, 0.22), transparent 35%),
-    radial-gradient(circle at top right, rgba(139, 197, 63, 0.16), transparent 30%),
+    radial-gradient(circle at top left, rgba(29, 155, 240, 0.2), transparent 34%),
+    radial-gradient(circle at top right, rgba(139, 197, 63, 0.14), transparent 32%),
     linear-gradient(180deg, var(--bg-main), var(--bg-deep));
   color: var(--white);
   line-height: 1.5;
@@ -62,13 +62,11 @@ img {
   display: block;
 }
 
-/* Header principal */
-
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(2, 11, 19, 0.9);
+  background: rgba(2, 11, 19, 0.94);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-soft);
 }
@@ -91,7 +89,7 @@ img {
 }
 
 .site-logo {
-  width: 150px;
+  width: 180px;
   height: auto;
 }
 
@@ -108,10 +106,6 @@ img {
   white-space: nowrap;
 }
 
-.main-nav a:hover {
-  color: var(--white);
-}
-
 .nav-cta {
   background: linear-gradient(135deg, var(--blue-main), var(--blue-soft));
   color: var(--white) !important;
@@ -120,18 +114,14 @@ img {
   font-weight: 800;
 }
 
-/* Contenedor general */
-
 main {
   width: min(100% - 28px, var(--max-width));
   margin: 0 auto;
 }
 
-/* Pantallas tipo App */
-
 .app-screen {
   min-height: calc(100vh - var(--header-height));
-  padding: 22px 0;
+  padding: 26px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -151,50 +141,36 @@ main {
 .section-label,
 .hero-badge {
   display: inline-flex;
-  align-items: center;
   color: var(--green-predikt);
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.74rem;
   margin-bottom: 10px;
 }
 
-/* Hero */
-
 .hero-section {
   position: relative;
-}
-
-.hero-section::before {
-  content: "";
-  position: absolute;
-  inset: 10px 0;
-  background:
-    linear-gradient(135deg, rgba(13, 110, 253, 0.2), rgba(139, 197, 63, 0.06)),
-    url("../assets/predikt-logo.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: min(88vw, 520px);
-  opacity: 0.14;
-  pointer-events: none;
 }
 
 .hero-content {
   position: relative;
   width: 100%;
-  background: linear-gradient(180deg, rgba(10, 34, 53, 0.9), rgba(2, 11, 19, 0.84));
+  max-width: 860px;
+  background:
+    linear-gradient(135deg, rgba(13, 110, 253, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(10, 34, 53, 0.96), rgba(2, 11, 19, 0.92));
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-xl);
-  padding: 26px 20px;
+  padding: 32px 22px;
   box-shadow: var(--shadow-card);
 }
 
 h1 {
-  font-size: clamp(2.15rem, 9vw, 5rem);
+  font-size: clamp(2.35rem, 8vw, 4.7rem);
   line-height: 0.96;
   letter-spacing: -0.06em;
-  max-width: 840px;
+  max-width: 760px;
   margin-bottom: 18px;
 }
 
@@ -209,8 +185,6 @@ h1 {
   display: grid;
   gap: 12px;
 }
-
-/* Botones */
 
 .primary-button,
 .secondary-button {
@@ -241,8 +215,6 @@ h1 {
   width: 100%;
 }
 
-/* Publicidad discreta */
-
 .sponsor-strip,
 .sponsor-card {
   border: 1px dashed rgba(217, 182, 80, 0.42);
@@ -258,8 +230,6 @@ h1 {
 .sponsor-card {
   margin-bottom: 24px;
 }
-
-/* Cards generales */
 
 .match-card,
 .index-card,
@@ -288,8 +258,6 @@ h1 {
   font-weight: 800;
   margin-bottom: 18px;
 }
-
-/* Partidos */
 
 .teams-row {
   display: grid;
@@ -343,8 +311,6 @@ h1 {
   gap: 14px;
 }
 
-/* Mini index en partido */
-
 .mini-index {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -369,8 +335,6 @@ h1 {
   color: var(--white);
   font-size: 1.18rem;
 }
-
-/* PREDIKT Index */
 
 .index-card {
   padding: 20px;
@@ -397,7 +361,6 @@ h1 {
 
 .index-item strong {
   font-size: 1.62rem;
-  color: var(--white);
 }
 
 .index-item span {
@@ -436,8 +399,6 @@ h1 {
   padding: 14px;
 }
 
-/* Ranking */
-
 .ranking-card {
   overflow: hidden;
 }
@@ -471,8 +432,6 @@ h1 {
   outline: 1px solid rgba(13, 110, 253, 0.52);
 }
 
-/* Torneos */
-
 .tournament-grid,
 .steps-grid {
   display: grid;
@@ -492,8 +451,6 @@ h1 {
 .tournament-card.locked {
   color: var(--text-muted);
 }
-
-/* Cómo funciona */
 
 .step-card {
   padding: 20px;
@@ -518,8 +475,6 @@ h1 {
 .step-card p {
   color: var(--text-soft);
 }
-
-/* Registro */
 
 .register-section {
   padding: 22px;
@@ -546,19 +501,12 @@ h1 {
   color: var(--text-muted);
 }
 
-.register-form input:focus {
-  border-color: var(--blue-soft);
-  box-shadow: 0 0 0 4px rgba(29, 155, 240, 0.16);
-}
-
 .form-note {
   color: var(--text-muted);
   font-size: 0.84rem;
   margin-top: 12px;
   text-align: center;
 }
-
-/* Footer */
 
 .site-footer {
   width: min(100% - 28px, var(--max-width));
@@ -586,15 +534,9 @@ h1 {
   color: var(--text-muted);
 }
 
-.footer-links a:hover {
-  color: var(--white);
-}
-
-/* Tablet */
-
 @media (min-width: 720px) {
   .site-logo {
-    width: 210px;
+    width: 220px;
   }
 
   .main-nav {
@@ -603,7 +545,7 @@ h1 {
   }
 
   .hero-content {
-    padding: 42px;
+    padding: 48px;
   }
 
   .hero-actions {
@@ -636,36 +578,25 @@ h1 {
   }
 }
 
-/* Desktop */
-
 @media (min-width: 1024px) {
   .app-screen {
     padding: 34px 0;
   }
 
   .hero-split {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    display: flex;
     align-items: center;
-    gap: 28px;
-  }
-
-  .hero-section::before {
-    background-position: left center;
-    background-size: 560px;
-    opacity: 0.12;
+    justify-content: center;
   }
 
   .hero-content {
-    max-width: 760px;
-  }
-
-  .hero-match {
-    align-self: center;
+    max-width: 900px;
+    margin: 0 auto;
   }
 
   .index-card,
-  .ranking-card {
+  .ranking-card,
+  .match-card {
     max-width: 760px;
     margin-left: auto;
     margin-right: auto;
@@ -678,6 +609,6 @@ h1 {
 
 /* =========================================================
    Fin de archivo: css/styles.css
-   Versión: v2.1 Enterprise Screen-Based
-   Líneas aproximadas: 505
+   Versión: v2.2 Clean Hero
+   Líneas aproximadas: 495
    ========================================================= */
