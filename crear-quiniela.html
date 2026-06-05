@@ -1,1 +1,1348 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: crear-quiniela.html
+    Fecha: 2026-06-05
+    Versión: v1.0
+    Fabricante: JVSys
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla Crear Quiniela para PREDIKT™.
+      Pantalla mobile-first tipo aplicación deportiva social.
+      Incluye creación simulada de quiniela privada, nombre sugerido,
+      torneo bloqueado Mundial 2026, métodos de invitación simulados,
+      enlace compartible, previsualización y motor viral.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 1226
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PREDIKT™ | Crear Quiniela</title>
+
+  <meta
+    name="description"
+    content="Crea una quiniela privada en PREDIKT™, invita a tus amigos y compite por ver quién le atina al marcador."
+  />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="icon" href="assets/logos/predikt-icon.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-soft: #092238;
+      --bg-card: #0f2740;
+      --bg-card-2: #132f4c;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --green: #2ecc71;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
+      --blue: #5dade2;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+      --footer-height: 82px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(93, 173, 226, 0.12), transparent 24%),
+        linear-gradient(135deg, #061826 0%, #061826 43%, #020b13 100%);
+      color: var(--text-main);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 22px);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page-shell {
+      width: min(100%, 1180px);
+      margin: 0 auto;
+      padding: 24px 18px 0;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-name {
+      letter-spacing: 0.09em;
+      font-size: 1.25rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .hello {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+
+    .level-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid rgba(245, 185, 66, 0.35);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.09);
+      font-size: 0.72rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(135deg, rgba(15, 39, 64, 0.97), rgba(8, 31, 52, 0.95)),
+        radial-gradient(circle at 80% 25%, rgba(245, 185, 66, 0.22), transparent 30%);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero-card::after {
+      content: "🤝";
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      font-size: 5.9rem;
+      opacity: 0.09;
+      transform: rotate(8deg);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 0.74rem;
+      font-weight: 950;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .hero-title {
+      max-width: 780px;
+      font-size: clamp(1.55rem, 5.8vw, 3.2rem);
+      font-weight: 980;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+      font-weight: 650;
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1fr 0.88fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 2px 10px;
+    }
+
+    .section-title {
+      font-size: 0.92rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: 0.76rem;
+      font-weight: 950;
+    }
+
+    .form-card,
+    .preview-card,
+    .side-card,
+    .success-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+    }
+
+    .form-card {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      display: block;
+      color: var(--text-main);
+      font-size: 0.84rem;
+      font-weight: 950;
+      margin-bottom: 8px;
+    }
+
+    .text-input {
+      width: 100%;
+      min-height: 54px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      outline: none;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--text-main);
+      padding: 0 15px;
+      font-size: 1rem;
+      font-weight: 850;
+      transition: border 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .text-input:focus {
+      border-color: rgba(245, 185, 66, 0.45);
+      background: rgba(255, 255, 255, 0.075);
+      box-shadow: 0 0 0 4px rgba(245, 185, 66, 0.08);
+    }
+
+    .help-text {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 720;
+      margin-top: 6px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: 0.76rem;
+      font-weight: 900;
+      transition: transform 0.18s ease, border 0.18s ease, color 0.18s ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+      color: var(--gold);
+      border-color: rgba(245, 185, 66, 0.3);
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .option-card {
+      min-height: 92px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 14px;
+      text-align: left;
+      color: var(--text-main);
+      transition: border 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+
+    .option-card.active {
+      border-color: rgba(245, 185, 66, 0.38);
+      background: rgba(245, 185, 66, 0.09);
+    }
+
+    .option-card:hover {
+      transform: translateY(-1px);
+    }
+
+    .option-icon {
+      display: block;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    .option-title {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 980;
+      margin-bottom: 3px;
+    }
+
+    .option-copy {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-weight: 760;
+    }
+
+    .locked-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border: 1px solid rgba(245, 185, 66, 0.22);
+      border-radius: var(--radius-md);
+      background: rgba(245, 185, 66, 0.075);
+      padding: 14px;
+    }
+
+    .locked-title {
+      font-size: 0.98rem;
+      font-weight: 980;
+      margin-bottom: 2px;
+    }
+
+    .locked-copy {
+      color: var(--text-soft);
+      font-size: 0.75rem;
+      font-weight: 760;
+    }
+
+    .locked-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.26);
+      font-size: 0.69rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .invite-panel {
+      display: grid;
+      gap: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 14px;
+    }
+
+    .invite-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .invite-title {
+      font-size: 0.92rem;
+      font-weight: 950;
+    }
+
+    .invite-count {
+      color: var(--gold);
+      font-size: 0.82rem;
+      font-weight: 950;
+    }
+
+    .share-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .share-btn {
+      min-height: 74px;
+      border-radius: 18px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 880;
+      gap: 5px;
+      transition: transform 0.18s ease, background 0.18s ease, border 0.18s ease;
+    }
+
+    .share-btn span {
+      font-size: 1.42rem;
+      line-height: 1;
+    }
+
+    .share-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(245, 185, 66, 0.26);
+      background: rgba(245, 185, 66, 0.075);
+    }
+
+    .create-btn {
+      width: 100%;
+      min-height: 54px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 12px 26px rgba(245, 185, 66, 0.24);
+      font-size: 0.86rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+
+    .create-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .preview-card {
+      padding: 18px;
+      margin-bottom: 18px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .preview-title {
+      font-size: 0.92rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .mock-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 95% 10%, rgba(245, 185, 66, 0.14), transparent 25%),
+        linear-gradient(145deg, rgba(19, 47, 76, 0.98), rgba(8, 31, 52, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 18px;
+    }
+
+    .mock-card::after {
+      content: "PREDIKT";
+      position: absolute;
+      right: -18px;
+      bottom: 6px;
+      color: rgba(255, 255, 255, 0.035);
+      font-size: 2.5rem;
+      font-weight: 980;
+      transform: rotate(-8deg);
+    }
+
+    .mock-kicker {
+      color: var(--gold);
+      font-size: 0.68rem;
+      font-weight: 980;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .mock-name {
+      font-size: 1.45rem;
+      font-weight: 980;
+      line-height: 1.05;
+      margin-bottom: 5px;
+    }
+
+    .mock-copy {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 720;
+      margin-bottom: 16px;
+    }
+
+    .mock-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .mock-stat {
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      padding: 10px;
+    }
+
+    .mock-stat-label {
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 850;
+      margin-bottom: 3px;
+    }
+
+    .mock-stat-value {
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 980;
+    }
+
+    .mock-prize {
+      position: relative;
+      color: var(--gold);
+      font-size: 0.82rem;
+      font-weight: 900;
+      margin-top: 6px;
+    }
+
+    .side-card {
+      padding: 17px;
+      margin-bottom: 18px;
+    }
+
+    .side-card-title {
+      font-size: 0.92rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .growth-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .growth-item {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 11px;
+      align-items: start;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 11px;
+    }
+
+    .growth-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+      font-size: 1.2rem;
+    }
+
+    .growth-title {
+      font-size: 0.84rem;
+      font-weight: 950;
+      line-height: 1.1;
+      margin-bottom: 3px;
+    }
+
+    .growth-copy {
+      color: var(--text-soft);
+      font-size: 0.73rem;
+      font-weight: 760;
+    }
+
+    .success-card {
+      display: none;
+      padding: 18px;
+      margin-bottom: 18px;
+      border-color: rgba(46, 204, 113, 0.32);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(46, 204, 113, 0.14), transparent 28%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
+    }
+
+    .success-card.show {
+      display: block;
+    }
+
+    .success-badge {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(46, 204, 113, 0.13);
+      border: 1px solid rgba(46, 204, 113, 0.28);
+      font-size: 1.7rem;
+      margin-bottom: 12px;
+    }
+
+    .success-title {
+      font-size: 1.34rem;
+      font-weight: 980;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .success-copy {
+      color: var(--text-soft);
+      font-size: 0.84rem;
+      font-weight: 720;
+      margin-bottom: 14px;
+    }
+
+    .share-link-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 9px;
+      align-items: center;
+      border: 1px solid rgba(245, 185, 66, 0.25);
+      border-radius: 17px;
+      background: rgba(245, 185, 66, 0.08);
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .share-link {
+      color: var(--gold-soft);
+      font-size: 0.84rem;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .copy-btn {
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.7rem;
+      font-weight: 980;
+      text-transform: uppercase;
+    }
+
+    .viral-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245, 185, 66, 0.32);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(245, 185, 66, 0.25), transparent 24%),
+        linear-gradient(135deg, rgba(15, 39, 64, 0.98), rgba(93, 76, 39, 0.88));
+      padding: 32px 22px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      margin: 18px 0 0;
+    }
+
+    .viral-card::before {
+      content: "⚽";
+      position: absolute;
+      left: 14px;
+      top: 8px;
+      font-size: 5.8rem;
+      opacity: 0.09;
+      transform: rotate(-15deg);
+    }
+
+    .viral-kicker {
+      position: relative;
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .viral-title {
+      position: relative;
+      font-size: clamp(1.24rem, 5vw, 2.05rem);
+      font-weight: 980;
+      line-height: 1.08;
+      margin-bottom: 8px;
+    }
+
+    .viral-copy {
+      position: relative;
+      color: var(--text-soft);
+      font-size: 0.86rem;
+      font-weight: 760;
+      margin-bottom: 16px;
+    }
+
+    .viral-btn {
+      position: relative;
+      width: 100%;
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.84rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 14px 30px rgba(245, 185, 66, 0.27);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 18px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 40;
+      width: min(calc(100% - 28px), 440px);
+      border: 1px solid rgba(46, 204, 113, 0.34);
+      border-radius: 18px;
+      background: rgba(7, 28, 46, 0.98);
+      color: var(--text-main);
+      padding: 13px 15px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.83rem;
+      font-weight: 830;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 30;
+      width: min(100%, 780px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4, 17, 29, 0.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.67rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+
+    .footer-item span {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+    }
+
+    @media (max-width: 920px) {
+      .page-shell {
+        width: min(100%, 760px);
+      }
+
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-card {
+        position: static;
+      }
+
+      .side-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .side-column .side-card {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding-bottom: calc(var(--footer-height) + 16px);
+      }
+
+      .page-shell {
+        padding: 18px 14px 0;
+      }
+
+      .top-bar {
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .brand-name {
+        font-size: 1.05rem;
+      }
+
+      .level-pill {
+        padding: 7px 10px;
+        font-size: 0.67rem;
+      }
+
+      .hero-card {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .hero-card::after {
+        right: 12px;
+        top: 22px;
+        font-size: 4.8rem;
+      }
+
+      .hero-copy {
+        font-size: 0.84rem;
+        max-width: 300px;
+      }
+
+      .form-card {
+        padding: 15px;
+      }
+
+      .option-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .locked-card {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .share-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .share-btn {
+        min-height: 66px;
+      }
+
+      .preview-card {
+        padding: 15px;
+      }
+
+      .mock-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .side-column {
+        grid-template-columns: 1fr;
+      }
+
+      .share-link-box {
+        grid-template-columns: 1fr;
+      }
+
+      .copy-btn {
+        width: 100%;
+      }
+
+      .viral-card {
+        padding: 28px 16px;
+      }
+
+      .app-footer {
+        width: 100%;
+        border-radius: 22px 22px 0 0;
+      }
+
+      .footer-item {
+        font-size: 0.58rem;
+      }
+
+      .footer-item span {
+        font-size: 1rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .page-shell {
+        padding-left: 26px;
+        padding-right: 26px;
+      }
+
+      .hero-card {
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="top-bar" aria-label="Encabezado de PREDIKT">
+      <a href="index.html" class="brand-block" aria-label="Ir a inicio">
+        <strong class="brand-name">PREDIKT™</strong>
+        <span class="hello">Hola Javier 👋</span>
+      </a>
+
+      <span class="level-pill">📺 Futbolero</span>
+    </header>
+
+    <section class="hero-card" aria-label="Crear quiniela">
+      <p class="eyebrow">Crear Quiniela · Mundial 2026</p>
+      <h1 class="hero-title">¿Tus amigos dicen que saben de fútbol?</h1>
+      <p class="hero-copy">
+        Crea una quiniela privada y descubre quién realmente le atina al marcador.
+      </p>
+    </section>
+
+    <div class="layout-grid">
+      <section class="main-column">
+        <div class="section-header">
+          <h2 class="section-title">Configura tu quiniela</h2>
+          <a class="section-link" href="mi-quiniela.html">Mi Quiniela</a>
+        </div>
+
+        <section class="success-card" id="successCard" aria-label="Quiniela creada">
+          <div class="success-badge">🎉</div>
+          <h2 class="success-title">Quiniela creada</h2>
+          <p class="success-copy">
+            Ya puedes compartir tu enlace con tus amigos. Mientras más participen, más divertida será la competencia.
+          </p>
+
+          <div class="share-link-box">
+            <span class="share-link" id="shareLink">predikt.app/q/ABC123</span>
+            <button class="copy-btn" id="copyLinkBtn" type="button">Copiar</button>
+          </div>
+        </section>
+
+        <section class="form-card" aria-label="Formulario de creación de quiniela">
+          <div class="form-group">
+            <label class="field-label" for="poolName">Nombre de tu quiniela</label>
+            <input
+              class="text-input"
+              id="poolName"
+              type="text"
+              value="Los Cuates"
+              maxlength="32"
+              autocomplete="off"
+              aria-describedby="poolHelp"
+            />
+            <p class="help-text" id="poolHelp">
+              Usa un nombre corto, mexicano y fácil de compartir.
+            </p>
+
+            <div class="suggestions" aria-label="Sugerencias de nombre">
+              <button class="chip" type="button" data-suggestion="Los Cuates">Los Cuates</button>
+              <button class="chip" type="button" data-suggestion="La Oficina">La Oficina</button>
+              <button class="chip" type="button" data-suggestion="Familia Pérez">Familia Pérez</button>
+              <button class="chip" type="button" data-suggestion="Los Expertos">Los Expertos</button>
+              <button class="chip" type="button" data-suggestion="Puro Crack">Puro Crack</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="field-label">Tipo de quiniela</span>
+
+            <div class="option-grid" role="radiogroup" aria-label="Tipo de quiniela">
+              <button class="option-card active" type="button" data-type="Privada" aria-pressed="true">
+                <span class="option-icon">🔒</span>
+                <span class="option-title">Privada</span>
+                <span class="option-copy">Solo entran quienes reciban tu enlace.</span>
+              </button>
+
+              <button class="option-card" type="button" data-type="Pública" aria-pressed="false">
+                <span class="option-icon">🌎</span>
+                <span class="option-title">Pública</span>
+                <span class="option-copy">Visible para más participantes en el futuro.</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="field-label">Torneo</span>
+
+            <div class="locked-card">
+              <div>
+                <p class="locked-title">⚽ Mundial 2026</p>
+                <p class="locked-copy">
+                  Temporada inicial oficial de PREDIKT™. Más deportes se agregarán después.
+                </p>
+              </div>
+
+              <span class="locked-pill">Bloqueado</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="field-label">Invitados</span>
+
+            <div class="invite-panel">
+              <div class="invite-top">
+                <p class="invite-title">Participantes invitados</p>
+                <p class="invite-count"><span id="inviteCount">0</span> participantes</p>
+              </div>
+
+              <div class="share-grid" aria-label="Métodos de invitación">
+                <button class="share-btn" type="button" data-share="WhatsApp">
+                  <span>🟢</span>
+                  WhatsApp
+                </button>
+
+                <button class="share-btn" type="button" data-share="Facebook">
+                  <span>🔵</span>
+                  Facebook
+                </button>
+
+                <button class="share-btn" type="button" data-share="Instagram">
+                  <span>🟣</span>
+                  Instagram
+                </button>
+
+                <button class="share-btn" type="button" data-share="Copiar enlace">
+                  <span>🔗</span>
+                  Copiar enlace
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button class="create-btn" id="createPoolBtn" type="button">
+            Crear Quiniela
+          </button>
+        </section>
+      </section>
+
+      <aside class="side-column">
+        <section class="preview-card" aria-label="Previsualización de quiniela">
+          <h2 class="preview-title">Previsualización</h2>
+
+          <div class="mock-card">
+            <p class="mock-kicker">Mi Quiniela</p>
+            <h3 class="mock-name" id="previewName">Los Cuates</h3>
+            <p class="mock-copy">
+              Mundial 2026 · Quiniela <span id="previewType">Privada</span>
+            </p>
+
+            <div class="mock-stats">
+              <div class="mock-stat">
+                <p class="mock-stat-label">Participantes</p>
+                <p class="mock-stat-value" id="previewParticipants">0</p>
+              </div>
+
+              <div class="mock-stat">
+                <p class="mock-stat-label">Líder</p>
+                <p class="mock-stat-value">Pendiente</p>
+              </div>
+
+              <div class="mock-stat">
+                <p class="mock-stat-label">Torneo</p>
+                <p class="mock-stat-value">Mundial 2026</p>
+              </div>
+
+              <div class="mock-stat">
+                <p class="mock-stat-label">Estado</p>
+                <p class="mock-stat-value">Lista</p>
+              </div>
+            </div>
+
+            <p class="mock-prize">Premio: La gloria eterna 😎</p>
+          </div>
+        </section>
+
+        <section class="side-card" aria-label="Motor viral">
+          <h2 class="side-card-title">Por qué invitar amigos</h2>
+
+          <div class="growth-list">
+            <div class="growth-item">
+              <div class="growth-icon">🔥</div>
+              <div>
+                <p class="growth-title">Más emoción</p>
+                <p class="growth-copy">Mientras más cuates entren, más fuerte se siente la competencia.</p>
+              </div>
+            </div>
+
+            <div class="growth-item">
+              <div class="growth-icon">🏆</div>
+              <div>
+                <p class="growth-title">Más presión</p>
+                <p class="growth-copy">Todos quieren presumir que sí saben de fútbol.</p>
+              </div>
+            </div>
+
+            <div class="growth-item">
+              <div class="growth-icon">📲</div>
+              <div>
+                <p class="growth-title">Más reingresos</p>
+                <p class="growth-copy">Cada partido puede mover el ranking y provocar revancha.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="viral-card" aria-label="Motor viral destacado">
+      <p class="viral-kicker">Motor viral</p>
+      <h2 class="viral-title">Mientras más amigos participen, más divertida será la competencia.</h2>
+      <p class="viral-copy">
+        Crea tu quiniela, compártela por WhatsApp y deja que el fútbol haga el resto.
+      </p>
+      <button class="viral-btn" id="viralCreateBtn" type="button">Crear Quiniela</button>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    Acción realizada.
+  </div>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html">
+      <span>🏠</span>
+      Inicio
+    </a>
+
+    <a class="footer-item" href="mi-quiniela.html">
+      <span>⚽</span>
+      Quiniela
+    </a>
+
+    <a class="footer-item" href="pronostico.html">
+      <span>🎯</span>
+      Pronósticos
+    </a>
+
+    <a class="footer-item" href="ranking.html">
+      <span>🏆</span>
+      Ranking
+    </a>
+
+    <a class="footer-item" href="perfil.html">
+      <span>👤</span>
+      Perfil
+    </a>
+  </nav>
+
+  <script>
+    /*
+      Nombre del bloque: Crear Quiniela Local Runtime
+      Fecha: 2026-06-05
+      Fabricante: JVSys
+      Descripción:
+        Simula creación de quiniela, selección de tipo, cambio de nombre,
+        invitación por canales sociales, contador de participantes y enlace compartible.
+    */
+
+    const poolNameInput = document.getElementById("poolName");
+    const previewName = document.getElementById("previewName");
+    const previewType = document.getElementById("previewType");
+    const inviteCount = document.getElementById("inviteCount");
+    const previewParticipants = document.getElementById("previewParticipants");
+    const createPoolBtn = document.getElementById("createPoolBtn");
+    const viralCreateBtn = document.getElementById("viralCreateBtn");
+    const successCard = document.getElementById("successCard");
+    const copyLinkBtn = document.getElementById("copyLinkBtn");
+    const shareLink = document.getElementById("shareLink");
+    const toast = document.getElementById("toast");
+
+    let currentType = "Privada";
+    let invited = 0;
+    let created = false;
+
+    function normalizePoolName(value) {
+      const clean = value.trim();
+      return clean.length > 0 ? clean : "Los Cuates";
+    }
+
+    function updatePreview() {
+      const name = normalizePoolName(poolNameInput.value);
+      previewName.textContent = name;
+      previewType.textContent = currentType;
+      previewParticipants.textContent = String(invited);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2300);
+    }
+
+    function createPool() {
+      const name = normalizePoolName(poolNameInput.value);
+      created = true;
+
+      const code = name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .slice(0, 6)
+        .toUpperCase()
+        .padEnd(6, "X");
+
+      shareLink.textContent = `predikt.app/q/${code}`;
+      successCard.classList.add("show");
+      createPoolBtn.textContent = "Quiniela creada";
+      viralCreateBtn.textContent = "Compartir Quiniela";
+
+      successCard.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+      showToast(`🎉 ${name} creada. Ya puedes invitar a tus amigos.`);
+      updatePreview();
+    }
+
+    poolNameInput.addEventListener("input", updatePreview);
+
+    document.querySelectorAll("[data-suggestion]").forEach((button) => {
+      button.addEventListener("click", () => {
+        poolNameInput.value = button.dataset.suggestion;
+        updatePreview();
+        showToast(`Nombre actualizado: ${button.dataset.suggestion}`);
+      });
+    });
+
+    document.querySelectorAll("[data-type]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-type]").forEach((item) => {
+          item.classList.remove("active");
+          item.setAttribute("aria-pressed", "false");
+        });
+
+        button.classList.add("active");
+        button.setAttribute("aria-pressed", "true");
+        currentType = button.dataset.type;
+
+        updatePreview();
+        showToast(`Tipo seleccionado: ${currentType}`);
+      });
+    });
+
+    document.querySelectorAll("[data-share]").forEach((button) => {
+      button.addEventListener("click", () => {
+        invited += 1;
+        inviteCount.textContent = String(invited);
+        updatePreview();
+
+        const channel = button.dataset.share;
+
+        if (!created) {
+          showToast(`${channel}: primero crea la quiniela para compartir el enlace real.`);
+          return;
+        }
+
+        showToast(`${channel}: invitación simulada enviada.`);
+      });
+    });
+
+    createPoolBtn.addEventListener("click", createPool);
+    viralCreateBtn.addEventListener("click", createPool);
+
+    copyLinkBtn.addEventListener("click", async () => {
+      const text = shareLink.textContent;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Enlace copiado.");
+      } catch (error) {
+        showToast("Enlace listo para copiar manualmente.");
+      }
+    });
+
+    updatePreview();
+  </script>
+</body>
+</html>
 
