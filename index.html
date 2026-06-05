@@ -6,17 +6,22 @@
 
   <title>PREDIKT™ | Predice • Compite • Gana</title>
 
-  <meta name="description" content="PREDIKT™ es la plataforma deportiva para pronosticar partidos, competir con amigos y subir en rankings. Predice, compite y gana." />
+  <meta
+    name="description"
+    content="PREDIKT™ es la plataforma deportiva para pronosticar partidos, competir con amigos y subir en rankings. Predice, compite y gana."
+  />
 
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="CSS/styles.css" />
 </head>
 
 <body>
   <header class="site-header">
     <div class="header-container">
-      <img src="assets/logo/predikt-logo.png" alt="Logo PREDIKT" class="site-logo" />
+      <a href="#" class="brand-link" aria-label="Ir al inicio de PREDIKT">
+        <img src="assets/predikt-logo.png" alt="Logo PREDIKT" class="site-logo" />
+      </a>
 
-      <nav class="main-nav">
+      <nav class="main-nav" aria-label="Navegación principal">
         <a href="#partidos">Partidos</a>
         <a href="#ranking">Ranking</a>
         <a href="#torneos">Torneos</a>
@@ -39,12 +44,12 @@
 
         <div class="hero-actions">
           <a href="#registro" class="primary-button">Comenzar gratis</a>
-          <a href="#partidos" class="secondary-button">Ver próximos partidos</a>
+          <a href="#partidos" class="secondary-button">Ver partidos</a>
         </div>
       </div>
     </section>
 
-    <section class="sponsor-strip">
+    <section class="sponsor-strip" aria-label="Espacio publicitario superior">
       <p>Espacio reservado para patrocinador deportivo oficial</p>
     </section>
 
@@ -54,7 +59,7 @@
         <h2>Elige tu pronóstico</h2>
       </div>
 
-      <div class="match-card featured-match">
+      <article class="match-card featured-match">
         <div class="match-status">Partido destacado</div>
 
         <div class="teams-row">
@@ -75,7 +80,7 @@
         <p class="match-info">Estadio Azteca, Ciudad de México</p>
 
         <a href="#pronostico" class="primary-button full-button">Pronosticar</a>
-      </div>
+      </article>
     </section>
 
     <section id="pronostico" class="section-block">
@@ -84,7 +89,7 @@
         <h2>Análisis del partido</h2>
       </div>
 
-      <div class="index-card">
+      <article class="index-card">
         <div class="index-grid">
           <div class="index-item">
             <strong>48%</strong>
@@ -106,7 +111,7 @@
           <span>Confianza: <strong>Alta</strong></span>
           <span>Riesgo: <strong>Medio</strong></span>
         </div>
-      </div>
+      </article>
     </section>
 
     <section id="ranking" class="section-block">
@@ -115,7 +120,7 @@
         <h2>Top jugadores</h2>
       </div>
 
-      <div class="ranking-card">
+      <article class="ranking-card">
         <div class="ranking-row">
           <span class="position">1</span>
           <span>ELTIGRE</span>
@@ -139,7 +144,7 @@
           <span>Tú</span>
           <strong>74 pts</strong>
         </div>
-      </div>
+      </article>
     </section>
 
     <section id="torneos" class="section-block">
@@ -149,11 +154,11 @@
       </div>
 
       <div class="tournament-grid">
-        <div class="tournament-card active">🏆 Mundial FIFA 2026</div>
-        <div class="tournament-card locked">🏈 NFL • Próximamente</div>
-        <div class="tournament-card locked">🏎 Fórmula 1 • Próximamente</div>
-        <div class="tournament-card locked">🏀 NBA • Próximamente</div>
-        <div class="tournament-card locked">⚾ MLB • Próximamente</div>
+        <article class="tournament-card active">🏆 Mundial FIFA 2026</article>
+        <article class="tournament-card locked">🏈 NFL • Próximamente</article>
+        <article class="tournament-card locked">🏎 Fórmula 1 • Próximamente</article>
+        <article class="tournament-card locked">🏀 NBA • Próximamente</article>
+        <article class="tournament-card locked">⚾ MLB • Próximamente</article>
       </div>
     </section>
 
@@ -164,23 +169,23 @@
       </div>
 
       <div class="steps-grid">
-        <div class="step-card">
+        <article class="step-card">
           <span>1</span>
           <h3>Predice</h3>
           <p>Elige ganador, empate o marcador exacto.</p>
-        </div>
+        </article>
 
-        <div class="step-card">
+        <article class="step-card">
           <span>2</span>
           <h3>Compite</h3>
           <p>Suma puntos contra amigos y otros jugadores.</p>
-        </div>
+        </article>
 
-        <div class="step-card">
+        <article class="step-card">
           <span>3</span>
           <h3>Gana</h3>
           <p>Sube en el ranking y demuestra tu conocimiento deportivo.</p>
-        </div>
+        </article>
       </div>
     </section>
 
@@ -191,8 +196,8 @@
       </div>
 
       <form class="register-form">
-        <input type="text" placeholder="Tu nombre" />
-        <input type="email" placeholder="Tu correo" />
+        <input type="text" placeholder="Tu nombre" aria-label="Tu nombre" />
+        <input type="email" placeholder="Tu correo" aria-label="Tu correo" />
         <button type="button" class="primary-button full-button">Crear cuenta</button>
       </form>
 
@@ -201,7 +206,7 @@
       </p>
     </section>
 
-    <section class="sponsor-card">
+    <section class="sponsor-card" aria-label="Patrocinador del partido">
       <p>Patrocinador del partido</p>
       <strong>Espacio comercial deportivo reservado</strong>
     </section>
