@@ -1,1 +1,1475 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: pronostico.html
+    Fecha: 2026-06-04
+    Versión: v1.0
+    Fabricante: JVSys
+    Proyecto: PREDIKT™
+    Descripción:
+      Primera pantalla real de captura de pronósticos para PREDIKT™.
+      Pantalla mobile-first tipo aplicación deportiva social.
+      Usa datos simulados inspirados en análisis de probabilidad deportiva mostrados en video:
+      favorito esperado, porcentaje de referencia, nivel de riesgo, marcador sugerido,
+      captura de marcador, avance de pronósticos y guardado simulado local.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 1002
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PREDIKT™ | Pronósticos</title>
+
+  <meta
+    name="description"
+    content="PREDIKT™ Pronósticos - Captura tus marcadores, revisa favoritos esperados y compite con tus amigos."
+  />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="icon" href="assets/logos/predikt-icon.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-soft: #092238;
+      --bg-card: #0f2740;
+      --bg-card-2: #132f4c;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --green: #2ecc71;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
+      --blue: #5dade2;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+      --footer-height: 82px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(93, 173, 226, 0.12), transparent 24%),
+        linear-gradient(135deg, #061826 0%, #061826 42%, #020b13 100%);
+      color: var(--text-main);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 22px);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page-shell {
+      width: min(100%, 1180px);
+      margin: 0 auto;
+      padding: 24px 18px 0;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-name {
+      letter-spacing: 0.09em;
+      font-size: 1.25rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .hello {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+
+    .level-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid rgba(245, 185, 66, 0.35);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.09);
+      font-size: 0.72rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(135deg, rgba(15, 39, 64, 0.97), rgba(8, 31, 52, 0.95)),
+        radial-gradient(circle at 82% 30%, rgba(245, 185, 66, 0.17), transparent 28%);
+      padding: 23px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero-card::after {
+      content: "⚽";
+      position: absolute;
+      right: 22px;
+      top: 18px;
+      font-size: 5.8rem;
+      opacity: 0.09;
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 0.74rem;
+      font-weight: 950;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .hero-title {
+      max-width: 760px;
+      font-size: clamp(1.55rem, 5.8vw, 3.2rem);
+      font-weight: 980;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+      font-weight: 650;
+    }
+
+    .progress-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: rgba(15, 39, 64, 0.78);
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .progress-title {
+      font-size: 0.9rem;
+      font-weight: 950;
+      letter-spacing: 0.02em;
+    }
+
+    .progress-count {
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .progress-bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 0 22px rgba(245, 185, 66, 0.45);
+      transition: width 0.35s ease;
+    }
+
+    .reward-note {
+      margin-top: 12px;
+      color: var(--text-soft);
+      font-size: 0.84rem;
+      font-weight: 750;
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section {
+      margin-bottom: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 2px 10px;
+    }
+
+    .section-title {
+      font-size: 0.92rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: 0.76rem;
+      font-weight: 950;
+    }
+
+    .match-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98)),
+        radial-gradient(circle at 20% 0%, rgba(245, 185, 66, 0.08), transparent 24%);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .match-top {
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .match-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      color: var(--text-muted);
+      font-size: 0.73rem;
+      font-weight: 850;
+    }
+
+    .risk-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 0.67rem;
+      font-weight: 980;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .risk-medium {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.11);
+      border-color: rgba(245, 185, 66, 0.28);
+    }
+
+    .risk-high {
+      color: var(--orange);
+      background: rgba(255, 159, 67, 0.11);
+      border-color: rgba(255, 159, 67, 0.25);
+    }
+
+    .teams-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 13px;
+      align-items: center;
+    }
+
+    .team {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .team-away {
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    .flag {
+      font-size: 2.05rem;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .team-code {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 950;
+      letter-spacing: 0.1em;
+    }
+
+    .team-name {
+      font-size: clamp(1rem, 4vw, 1.28rem);
+      font-weight: 980;
+      line-height: 1.05;
+    }
+
+    .vs-badge {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.32);
+      font-size: 0.72rem;
+      font-weight: 980;
+    }
+
+    .intelligence-card {
+      margin: 14px 0 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .intel-box {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 11px;
+      min-height: 72px;
+    }
+
+    .intel-label {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .intel-value {
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 980;
+      line-height: 1.1;
+    }
+
+    .intel-sub {
+      color: var(--text-soft);
+      font-size: 0.71rem;
+      font-weight: 720;
+      margin-top: 3px;
+    }
+
+    .prediction-area {
+      padding: 16px 18px 18px;
+    }
+
+    .suggested-score {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(245, 185, 66, 0.24);
+      border-radius: var(--radius-md);
+      background: rgba(245, 185, 66, 0.075);
+      padding: 12px;
+    }
+
+    .suggested-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .suggested-label {
+      color: var(--gold);
+      font-size: 0.68rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .suggested-text {
+      font-size: 0.93rem;
+      font-weight: 850;
+      color: var(--text-soft);
+    }
+
+    .suggested-main {
+      color: var(--text-main);
+      font-size: 1.22rem;
+      font-weight: 980;
+      white-space: nowrap;
+    }
+
+    .score-controls {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 10px 10px 10px 12px;
+    }
+
+    .score-team {
+      min-width: 0;
+    }
+
+    .score-team-name {
+      font-size: 0.98rem;
+      font-weight: 930;
+    }
+
+    .score-team-help {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 750;
+      margin-top: 2px;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.18);
+      padding: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .step-btn {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 1.1rem;
+      font-weight: 950;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .step-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .score-number {
+      width: 30px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 980;
+      color: var(--gold);
+    }
+
+    .live-preview {
+      color: var(--text-soft);
+      font-size: 0.82rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .save-btn {
+      width: 100%;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 12px 26px rgba(245, 185, 66, 0.24);
+      font-size: 0.82rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+
+    .save-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .save-btn.saved {
+      background: linear-gradient(135deg, var(--green), #9ff4bf);
+      box-shadow: 0 12px 26px rgba(46, 204, 113, 0.22);
+    }
+
+    .side-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 17px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+      margin-bottom: 18px;
+    }
+
+    .side-card-title {
+      font-size: 0.92rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .coach-box {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 13px;
+      margin-bottom: 10px;
+    }
+
+    .coach-icon {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.25);
+      font-size: 1.25rem;
+    }
+
+    .coach-title {
+      font-size: 0.9rem;
+      font-weight: 960;
+      margin-bottom: 2px;
+    }
+
+    .coach-text {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .tips-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .tip-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      font-weight: 720;
+    }
+
+    .tip-dot {
+      color: var(--gold);
+      font-size: 0.88rem;
+    }
+
+    .ranking-mini {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ranking-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-radius: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .ranking-row.me {
+      border-color: rgba(245, 185, 66, 0.35);
+      background: rgba(245, 185, 66, 0.1);
+    }
+
+    .ranking-points {
+      color: var(--text-soft);
+      font-size: 0.76rem;
+      font-weight: 900;
+    }
+
+    .viral-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245, 185, 66, 0.32);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(245, 185, 66, 0.25), transparent 24%),
+        linear-gradient(135deg, rgba(15, 39, 64, 0.98), rgba(93, 76, 39, 0.88));
+      padding: 30px 22px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      margin: 18px 0 0;
+    }
+
+    .viral-card::before {
+      content: "🏆";
+      position: absolute;
+      left: 14px;
+      top: 8px;
+      font-size: 5.6rem;
+      opacity: 0.09;
+      transform: rotate(-15deg);
+    }
+
+    .viral-kicker {
+      position: relative;
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .viral-title {
+      position: relative;
+      font-size: clamp(1.24rem, 5vw, 2.05rem);
+      font-weight: 980;
+      line-height: 1.08;
+      margin-bottom: 8px;
+    }
+
+    .viral-copy {
+      position: relative;
+      color: var(--text-soft);
+      font-size: 0.86rem;
+      font-weight: 760;
+      margin-bottom: 16px;
+    }
+
+    .viral-btn {
+      position: relative;
+      width: 100%;
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.84rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 14px 30px rgba(245, 185, 66, 0.27);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 18px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 40;
+      width: min(calc(100% - 28px), 440px);
+      border: 1px solid rgba(46, 204, 113, 0.34);
+      border-radius: 18px;
+      background: rgba(7, 28, 46, 0.98);
+      color: var(--text-main);
+      padding: 13px 15px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.83rem;
+      font-weight: 830;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 30;
+      width: min(100%, 780px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4, 17, 29, 0.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.67rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+
+    .footer-item span {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+    }
+
+    @media (max-width: 900px) {
+      .page-shell {
+        width: min(100%, 760px);
+      }
+
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .side-column .side-card {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding-bottom: calc(var(--footer-height) + 16px);
+      }
+
+      .page-shell {
+        padding: 18px 14px 0;
+      }
+
+      .top-bar {
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .brand-name {
+        font-size: 1.05rem;
+      }
+
+      .level-pill {
+        padding: 7px 10px;
+        font-size: 0.67rem;
+      }
+
+      .hero-card {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .hero-card::after {
+        right: 12px;
+        top: 22px;
+        font-size: 4.8rem;
+      }
+
+      .hero-copy {
+        font-size: 0.84rem;
+        max-width: 280px;
+      }
+
+      .progress-panel {
+        padding: 14px;
+      }
+
+      .progress-title {
+        font-size: 0.82rem;
+      }
+
+      .progress-count {
+        font-size: 0.74rem;
+      }
+
+      .section-title {
+        font-size: 0.82rem;
+      }
+
+      .match-top {
+        padding: 15px 14px 12px;
+      }
+
+      .teams-row {
+        gap: 9px;
+      }
+
+      .flag {
+        font-size: 1.82rem;
+      }
+
+      .vs-badge {
+        width: 38px;
+        height: 38px;
+      }
+
+      .intelligence-card {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .intel-box {
+        min-height: auto;
+        padding: 10px;
+      }
+
+      .prediction-area {
+        padding: 14px;
+      }
+
+      .suggested-score {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .suggested-main {
+        font-size: 1.1rem;
+      }
+
+      .score-row {
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
+
+      .stepper {
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .step-btn {
+        width: 40px;
+        height: 40px;
+      }
+
+      .score-number {
+        width: 44px;
+        font-size: 1.32rem;
+      }
+
+      .side-column {
+        grid-template-columns: 1fr;
+      }
+
+      .viral-card {
+        padding: 28px 16px;
+      }
+
+      .app-footer {
+        width: 100%;
+        border-radius: 22px 22px 0 0;
+      }
+
+      .footer-item {
+        font-size: 0.58rem;
+      }
+
+      .footer-item span {
+        font-size: 1rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .page-shell {
+        padding-left: 26px;
+        padding-right: 26px;
+      }
+
+      .hero-card {
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="top-bar" aria-label="Encabezado de PREDIKT">
+      <a href="index.html" class="brand-block" aria-label="Ir a inicio">
+        <strong class="brand-name">PREDIKT™</strong>
+        <span class="hello">Hola Javier 👋</span>
+      </a>
+
+      <span class="level-pill">📺 Futbolero</span>
+    </header>
+
+    <section class="hero-card" aria-label="Resumen de pronósticos">
+      <p class="eyebrow">Pronósticos · Mundial 2026</p>
+      <h1 class="hero-title">Pon tus marcadores antes que tus cuates.</h1>
+      <p class="hero-copy">
+        Usa la referencia inteligente de PREDIKT™, ajusta tu marcador y compite por subir al ranking.
+      </p>
+    </section>
+
+    <section class="progress-panel" aria-label="Avance de pronósticos">
+      <div class="progress-top">
+        <h2 class="progress-title">Pronósticos completados</h2>
+        <span class="progress-count" id="progressText">0 de 3</span>
+      </div>
+      <div class="progress-bar" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p class="reward-note" id="rewardNote">
+        🔥 Pronostica los 3 partidos de hoy y desbloquea el reconocimiento: ⚡ Enrachado.
+      </p>
+    </section>
+
+    <div class="layout-grid">
+      <section class="main-column">
+        <div class="section-header">
+          <h2 class="section-title">Partidos para pronosticar</h2>
+          <a class="section-link" href="mi-quiniela.html">Mi Quiniela</a>
+        </div>
+
+        <article class="match-card" data-match-id="mex-ger">
+          <div class="match-top">
+            <div class="match-meta">
+              <span>Mañana · 19:00</span>
+              <span class="risk-pill risk-medium">Riesgo medio</span>
+            </div>
+
+            <div class="teams-row">
+              <div class="team">
+                <span class="flag" aria-hidden="true">🇲🇽</span>
+                <span class="team-code">MX</span>
+                <strong class="team-name">México</strong>
+              </div>
+
+              <span class="vs-badge">VS</span>
+
+              <div class="team team-away">
+                <span class="flag" aria-hidden="true">🇩🇪</span>
+                <span class="team-code">DE</span>
+                <strong class="team-name">Alemania</strong>
+              </div>
+            </div>
+
+            <div class="intelligence-card">
+              <div class="intel-box">
+                <p class="intel-label">Favorito esperado</p>
+                <p class="intel-value">Alemania</p>
+                <p class="intel-sub">Mayor referencia</p>
+              </div>
+
+              <div class="intel-box">
+                <p class="intel-label">Referencia video</p>
+                <p class="intel-value">4.90%</p>
+                <p class="intel-sub">vs México 1.65%</p>
+              </div>
+
+              <div class="intel-box">
+                <p class="intel-label">Lectura PREDIKT™</p>
+                <p class="intel-value">Partido cerrado</p>
+                <p class="intel-sub">México puede incomodar</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="prediction-area">
+            <div class="suggested-score">
+              <div class="suggested-copy">
+                <p class="suggested-label">Pronóstico sugerido</p>
+                <p class="suggested-text">Cercano a lo esperado por probabilidad y fuerza relativa.</p>
+              </div>
+              <strong class="suggested-main">México 1 - 2 Alemania</strong>
+            </div>
+
+            <div class="score-controls">
+              <div class="score-row">
+                <div class="score-team">
+                  <p class="score-team-name">🇲🇽 México</p>
+                  <p class="score-team-help">Goles pronosticados</p>
+                </div>
+                <div class="stepper">
+                  <button class="step-btn" data-action="minus" data-team="home" aria-label="Restar gol a México">−</button>
+                  <span class="score-number" data-score="home">1</span>
+                  <button class="step-btn" data-action="plus" data-team="home" aria-label="Sumar gol a México">+</button>
+                </div>
+              </div>
+
+              <div class="score-row">
+                <div class="score-team">
+                  <p class="score-team-name">🇩🇪 Alemania</p>
+                  <p class="score-team-help">Goles pronosticados</p>
+                </div>
+                <div class="stepper">
+                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a Alemania">−</button>
+                  <span class="score-number" data-score="away">2</span>
+                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a Alemania">+</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="live-preview" data-preview>Tu pronóstico: México 1 - 2 Alemania</p>
+            <button class="save-btn" data-save>Guardar pronóstico</button>
+          </div>
+        </article>
+
+        <article class="match-card" data-match-id="bra-esp">
+          <div class="match-top">
+            <div class="match-meta">
+              <span>Viernes · 16:00</span>
+              <span class="risk-pill risk-high">Riesgo alto</span>
+            </div>
+
+            <div class="teams-row">
+              <div class="team">
+                <span class="flag" aria-hidden="true">🇧🇷</span>
+                <span class="team-code">BR</span>
+                <strong class="team-name">Brasil</strong>
+              </div>
+
+              <span class="vs-badge">VS</span>
+
+              <div class="team team-away">
+                <span class="flag" aria-hidden="true">🇪🇸</span>
+                <span class="team-code">ES</span>
+                <strong class="team-name">España</strong>
+              </div>
+            </div>
+
+            <div class="intelligence-card">
+              <div class="intel-box">
+                <p class="intel-label">Favorito esperado</p>
+                <p class="intel-value">España</p>
+                <p class="intel-sub">Mayor referencia</p>
+              </div>
+
+              <div class="intel-box">
+                <p class="intel-label">Referencia video</p>
+                <p class="intel-value">12.01%</p>
+                <p class="intel-sub">vs Brasil 5.55%</p>
+              </div>
+
+              <div class="intel-box">
+                <p class="intel-label">Lectura PREDIKT™</p>
+                <p class="intel-value">Alta exigencia</p>
+                <p class="intel-sub">Ambos pueden marcar</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="prediction-area">
+            <div class="suggested-score">
+              <div class="suggested-copy">
+                <p class="suggested-label">Pronóstico sugerido</p>
+                <p class="suggested-text">España aparece mejor posicionada, pero Brasil mantiene peligro ofensivo.</p>
+              </div>
+              <strong class="suggested-main">Brasil 1 - 2 España</strong>
+            </div>
+
+            <div class="score-controls">
+              <div class="score-row">
+                <div class="score-team">
+                  <p class="score-team-name">🇧🇷 Brasil</p>
+                  <p class="score-team-help">Goles pronosticados</p>
+                </div>
+                <div class="stepper">
+                  <button class="step-btn" data-action="minus" data-team="home" aria-label="Restar gol a Brasil">−</button>
+                  <span class="score-number" data-score="home">1</span>
+                  <button class="step-btn" data-action="plus" data-team="home" aria-label="Sumar gol a Brasil">+</button>
+                </div>
+              </div>
+
+              <div class="score-row">
+                <div class="score-team">
+                  <p class="score-team-name">🇪🇸 España</p>
+                  <p class="score-team-help">Goles pronosticados</p>
+                </div>
+                <div class="stepper">
+                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a España">−</button>
+                  <span class="score-number" data-score="away">2</span>
+                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a España">+</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="live-preview" data-preview>Tu pronóstico: Brasil 1 - 2 España</p>
+            <button class="save-btn" data-save>Guardar pronóstico</button>
+          </div>
+        </article>
+
+        <article class="match-card" data-match-id="arg-fra">
+          <div class="match-top">
+            <div class="match-meta">
+              <span>Sábado · 13:00</span>
+              <span class="risk-pill risk-high">Riesgo alto</span>
+            </div>
+
+            <div class="teams-row">
+              <div class="team">
+                <span class="flag" aria-hidden="true">🇦🇷</span>
+                <span class="team-code">AR</span>
+                <strong class="team-name">Argentina</strong>
+              </div>
+
+              <span class="vs-badge">VS</span>
+
+              <div class="team team-away">
+                <span class="flag" aria-hidden="true">🇫🇷</span>
+                <span class="team-code">FR</span>
+                <strong class="team-name">Francia</strong>
+              </div>
+            </div>
+
+            <div class="intelligence-card">
+              <div class="intel-box">
+                <p class="intel-label">Favorito esperado</p>
+                <p class="intel-value">Argentina</p>
+                <p class="intel-sub">Mayor avance esperado</p>
+              </div>
+
+              <div class="intel-box">
+                <p class="intel-label">Referencia video</p>
+                <p class="intel-value">Alta</p>
+                <p class="intel-sub">Fuerte expectativa</p>
+              </div>
+
+              <div class="intel-box">
+                <p class="intel-label">Lectura PREDIKT™</p>
+                <p class="intel-value">Partidazo</p>
+                <p class="intel-sub">Marcador probable cerrado</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="prediction-area">
+            <div class="suggested-score">
+              <div class="suggested-copy">
+                <p class="suggested-label">Pronóstico sugerido</p>
+                <p class="suggested-text">Argentina luce fuerte, pero Francia reduce cualquier margen de confianza.</p>
+              </div>
+              <strong class="suggested-main">Argentina 2 - 1 Francia</strong>
+            </div>
+
+            <div class="score-controls">
+              <div class="score-row">
+                <div class="score-team">
+                  <p class="score-team-name">🇦🇷 Argentina</p>
+                  <p class="score-team-help">Goles pronosticados</p>
+                </div>
+                <div class="stepper">
+                  <button class="step-btn" data-action="minus" data-team="home" aria-label="Restar gol a Argentina">−</button>
+                  <span class="score-number" data-score="home">2</span>
+                  <button class="step-btn" data-action="plus" data-team="home" aria-label="Sumar gol a Argentina">+</button>
+                </div>
+              </div>
+
+              <div class="score-row">
+                <div class="score-team">
+                  <p class="score-team-name">🇫🇷 Francia</p>
+                  <p class="score-team-help">Goles pronosticados</p>
+                </div>
+                <div class="stepper">
+                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a Francia">−</button>
+                  <span class="score-number" data-score="away">1</span>
+                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a Francia">+</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="live-preview" data-preview>Tu pronóstico: Argentina 2 - 1 Francia</p>
+            <button class="save-btn" data-save>Guardar pronóstico</button>
+          </div>
+        </article>
+      </section>
+
+      <aside class="side-column">
+        <section class="side-card" aria-label="Coach PREDIKT">
+          <h2 class="side-card-title">Coach PREDIKT™</h2>
+
+          <div class="coach-box">
+            <div class="coach-icon">🎯</div>
+            <div>
+              <h3 class="coach-title">No copies a ciegas.</h3>
+              <p class="coach-text">
+                El marcador sugerido es una referencia. Tu ventaja está en detectar cuándo arriesgar.
+              </p>
+            </div>
+          </div>
+
+          <div class="tips-list">
+            <p class="tip-item"><span class="tip-dot">•</span><span>Un favorito fuerte no siempre gana por goleada.</span></p>
+            <p class="tip-item"><span class="tip-dot">•</span><span>Los partidos de riesgo alto pueden decidir el ranking.</span></p>
+            <p class="tip-item"><span class="tip-dot">•</span><span>Un marcador exacto vale más que solo acertar ganador.</span></p>
+          </div>
+        </section>
+
+        <section class="side-card" aria-label="Ranking rápido">
+          <h2 class="side-card-title">Ranking rápido</h2>
+
+          <div class="ranking-mini">
+            <div class="ranking-row">
+              <span>#1 Pey</span>
+              <span class="ranking-points">140 pts</span>
+            </div>
+
+            <div class="ranking-row">
+              <span>#2 ElTigre</span>
+              <span class="ranking-points">132 pts</span>
+            </div>
+
+            <div class="ranking-row me">
+              <span>#3 Javier</span>
+              <span class="ranking-points">124 pts</span>
+            </div>
+
+            <div class="ranking-row">
+              <span>#4 Andrea</span>
+              <span class="ranking-points">119 pts</span>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="viral-card" aria-label="Crear quiniela">
+      <p class="viral-kicker">Motor viral</p>
+      <h2 class="viral-title">¿Quién de tus amigos le atina al marcador?</h2>
+      <p class="viral-copy">
+        Crea tu quiniela, invita a tus cuates y descubre quién realmente sabe de fútbol.
+      </p>
+      <a class="viral-btn" href="crear-quiniela.html">Crear Quiniela</a>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    Pronóstico guardado. Vas construyendo tu camino al ranking.
+  </div>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html">
+      <span>🏠</span>
+      Inicio
+    </a>
+
+    <a class="footer-item" href="mi-quiniela.html">
+      <span>⚽</span>
+      Quiniela
+    </a>
+
+    <a class="footer-item active" href="pronostico.html" aria-current="page">
+      <span>🎯</span>
+      Pronósticos
+    </a>
+
+    <a class="footer-item" href="ranking.html">
+      <span>🏆</span>
+      Ranking
+    </a>
+
+    <a class="footer-item" href="perfil.html">
+      <span>👤</span>
+      Perfil
+    </a>
+  </nav>
+
+  <script>
+    /*
+      Nombre del bloque: Pronósticos Local Runtime
+      Fecha: 2026-06-04
+      Fabricante: JVSys
+      Descripción:
+        Controla marcadores con botones + / -, vista previa en vivo,
+        guardado simulado por partido, barra de progreso y mensaje de confirmación.
+    */
+
+    const matchLabels = {
+      "mex-ger": {
+        home: "México",
+        away: "Alemania"
+      },
+      "bra-esp": {
+        home: "Brasil",
+        away: "España"
+      },
+      "arg-fra": {
+        home: "Argentina",
+        away: "Francia"
+      }
+    };
+
+    const savedMatches = new Set();
+
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const rewardNote = document.getElementById("rewardNote");
+    const toast = document.getElementById("toast");
+
+    function clampScore(value) {
+      return Math.max(0, Math.min(9, value));
+    }
+
+    function updatePreview(card) {
+      const matchId = card.dataset.matchId;
+      const homeScore = card.querySelector('[data-score="home"]').textContent;
+      const awayScore = card.querySelector('[data-score="away"]').textContent;
+      const preview = card.querySelector("[data-preview]");
+      const labels = matchLabels[matchId];
+
+      preview.textContent = `Tu pronóstico: ${labels.home} ${homeScore} - ${awayScore} ${labels.away}`;
+    }
+
+    function updateProgress() {
+      const total = document.querySelectorAll(".match-card").length;
+      const completed = savedMatches.size;
+      const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+      progressFill.style.width = `${percent}%`;
+      progressText.textContent = `${completed} de ${total}`;
+
+      if (completed === total) {
+        rewardNote.textContent = "⚡ ¡Enrachado desbloqueado! Ya pronosticaste todos los partidos de hoy.";
+      } else if (completed === 2) {
+        rewardNote.textContent = "🔥 Te falta 1 partido para desbloquear: ⚡ Enrachado.";
+      } else if (completed === 1) {
+        rewardNote.textContent = "🔥 Bien. Te faltan 2 partidos para completar la jornada.";
+      } else {
+        rewardNote.textContent = "🔥 Pronostica los 3 partidos de hoy y desbloquea el reconocimiento: ⚡ Enrachado.";
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2300);
+    }
+
+    document.querySelectorAll(".match-card").forEach((card) => {
+      card.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-action]");
+        const saveButton = event.target.closest("[data-save]");
+
+        if (button) {
+          const team = button.dataset.team;
+          const action = button.dataset.action;
+          const scoreElement = card.querySelector(`[data-score="${team}"]`);
+          const currentScore = Number(scoreElement.textContent);
+          const nextScore = action === "plus" ? currentScore + 1 : currentScore - 1;
+
+          scoreElement.textContent = String(clampScore(nextScore));
+
+          const matchId = card.dataset.matchId;
+          savedMatches.delete(matchId);
+          const cardSaveButton = card.querySelector("[data-save]");
+          cardSaveButton.classList.remove("saved");
+          cardSaveButton.textContent = "Guardar pronóstico";
+
+          updatePreview(card);
+          updateProgress();
+        }
+
+        if (saveButton) {
+          const matchId = card.dataset.matchId;
+          const preview = card.querySelector("[data-preview]").textContent;
+
+          savedMatches.add(matchId);
+          saveButton.classList.add("saved");
+          saveButton.textContent = "Pronóstico guardado";
+
+          updateProgress();
+          showToast(`${preview}. Guardado correctamente.`);
+        }
+      });
+
+      updatePreview(card);
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>
 
