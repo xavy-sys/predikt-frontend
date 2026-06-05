@@ -1,1 +1,326 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: perfil.html
+    Fecha: 2026-06-05
+    Versión: v1.0
+    Fabricante: JVSys
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla Perfil para PREDIKT™.
+      Pantalla mobile-first tipo aplicación deportiva social.
+      Incluye identidad del participante, nivel, estadísticas personales,
+      reconocimientos, mis quinielas, configuración simulada, notificaciones
+      y navegación inferior de aplicación.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 892
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Perfil</title>
+  <meta name="description" content="Perfil PREDIKT™ - Consulta tu nivel, puntos, racha, reconocimientos y quinielas activas." />
+  <meta name="theme-color" content="#061826" />
+  <link rel="icon" href="assets/logos/predikt-icon.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-card: #0f2740;
+      --bg-card-2: #132f4c;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --green: #2ecc71;
+      --red: #ff5a5f;
+      --border: rgba(255,255,255,.11);
+      --shadow: 0 18px 45px rgba(0,0,0,.35);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --footer-height: 82px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(245,185,66,.13), transparent 28%),
+        radial-gradient(circle at top right, rgba(93,173,226,.12), transparent 24%),
+        linear-gradient(135deg, #061826 0%, #061826 43%, #020b13 100%);
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 22px);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; border: 0; cursor: pointer; }
+
+    .page-shell { width: min(100%, 1180px); margin: 0 auto; padding: 24px 18px 0; }
+
+    .top-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .brand-block { display: flex; flex-direction: column; gap: 2px; }
+    .brand-name { letter-spacing: .09em; font-size: 1.25rem; font-weight: 950; line-height: 1; }
+    .hello { color: var(--text-soft); font-size: .78rem; font-weight: 750; }
+    .level-pill { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; border: 1px solid rgba(245,185,66,.35); border-radius: 999px; color: var(--gold); background: rgba(245,185,66,.09); font-size: .72rem; font-weight: 950; white-space: nowrap; }
+
+    .profile-hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at 78% 20%, rgba(245,185,66,.19), transparent 28%), linear-gradient(135deg, rgba(15,39,64,.98), rgba(8,31,52,.96));
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .profile-hero::after { content: "👤"; position: absolute; right: 24px; top: 18px; font-size: 5.8rem; opacity: .08; transform: rotate(8deg); pointer-events: none; }
+    .profile-main { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; position: relative; z-index: 1; }
+    .avatar { width: 92px; height: 92px; display: grid; place-items: center; border-radius: 28px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); box-shadow: 0 18px 34px rgba(245,185,66,.2); font-size: 2rem; font-weight: 980; }
+    .profile-kicker { color: var(--gold); font-size: .72rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
+    .profile-name { font-size: clamp(1.75rem, 5vw, 3.05rem); font-weight: 980; line-height: 1; letter-spacing: -.04em; margin-bottom: 8px; }
+    .profile-copy { color: var(--text-soft); font-size: .92rem; font-weight: 700; max-width: 620px; }
+    .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .quick-pill { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 11px; border-radius: 999px; color: var(--text-soft); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); font-size: .74rem; font-weight: 900; }
+    .quick-pill.gold { color: var(--gold); border-color: rgba(245,185,66,.27); background: rgba(245,185,66,.09); }
+
+    .layout-grid { display: grid; grid-template-columns: 1fr .9fr; gap: 18px; align-items: start; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 2px 10px; }
+    .section-title { font-size: .92rem; font-weight: 980; letter-spacing: .08em; text-transform: uppercase; }
+    .section-link { color: var(--gold); font-size: .76rem; font-weight: 950; }
+
+    .card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98)); box-shadow: 0 14px 36px rgba(0,0,0,.22); padding: 18px; margin-bottom: 18px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .stat-card { min-height: 112px; border: 1px solid rgba(255,255,255,.09); border-radius: var(--radius-md); background: rgba(255,255,255,.045); padding: 13px; display: flex; flex-direction: column; justify-content: space-between; }
+    .stat-label { color: var(--text-muted); font-size: .7rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+    .stat-value { color: var(--text-main); font-size: 1.75rem; font-weight: 980; line-height: 1; letter-spacing: -.04em; }
+    .stat-note { color: var(--text-soft); font-size: .7rem; font-weight: 760; }
+
+    .level-card { position: relative; overflow: hidden; border: 1px solid rgba(245,185,66,.26); border-radius: var(--radius-lg); background: radial-gradient(circle at 90% 0%, rgba(245,185,66,.16), transparent 30%), linear-gradient(145deg, rgba(15,39,64,.98), rgba(8,31,52,.98)); padding: 18px; margin-bottom: 18px; }
+    .level-card::after { content: "📺"; position: absolute; right: 16px; top: 12px; font-size: 4.6rem; opacity: .08; }
+    .level-title { color: var(--gold); font-size: .75rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+    .level-name { font-size: 1.35rem; font-weight: 980; margin-bottom: 5px; }
+    .level-copy { color: var(--text-soft); font-size: .83rem; font-weight: 720; margin-bottom: 14px; max-width: 520px; }
+    .progress-top { display: flex; justify-content: space-between; gap: 12px; color: var(--text-soft); font-size: .76rem; font-weight: 900; margin-bottom: 8px; }
+    .progress-bar { height: 12px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
+    .progress-fill { width: 68%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); box-shadow: 0 0 22px rgba(245,185,66,.45); }
+
+    .achievement-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .achievement-card { display: grid; grid-template-columns: 48px 1fr; gap: 11px; align-items: center; border-radius: var(--radius-md); background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 12px; }
+    .achievement-card.locked { opacity: .58; filter: grayscale(.35); }
+    .achievement-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); font-size: 1.4rem; }
+    .achievement-name { font-size: .88rem; font-weight: 950; line-height: 1.1; margin-bottom: 3px; }
+    .achievement-copy { color: var(--text-soft); font-size: .71rem; font-weight: 740; }
+
+    .pool-list { display: grid; gap: 10px; }
+    .pool-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border-radius: var(--radius-md); background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 13px; }
+    .pool-row.active { border-color: rgba(245,185,66,.3); background: rgba(245,185,66,.085); }
+    .pool-name { font-size: .95rem; font-weight: 960; margin-bottom: 2px; }
+    .pool-meta { color: var(--text-soft); font-size: .73rem; font-weight: 760; }
+    .pool-rank { text-align: right; color: var(--gold); font-size: 1rem; font-weight: 980; }
+    .pool-points { color: var(--text-muted); font-size: .68rem; font-weight: 800; margin-top: 2px; }
+
+    .settings-list { display: grid; gap: 9px; }
+    .setting-row { display: grid; grid-template-columns: 42px 1fr auto; gap: 10px; align-items: center; border-radius: 16px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 11px; color: var(--text-main); text-align: left; width: 100%; }
+    .setting-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); font-size: 1.15rem; }
+    .setting-name { display: block; font-size: .85rem; font-weight: 950; margin-bottom: 2px; }
+    .setting-copy { display: block; color: var(--text-soft); font-size: .72rem; font-weight: 730; }
+    .setting-action { color: var(--gold); font-size: .72rem; font-weight: 980; white-space: nowrap; }
+
+    .season-card { border: 1px solid rgba(255,255,255,.09); border-radius: var(--radius-md); background: rgba(255,255,255,.045); padding: 14px; margin-top: 12px; }
+    .season-title { font-size: .95rem; font-weight: 960; margin-bottom: 4px; }
+    .season-copy { color: var(--text-soft); font-size: .76rem; font-weight: 720; margin-bottom: 12px; }
+    .mini-chart { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; height: 90px; align-items: end; }
+    .bar { border-radius: 999px 999px 6px 6px; background: linear-gradient(180deg, var(--gold-soft), var(--gold)); min-height: 12px; opacity: .92; }
+    .bar:nth-child(1) { height: 44%; } .bar:nth-child(2) { height: 62%; } .bar:nth-child(3) { height: 52%; } .bar:nth-child(4) { height: 78%; } .bar:nth-child(5) { height: 65%; } .bar:nth-child(6) { height: 88%; } .bar:nth-child(7) { height: 74%; }
+
+    .viral-card { position: relative; overflow: hidden; border: 1px solid rgba(245,185,66,.32); border-radius: var(--radius-lg); background: radial-gradient(circle at 12% 18%, rgba(245,185,66,.25), transparent 24%), linear-gradient(135deg, rgba(15,39,64,.98), rgba(93,76,39,.88)); padding: 32px 22px; text-align: center; box-shadow: var(--shadow); margin: 18px 0 0; }
+    .viral-card::before { content: "🏆"; position: absolute; left: 14px; top: 8px; font-size: 5.8rem; opacity: .09; transform: rotate(-15deg); }
+    .viral-kicker { position: relative; color: var(--gold); font-size: .72rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+    .viral-title { position: relative; font-size: clamp(1.24rem, 5vw, 2.05rem); font-weight: 980; line-height: 1.08; margin-bottom: 8px; }
+    .viral-copy { position: relative; color: var(--text-soft); font-size: .86rem; font-weight: 760; margin-bottom: 16px; }
+    .viral-btn { position: relative; width: 100%; min-height: 50px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); font-size: .84rem; font-weight: 980; letter-spacing: .04em; text-transform: uppercase; box-shadow: 0 14px 30px rgba(245,185,66,.27); }
+
+    .toast { position: fixed; left: 50%; bottom: calc(var(--footer-height) + 18px); transform: translateX(-50%) translateY(20px); z-index: 40; width: min(calc(100% - 28px), 440px); border: 1px solid rgba(245,185,66,.34); border-radius: 18px; background: rgba(7,28,46,.98); color: var(--text-main); padding: 13px 15px; box-shadow: 0 14px 36px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; font-size: .83rem; font-weight: 830; text-align: center; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .app-footer { position: fixed; left: 50%; bottom: 0; z-index: 30; width: min(100%, 780px); transform: translateX(-50%); display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 9px 10px 11px; border: 1px solid rgba(255,255,255,.11); border-bottom: 0; border-radius: 24px 24px 0 0; background: rgba(4,17,29,.96); backdrop-filter: blur(18px); box-shadow: 0 -12px 34px rgba(0,0,0,.34); }
+    .footer-item { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; padding: 7px 4px; color: var(--text-muted); font-size: .67rem; font-weight: 880; gap: 3px; }
+    .footer-item span { font-size: 1.05rem; line-height: 1; }
+    .footer-item.active { color: var(--gold); background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); }
+
+    @media (max-width: 920px) {
+      .page-shell { width: min(100%, 760px); }
+      .layout-grid { grid-template-columns: 1fr; }
+      .side-column { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .side-column .card { margin-bottom: 0; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      body { padding-bottom: calc(var(--footer-height) + 16px); }
+      .page-shell { padding: 18px 14px 0; }
+      .top-bar { align-items: center; margin-bottom: 14px; }
+      .brand-name { font-size: 1.05rem; }
+      .level-pill { padding: 7px 10px; font-size: .67rem; }
+      .profile-hero { padding: 18px; border-radius: 24px; }
+      .profile-hero::after { right: 12px; top: 22px; font-size: 4.8rem; }
+      .profile-main { grid-template-columns: 1fr; gap: 14px; }
+      .avatar { width: 78px; height: 78px; border-radius: 22px; font-size: 1.65rem; }
+      .profile-copy { font-size: .84rem; }
+      .stat-card { min-height: 102px; padding: 12px; }
+      .stat-value { font-size: 1.45rem; }
+      .achievement-grid { grid-template-columns: 1fr; }
+      .pool-row { grid-template-columns: 1fr; }
+      .pool-rank { text-align: left; }
+      .setting-row { grid-template-columns: 42px 1fr; }
+      .setting-action { grid-column: 2; }
+      .side-column { grid-template-columns: 1fr; }
+      .viral-card { padding: 28px 16px; }
+      .app-footer { width: 100%; border-radius: 22px 22px 0 0; }
+      .footer-item { font-size: .58rem; }
+      .footer-item span { font-size: 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="top-bar" aria-label="Encabezado de PREDIKT">
+      <a href="index.html" class="brand-block" aria-label="Ir a inicio">
+        <strong class="brand-name">PREDIKT™</strong>
+        <span class="hello">Hola Javier 👋</span>
+      </a>
+      <span class="level-pill">📺 Futbolero</span>
+    </header>
+
+    <section class="profile-hero" aria-label="Perfil de participante">
+      <div class="profile-main">
+        <div class="avatar" aria-hidden="true">JV</div>
+        <div>
+          <p class="profile-kicker">Perfil de participante</p>
+          <h1 class="profile-name">Javier</h1>
+          <p class="profile-copy">Vas #3 en Los Cuates. Estás a 16 puntos del líder y mantienes una racha activa de 5 pronósticos.</p>
+          <div class="quick-row">
+            <span class="quick-pill gold">📺 Futbolero</span>
+            <span class="quick-pill">🏆 #3 Los Cuates</span>
+            <span class="quick-pill">⚡ Racha 5</span>
+            <span class="quick-pill">🎯 72% aciertos</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout-grid">
+      <section class="main-column">
+        <section class="card" aria-label="Estadísticas personales">
+          <div class="section-header">
+            <h2 class="section-title">Mis estadísticas</h2>
+            <a class="section-link" href="ranking.html">Ver ranking</a>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card"><p class="stat-label">Puntos</p><strong class="stat-value">124</strong><p class="stat-note">a 16 del líder</p></div>
+            <div class="stat-card"><p class="stat-label">Aciertos</p><strong class="stat-value">72%</strong><p class="stat-note">buen ritmo</p></div>
+            <div class="stat-card"><p class="stat-label">Pronósticos</p><strong class="stat-value">38</strong><p class="stat-note">capturados</p></div>
+            <div class="stat-card"><p class="stat-label">Racha</p><strong class="stat-value">5</strong><p class="stat-note">activa</p></div>
+          </div>
+        </section>
+
+        <section class="level-card" aria-label="Nivel del participante">
+          <p class="level-title">Nivel actual</p>
+          <h2 class="level-name">📺 Futbolero</h2>
+          <p class="level-copy">Vas avanzando hacia Conocedor. Sigue pronosticando para subir de nivel y desbloquear más reconocimientos.</p>
+          <div class="progress-top"><span>Progreso a 🎯 Conocedor</span><span>68%</span></div>
+          <div class="progress-bar" aria-hidden="true"><div class="progress-fill"></div></div>
+        </section>
+
+        <section class="card" aria-label="Reconocimientos">
+          <div class="section-header">
+            <h2 class="section-title">Reconocimientos</h2>
+            <a class="section-link" href="ranking.html">Competir</a>
+          </div>
+          <div class="achievement-grid">
+            <div class="achievement-card"><div class="achievement-icon">🔥</div><div><p class="achievement-name">Rey de la Jornada</p><p class="achievement-copy">Ganaste una jornada anterior.</p></div></div>
+            <div class="achievement-card"><div class="achievement-icon">⚡</div><div><p class="achievement-name">Enrachado</p><p class="achievement-copy">Cinco pronósticos activos.</p></div></div>
+            <div class="achievement-card"><div class="achievement-icon">🎯</div><div><p class="achievement-name">Golpe Maestro</p><p class="achievement-copy">Marcador exacto conseguido.</p></div></div>
+            <div class="achievement-card locked"><div class="achievement-icon">😱</div><div><p class="achievement-name">El Inesperado</p><p class="achievement-copy">Pendiente por desbloquear.</p></div></div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Mis quinielas">
+          <div class="section-header">
+            <h2 class="section-title">Mis Quinielas</h2>
+            <a class="section-link" href="crear-quiniela.html">Crear</a>
+          </div>
+          <div class="pool-list">
+            <a class="pool-row active" href="mi-quiniela.html"><div><p class="pool-name">🏆 Los Cuates</p><p class="pool-meta">18 participantes · Mundial 2026 · Activa</p></div><div class="pool-rank">#3<p class="pool-points">124 pts</p></div></a>
+            <a class="pool-row" href="crear-quiniela.html"><div><p class="pool-name">➕ Crear nueva quiniela</p><p class="pool-meta">Invita amigos y abre otra competencia.</p></div><div class="pool-rank">Nuevo<p class="pool-points">viral</p></div></a>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-column">
+        <section class="card" aria-label="Temporada">
+          <h2 class="section-title">Rendimiento</h2>
+          <div class="season-card">
+            <h3 class="season-title">Últimas jornadas</h3>
+            <p class="season-copy">Tu rendimiento reciente viene subiendo. Estás en zona de pelea.</p>
+            <div class="mini-chart" aria-hidden="true"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Configuración">
+          <h2 class="section-title">Configuración</h2>
+          <div class="settings-list">
+            <button class="setting-row" type="button" data-action="Editar perfil"><span class="setting-icon">✏️</span><span><strong class="setting-name">Editar perfil</strong><span class="setting-copy">Nombre, foto y alias.</span></span><span class="setting-action">Abrir</span></button>
+            <button class="setting-row" type="button" data-action="Notificaciones"><span class="setting-icon">🔔</span><span><strong class="setting-name">Notificaciones</strong><span class="setting-copy">Recordatorios de partidos.</span></span><span class="setting-action">Configurar</span></button>
+            <button class="setting-row" type="button" data-action="Compartir perfil"><span class="setting-icon">📲</span><span><strong class="setting-name">Compartir perfil</strong><span class="setting-copy">Presume tu ranking.</span></span><span class="setting-action">Compartir</span></button>
+            <button class="setting-row" type="button" data-action="Cerrar sesión"><span class="setting-icon">🚪</span><span><strong class="setting-name">Cerrar sesión</strong><span class="setting-copy">Simulado para la Beta.</span></span><span class="setting-action">Salir</span></button>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="viral-card" aria-label="Crear quiniela">
+      <p class="viral-kicker">Motor viral</p>
+      <h2 class="viral-title">Tu perfil mejora cuando compites con más amigos.</h2>
+      <p class="viral-copy">Crea otra quiniela, invita a tus cuates y sube de nivel jugando más partidos.</p>
+      <a class="viral-btn" href="crear-quiniela.html">Crear Quiniela</a>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Acción simulada.</div>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item active" href="perfil.html" aria-current="page"><span>👤</span>Perfil</a>
+  </nav>
+
+  <script>
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2300);
+    }
+
+    document.querySelectorAll("[data-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        showToast(`${button.dataset.action}: función simulada para la Beta.`);
+      });
+    });
+  </script>
+</body>
+</html>
 
