@@ -23,23 +23,23 @@
 
       <nav class="main-nav" aria-label="Navegación principal">
         <a href="#partidos">Partidos</a>
+        <a href="#index">Index</a>
         <a href="#ranking">Ranking</a>
-        <a href="#torneos">Torneos</a>
         <a href="#registro" class="nav-cta">Entrar</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <section class="hero-section">
+    <section class="hero-section hero-split">
       <div class="hero-content">
         <p class="hero-badge">Mundial FIFA 2026 • Multi deporte</p>
 
-        <h1>Predice partidos. Compite con amigos. Gana reconocimiento.</h1>
+        <h1>Demuestra que sabes más de deportes que tus amigos.</h1>
 
         <p class="hero-text">
-          PREDIKT™ convierte cada partido en una experiencia de análisis,
-          competencia y emoción deportiva.
+          Pronostica partidos, compite en rankings y usa el PREDIKT™ Index
+          para tomar mejores decisiones.
         </p>
 
         <div class="hero-actions">
@@ -47,19 +47,8 @@
           <a href="#partidos" class="secondary-button">Ver partidos</a>
         </div>
       </div>
-    </section>
 
-    <section class="sponsor-strip" aria-label="Espacio publicitario superior">
-      <p>Espacio reservado para patrocinador deportivo oficial</p>
-    </section>
-
-    <section id="partidos" class="section-block">
-      <div class="section-header">
-        <p class="section-label">Próximos partidos</p>
-        <h2>Elige tu pronóstico</h2>
-      </div>
-
-      <article class="match-card featured-match">
+      <article class="match-card hero-match">
         <div class="match-status">Partido destacado</div>
 
         <div class="teams-row">
@@ -79,14 +68,63 @@
         <p class="match-info">Sábado 15 junio • 13:00 CDMX</p>
         <p class="match-info">Estadio Azteca, Ciudad de México</p>
 
-        <a href="#pronostico" class="primary-button full-button">Pronosticar</a>
+        <div class="mini-index">
+          <span><strong>48%</strong>México</span>
+          <span><strong>27%</strong>Empate</span>
+          <span><strong>25%</strong>Alemania</span>
+        </div>
+
+        <a href="#registro" class="primary-button full-button">Pronosticar ahora</a>
       </article>
     </section>
 
-    <section id="pronostico" class="section-block">
+    <section class="sponsor-strip" aria-label="Espacio publicitario superior">
+      <p>Espacio reservado para patrocinador deportivo oficial</p>
+    </section>
+
+    <section id="partidos" class="section-block">
+      <div class="section-header">
+        <p class="section-label">Próximos partidos</p>
+        <h2>Elige tu próximo pronóstico</h2>
+      </div>
+
+      <div class="matches-grid">
+        <article class="match-card">
+          <div class="teams-row">
+            <div class="team"><span class="flag">🇲🇽</span><strong>México</strong></div>
+            <div class="versus">VS</div>
+            <div class="team"><span class="flag">🇩🇪</span><strong>Alemania</strong></div>
+          </div>
+          <p class="match-info">Sábado 15 junio • 13:00 CDMX</p>
+          <a href="#registro" class="primary-button full-button">Pronosticar</a>
+        </article>
+
+        <article class="match-card">
+          <div class="teams-row">
+            <div class="team"><span class="flag">🇪🇸</span><strong>España</strong></div>
+            <div class="versus">VS</div>
+            <div class="team"><span class="flag">🇯🇵</span><strong>Japón</strong></div>
+          </div>
+          <p class="match-info">Sábado 15 junio • 16:00 CDMX</p>
+          <a href="#registro" class="secondary-button full-button">Por pronosticar</a>
+        </article>
+
+        <article class="match-card">
+          <div class="teams-row">
+            <div class="team"><span class="flag">🇧🇷</span><strong>Brasil</strong></div>
+            <div class="versus">VS</div>
+            <div class="team"><span class="flag">🇨🇭</span><strong>Suiza</strong></div>
+          </div>
+          <p class="match-info">Sábado 15 junio • 19:00 CDMX</p>
+          <a href="#registro" class="secondary-button full-button">Por pronosticar</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="index" class="section-block">
       <div class="section-header">
         <p class="section-label">PREDIKT™ Index</p>
-        <h2>Análisis del partido</h2>
+        <h2>Análisis simple para decidir mejor</h2>
       </div>
 
       <article class="index-card">
@@ -109,15 +147,20 @@
 
         <div class="risk-row">
           <span>Confianza: <strong>Alta</strong></span>
-          <span>Riesgo: <strong>Medio</strong></span>
+          <span>Riesgo sorpresa: <strong>Medio</strong></span>
         </div>
+
+        <p class="index-comment">
+          México llega mejor posicionado y con ventaja local. Alemania sigue siendo rival peligroso:
+          el riesgo de sorpresa no debe ignorarse.
+        </p>
       </article>
     </section>
 
     <section id="ranking" class="section-block">
       <div class="section-header">
         <p class="section-label">Ranking global</p>
-        <h2>Top jugadores</h2>
+        <h2>Compite por subir posiciones</h2>
       </div>
 
       <article class="ranking-card">
@@ -150,7 +193,7 @@
     <section id="torneos" class="section-block">
       <div class="section-header">
         <p class="section-label">Torneos</p>
-        <h2>Competencias disponibles</h2>
+        <h2>Una plataforma para muchos deportes</h2>
       </div>
 
       <div class="tournament-grid">
@@ -165,7 +208,7 @@
     <section class="section-block how-section">
       <div class="section-header">
         <p class="section-label">Cómo funciona</p>
-        <h2>Simple, rápido y competitivo</h2>
+        <h2>Predice. Compite. Gana.</h2>
       </div>
 
       <div class="steps-grid">
