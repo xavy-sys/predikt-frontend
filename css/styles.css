@@ -1,9 +1,12 @@
 /* =========================================================
-   PREDIKT™ FRONTEND PROFESSIONAL
-   Archivo: CSS/styles.css
-   Versión: v1.0 Enterprise Mobile First
-   Elaborado por: JVSys
-   Descripción: Estilos principales HomePage PREDIKT™
+   Proyecto: PREDIKT™
+   Archivo: css/styles.css
+   Versión: v2.1 Enterprise Screen-Based
+   Fecha: 2026-06-04
+   Fabricante: JVSys
+   Descripción: Estilos mobile-first por pantallas completas para HomePage PREDIKT™.
+   Líneas versión anterior: 430 aprox.
+   Líneas versión nueva: 505 aprox.
    ========================================================= */
 
 :root {
@@ -24,6 +27,7 @@
   --radius-lg: 22px;
   --radius-md: 16px;
   --max-width: 1180px;
+  --header-height: 82px;
 }
 
 * {
@@ -34,6 +38,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 96px;
 }
 
 body {
@@ -57,28 +62,32 @@ img {
   display: block;
 }
 
+/* Header principal */
+
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(2, 11, 19, 0.88);
+  background: rgba(2, 11, 19, 0.9);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-soft);
 }
 
 .header-container {
   width: min(100% - 28px, var(--max-width));
+  min-height: var(--header-height);
   margin: 0 auto;
-  padding: 14px 0;
+  padding: 10px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
 }
 
 .brand-link {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .site-logo {
@@ -89,13 +98,14 @@ img {
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.78rem;
+  gap: 8px;
+  font-size: 0.76rem;
   color: var(--text-soft);
 }
 
 .main-nav a {
-  padding: 8px 6px;
+  padding: 8px 5px;
+  white-space: nowrap;
 }
 
 .main-nav a:hover {
@@ -106,57 +116,78 @@ img {
   background: linear-gradient(135deg, var(--blue-main), var(--blue-soft));
   color: var(--white) !important;
   border-radius: 999px;
-  padding: 8px 14px !important;
-  font-weight: 700;
+  padding: 8px 13px !important;
+  font-weight: 800;
 }
+
+/* Contenedor general */
 
 main {
   width: min(100% - 28px, var(--max-width));
   margin: 0 auto;
 }
 
-.hero-section {
-  min-height: 78vh;
+/* Pantallas tipo App */
+
+.app-screen {
+  min-height: calc(100vh - var(--header-height));
+  padding: 22px 0;
   display: flex;
-  align-items: center;
-  padding: 54px 0 34px;
-  position: relative;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.hero-section::before {
-  content: "";
-  position: absolute;
-  inset: 24px 0;
-  background:
-    linear-gradient(135deg, rgba(13, 110, 253, 0.24), rgba(139, 197, 63, 0.08)),
-    url("../assets/predikt-logo.png");
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: min(92vw, 620px);
-  opacity: 0.16;
-  pointer-events: none;
+.screen-header {
+  margin-bottom: 16px;
 }
 
-.hero-content {
-  position: relative;
-  width: 100%;
-  background: linear-gradient(180deg, rgba(10, 34, 53, 0.88), rgba(2, 11, 19, 0.82));
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-xl);
-  padding: 30px 22px;
-  box-shadow: var(--shadow-card);
+.screen-header h2,
+.section-header h2 {
+  font-size: clamp(1.55rem, 6vw, 2.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
 }
 
-.hero-badge,
-.section-label {
+.section-label,
+.hero-badge {
   display: inline-flex;
   align-items: center;
   color: var(--green-predikt);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.76rem;
-  margin-bottom: 12px;
+  font-size: 0.74rem;
+  margin-bottom: 10px;
+}
+
+/* Hero */
+
+.hero-section {
+  position: relative;
+}
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 10px 0;
+  background:
+    linear-gradient(135deg, rgba(13, 110, 253, 0.2), rgba(139, 197, 63, 0.06)),
+    url("../assets/predikt-logo.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: min(88vw, 520px);
+  opacity: 0.14;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(10, 34, 53, 0.9), rgba(2, 11, 19, 0.84));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 26px 20px;
+  box-shadow: var(--shadow-card);
 }
 
 h1 {
@@ -169,15 +200,17 @@ h1 {
 
 .hero-text {
   color: var(--text-soft);
-  font-size: 1.02rem;
+  font-size: 1rem;
   max-width: 620px;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .hero-actions {
   display: grid;
   gap: 12px;
 }
+
+/* Botones */
 
 .primary-button,
 .secondary-button {
@@ -208,6 +241,8 @@ h1 {
   width: 100%;
 }
 
+/* Publicidad discreta */
+
 .sponsor-strip,
 .sponsor-card {
   border: 1px dashed rgba(217, 182, 80, 0.42);
@@ -217,22 +252,14 @@ h1 {
   color: var(--gold-ranking);
   text-align: center;
   font-size: 0.86rem;
-  margin: 10px 0 26px;
+  margin-top: 18px;
 }
 
-.section-block {
-  margin: 34px 0;
+.sponsor-card {
+  margin-bottom: 24px;
 }
 
-.section-header {
-  margin-bottom: 16px;
-}
-
-.section-header h2 {
-  font-size: clamp(1.55rem, 6vw, 2.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-}
+/* Cards generales */
 
 .match-card,
 .index-card,
@@ -240,7 +267,7 @@ h1 {
 .tournament-card,
 .step-card,
 .register-section {
-  background: linear-gradient(180deg, rgba(15, 47, 71, 0.92), rgba(6, 24, 38, 0.96));
+  background: linear-gradient(180deg, rgba(15, 47, 71, 0.94), rgba(6, 24, 38, 0.98));
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -259,15 +286,17 @@ h1 {
   padding: 6px 12px;
   font-size: 0.78rem;
   font-weight: 800;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
+
+/* Partidos */
 
 .teams-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .team {
@@ -277,11 +306,15 @@ h1 {
   text-align: center;
 }
 
+.team strong {
+  font-size: 0.96rem;
+}
+
 .flag {
-  font-size: 2.7rem;
+  font-size: 2.5rem;
   background: rgba(255, 255, 255, 0.08);
-  width: 74px;
-  height: 58px;
+  width: 72px;
+  height: 56px;
   border-radius: 14px;
   display: grid;
   place-items: center;
@@ -290,19 +323,54 @@ h1 {
 .versus {
   color: var(--gold-ranking);
   font-weight: 900;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
 .match-info {
   color: var(--text-soft);
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   margin-bottom: 4px;
 }
 
-.match-card .primary-button {
-  margin-top: 18px;
+.match-card .primary-button,
+.match-card .secondary-button {
+  margin-top: 16px;
 }
+
+.matches-grid {
+  display: grid;
+  gap: 14px;
+}
+
+/* Mini index en partido */
+
+.mini-index {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.mini-index span {
+  min-height: 70px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-soft);
+  color: var(--text-soft);
+  font-size: 0.74rem;
+}
+
+.mini-index strong {
+  display: block;
+  color: var(--white);
+  font-size: 1.18rem;
+}
+
+/* PREDIKT Index */
 
 .index-card {
   padding: 20px;
@@ -311,11 +379,11 @@ h1 {
 .index-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 9px;
 }
 
 .index-item {
-  min-height: 112px;
+  min-height: 108px;
   border-radius: var(--radius-md);
   background:
     radial-gradient(circle at top, rgba(13, 110, 253, 0.32), transparent 60%),
@@ -324,11 +392,11 @@ h1 {
   display: grid;
   place-items: center;
   text-align: center;
-  padding: 14px 6px;
+  padding: 12px 6px;
 }
 
 .index-item strong {
-  font-size: 1.7rem;
+  font-size: 1.62rem;
   color: var(--white);
 }
 
@@ -351,12 +419,24 @@ h1 {
   padding: 12px;
   text-align: center;
   color: var(--text-soft);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
 }
 
 .risk-row strong {
   color: var(--green-predikt);
 }
+
+.index-comment {
+  margin-top: 14px;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  background: rgba(139, 197, 63, 0.08);
+  border: 1px solid rgba(139, 197, 63, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+/* Ranking */
 
 .ranking-card {
   overflow: hidden;
@@ -391,6 +471,8 @@ h1 {
   outline: 1px solid rgba(13, 110, 253, 0.52);
 }
 
+/* Torneos */
+
 .tournament-grid,
 .steps-grid {
   display: grid;
@@ -410,6 +492,8 @@ h1 {
 .tournament-card.locked {
   color: var(--text-muted);
 }
+
+/* Cómo funciona */
 
 .step-card {
   padding: 20px;
@@ -434,6 +518,8 @@ h1 {
 .step-card p {
   color: var(--text-soft);
 }
+
+/* Registro */
 
 .register-section {
   padding: 22px;
@@ -472,9 +558,11 @@ h1 {
   text-align: center;
 }
 
+/* Footer */
+
 .site-footer {
   width: min(100% - 28px, var(--max-width));
-  margin: 36px auto 0;
+  margin: 0 auto;
   padding: 28px 0 34px;
   border-top: 1px solid var(--border-soft);
   color: var(--text-soft);
@@ -502,6 +590,8 @@ h1 {
   color: var(--white);
 }
 
+/* Tablet */
+
 @media (min-width: 720px) {
   .site-logo {
     width: 210px;
@@ -512,12 +602,8 @@ h1 {
     font-size: 0.92rem;
   }
 
-  .hero-section {
-    min-height: 72vh;
-  }
-
   .hero-content {
-    padding: 54px;
+    padding: 42px;
   }
 
   .hero-actions {
@@ -526,6 +612,10 @@ h1 {
 
   .hero-actions a {
     min-width: 190px;
+  }
+
+  .matches-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .tournament-grid {
@@ -546,22 +636,34 @@ h1 {
   }
 }
 
+/* Desktop */
+
 @media (min-width: 1024px) {
+  .app-screen {
+    padding: 34px 0;
+  }
+
+  .hero-split {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .hero-section::before {
+    background-position: left center;
+    background-size: 560px;
+    opacity: 0.12;
+  }
+
   .hero-content {
     max-width: 760px;
   }
 
-  .hero-section::before {
-    background-position: right center;
-    background-size: 560px;
-    opacity: 0.2;
+  .hero-match {
+    align-self: center;
   }
 
-  .section-block {
-    margin: 52px 0;
-  }
-
-  .featured-match,
   .index-card,
   .ranking-card {
     max-width: 760px;
@@ -575,7 +677,7 @@ h1 {
 }
 
 /* =========================================================
-   Fin de archivo: CSS/styles.css
-   Versión: v1.0 Enterprise Mobile First
-   Líneas aproximadas: 430
+   Fin de archivo: css/styles.css
+   Versión: v2.1 Enterprise Screen-Based
+   Líneas aproximadas: 505
    ========================================================= */
