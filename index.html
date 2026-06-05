@@ -1,1 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PREDIKT™ | Predice • Compite • Gana</title>
+
+    <meta name="description"
+        content="PREDIKT™ - Plataforma deportiva para pronósticos, rankings y competencias.">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #081120;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .logo {
+            font-size: 42px;
+            font-weight: bold;
+            color: #f5c542;
+        }
+
+        .slogan {
+            margin-top: 10px;
+            color: #cbd5e1;
+            font-size: 16px;
+        }
+
+        .card {
+            background: #13203a;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #f5c542;
+        }
+
+        .match {
+            background: #1b2d50;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .teams {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .scores {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .scores input {
+            width: 60px;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #f5c542;
+            color: #081120;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: .9;
+        }
+
+        .ranking-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+        }
+
+        .ranking-row:last-child {
+            border-bottom: none;
+        }
+
+        .register input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .coming {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="hero">
+            <div class="logo">⚽ PREDIKT™</div>
+            <div class="slogan">
+                Predice • Compite • Gana
+            </div>
+        </div>
+
+        <div class="card">
+
+            <h2>🏆 Mundial FIFA 2026</h2>
+
+            <div class="coming">
+                MVP Beta Inicial
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>⚽ Próximos Partidos</h2>
+
+            <div class="match">
+
+                <div class="teams">
+                    🇲🇽 México vs 🇯🇵 Japón
+                </div>
+
+                <div class="scores">
+                    <input type="number" placeholder="0">
+                    <input type="number" placeholder="0">
+                </div>
+
+                <button>Guardar Pronóstico</button>
+
+            </div>
+
+            <div class="match">
+
+                <div class="teams">
+                    🇧🇷 Brasil vs 🇩🇪 Alemania
+                </div>
+
+                <div class="scores">
+                    <input type="number" placeholder="0">
+                    <input type="number" placeholder="0">
+                </div>
+
+                <button>Guardar Pronóstico</button>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>🥇 Ranking Global</h2>
+
+            <div class="ranking-row">
+                <span>#1 Usuario Demo</span>
+                <span>120 pts</span>
+            </div>
+
+            <div class="ranking-row">
+                <span>#2 Invitado</span>
+                <span>115 pts</span>
+            </div>
+
+            <div class="ranking-row">
+                <span>#3 Demo 3</span>
+                <span>108 pts</span>
+            </div>
+
+        </div>
+
+        <div class="card register">
+
+            <h2>👤 Registro Rápido</h2>
+
+            <input type="text" placeholder="Nombre">
+
+            <input type="email" placeholder="Correo Electrónico">
+
+            <button>Participar</button>
+
+        </div>
+
+        <div class="footer">
+            PREDIKT™ © 2026<br>
+            Powered by JVSys
+        </div>
+
+    </div>
+
+</body>
+
+</html>
