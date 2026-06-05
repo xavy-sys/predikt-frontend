@@ -1,241 +1,222 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>PREDIKT™ | Predice • Compite • Gana</title>
+  <title>PREDIKT™ | Predice • Compite • Gana</title>
 
-    <meta name="description"
-        content="PREDIKT™ - Plataforma deportiva para pronósticos, rankings y competencias.">
+  <meta name="description" content="PREDIKT™ es la plataforma deportiva para pronosticar partidos, competir con amigos y subir en rankings. Predice, compite y gana." />
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        body {
-            background: #081120;
-            color: #ffffff;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 40px 0;
-        }
-
-        .logo {
-            font-size: 42px;
-            font-weight: bold;
-            color: #f5c542;
-        }
-
-        .slogan {
-            margin-top: 10px;
-            color: #cbd5e1;
-            font-size: 16px;
-        }
-
-        .card {
-            background: #13203a;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        h2 {
-            margin-bottom: 15px;
-            color: #f5c542;
-        }
-
-        .match {
-            background: #1b2d50;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-        }
-
-        .teams {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .scores {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .scores input {
-            width: 60px;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            text-align: center;
-            font-size: 18px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #f5c542;
-            color: #081120;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            opacity: .9;
-        }
-
-        .ranking-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,.1);
-        }
-
-        .ranking-row:last-child {
-            border-bottom: none;
-        }
-
-        .register input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            border: none;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 25px;
-            color: #94a3b8;
-            font-size: 13px;
-        }
-
-        .coming {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            margin-top: 10px;
-        }
-    </style>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 
 <body>
+  <header class="site-header">
+    <div class="header-container">
+      <img src="assets/logo/predikt-logo.png" alt="Logo PREDIKT" class="site-logo" />
 
-    <div class="container">
-
-        <div class="hero">
-            <div class="logo">⚽ PREDIKT™</div>
-            <div class="slogan">
-                Predice • Compite • Gana
-            </div>
-        </div>
-
-        <div class="card">
-
-            <h2>🏆 Mundial FIFA 2026</h2>
-
-            <div class="coming">
-                MVP Beta Inicial
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <h2>⚽ Próximos Partidos</h2>
-
-            <div class="match">
-
-                <div class="teams">
-                    🇲🇽 México vs 🇯🇵 Japón
-                </div>
-
-                <div class="scores">
-                    <input type="number" placeholder="0">
-                    <input type="number" placeholder="0">
-                </div>
-
-                <button>Guardar Pronóstico</button>
-
-            </div>
-
-            <div class="match">
-
-                <div class="teams">
-                    🇧🇷 Brasil vs 🇩🇪 Alemania
-                </div>
-
-                <div class="scores">
-                    <input type="number" placeholder="0">
-                    <input type="number" placeholder="0">
-                </div>
-
-                <button>Guardar Pronóstico</button>
-
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <h2>🥇 Ranking Global</h2>
-
-            <div class="ranking-row">
-                <span>#1 Usuario Demo</span>
-                <span>120 pts</span>
-            </div>
-
-            <div class="ranking-row">
-                <span>#2 Invitado</span>
-                <span>115 pts</span>
-            </div>
-
-            <div class="ranking-row">
-                <span>#3 Demo 3</span>
-                <span>108 pts</span>
-            </div>
-
-        </div>
-
-        <div class="card register">
-
-            <h2>👤 Registro Rápido</h2>
-
-            <input type="text" placeholder="Nombre">
-
-            <input type="email" placeholder="Correo Electrónico">
-
-            <button>Participar</button>
-
-        </div>
-
-        <div class="footer">
-            PREDIKT™ © 2026<br>
-            Powered by JVSys
-        </div>
-
+      <nav class="main-nav">
+        <a href="#partidos">Partidos</a>
+        <a href="#ranking">Ranking</a>
+        <a href="#torneos">Torneos</a>
+        <a href="#registro" class="nav-cta">Entrar</a>
+      </nav>
     </div>
+  </header>
 
+  <main>
+    <section class="hero-section">
+      <div class="hero-content">
+        <p class="hero-badge">Mundial FIFA 2026 • Multi deporte</p>
+
+        <h1>Predice partidos. Compite con amigos. Gana reconocimiento.</h1>
+
+        <p class="hero-text">
+          PREDIKT™ convierte cada partido en una experiencia de análisis,
+          competencia y emoción deportiva.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#registro" class="primary-button">Comenzar gratis</a>
+          <a href="#partidos" class="secondary-button">Ver próximos partidos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="sponsor-strip">
+      <p>Espacio reservado para patrocinador deportivo oficial</p>
+    </section>
+
+    <section id="partidos" class="section-block">
+      <div class="section-header">
+        <p class="section-label">Próximos partidos</p>
+        <h2>Elige tu pronóstico</h2>
+      </div>
+
+      <div class="match-card featured-match">
+        <div class="match-status">Partido destacado</div>
+
+        <div class="teams-row">
+          <div class="team">
+            <span class="flag">🇲🇽</span>
+            <strong>México</strong>
+          </div>
+
+          <div class="versus">VS</div>
+
+          <div class="team">
+            <span class="flag">🇩🇪</span>
+            <strong>Alemania</strong>
+          </div>
+        </div>
+
+        <p class="match-info">Sábado 15 junio • 13:00 CDMX</p>
+        <p class="match-info">Estadio Azteca, Ciudad de México</p>
+
+        <a href="#pronostico" class="primary-button full-button">Pronosticar</a>
+      </div>
+    </section>
+
+    <section id="pronostico" class="section-block">
+      <div class="section-header">
+        <p class="section-label">PREDIKT™ Index</p>
+        <h2>Análisis del partido</h2>
+      </div>
+
+      <div class="index-card">
+        <div class="index-grid">
+          <div class="index-item">
+            <strong>48%</strong>
+            <span>México</span>
+          </div>
+
+          <div class="index-item">
+            <strong>27%</strong>
+            <span>Empate</span>
+          </div>
+
+          <div class="index-item">
+            <strong>25%</strong>
+            <span>Alemania</span>
+          </div>
+        </div>
+
+        <div class="risk-row">
+          <span>Confianza: <strong>Alta</strong></span>
+          <span>Riesgo: <strong>Medio</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="ranking" class="section-block">
+      <div class="section-header">
+        <p class="section-label">Ranking global</p>
+        <h2>Top jugadores</h2>
+      </div>
+
+      <div class="ranking-card">
+        <div class="ranking-row">
+          <span class="position">1</span>
+          <span>ELTIGRE</span>
+          <strong>98 pts</strong>
+        </div>
+
+        <div class="ranking-row">
+          <span class="position">2</span>
+          <span>PEY</span>
+          <strong>92 pts</strong>
+        </div>
+
+        <div class="ranking-row">
+          <span class="position">3</span>
+          <span>JAVIER</span>
+          <strong>89 pts</strong>
+        </div>
+
+        <div class="ranking-row current-user">
+          <span class="position">12</span>
+          <span>Tú</span>
+          <strong>74 pts</strong>
+        </div>
+      </div>
+    </section>
+
+    <section id="torneos" class="section-block">
+      <div class="section-header">
+        <p class="section-label">Torneos</p>
+        <h2>Competencias disponibles</h2>
+      </div>
+
+      <div class="tournament-grid">
+        <div class="tournament-card active">🏆 Mundial FIFA 2026</div>
+        <div class="tournament-card locked">🏈 NFL • Próximamente</div>
+        <div class="tournament-card locked">🏎 Fórmula 1 • Próximamente</div>
+        <div class="tournament-card locked">🏀 NBA • Próximamente</div>
+        <div class="tournament-card locked">⚾ MLB • Próximamente</div>
+      </div>
+    </section>
+
+    <section class="section-block how-section">
+      <div class="section-header">
+        <p class="section-label">Cómo funciona</p>
+        <h2>Simple, rápido y competitivo</h2>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <span>1</span>
+          <h3>Predice</h3>
+          <p>Elige ganador, empate o marcador exacto.</p>
+        </div>
+
+        <div class="step-card">
+          <span>2</span>
+          <h3>Compite</h3>
+          <p>Suma puntos contra amigos y otros jugadores.</p>
+        </div>
+
+        <div class="step-card">
+          <span>3</span>
+          <h3>Gana</h3>
+          <p>Sube en el ranking y demuestra tu conocimiento deportivo.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="registro" class="section-block register-section">
+      <div class="section-header">
+        <p class="section-label">Registro rápido</p>
+        <h2>Crea tu cuenta gratis</h2>
+      </div>
+
+      <form class="register-form">
+        <input type="text" placeholder="Tu nombre" />
+        <input type="email" placeholder="Tu correo" />
+        <button type="button" class="primary-button full-button">Crear cuenta</button>
+      </form>
+
+      <p class="form-note">
+        Próximamente: acceso con Google, Facebook y Apple.
+      </p>
+    </section>
+
+    <section class="sponsor-card">
+      <p>Patrocinador del partido</p>
+      <strong>Espacio comercial deportivo reservado</strong>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Powered by <strong>JVSys</strong></p>
+
+    <div class="footer-links">
+      <a href="#">Privacidad</a>
+      <a href="#">Términos</a>
+      <a href="#">Contacto</a>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
 </body>
-
 </html>
