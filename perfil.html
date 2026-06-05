@@ -1,25 +1,10 @@
-=========================================================
-PROYECTO: PREDIKT™
-ARCHIVO: perfil.html
-VERSIÓN: v1.1 Founder Program Integration
-FECHA: 2026-06-05
-FABRICANTE: JVSys
-
-NOTA:
-Esta es una copia en formato .txt para control de versiones.
-La integración visual del módulo Founder se realizará sobre esta
-línea base validada antes de sustituir el archivo en GitHub.
-
-Líneas versión anterior: 892
-=========================================================
-
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
   <!--
     Nombre del archivo: perfil.html
     Fecha: 2026-06-05
-    Versión: v1.0
+    Versión: v1.1 Founder Program Integration
     Fabricante: JVSys
     Proyecto: PREDIKT™
     Descripción:
@@ -27,9 +12,9 @@ Líneas versión anterior: 892
       Pantalla mobile-first tipo aplicación deportiva social.
       Incluye identidad del participante, nivel, estadísticas personales,
       reconocimientos, mis quinielas, configuración simulada, notificaciones
-      y navegación inferior de aplicación.
-    Líneas versión anterior: 0
-    Líneas versión nueva: 892
+      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™.
+    Líneas versión anterior: 892
+    Líneas versión nueva: 638
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -170,6 +155,203 @@ Líneas versión anterior: 892
     .footer-item span { font-size: 1.05rem; line-height: 1; }
     .footer-item.active { color: var(--gold); background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); }
 
+
+    /* =========================================================
+      PREDIKT™
+      Founder Public UI Styles v1.1
+      Fabricante: JVSys
+      Objetivo:
+        Mostrar el programa Fundadores PREDIKT™ dentro del perfil
+        con diseño mobile-first, contador visual y estado de registro.
+    ========================================================= */
+
+    .founder-section {
+      width: 100%;
+      margin-bottom: 18px;
+    }
+
+    .founder-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245,185,66,.32);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(245,185,66,.22), transparent 26%),
+        radial-gradient(circle at 92% 18%, rgba(93,173,226,.12), transparent 26%),
+        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .founder-card::after {
+      content: "👑";
+      position: absolute;
+      right: 18px;
+      top: 12px;
+      font-size: 5rem;
+      opacity: .08;
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .founder-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .founder-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245,185,66,.1);
+      border: 1px solid rgba(245,185,66,.28);
+      font-size: .72rem;
+      font-weight: 980;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .founder-title {
+      font-size: clamp(1.32rem, 4vw, 2rem);
+      font-weight: 980;
+      line-height: 1.08;
+      letter-spacing: -.04em;
+      margin-bottom: 8px;
+    }
+
+    .founder-copy {
+      color: var(--text-soft);
+      font-size: .88rem;
+      font-weight: 740;
+      line-height: 1.55;
+      max-width: 620px;
+      margin-bottom: 14px;
+    }
+
+    .founder-copy strong {
+      color: var(--gold-soft);
+    }
+
+    .founder-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .founder-button {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: .82rem;
+      font-weight: 980;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      box-shadow: 0 14px 30px rgba(245,185,66,.24);
+    }
+
+    .founder-button:disabled {
+      opacity: .54;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .founder-mini-note {
+      color: rgba(255,255,255,.66);
+      font-size: .73rem;
+      font-weight: 760;
+    }
+
+    .founder-progress-panel {
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,.055);
+      padding: 16px;
+    }
+
+    .founder-progress-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .founder-progress-label {
+      color: var(--text-soft);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .founder-counter {
+      color: var(--gold);
+      font-size: 1.35rem;
+      font-weight: 980;
+      line-height: 1;
+    }
+
+    .founder-progress-bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 10px;
+    }
+
+    .founder-progress-fill {
+      width: 3%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 0 22px rgba(245,185,66,.45);
+      transition: width .3s ease;
+    }
+
+    .founder-slots {
+      color: var(--text-soft);
+      font-size: .78rem;
+      font-weight: 790;
+      line-height: 1.4;
+    }
+
+    .founder-list-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .founder-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.09);
+      font-size: .7rem;
+      font-weight: 880;
+    }
+
     @media (max-width: 920px) {
       .page-shell { width: min(100%, 760px); }
       .layout-grid { grid-template-columns: 1fr; }
@@ -189,6 +371,11 @@ Líneas versión anterior: 892
       .profile-main { grid-template-columns: 1fr; gap: 14px; }
       .avatar { width: 78px; height: 78px; border-radius: 22px; font-size: 1.65rem; }
       .profile-copy { font-size: .84rem; }
+      .founder-card { padding: 18px; border-radius: 24px; }
+      .founder-content { grid-template-columns: 1fr; gap: 14px; }
+      .founder-title { font-size: 1.35rem; }
+      .founder-actions { display: grid; }
+      .founder-button { width: 100%; }
       .stat-card { min-height: 102px; padding: 12px; }
       .stat-value { font-size: 1.45rem; }
       .achievement-grid { grid-template-columns: 1fr; }
@@ -227,6 +414,60 @@ Líneas versión anterior: 892
             <span class="quick-pill">🏆 #3 Los Cuates</span>
             <span class="quick-pill">⚡ Racha 5</span>
             <span class="quick-pill">🎯 72% aciertos</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =========================================================
+      PREDIKT™
+      Founder Public UI Block v1.1
+      Fabricante: JVSys
+      Objetivo:
+        Mostrar el programa Fundadores PREDIKT™ en perfil.html
+        sin depender todavía de Mercado Pago.
+    ========================================================= -->
+    <section class="founder-section" id="founderSection" aria-label="Programa Fundadores PREDIKT">
+      <div class="founder-card">
+        <div class="founder-content">
+          <div>
+            <span class="founder-badge">👑 Fundadores PREDIKT™</span>
+            <h2 class="founder-title">⚽ Si te gusta PREDIKT™, invítanos un café.</h2>
+            <p class="founder-copy">
+              Con una aportación única de <strong>$50 MXN</strong> puedes convertirte en Fundador PREDIKT™
+              y conservar <strong>acceso gratuito de por vida</strong>.
+            </p>
+
+            <div class="founder-actions">
+              <button class="founder-button" id="founderButton" type="button">
+                ☕ Convertirme en Fundador
+              </button>
+              <span class="founder-mini-note" id="founderNote">
+                Cupo limitado a los primeros 100 fundadores.
+              </span>
+            </div>
+          </div>
+
+          <div class="founder-progress-panel">
+            <div class="founder-progress-top">
+              <span class="founder-progress-label">Registrados</span>
+              <strong class="founder-counter" id="foundersCounter">3 / 100</strong>
+            </div>
+
+            <div class="founder-progress-bar" aria-hidden="true">
+              <div class="founder-progress-fill" id="founderProgressFill"></div>
+            </div>
+
+            <p class="founder-slots" id="founderSlotsText">
+              Quedan 97 lugares de fundador.
+            </p>
+
+            <div class="founder-list-preview" aria-label="Fundadores recientes">
+              <span class="founder-chip">👑 Pey</span>
+              <span class="founder-chip">👑 Andre</span>
+              <span class="founder-chip">👑 Founder Test Admin</span>
+            </div>
           </div>
         </div>
       </div>
@@ -329,6 +570,62 @@ Líneas versión anterior: 892
       window.clearTimeout(showToast.timer);
       showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2300);
     }
+
+
+    function loadFounderProgramStatus() {
+      const foundersCounter = document.getElementById("foundersCounter");
+      const founderProgressFill = document.getElementById("founderProgressFill");
+      const founderSlotsText = document.getElementById("founderSlotsText");
+      const founderButton = document.getElementById("founderButton");
+      const founderNote = document.getElementById("founderNote");
+
+      if (!foundersCounter || !founderProgressFill || !founderSlotsText || !founderButton || !founderNote) {
+        return;
+      }
+
+      /*
+        Fuente futura:
+        founders.v_founder_program_public_status
+
+        Estado actual validado en Supabase:
+        founders_registered = 3
+        founder_limit = 100
+        founder_slots_remaining = 97
+        show_founder_button = true
+      */
+      const founderProgramStatus = {
+        founders_registered: 3,
+        founder_limit: 100,
+        founder_slots_remaining: 97,
+        show_founder_button: true
+      };
+
+      const registered = founderProgramStatus.founders_registered;
+      const limit = founderProgramStatus.founder_limit;
+      const remaining = founderProgramStatus.founder_slots_remaining;
+      const progress = Math.min((registered / limit) * 100, 100);
+
+      foundersCounter.textContent = `${registered} / ${limit}`;
+      founderProgressFill.style.width = `${progress}%`;
+
+      if (founderProgramStatus.show_founder_button) {
+        founderSlotsText.textContent = `Quedan ${remaining} lugares de fundador.`;
+        founderButton.disabled = false;
+        founderButton.textContent = "☕ Convertirme en Fundador";
+        founderNote.textContent = "Cupo limitado a los primeros 100 fundadores.";
+      } else {
+        founderSlotsText.textContent = "Programa de Fundadores finalizado.";
+        founderButton.disabled = true;
+        founderButton.textContent = "Programa finalizado";
+        founderNote.textContent = "Gracias a los 100 Fundadores PREDIKT™.";
+      }
+
+      founderButton.addEventListener("click", () => {
+        showToast("Registro de Fundador: por ahora JVSys lo activa manualmente. Mercado Pago se conectará en la siguiente etapa.");
+      });
+    }
+
+    loadFounderProgramStatus();
 
     document.querySelectorAll("[data-action]").forEach((button) => {
       button.addEventListener("click", () => {
