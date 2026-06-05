@@ -1,1 +1,686 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: fundadores.html
+    Fecha: 2026-06-05
+    Versión: v1.0
+    Fabricante: JVSys
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla Fundadores PREDIKT™ para iniciar el programa de monetización inicial.
+      Mobile-first, con beneficio vitalicio, donación única de $50 MXN, límite de 100 fundadores,
+      contador condicional simulado, estado abierto/cerrado simulado, CTA de pago futuro con Mercado Pago
+      y navegación inferior de aplicación.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 873
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Fundadores</title>
+  <meta name="description" content="Sé parte de los primeros 100 Fundadores PREDIKT™ con una donación única de $50 MXN y recibe acceso gratuito de por vida." />
+  <meta name="theme-color" content="#061826" />
+  <link rel="icon" href="assets/logos/predikt-icon.png" />
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-card: #0f2740;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --green: #2ecc71;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --footer-height: 82px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(245,185,66,.17), transparent 30%),
+        radial-gradient(circle at top right, rgba(93,173,226,.11), transparent 24%),
+        linear-gradient(135deg, #061826 0%, #061826 43%, #020b13 100%);
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 22px);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; border: 0; cursor: pointer; }
+
+    .page-shell {
+      width: min(100%, 1180px);
+      margin: 0 auto;
+      padding: 24px 18px 0;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand-block { display: flex; flex-direction: column; gap: 2px; }
+    .brand-name { letter-spacing: .09em; font-size: 1.25rem; font-weight: 950; line-height: 1; }
+    .hello { color: var(--text-soft); font-size: .78rem; font-weight: 750; }
+
+    .level-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid rgba(245,185,66,.35);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245,185,66,.09);
+      font-size: .72rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .founder-hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245,185,66,.30);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 85% 25%, rgba(245,185,66,.25), transparent 32%),
+        linear-gradient(135deg, rgba(15,39,64,.98), rgba(8,31,52,.96));
+      padding: 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .founder-hero::after {
+      content: "👑";
+      position: absolute;
+      right: 22px;
+      top: 18px;
+      font-size: 6.2rem;
+      opacity: .09;
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: .74rem;
+      font-weight: 950;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      max-width: 820px;
+      font-size: clamp(1.78rem, 6vw, 3.65rem);
+      font-weight: 980;
+      line-height: .98;
+      letter-spacing: -.045em;
+      margin-bottom: 12px;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      color: var(--text-soft);
+      font-size: .98rem;
+      font-weight: 680;
+      margin-bottom: 18px;
+    }
+
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 9px; position: relative; z-index: 1; }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      font-size: .76rem;
+      font-weight: 900;
+    }
+
+    .hero-pill.gold {
+      color: var(--gold);
+      border-color: rgba(245,185,66,.30);
+      background: rgba(245,185,66,.10);
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1fr .9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card,
+    .price-card,
+    .founder-preview,
+    .success-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+      box-shadow: 0 14px 36px rgba(0,0,0,.22);
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 2px 10px;
+    }
+
+    .section-title {
+      font-size: .92rem;
+      font-weight: 980;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .section-link { color: var(--gold); font-size: .76rem; font-weight: 950; }
+
+    .price-card {
+      position: relative;
+      overflow: hidden;
+      border-color: rgba(245,185,66,.34);
+      background:
+        radial-gradient(circle at 80% 0%, rgba(245,185,66,.18), transparent 32%),
+        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .price-kicker {
+      color: var(--gold);
+      font-size: .75rem;
+      font-weight: 980;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .price { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+    .price-main { font-size: clamp(2.7rem, 10vw, 4.35rem); font-weight: 980; line-height: 1; letter-spacing: -.06em; color: var(--gold); }
+    .price-currency { color: var(--text-soft); font-size: 1rem; font-weight: 940; }
+    .price-copy { color: var(--text-soft); font-size: .92rem; font-weight: 720; margin-bottom: 16px; }
+
+    .status-box {
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.09);
+      padding: 13px;
+      margin-bottom: 16px;
+    }
+
+    .status-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 9px; }
+    .status-title { font-size: .86rem; font-weight: 950; }
+    .status-number { color: var(--gold); font-size: .82rem; font-weight: 950; white-space: nowrap; }
+
+    .progress-bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 9px;
+    }
+
+    .progress-fill {
+      width: 84%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 0 22px rgba(245,185,66,.45);
+      transition: width .25s ease;
+    }
+
+    .status-message { color: var(--text-soft); font-size: .76rem; font-weight: 760; }
+    .status-message.urgent { color: var(--gold-soft); }
+
+    .founder-btn {
+      width: 100%;
+      min-height: 56px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 14px 32px rgba(245,185,66,.27);
+      font-size: .88rem;
+      font-weight: 980;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transition: transform .18s ease, filter .18s ease;
+    }
+
+    .founder-btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
+    .founder-btn.disabled { pointer-events: none; color: rgba(255,255,255,.72); background: rgba(255,255,255,.08); box-shadow: none; }
+
+    .micro-trust { color: var(--text-muted); font-size: .72rem; font-weight: 720; text-align: center; margin-top: 10px; }
+
+    .benefits-list { display: grid; gap: 10px; }
+
+    .benefit-row {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 11px;
+      align-items: start;
+      border-radius: 16px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.075);
+      padding: 11px;
+    }
+
+    .benefit-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--gold);
+      background: rgba(245,185,66,.12);
+      border: 1px solid rgba(245,185,66,.22);
+      font-size: 1.2rem;
+    }
+
+    .benefit-title { font-size: .88rem; font-weight: 960; line-height: 1.1; margin-bottom: 3px; }
+    .benefit-copy { color: var(--text-soft); font-size: .73rem; font-weight: 750; }
+
+    .founder-preview {
+      position: sticky;
+      top: 18px;
+      border-color: rgba(245,185,66,.28);
+      background:
+        radial-gradient(circle at 90% 0%, rgba(245,185,66,.16), transparent 32%),
+        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+    }
+
+    .badge-preview {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(245,185,66,.26), transparent 40%),
+        linear-gradient(145deg, rgba(19,47,76,.98), rgba(8,31,52,.98));
+      border: 1px solid rgba(245,185,66,.25);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .badge-preview::after {
+      content: "FUNDADOR";
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.035);
+      font-size: 2rem;
+      font-weight: 980;
+      letter-spacing: .06em;
+    }
+
+    .badge-crown {
+      width: 84px;
+      height: 84px;
+      display: grid;
+      place-items: center;
+      border-radius: 28px;
+      margin: 0 auto 12px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      color: #061826;
+      font-size: 2.4rem;
+      box-shadow: 0 18px 34px rgba(245,185,66,.2);
+    }
+
+    .badge-kicker { color: var(--gold); font-size: .70rem; font-weight: 980; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+    .badge-title { font-size: 1.45rem; font-weight: 980; line-height: 1.05; margin-bottom: 5px; }
+    .badge-copy { color: var(--text-soft); font-size: .80rem; font-weight: 740; margin-bottom: 14px; }
+
+    .badge-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; position: relative; z-index: 1; }
+
+    .badge-stat {
+      border-radius: 15px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.09);
+      padding: 10px;
+    }
+
+    .badge-label { color: var(--text-muted); font-size: .65rem; font-weight: 850; margin-bottom: 3px; }
+    .badge-value { color: var(--text-main); font-size: .9rem; font-weight: 980; }
+
+    .faq-list { display: grid; gap: 9px; }
+    .faq-item { border-radius: 16px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 12px; }
+    .faq-question { font-size: .84rem; font-weight: 950; margin-bottom: 4px; }
+    .faq-answer { color: var(--text-soft); font-size: .74rem; font-weight: 730; }
+
+    .audit-card { border: 1px solid rgba(255,255,255,.09); border-radius: var(--radius-md); background: rgba(255,255,255,.045); padding: 14px; }
+    .audit-title { font-size: .92rem; font-weight: 960; margin-bottom: 6px; }
+    .audit-copy { color: var(--text-soft); font-size: .76rem; font-weight: 720; }
+
+    .success-card {
+      display: none;
+      border-color: rgba(46,204,113,.32);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(46,204,113,.14), transparent 28%),
+        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+    }
+
+    .success-card.show { display: block; }
+    .success-badge { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: rgba(46,204,113,.13); border: 1px solid rgba(46,204,113,.28); font-size: 1.7rem; margin-bottom: 12px; }
+    .success-title { font-size: 1.34rem; font-weight: 980; line-height: 1.1; margin-bottom: 6px; }
+    .success-copy { color: var(--text-soft); font-size: .84rem; font-weight: 720; margin-bottom: 14px; }
+
+    .checkout-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 9px;
+      align-items: center;
+      border: 1px solid rgba(245,185,66,.25);
+      border-radius: 17px;
+      background: rgba(245,185,66,.08);
+      padding: 10px;
+    }
+
+    .checkout-text { color: var(--gold-soft); font-size: .82rem; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .checkout-btn { min-height: 36px; padding: 0 12px; border-radius: 999px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); font-size: .7rem; font-weight: 980; text-transform: uppercase; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 18px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 40;
+      width: min(calc(100% - 28px), 440px);
+      border: 1px solid rgba(245,185,66,.34);
+      border-radius: 18px;
+      background: rgba(7,28,46,.98);
+      color: var(--text-main);
+      padding: 13px 15px;
+      box-shadow: 0 14px 36px rgba(0,0,0,.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      font-size: .83rem;
+      font-weight: 830;
+      text-align: center;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 30;
+      width: min(100%, 780px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255,255,255,.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4,17,29,.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0,0,0,.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: .67rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+
+    .footer-item span { font-size: 1.05rem; line-height: 1; }
+    .footer-item.active { color: var(--gold); background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); }
+
+    @media (max-width: 920px) {
+      .page-shell { width: min(100%, 760px); }
+      .layout-grid { grid-template-columns: 1fr; }
+      .founder-preview { position: static; }
+    }
+
+    @media (max-width: 640px) {
+      body { padding-bottom: calc(var(--footer-height) + 16px); }
+      .page-shell { padding: 18px 14px 0; }
+      .top-bar { align-items: center; margin-bottom: 14px; }
+      .brand-name { font-size: 1.05rem; }
+      .level-pill { padding: 7px 10px; font-size: .67rem; }
+      .founder-hero { padding: 18px; border-radius: 24px; }
+      .founder-hero::after { right: 12px; top: 22px; font-size: 4.8rem; }
+      .hero-copy { font-size: .84rem; max-width: 300px; }
+      .price-card { padding: 18px; }
+      .price-main { font-size: 3.2rem; }
+      .status-top { flex-direction: column; align-items: flex-start; }
+      .checkout-box { grid-template-columns: 1fr; }
+      .checkout-btn { width: 100%; }
+      .app-footer { width: 100%; border-radius: 22px 22px 0 0; }
+      .footer-item { font-size: .58rem; }
+      .footer-item span { font-size: 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="top-bar" aria-label="Encabezado de PREDIKT">
+      <a href="index.html" class="brand-block" aria-label="Ir a inicio">
+        <strong class="brand-name">PREDIKT™</strong>
+        <span class="hello">Hola Javier 👋</span>
+      </a>
+      <span class="level-pill">👑 Fundadores</span>
+    </header>
+
+    <section class="founder-hero" aria-label="Programa Fundadores PREDIKT">
+      <p class="eyebrow">Programa Fundadores PREDIKT™</p>
+      <h1 class="hero-title">Sé de los primeros 100 que impulsan PREDIKT™.</h1>
+      <p class="hero-copy">Con una donación única de $50 MXN recibirás acceso gratuito de por vida y un distintivo permanente como Fundador.</p>
+      <div class="hero-pills">
+        <span class="hero-pill gold">👑 Solo 100 lugares</span>
+        <span class="hero-pill">💳 Donación única</span>
+        <span class="hero-pill">♾️ Acceso vitalicio</span>
+        <span class="hero-pill">⚽ Mundial 2026</span>
+      </div>
+    </section>
+
+    <div class="layout-grid">
+      <section class="main-column">
+        <section class="success-card" id="successCard" aria-label="Checkout simulado">
+          <div class="success-badge">✅</div>
+          <h2 class="success-title">Checkout preparado</h2>
+          <p class="success-copy">En la versión conectada, este botón abrirá Mercado Pago Checkout Pro. La confirmación real se hará por webhook seguro.</p>
+          <div class="checkout-box">
+            <span class="checkout-text">Mercado Pago Checkout Pro · sandbox pendiente</span>
+            <button class="checkout-btn" id="copyCheckoutBtn" type="button">Copiar nota</button>
+          </div>
+        </section>
+
+        <section class="price-card" aria-label="Precio Fundador">
+          <p class="price-kicker">Acceso Fundador</p>
+          <div class="price">
+            <strong class="price-main">$50</strong>
+            <span class="price-currency">MXN</span>
+          </div>
+          <p class="price-copy">Donación única. No mensualidad. No renovación. Acceso gratuito de por vida para los primeros 100 fundadores.</p>
+          <div class="status-box" aria-label="Estado del programa">
+            <div class="status-top">
+              <p class="status-title">Estado del programa</p>
+              <p class="status-number" id="statusNumber">84 / 100</p>
+            </div>
+            <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+            <p class="status-message" id="statusMessage">Programa abierto. El contador público aparecerá al llegar al fundador 85.</p>
+          </div>
+          <button class="founder-btn" id="founderBtn" type="button">Quiero ser Fundador</button>
+          <p class="micro-trust">Pago futuro vía Mercado Pago. El registro se confirmará solo después de validación segura por webhook.</p>
+        </section>
+
+        <section class="card" aria-label="Beneficios Fundador">
+          <div class="section-header">
+            <h2 class="section-title">Beneficios</h2>
+            <a class="section-link" href="crear-quiniela.html">Crear Quiniela</a>
+          </div>
+          <div class="benefits-list">
+            <div class="benefit-row"><div class="benefit-icon">♾️</div><div><h3 class="benefit-title">Acceso gratuito de por vida</h3><p class="benefit-copy">Tu cuenta Fundador conservará acceso vitalicio a la experiencia base de PREDIKT™.</p></div></div>
+            <div class="benefit-row"><div class="benefit-icon">👑</div><div><h3 class="benefit-title">Distintivo Fundador</h3><p class="benefit-copy">Tu perfil podrá mostrar un sello especial como uno de los primeros 100.</p></div></div>
+            <div class="benefit-row"><div class="benefit-icon">🚀</div><div><h3 class="benefit-title">Acceso anticipado</h3><p class="benefit-copy">Tendrás prioridad para probar nuevas funciones, rankings, estadísticas y retos.</p></div></div>
+            <div class="benefit-row"><div class="benefit-icon">🏈</div><div><h3 class="benefit-title">Futuros deportes incluidos</h3><p class="benefit-copy">PREDIKT™ iniciará con Mundial 2026 y podrá crecer hacia NFL, F1, NBA y más.</p></div></div>
+            <div class="benefit-row"><div class="benefit-icon">🏆</div><div><h3 class="benefit-title">Reconocimiento dentro de la comunidad</h3><p class="benefit-copy">Los fundadores serán parte visible del arranque histórico de PREDIKT™.</p></div></div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Preguntas frecuentes">
+          <div class="section-header">
+            <h2 class="section-title">Preguntas rápidas</h2>
+            <a class="section-link" href="perfil.html">Mi Perfil</a>
+          </div>
+          <div class="faq-list">
+            <div class="faq-item"><h3 class="faq-question">¿Es una suscripción?</h3><p class="faq-answer">No. Es una donación única de $50 MXN para el programa de los primeros 100 Fundadores.</p></div>
+            <div class="faq-item"><h3 class="faq-question">¿Qué pasa cuando llegue a 100?</h3><p class="faq-answer">El programa se cerrará automáticamente y el botón de donación dejará de mostrarse.</p></div>
+            <div class="faq-item"><h3 class="faq-question">¿Cómo se confirma el pago?</h3><p class="faq-answer">La confirmación confiable vendrá del webhook de Mercado Pago, no de la pantalla de regreso.</p></div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-column">
+        <section class="founder-preview" aria-label="Distintivo Fundador">
+          <div class="badge-preview">
+            <div class="badge-crown">👑</div>
+            <p class="badge-kicker">Distintivo especial</p>
+            <h2 class="badge-title">Fundador PREDIKT™</h2>
+            <p class="badge-copy">Aparecerá como insignia permanente en tu perfil y en futuras experiencias sociales.</p>
+            <div class="badge-stats">
+              <div class="badge-stat"><p class="badge-label">Lugar</p><p class="badge-value">#85</p></div>
+              <div class="badge-stat"><p class="badge-label">Acceso</p><p class="badge-value">Vitalicio</p></div>
+              <div class="badge-stat"><p class="badge-label">Aporte</p><p class="badge-value">$50 MXN</p></div>
+              <div class="badge-stat"><p class="badge-label">Estado</p><p class="badge-value">Reservable</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Seguridad del pago">
+          <h2 class="section-title">Seguridad</h2>
+          <div class="audit-card">
+            <h3 class="audit-title">Pago validado por webhook</h3>
+            <p class="audit-copy">PREDIKT™ no activará un fundador solo porque el usuario regrese del checkout. Se validará el evento real del proveedor de pago.</p>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Arquitectura de pago">
+          <h2 class="section-title">Arquitectura</h2>
+          <div class="faq-list">
+            <div class="faq-item"><h3 class="faq-question">Proveedor inicial</h3><p class="faq-answer">Mercado Pago Checkout Pro.</p></div>
+            <div class="faq-item"><h3 class="faq-question">Diseño futuro</h3><p class="faq-answer">Payment Provider Abstraction Layer: Mercado Pago hoy, NexoPay mañana.</p></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Acción simulada.</div>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item" href="perfil.html"><span>👤</span>Perfil</a>
+  </nav>
+
+  <script>
+    const founderProgram = { founderCount: 84, limit: 100 };
+    const founderBtn = document.getElementById("founderBtn");
+    const progressFill = document.getElementById("progressFill");
+    const statusNumber = document.getElementById("statusNumber");
+    const statusMessage = document.getElementById("statusMessage");
+    const successCard = document.getElementById("successCard");
+    const copyCheckoutBtn = document.getElementById("copyCheckoutBtn");
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2300);
+    }
+
+    function renderFounderStatus() {
+      const count = founderProgram.founderCount;
+      const limit = founderProgram.limit;
+      const remaining = Math.max(limit - count, 0);
+      const percent = Math.min(Math.round((count / limit) * 100), 100);
+      progressFill.style.width = `${percent}%`;
+      statusNumber.textContent = `${count} / ${limit}`;
+      statusMessage.classList.remove("urgent");
+      founderBtn.classList.remove("disabled");
+
+      if (count >= limit) {
+        statusMessage.textContent = "Programa de Fundadores Completado. Gracias a los primeros 100 fundadores de PREDIKT™.";
+        founderBtn.textContent = "Programa completado";
+        founderBtn.classList.add("disabled");
+        return;
+      }
+
+      if (count >= 85) {
+        statusMessage.textContent = `⚠ Solo quedan ${remaining} lugares de Fundador.`;
+        statusMessage.classList.add("urgent");
+        return;
+      }
+
+      statusMessage.textContent = "Programa abierto. El contador público aparecerá al llegar al fundador 85.";
+    }
+
+    founderBtn.addEventListener("click", () => {
+      if (founderProgram.founderCount >= founderProgram.limit) {
+        showToast("El programa de Fundadores ya fue completado.");
+        return;
+      }
+      successCard.classList.add("show");
+      successCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      showToast("Checkout simulado preparado. Siguiente sprint: Mercado Pago.");
+    });
+
+    copyCheckoutBtn.addEventListener("click", async () => {
+      const note = "Mercado Pago Checkout Pro · crear preferencia desde Supabase Edge Function";
+      try {
+        await navigator.clipboard.writeText(note);
+        showToast("Nota copiada.");
+      } catch (error) {
+        showToast("Nota lista para copiar manualmente.");
+      }
+    });
+
+    renderFounderStatus();
+  </script>
+</body>
+</html>
 
