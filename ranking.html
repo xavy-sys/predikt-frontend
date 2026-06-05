@@ -1,1 +1,1378 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: ranking.html
+    Fecha: 2026-06-05
+    Versión: v1.0
+    Fabricante: JVSys
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla Ranking General para PREDIKT™.
+      Pantalla mobile-first tipo aplicación deportiva social.
+      Incluye podio visual, posición personal destacada, top 20 participantes,
+      movimiento de posiciones, diferencia contra líder, reconocimientos,
+      motor viral y navegación inferior de aplicación.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 1118
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PREDIKT™ | Ranking</title>
+
+  <meta
+    name="description"
+    content="Ranking PREDIKT™ - Consulta quién lidera la quiniela, tu posición, puntos y movimientos."
+  />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="icon" href="assets/logos/predikt-icon.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-soft: #092238;
+      --bg-card: #0f2740;
+      --bg-card-2: #132f4c;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --silver: #d8dee8;
+      --bronze: #d88b4a;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --green: #2ecc71;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
+      --blue: #5dade2;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+      --footer-height: 82px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.13), transparent 28%),
+        radial-gradient(circle at top right, rgba(93, 173, 226, 0.12), transparent 24%),
+        linear-gradient(135deg, #061826 0%, #061826 43%, #020b13 100%);
+      color: var(--text-main);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 22px);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page-shell {
+      width: min(100%, 1180px);
+      margin: 0 auto;
+      padding: 24px 18px 0;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-name {
+      letter-spacing: 0.09em;
+      font-size: 1.25rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .hello {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+
+    .level-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid rgba(245, 185, 66, 0.35);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.09);
+      font-size: 0.72rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(135deg, rgba(15, 39, 64, 0.97), rgba(8, 31, 52, 0.95)),
+        radial-gradient(circle at 80% 25%, rgba(245, 185, 66, 0.22), transparent 30%);
+      padding: 26px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero-card::after {
+      content: "🏆";
+      position: absolute;
+      right: 22px;
+      top: 15px;
+      font-size: 5.9rem;
+      opacity: 0.09;
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 0.74rem;
+      font-weight: 950;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .hero-title {
+      max-width: 760px;
+      font-size: clamp(1.55rem, 5.8vw, 3.2rem);
+      font-weight: 980;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+      font-weight: 650;
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section {
+      margin-bottom: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 2px 10px;
+    }
+
+    .section-title {
+      font-size: 0.92rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: 0.76rem;
+      font-weight: 950;
+    }
+
+    .podium-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98)),
+        radial-gradient(circle at 50% 0%, rgba(245, 185, 66, 0.12), transparent 30%);
+      box-shadow: var(--shadow);
+      padding: 22px 18px 18px;
+      margin-bottom: 18px;
+    }
+
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .podium-place {
+      position: relative;
+      display: flex;
+      min-height: 190px;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.045);
+      overflow: hidden;
+    }
+
+    .podium-place::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 45%);
+      pointer-events: none;
+    }
+
+    .podium-place.first {
+      min-height: 240px;
+      border-color: rgba(245, 185, 66, 0.36);
+      background: rgba(245, 185, 66, 0.08);
+    }
+
+    .podium-place.second {
+      min-height: 205px;
+      border-color: rgba(216, 222, 232, 0.26);
+    }
+
+    .podium-place.third {
+      min-height: 190px;
+      border-color: rgba(216, 139, 74, 0.3);
+    }
+
+    .medal {
+      position: relative;
+      font-size: 2.35rem;
+      margin-bottom: 8px;
+    }
+
+    .podium-name {
+      position: relative;
+      font-size: 1.1rem;
+      font-weight: 980;
+      margin-bottom: 2px;
+    }
+
+    .podium-points {
+      position: relative;
+      color: var(--text-soft);
+      font-size: 0.82rem;
+      font-weight: 880;
+      margin-bottom: 12px;
+    }
+
+    .podium-base {
+      position: relative;
+      width: 100%;
+      padding: 12px 8px;
+      color: #061826;
+      font-size: 0.78rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .first .podium-base {
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    }
+
+    .second .podium-base {
+      background: linear-gradient(135deg, var(--silver), #ffffff);
+    }
+
+    .third .podium-base {
+      background: linear-gradient(135deg, var(--bronze), #ffd3a3);
+    }
+
+    .me-card {
+      border: 1px solid rgba(245, 185, 66, 0.33);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(245, 185, 66, 0.15), transparent 30%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(8, 31, 52, 0.98));
+      padding: 20px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.25);
+      margin-bottom: 18px;
+    }
+
+    .me-label {
+      color: var(--gold);
+      font-size: 0.75rem;
+      font-weight: 980;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .me-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .me-rank {
+      width: 94px;
+      height: 94px;
+      display: grid;
+      place-items: center;
+      border-radius: 24px;
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.1);
+      border: 1px solid rgba(245, 185, 66, 0.28);
+      font-size: 2.2rem;
+      font-weight: 980;
+      line-height: 1;
+    }
+
+    .me-title {
+      font-size: 1.28rem;
+      font-weight: 980;
+      line-height: 1.05;
+      margin-bottom: 5px;
+    }
+
+    .me-copy {
+      color: var(--text-soft);
+      font-size: 0.86rem;
+      font-weight: 720;
+      margin-bottom: 10px;
+    }
+
+    .movement-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(46, 204, 113, 0.11);
+      border: 1px solid rgba(46, 204, 113, 0.25);
+      font-size: 0.76rem;
+      font-weight: 950;
+    }
+
+    .cta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .app-btn {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .app-btn.primary {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 12px 26px rgba(245, 185, 66, 0.22);
+    }
+
+    .app-btn.secondary {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .ranking-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 16px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+      margin-bottom: 18px;
+    }
+
+    .ranking-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .rank-row {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 10px 12px;
+      min-height: 48px;
+    }
+
+    .rank-row.me {
+      border-color: rgba(245, 185, 66, 0.35);
+      background: rgba(245, 185, 66, 0.105);
+      box-shadow: inset 0 0 0 1px rgba(245, 185, 66, 0.08);
+    }
+
+    .rank-num {
+      color: var(--gold);
+      font-size: 0.86rem;
+      font-weight: 980;
+    }
+
+    .rank-person {
+      min-width: 0;
+    }
+
+    .rank-name {
+      font-size: 0.88rem;
+      font-weight: 950;
+      line-height: 1.1;
+    }
+
+    .rank-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      margin-top: 3px;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+    }
+
+    .move-up {
+      color: var(--green);
+    }
+
+    .move-down {
+      color: var(--red);
+    }
+
+    .move-same {
+      color: var(--text-muted);
+    }
+
+    .rank-score {
+      text-align: right;
+    }
+
+    .points {
+      font-size: 0.88rem;
+      font-weight: 980;
+    }
+
+    .behind {
+      margin-top: 2px;
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 780;
+    }
+
+    .side-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 17px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+      margin-bottom: 18px;
+    }
+
+    .side-card-title {
+      font-size: 0.92rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .achievement-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .achievement-row {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 10px;
+    }
+
+    .achievement-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+      font-size: 1.25rem;
+    }
+
+    .achievement-name {
+      font-size: 0.84rem;
+      font-weight: 950;
+      line-height: 1.1;
+    }
+
+    .achievement-user {
+      color: var(--text-soft);
+      font-size: 0.73rem;
+      font-weight: 760;
+      margin-top: 2px;
+    }
+
+    .achievement-tag {
+      color: var(--gold);
+      font-size: 0.69rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .pressure-card {
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.045);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .pressure-title {
+      font-size: 0.9rem;
+      font-weight: 960;
+      margin-bottom: 4px;
+    }
+
+    .pressure-copy {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 720;
+    }
+
+    .gap-bars {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .gap-item {
+      display: grid;
+      gap: 4px;
+    }
+
+    .gap-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-soft);
+      font-size: 0.74rem;
+      font-weight: 850;
+    }
+
+    .gap-track {
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .gap-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+    }
+
+    .viral-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245, 185, 66, 0.32);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(245, 185, 66, 0.25), transparent 24%),
+        linear-gradient(135deg, rgba(15, 39, 64, 0.98), rgba(93, 76, 39, 0.88));
+      padding: 32px 22px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      margin: 18px 0 0;
+    }
+
+    .viral-card::before {
+      content: "👑";
+      position: absolute;
+      left: 14px;
+      top: 8px;
+      font-size: 5.8rem;
+      opacity: 0.09;
+      transform: rotate(-15deg);
+    }
+
+    .viral-kicker {
+      position: relative;
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .viral-title {
+      position: relative;
+      font-size: clamp(1.24rem, 5vw, 2.05rem);
+      font-weight: 980;
+      line-height: 1.08;
+      margin-bottom: 8px;
+    }
+
+    .viral-copy {
+      position: relative;
+      color: var(--text-soft);
+      font-size: 0.86rem;
+      font-weight: 760;
+      margin-bottom: 16px;
+    }
+
+    .viral-btn {
+      position: relative;
+      width: 100%;
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.84rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 14px 30px rgba(245, 185, 66, 0.27);
+    }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 30;
+      width: min(100%, 780px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4, 17, 29, 0.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.67rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+
+    .footer-item span {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+    }
+
+    @media (max-width: 920px) {
+      .page-shell {
+        width: min(100%, 760px);
+      }
+
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .side-column .side-card {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding-bottom: calc(var(--footer-height) + 16px);
+      }
+
+      .page-shell {
+        padding: 18px 14px 0;
+      }
+
+      .top-bar {
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .brand-name {
+        font-size: 1.05rem;
+      }
+
+      .level-pill {
+        padding: 7px 10px;
+        font-size: 0.67rem;
+      }
+
+      .hero-card {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .hero-card::after {
+        right: 12px;
+        top: 22px;
+        font-size: 4.8rem;
+      }
+
+      .hero-copy {
+        font-size: 0.84rem;
+        max-width: 290px;
+      }
+
+      .podium-card {
+        padding: 16px 12px 14px;
+      }
+
+      .podium {
+        gap: 7px;
+      }
+
+      .podium-place {
+        min-height: 156px;
+        border-radius: 18px;
+      }
+
+      .podium-place.first {
+        min-height: 205px;
+      }
+
+      .podium-place.second {
+        min-height: 175px;
+      }
+
+      .podium-place.third {
+        min-height: 158px;
+      }
+
+      .medal {
+        font-size: 1.85rem;
+      }
+
+      .podium-name {
+        font-size: 0.9rem;
+      }
+
+      .podium-points {
+        font-size: 0.72rem;
+      }
+
+      .podium-base {
+        padding: 10px 4px;
+        font-size: 0.66rem;
+      }
+
+      .me-card {
+        padding: 16px;
+      }
+
+      .me-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .me-rank {
+        width: 100%;
+        height: 82px;
+        border-radius: 20px;
+        font-size: 2rem;
+      }
+
+      .cta-row {
+        grid-template-columns: 1fr;
+      }
+
+      .rank-row {
+        grid-template-columns: 38px 1fr auto;
+        padding: 10px;
+      }
+
+      .rank-name {
+        font-size: 0.82rem;
+      }
+
+      .rank-meta {
+        font-size: 0.62rem;
+      }
+
+      .points {
+        font-size: 0.78rem;
+      }
+
+      .behind {
+        font-size: 0.6rem;
+      }
+
+      .side-column {
+        grid-template-columns: 1fr;
+      }
+
+      .viral-card {
+        padding: 28px 16px;
+      }
+
+      .app-footer {
+        width: 100%;
+        border-radius: 22px 22px 0 0;
+      }
+
+      .footer-item {
+        font-size: 0.58rem;
+      }
+
+      .footer-item span {
+        font-size: 1rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .page-shell {
+        padding-left: 26px;
+        padding-right: 26px;
+      }
+
+      .hero-card {
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="top-bar" aria-label="Encabezado de PREDIKT">
+      <a href="index.html" class="brand-block" aria-label="Ir a inicio">
+        <strong class="brand-name">PREDIKT™</strong>
+        <span class="hello">Hola Javier 👋</span>
+      </a>
+
+      <span class="level-pill">📺 Futbolero</span>
+    </header>
+
+    <section class="hero-card" aria-label="Ranking general">
+      <p class="eyebrow">Ranking General · Los Cuates</p>
+      <h1 class="hero-title">Estás cerca del liderato.</h1>
+      <p class="hero-copy">
+        Pey sigue arriba, pero estás a 16 puntos. Un marcador exacto puede cambiar toda la quiniela.
+      </p>
+    </section>
+
+    <div class="layout-grid">
+      <section class="main-column">
+        <section class="section" aria-label="Podio">
+          <div class="section-header">
+            <h2 class="section-title">Podio actual</h2>
+            <a class="section-link" href="pronostico.html">Pronosticar</a>
+          </div>
+
+          <div class="podium-card">
+            <div class="podium">
+              <div class="podium-place second">
+                <div class="medal">🥈</div>
+                <strong class="podium-name">ElTigre</strong>
+                <span class="podium-points">132 pts</span>
+                <div class="podium-base">#2</div>
+              </div>
+
+              <div class="podium-place first">
+                <div class="medal">🥇</div>
+                <strong class="podium-name">Pey</strong>
+                <span class="podium-points">140 pts</span>
+                <div class="podium-base">Líder</div>
+              </div>
+
+              <div class="podium-place third">
+                <div class="medal">🥉</div>
+                <strong class="podium-name">Javier</strong>
+                <span class="podium-points">124 pts</span>
+                <div class="podium-base">#3</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="me-card" aria-label="Tu posición">
+          <p class="me-label">Tu posición</p>
+
+          <div class="me-grid">
+            <div class="me-rank">#3</div>
+
+            <div>
+              <h2 class="me-title">Javier · 124 puntos</h2>
+              <p class="me-copy">
+                Estás a 16 puntos del líder. Subiste 2 lugares en la última jornada.
+              </p>
+              <span class="movement-pill">↑ Subiste 2 lugares</span>
+            </div>
+          </div>
+
+          <div class="cta-row">
+            <a class="app-btn primary" href="pronostico.html">Volver a pronosticar</a>
+            <a class="app-btn secondary" href="mi-quiniela.html">Mi Quiniela</a>
+          </div>
+        </section>
+
+        <section class="ranking-card" aria-label="Top 20">
+          <div class="section-header">
+            <h2 class="section-title">Top 20 participantes</h2>
+            <a class="section-link" href="crear-quiniela.html">Invitar</a>
+          </div>
+
+          <div class="ranking-list">
+            <div class="rank-row">
+              <span class="rank-num">#1</span>
+              <div class="rank-person">
+                <p class="rank-name">Pey</p>
+                <p class="rank-meta"><span class="move-same">= Se mantiene</span><span>🔥 Rey de la Jornada</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">140 pts</p>
+                <p class="behind">líder</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#2</span>
+              <div class="rank-person">
+                <p class="rank-name">ElTigre</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 8 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">132 pts</p>
+                <p class="behind">-8</p>
+              </div>
+            </div>
+
+            <div class="rank-row me">
+              <span class="rank-num">#3</span>
+              <div class="rank-person">
+                <p class="rank-name">Javier</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 2</span><span>⚡ Enrachado</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">124 pts</p>
+                <p class="behind">-16</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#4</span>
+              <div class="rank-person">
+                <p class="rank-name">Andrea</p>
+                <p class="rank-meta"><span class="move-down">↓ Bajó 1</span><span>🎯 Golpe Maestro</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">119 pts</p>
+                <p class="behind">-21</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#5</span>
+              <div class="rank-person">
+                <p class="rank-name">Carlos</p>
+                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 29 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">111 pts</p>
+                <p class="behind">-29</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#6</span>
+              <div class="rank-person">
+                <p class="rank-name">LaComadre</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 3</span><span>Buen cierre</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">108 pts</p>
+                <p class="behind">-32</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#7</span>
+              <div class="rank-person">
+                <p class="rank-name">MemoGol</p>
+                <p class="rank-meta"><span class="move-down">↓ Bajó 2</span><span>A 35 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">105 pts</p>
+                <p class="behind">-35</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#8</span>
+              <div class="rank-person">
+                <p class="rank-name">Tania</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 39 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">101 pts</p>
+                <p class="behind">-39</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#9</span>
+              <div class="rank-person">
+                <p class="rank-name">Rafa</p>
+                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 43 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">97 pts</p>
+                <p class="behind">-43</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#10</span>
+              <div class="rank-person">
+                <p class="rank-name">Pau</p>
+                <p class="rank-meta"><span class="move-down">↓ Bajó 1</span><span>A 47 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">93 pts</p>
+                <p class="behind">-47</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#11</span>
+              <div class="rank-person">
+                <p class="rank-name">Charly</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 2</span><span>A 51 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">89 pts</p>
+                <p class="behind">-51</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#12</span>
+              <div class="rank-person">
+                <p class="rank-name">Gaby</p>
+                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 55 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">85 pts</p>
+                <p class="behind">-55</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#13</span>
+              <div class="rank-person">
+                <p class="rank-name">Fer</p>
+                <p class="rank-meta"><span class="move-down">↓ Bajó 3</span><span>A 58 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">82 pts</p>
+                <p class="behind">-58</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#14</span>
+              <div class="rank-person">
+                <p class="rank-name">Lu</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 63 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">77 pts</p>
+                <p class="behind">-63</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#15</span>
+              <div class="rank-person">
+                <p class="rank-name">Beto</p>
+                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 67 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">73 pts</p>
+                <p class="behind">-67</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#16</span>
+              <div class="rank-person">
+                <p class="rank-name">Sofi</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 2</span><span>A 71 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">69 pts</p>
+                <p class="behind">-71</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#17</span>
+              <div class="rank-person">
+                <p class="rank-name">Nico</p>
+                <p class="rank-meta"><span class="move-down">↓ Bajó 1</span><span>A 75 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">65 pts</p>
+                <p class="behind">-75</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#18</span>
+              <div class="rank-person">
+                <p class="rank-name">Majo</p>
+                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 81 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">59 pts</p>
+                <p class="behind">-81</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#19</span>
+              <div class="rank-person">
+                <p class="rank-name">Toño</p>
+                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 86 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">54 pts</p>
+                <p class="behind">-86</p>
+              </div>
+            </div>
+
+            <div class="rank-row">
+              <span class="rank-num">#20</span>
+              <div class="rank-person">
+                <p class="rank-name">Dany</p>
+                <p class="rank-meta"><span class="move-down">↓ Bajó 2</span><span>A 91 pts</span></p>
+              </div>
+              <div class="rank-score">
+                <p class="points">49 pts</p>
+                <p class="behind">-91</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-column">
+        <section class="side-card" aria-label="Reconocimientos">
+          <h2 class="side-card-title">Reconocimientos</h2>
+
+          <div class="achievement-list">
+            <div class="achievement-row">
+              <div class="achievement-icon">🔥</div>
+              <div>
+                <p class="achievement-name">Rey de la Jornada</p>
+                <p class="achievement-user">Pey · 28 pts hoy</p>
+              </div>
+              <span class="achievement-tag">Líder</span>
+            </div>
+
+            <div class="achievement-row">
+              <div class="achievement-icon">⚡</div>
+              <div>
+                <p class="achievement-name">Enrachado</p>
+                <p class="achievement-user">Javier · 5 activos</p>
+              </div>
+              <span class="achievement-tag">Racha</span>
+            </div>
+
+            <div class="achievement-row">
+              <div class="achievement-icon">🎯</div>
+              <div>
+                <p class="achievement-name">Golpe Maestro</p>
+                <p class="achievement-user">Andrea · marcador exacto</p>
+              </div>
+              <span class="achievement-tag">Exacto</span>
+            </div>
+
+            <div class="achievement-row">
+              <div class="achievement-icon">😱</div>
+              <div>
+                <p class="achievement-name">El Inesperado</p>
+                <p class="achievement-user">Carlos · sorpresa del día</p>
+              </div>
+              <span class="achievement-tag">Sorpresa</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="side-card" aria-label="Distancia al líder">
+          <h2 class="side-card-title">Distancia al líder</h2>
+
+          <div class="pressure-card">
+            <h3 class="pressure-title">Puedes alcanzarlo.</h3>
+            <p class="pressure-copy">
+              Javier está a 16 puntos. Dos buenos pronósticos pueden meterte de lleno por el liderato.
+            </p>
+          </div>
+
+          <div class="gap-bars">
+            <div class="gap-item">
+              <div class="gap-top">
+                <span>Pey</span>
+                <span>140 pts</span>
+              </div>
+              <div class="gap-track">
+                <div class="gap-fill" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="gap-item">
+              <div class="gap-top">
+                <span>ElTigre</span>
+                <span>132 pts</span>
+              </div>
+              <div class="gap-track">
+                <div class="gap-fill" style="width: 94%;"></div>
+              </div>
+            </div>
+
+            <div class="gap-item">
+              <div class="gap-top">
+                <span>Javier</span>
+                <span>124 pts</span>
+              </div>
+              <div class="gap-track">
+                <div class="gap-fill" style="width: 88%;"></div>
+              </div>
+            </div>
+
+            <div class="gap-item">
+              <div class="gap-top">
+                <span>Andrea</span>
+                <span>119 pts</span>
+              </div>
+              <div class="gap-track">
+                <div class="gap-fill" style="width: 85%;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="viral-card" aria-label="Crear quiniela">
+      <p class="viral-kicker">Motor viral</p>
+      <h2 class="viral-title">¿Crees que puedes ser campeón?</h2>
+      <p class="viral-copy">
+        Crea tu propia quiniela, invita a tus amigos y demuestra quién realmente le atina al marcador.
+      </p>
+      <a class="viral-btn" href="crear-quiniela.html">Crear Quiniela</a>
+    </section>
+  </main>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html">
+      <span>🏠</span>
+      Inicio
+    </a>
+
+    <a class="footer-item" href="mi-quiniela.html">
+      <span>⚽</span>
+      Quiniela
+    </a>
+
+    <a class="footer-item" href="pronostico.html">
+      <span>🎯</span>
+      Pronósticos
+    </a>
+
+    <a class="footer-item active" href="ranking.html" aria-current="page">
+      <span>🏆</span>
+      Ranking
+    </a>
+
+    <a class="footer-item" href="perfil.html">
+      <span>👤</span>
+      Perfil
+    </a>
+  </nav>
+</body>
+</html>
 
