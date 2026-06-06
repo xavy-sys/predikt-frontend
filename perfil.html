@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: perfil.html
     Fecha: 2026-06-05
-    Versión: v1.1 Founder Program Integration
+    Versión: v1.2 Founder UI Clean Visual
     Fabricante: JVSys
     Proyecto: PREDIKT™
     Descripción:
@@ -12,9 +12,9 @@
       Pantalla mobile-first tipo aplicación deportiva social.
       Incluye identidad del participante, nivel, estadísticas personales,
       reconocimientos, mis quinielas, configuración simulada, notificaciones
-      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™.
-    Líneas versión anterior: 892
-    Líneas versión nueva: 638
+      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™ con limpieza visual de fondos fantasma.
+    Líneas versión anterior: 638
+    Líneas versión nueva: 628
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -80,7 +80,7 @@
       margin-bottom: 18px;
     }
 
-    .profile-hero::after { content: "👤"; position: absolute; right: 24px; top: 18px; font-size: 5.8rem; opacity: .08; transform: rotate(8deg); pointer-events: none; }
+    /* v1.2: Se elimina marca de agua fantasma del perfil para evitar sensación de error visual. */
     .profile-main { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; position: relative; z-index: 1; }
     .avatar { width: 92px; height: 92px; display: grid; place-items: center; border-radius: 28px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); box-shadow: 0 18px 34px rgba(245,185,66,.2); font-size: 2rem; font-weight: 980; }
     .profile-kicker { color: var(--gold); font-size: .72rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
@@ -103,7 +103,7 @@
     .stat-note { color: var(--text-soft); font-size: .7rem; font-weight: 760; }
 
     .level-card { position: relative; overflow: hidden; border: 1px solid rgba(245,185,66,.26); border-radius: var(--radius-lg); background: radial-gradient(circle at 90% 0%, rgba(245,185,66,.16), transparent 30%), linear-gradient(145deg, rgba(15,39,64,.98), rgba(8,31,52,.98)); padding: 18px; margin-bottom: 18px; }
-    .level-card::after { content: "📺"; position: absolute; right: 16px; top: 12px; font-size: 4.6rem; opacity: .08; }
+    /* v1.2: Se elimina marca de agua fantasma del nivel para limpiar la interfaz. */
     .level-title { color: var(--gold); font-size: .75rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
     .level-name { font-size: 1.35rem; font-weight: 980; margin-bottom: 5px; }
     .level-copy { color: var(--text-soft); font-size: .83rem; font-weight: 720; margin-bottom: 14px; max-width: 520px; }
@@ -176,23 +176,13 @@
       border: 1px solid rgba(245,185,66,.32);
       border-radius: var(--radius-lg);
       background:
-        radial-gradient(circle at 12% 18%, rgba(245,185,66,.22), transparent 26%),
-        radial-gradient(circle at 92% 18%, rgba(93,173,226,.12), transparent 26%),
+        radial-gradient(circle at 12% 18%, rgba(245,185,66,.16), transparent 28%),
         linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
       box-shadow: var(--shadow);
       padding: 22px;
     }
 
-    .founder-card::after {
-      content: "👑";
-      position: absolute;
-      right: 18px;
-      top: 12px;
-      font-size: 5rem;
-      opacity: .08;
-      transform: rotate(10deg);
-      pointer-events: none;
-    }
+    /* v1.2: Se elimina corona fantasma de fondo para evitar ruido visual. */
 
     .founder-content {
       position: relative;
@@ -451,7 +441,7 @@
 
           <div class="founder-progress-panel">
             <div class="founder-progress-top">
-              <span class="founder-progress-label">Registrados</span>
+              <span class="founder-progress-label">👑 Registrados</span>
               <strong class="founder-counter" id="foundersCounter">3 / 100</strong>
             </div>
 
