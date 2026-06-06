@@ -4,22 +4,21 @@
   <!--
     Nombre del archivo: perfil.html
     Fecha: 2026-06-05
-    Versión: v1.5 Mobile No-Scroll Profile UX
+    Versión: v2.0 Minimal Profile UX
     Fabricante: JVSys
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla Perfil para PREDIKT™.
-      Pantalla mobile-first tipo aplicación deportiva social.
-      Incluye identidad del participante, nivel, estadísticas personales,
-      reconocimientos, mis quinielas, configuración simulada, notificaciones
-      navegación inferior de aplicación, módulo Fundadores conectado a Supabase y optimización mobile no-scroll.
-    Líneas versión anterior: 677
-    Líneas versión nueva: 906
+      Pantalla Perfil minimalista para PREDIKT™.
+      Enfoque mobile-first tipo app: identidad, ranking, fundadores,
+      estadísticas esenciales, nivel y configuración básica.
+      Se eliminan bloques largos para reducir scroll y mejorar claridad humana.
+    Líneas versión anterior: 906
+    Líneas versión nueva: {LINE_COUNT}
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PREDIKT™ | Perfil</title>
-  <meta name="description" content="Perfil PREDIKT™ - Consulta tu nivel, puntos, racha, reconocimientos y quinielas activas." />
+  <meta name="description" content="Perfil PREDIKT™ minimalista: ranking, puntos, nivel y estado fundador." />
   <meta name="theme-color" content="#061826" />
   <link rel="icon" href="assets/logos/predikt-icon.png" />
 
@@ -55,191 +54,182 @@
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.45;
       overflow-x: hidden;
-      padding-bottom: calc(var(--footer-height) + 22px);
+      padding-bottom: calc(var(--footer-height) + 18px);
     }
 
     a { color: inherit; text-decoration: none; }
     button { font: inherit; border: 0; cursor: pointer; }
 
-    .page-shell { width: min(100%, 1180px); margin: 0 auto; padding: 24px 18px 0; }
-
-    .top-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-    .brand-block { display: flex; flex-direction: column; gap: 2px; }
-    .brand-name { letter-spacing: .09em; font-size: 1.25rem; font-weight: 950; line-height: 1; }
-    .hello { color: var(--text-soft); font-size: .78rem; font-weight: 750; }
-    .level-pill { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; border: 1px solid rgba(245,185,66,.35); border-radius: 999px; color: var(--gold); background: rgba(245,185,66,.09); font-size: .72rem; font-weight: 950; white-space: nowrap; }
-
-    .profile-hero {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: radial-gradient(circle at 78% 20%, rgba(245,185,66,.19), transparent 28%), linear-gradient(135deg, rgba(15,39,64,.98), rgba(8,31,52,.96));
-      padding: 28px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
+    .page-shell {
+      width: min(100%, 880px);
+      margin: 0 auto;
+      padding: 22px 16px 0;
     }
 
-    /* v1.2: Se elimina marca de agua fantasma del perfil para evitar sensación de error visual. */
-    .profile-main { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; position: relative; z-index: 1; }
-    .avatar { width: 92px; height: 92px; display: grid; place-items: center; border-radius: 28px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); box-shadow: 0 18px 34px rgba(245,185,66,.2); font-size: 2rem; font-weight: 980; }
-    .profile-kicker { color: var(--gold); font-size: .72rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
-    .profile-name { font-size: clamp(1.75rem, 5vw, 3.05rem); font-weight: 980; line-height: 1; letter-spacing: -.04em; margin-bottom: 8px; }
-    .profile-copy { color: var(--text-soft); font-size: .92rem; font-weight: 700; max-width: 620px; }
-    .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-    .quick-pill { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 11px; border-radius: 999px; color: var(--text-soft); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); font-size: .74rem; font-weight: 900; }
-    .quick-pill.gold { color: var(--gold); border-color: rgba(245,185,66,.27); background: rgba(245,185,66,.09); }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
 
-    .layout-grid { display: grid; grid-template-columns: 1fr .9fr; gap: 18px; align-items: start; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 2px 10px; }
-    .section-title { font-size: .92rem; font-weight: 980; letter-spacing: .08em; text-transform: uppercase; }
-    .section-link { color: var(--gold); font-size: .76rem; font-weight: 950; }
+    .brand-block { display: flex; flex-direction: column; gap: 2px; }
+    .brand-name { letter-spacing: .09em; font-size: 1.18rem; font-weight: 950; line-height: 1; }
+    .hello { color: var(--text-soft); font-size: .78rem; font-weight: 750; }
 
-    .card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98)); box-shadow: 0 14px 36px rgba(0,0,0,.22); padding: 18px; margin-bottom: 18px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .stat-card { min-height: 112px; border: 1px solid rgba(255,255,255,.09); border-radius: var(--radius-md); background: rgba(255,255,255,.045); padding: 13px; display: flex; flex-direction: column; justify-content: space-between; }
-    .stat-label { color: var(--text-muted); font-size: .7rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
-    .stat-value { color: var(--text-main); font-size: 1.75rem; font-weight: 980; line-height: 1; letter-spacing: -.04em; }
-    .stat-note { color: var(--text-soft); font-size: .7rem; font-weight: 760; }
+    .level-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid rgba(245,185,66,.35);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245,185,66,.09);
+      font-size: .72rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
 
-    .level-card { position: relative; overflow: hidden; border: 1px solid rgba(245,185,66,.26); border-radius: var(--radius-lg); background: radial-gradient(circle at 90% 0%, rgba(245,185,66,.16), transparent 30%), linear-gradient(145deg, rgba(15,39,64,.98), rgba(8,31,52,.98)); padding: 18px; margin-bottom: 18px; }
-    /* v1.2: Se elimina marca de agua fantasma del nivel para limpiar la interfaz. */
-    .level-title { color: var(--gold); font-size: .75rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
-    .level-name { font-size: 1.35rem; font-weight: 980; margin-bottom: 5px; }
-    .level-copy { color: var(--text-soft); font-size: .83rem; font-weight: 720; margin-bottom: 14px; max-width: 520px; }
-    .progress-top { display: flex; justify-content: space-between; gap: 12px; color: var(--text-soft); font-size: .76rem; font-weight: 900; margin-bottom: 8px; }
-    .progress-bar { height: 12px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
-    .progress-fill { width: 68%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); box-shadow: 0 0 22px rgba(245,185,66,.45); }
+    .profile-card,
+    .founder-card,
+    .stats-card,
+    .level-card,
+    .settings-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+      box-shadow: 0 14px 36px rgba(0,0,0,.22);
+      margin-bottom: 14px;
+    }
 
-    .achievement-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .achievement-card { display: grid; grid-template-columns: 48px 1fr; gap: 11px; align-items: center; border-radius: var(--radius-md); background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 12px; }
-    .achievement-card.locked { opacity: .58; filter: grayscale(.35); }
-    .achievement-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); font-size: 1.4rem; }
-    .achievement-name { font-size: .88rem; font-weight: 950; line-height: 1.1; margin-bottom: 3px; }
-    .achievement-copy { color: var(--text-soft); font-size: .71rem; font-weight: 740; }
+    .profile-card {
+      padding: 20px;
+    }
 
-    .pool-list { display: grid; gap: 10px; }
-    .pool-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border-radius: var(--radius-md); background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 13px; }
-    .pool-row.active { border-color: rgba(245,185,66,.3); background: rgba(245,185,66,.085); }
-    .pool-name { font-size: .95rem; font-weight: 960; margin-bottom: 2px; }
-    .pool-meta { color: var(--text-soft); font-size: .73rem; font-weight: 760; }
-    .pool-rank { text-align: right; color: var(--gold); font-size: 1rem; font-weight: 980; }
-    .pool-points { color: var(--text-muted); font-size: .68rem; font-weight: 800; margin-top: 2px; }
+    .profile-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
 
-    .settings-list { display: grid; gap: 9px; }
-    .setting-row { display: grid; grid-template-columns: 42px 1fr auto; gap: 10px; align-items: center; border-radius: 16px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 11px; color: var(--text-main); text-align: left; width: 100%; }
-    .setting-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); font-size: 1.15rem; }
-    .setting-name { display: block; font-size: .85rem; font-weight: 950; margin-bottom: 2px; }
-    .setting-copy { display: block; color: var(--text-soft); font-size: .72rem; font-weight: 730; }
-    .setting-action { color: var(--gold); font-size: .72rem; font-weight: 980; white-space: nowrap; }
+    .avatar {
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      border-radius: 25px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 18px 34px rgba(245,185,66,.2);
+      font-size: 1.75rem;
+      font-weight: 980;
+    }
 
-    .season-card { border: 1px solid rgba(255,255,255,.09); border-radius: var(--radius-md); background: rgba(255,255,255,.045); padding: 14px; margin-top: 12px; }
-    .season-title { font-size: .95rem; font-weight: 960; margin-bottom: 4px; }
-    .season-copy { color: var(--text-soft); font-size: .76rem; font-weight: 720; margin-bottom: 12px; }
-    .mini-chart { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; height: 90px; align-items: end; }
-    .bar { border-radius: 999px 999px 6px 6px; background: linear-gradient(180deg, var(--gold-soft), var(--gold)); min-height: 12px; opacity: .92; }
-    .bar:nth-child(1) { height: 44%; } .bar:nth-child(2) { height: 62%; } .bar:nth-child(3) { height: 52%; } .bar:nth-child(4) { height: 78%; } .bar:nth-child(5) { height: 65%; } .bar:nth-child(6) { height: 88%; } .bar:nth-child(7) { height: 74%; }
+    .profile-kicker {
+      color: var(--gold);
+      font-size: .7rem;
+      font-weight: 980;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
 
-    .viral-card { position: relative; overflow: hidden; border: 1px solid rgba(245,185,66,.32); border-radius: var(--radius-lg); background: radial-gradient(circle at 12% 18%, rgba(245,185,66,.25), transparent 24%), linear-gradient(135deg, rgba(15,39,64,.98), rgba(93,76,39,.88)); padding: 32px 22px; text-align: center; box-shadow: var(--shadow); margin: 18px 0 0; }
-    .viral-card::before { content: "🏆"; position: absolute; left: 14px; top: 8px; font-size: 5.8rem; opacity: .09; transform: rotate(-15deg); }
-    .viral-kicker { position: relative; color: var(--gold); font-size: .72rem; font-weight: 980; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
-    .viral-title { position: relative; font-size: clamp(1.24rem, 5vw, 2.05rem); font-weight: 980; line-height: 1.08; margin-bottom: 8px; }
-    .viral-copy { position: relative; color: var(--text-soft); font-size: .86rem; font-weight: 760; margin-bottom: 16px; }
-    .viral-btn { position: relative; width: 100%; min-height: 50px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); font-size: .84rem; font-weight: 980; letter-spacing: .04em; text-transform: uppercase; box-shadow: 0 14px 30px rgba(245,185,66,.27); }
+    .profile-name {
+      font-size: clamp(1.9rem, 5vw, 2.8rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -.04em;
+      margin-bottom: 7px;
+    }
 
-    .toast { position: fixed; left: 50%; bottom: calc(var(--footer-height) + 18px); transform: translateX(-50%) translateY(20px); z-index: 40; width: min(calc(100% - 28px), 440px); border: 1px solid rgba(245,185,66,.34); border-radius: 18px; background: rgba(7,28,46,.98); color: var(--text-main); padding: 13px 15px; box-shadow: 0 14px 36px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; font-size: .83rem; font-weight: 830; text-align: center; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .profile-copy {
+      color: var(--text-soft);
+      font-size: .88rem;
+      font-weight: 760;
+      max-width: 540px;
+    }
 
-    .app-footer { position: fixed; left: 50%; bottom: 0; z-index: 30; width: min(100%, 780px); transform: translateX(-50%); display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 9px 10px 11px; border: 1px solid rgba(255,255,255,.11); border-bottom: 0; border-radius: 24px 24px 0 0; background: rgba(4,17,29,.96); backdrop-filter: blur(18px); box-shadow: 0 -12px 34px rgba(0,0,0,.34); }
-    .footer-item { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; padding: 7px 4px; color: var(--text-muted); font-size: .67rem; font-weight: 880; gap: 3px; }
-    .footer-item span { font-size: 1.05rem; line-height: 1; }
-    .footer-item.active { color: var(--gold); background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); }
+    .profile-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
 
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 31px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.09);
+      font-size: .7rem;
+      font-weight: 900;
+    }
 
-    /* =========================================================
-      PREDIKT™
-      Founder Public UI Styles v1.1
-      Fabricante: JVSys
-      Objetivo:
-        Mostrar el programa Fundadores PREDIKT™ dentro del perfil
-        con diseño mobile-first, contador visual y estado de registro.
-    ========================================================= */
-
-    .founder-section {
-      width: 100%;
-      margin-bottom: 18px;
+    .pill.gold {
+      color: var(--gold);
+      border-color: rgba(245,185,66,.28);
+      background: rgba(245,185,66,.09);
     }
 
     .founder-card {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(245,185,66,.34);
-      border-radius: var(--radius-lg);
+      padding: 18px;
+      border-color: rgba(245,185,66,.34);
       background:
         radial-gradient(circle at 12% 18%, rgba(245,185,66,.14), transparent 28%),
         linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
-      box-shadow: var(--shadow);
-      padding: 18px;
     }
 
-    /* v1.2: Se elimina corona fantasma de fondo para evitar ruido visual. */
-
-    .founder-content {
-      position: relative;
-      z-index: 1;
+    .founder-grid {
       display: grid;
-      grid-template-columns: 1.08fr .92fr;
+      grid-template-columns: 1.05fr .95fr;
       gap: 14px;
       align-items: center;
     }
 
     .founder-badge {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
       width: fit-content;
-      padding: 8px 13px;
+      padding: 7px 12px;
       border-radius: 999px;
       color: var(--gold);
       background: rgba(245,185,66,.1);
       border: 1px solid rgba(245,185,66,.28);
-      font-size: .72rem;
+      font-size: .68rem;
       font-weight: 980;
       letter-spacing: .08em;
       text-transform: uppercase;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .founder-title {
-      font-size: clamp(1.26rem, 3.6vw, 1.78rem);
+      font-size: clamp(1.18rem, 3.5vw, 1.65rem);
       font-weight: 980;
       line-height: 1.08;
-      letter-spacing: -.04em;
+      letter-spacing: -.035em;
       margin-bottom: 6px;
     }
 
     .founder-copy {
       color: var(--text-soft);
-      font-size: .84rem;
+      font-size: .82rem;
       font-weight: 740;
-      line-height: 1.45;
-      max-width: 620px;
+      line-height: 1.4;
       margin-bottom: 10px;
     }
 
-    .founder-copy strong {
-      color: var(--gold-soft);
-    }
-
-    .founder-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
+    .founder-copy strong { color: var(--gold-soft); }
 
     .founder-button {
-      min-height: 44px;
+      min-height: 42px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -247,7 +237,7 @@
       border-radius: 999px;
       color: #061826;
       background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      font-size: .78rem;
+      font-size: .76rem;
       font-weight: 980;
       letter-spacing: .035em;
       text-transform: uppercase;
@@ -261,12 +251,6 @@
       box-shadow: none;
     }
 
-    .founder-mini-note {
-      color: rgba(255,255,255,.66);
-      font-size: .73rem;
-      font-weight: 760;
-    }
-
     .founder-progress-panel {
       border: 1px solid rgba(255,255,255,.09);
       border-radius: var(--radius-md);
@@ -276,15 +260,15 @@
 
     .founder-progress-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .founder-progress-label {
       color: var(--text-soft);
-      font-size: .72rem;
+      font-size: .66rem;
       font-weight: 900;
       letter-spacing: .05em;
       text-transform: uppercase;
@@ -292,18 +276,18 @@
 
     .founder-counter {
       color: var(--gold);
-      font-size: 1.55rem;
+      font-size: 1.45rem;
       font-weight: 980;
       line-height: 1;
     }
 
     .founder-progress-bar {
-      height: 12px;
+      height: 10px;
       overflow: hidden;
       border-radius: 999px;
       background: rgba(255,255,255,.1);
       border: 1px solid rgba(255,255,255,.08);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .founder-progress-fill {
@@ -317,253 +301,397 @@
 
     .founder-slots {
       color: var(--gold-soft);
-      font-size: .82rem;
+      font-size: .76rem;
       font-weight: 920;
       line-height: 1.35;
     }
 
     .founder-urgency {
       display: inline-flex;
-      align-items: center;
       width: fit-content;
-      margin-top: 8px;
-      padding: 6px 10px;
+      margin-top: 7px;
+      padding: 5px 9px;
       border-radius: 999px;
       color: var(--gold);
       background: rgba(245,185,66,.1);
       border: 1px solid rgba(245,185,66,.24);
-      font-size: .68rem;
+      font-size: .62rem;
       font-weight: 950;
       letter-spacing: .04em;
       text-transform: uppercase;
     }
 
-    .founder-list-preview {
+    .stats-card,
+    .level-card,
+    .settings-card {
+      padding: 16px;
+    }
+
+    .section-header {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .founder-chip {
-      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      min-height: 30px;
-      padding: 0 10px;
-      border-radius: 999px;
-      color: var(--text-soft);
-      background: rgba(255,255,255,.06);
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: .86rem;
+      font-weight: 980;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: .72rem;
+      font-weight: 950;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .stat-card {
+      min-height: 92px;
       border: 1px solid rgba(255,255,255,.09);
-      font-size: .7rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,.045);
+      padding: 11px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: .62rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      color: var(--text-main);
+      font-size: 1.4rem;
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .stat-note {
+      color: var(--text-soft);
+      font-size: .62rem;
+      font-weight: 760;
+    }
+
+    .level-main {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .level-name {
+      font-size: 1.25rem;
+      font-weight: 980;
+    }
+
+    .level-copy {
+      color: var(--text-soft);
+      font-size: .78rem;
+      font-weight: 720;
+      margin-top: 3px;
+    }
+
+    .level-percent {
+      color: var(--gold);
+      font-size: 1.2rem;
+      font-weight: 980;
+    }
+
+    .progress-bar {
+      height: 11px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .progress-fill {
+      width: 68%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 0 22px rgba(245,185,66,.45);
+    }
+
+    .settings-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .setting-row {
+      min-height: 56px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: center;
+      border-radius: 16px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.075);
+      padding: 10px;
+      color: var(--text-main);
+      text-align: left;
+      width: 100%;
+    }
+
+    .setting-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(245,185,66,.12);
+      border: 1px solid rgba(245,185,66,.22);
+      font-size: 1rem;
+    }
+
+    .setting-name {
+      display: block;
+      font-size: .72rem;
+      font-weight: 950;
+      margin-bottom: 1px;
+    }
+
+    .setting-copy {
+      display: block;
+      color: var(--text-soft);
+      font-size: .6rem;
+      font-weight: 730;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 18px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 40;
+      width: min(calc(100% - 28px), 440px);
+      border: 1px solid rgba(245,185,66,.34);
+      border-radius: 18px;
+      background: rgba(7,28,46,.98);
+      color: var(--text-main);
+      padding: 13px 15px;
+      box-shadow: 0 14px 36px rgba(0,0,0,.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      font-size: .83rem;
+      font-weight: 830;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 30;
+      width: min(100%, 780px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255,255,255,.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4,17,29,.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0,0,0,.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: .67rem;
       font-weight: 880;
+      gap: 3px;
     }
 
+    .footer-item span { font-size: 1.05rem; line-height: 1; }
 
-    .mobile-profile-actions {
-      display: none;
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245,185,66,.12);
+      border: 1px solid rgba(245,185,66,.22);
     }
 
-    @media (max-width: 920px) {
-      .page-shell { width: min(100%, 760px); }
-      .layout-grid { grid-template-columns: 1fr; }
-      .side-column { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-      .side-column .card { margin-bottom: 0; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 640px) {
-      body { padding-bottom: calc(var(--footer-height) + 16px); }
-      .page-shell { padding: 18px 14px 0; }
-      .top-bar { align-items: center; margin-bottom: 14px; }
-      .brand-name { font-size: 1.05rem; }
-      .level-pill { padding: 7px 10px; font-size: .67rem; }
-      .profile-hero { padding: 18px; border-radius: 24px; }
-      .profile-hero::after { right: 12px; top: 22px; font-size: 4.8rem; }
-      .profile-main { grid-template-columns: 1fr; gap: 14px; }
-      .avatar { width: 78px; height: 78px; border-radius: 22px; font-size: 1.65rem; }
-      .profile-copy { font-size: .84rem; }
-      .founder-card { padding: 18px; border-radius: 24px; }
-      .founder-content { grid-template-columns: 1fr; gap: 14px; }
-      .founder-title { font-size: 1.35rem; }
-      .founder-actions { display: grid; }
-      .founder-button { width: 100%; }
-      .stat-card { min-height: 102px; padding: 12px; }
-      .stat-value { font-size: 1.45rem; }
-      .achievement-grid { grid-template-columns: 1fr; }
-      .pool-row { grid-template-columns: 1fr; }
-      .pool-rank { text-align: left; }
-      .setting-row { grid-template-columns: 42px 1fr; }
-      .setting-action { grid-column: 2; }
-      .side-column { grid-template-columns: 1fr; }
-      .viral-card { padding: 28px 16px; }
-      .app-footer { width: 100%; border-radius: 22px 22px 0 0; }
-
-      /* =========================================================
-        PREDIKT™ v1.5
-        Mobile No-Scroll Profile UX
-        Objetivo:
-          Convertir perfil.html en una experiencia tipo app:
-          compacta, clara, humana y sin scroll largo en móvil.
-      ========================================================= */
-
+    @media (max-width: 720px) {
       body {
         min-height: 100svh;
-        padding-bottom: calc(var(--footer-height) + 10px);
+        padding-bottom: calc(var(--footer-height) + 8px);
       }
 
       .page-shell {
         min-height: calc(100svh - var(--footer-height));
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+        padding: 14px 12px 0;
       }
 
       .top-bar {
-        margin-bottom: 2px;
+        margin-bottom: 10px;
       }
 
-      .profile-hero {
-        margin-bottom: 8px;
-        padding: 14px;
+      .brand-name { font-size: 1.05rem; }
+      .hello { font-size: .72rem; }
+      .level-pill { padding: 7px 10px; font-size: .64rem; }
+
+      .profile-card,
+      .founder-card,
+      .stats-card,
+      .level-card,
+      .settings-card {
+        border-radius: 22px;
+        margin-bottom: 9px;
+      }
+
+      .profile-card {
+        padding: 13px;
+      }
+
+      .profile-row {
+        grid-template-columns: auto 1fr;
+        gap: 11px;
       }
 
       .avatar {
-        width: 58px;
-        height: 58px;
-        border-radius: 18px;
-        font-size: 1.2rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 17px;
+        font-size: 1.15rem;
       }
 
       .profile-kicker {
-        font-size: .58rem;
-        margin-bottom: 3px;
+        font-size: .56rem;
+        margin-bottom: 2px;
       }
 
       .profile-name {
-        font-size: 1.55rem;
-        margin-bottom: 5px;
+        font-size: 1.45rem;
+        margin-bottom: 4px;
       }
 
       .profile-copy {
-        font-size: .72rem;
-        line-height: 1.32;
+        font-size: .68rem;
+        line-height: 1.25;
       }
 
-      .quick-row {
-        gap: 6px;
-        margin-top: 9px;
+      .profile-pills {
+        gap: 5px;
+        margin-top: 8px;
       }
 
-      .quick-pill {
-        min-height: 26px;
-        padding: 0 8px;
-        font-size: .58rem;
-      }
-
-      .founder-section {
-        margin-bottom: 8px;
+      .pill {
+        min-height: 24px;
+        padding: 0 7px;
+        font-size: .54rem;
       }
 
       .founder-card {
-        padding: 13px;
-        border-radius: 22px;
+        padding: 12px;
+      }
+
+      .founder-grid {
+        grid-template-columns: 1fr;
+        gap: 9px;
       }
 
       .founder-badge {
-        padding: 6px 10px;
-        font-size: .58rem;
-        margin-bottom: 7px;
+        padding: 5px 9px;
+        font-size: .55rem;
+        margin-bottom: 6px;
       }
 
       .founder-title {
-        font-size: 1.05rem;
-        line-height: 1.05;
-        margin-bottom: 5px;
+        font-size: 1rem;
+        line-height: 1.04;
+        margin-bottom: 4px;
       }
 
       .founder-copy {
-        font-size: .68rem;
-        line-height: 1.28;
-        margin-bottom: 8px;
+        font-size: .64rem;
+        line-height: 1.25;
+        margin-bottom: 7px;
       }
 
       .founder-button {
-        min-height: 38px;
-        font-size: .65rem;
-      }
-
-      .founder-mini-note {
-        display: none;
+        width: 100%;
+        min-height: 36px;
+        font-size: .62rem;
       }
 
       .founder-progress-panel {
-        padding: 10px;
+        padding: 9px;
       }
 
       .founder-progress-top {
-        margin-bottom: 7px;
+        margin-bottom: 6px;
       }
 
       .founder-progress-label {
-        font-size: .58rem;
+        font-size: .54rem;
       }
 
       .founder-counter {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
       }
 
       .founder-progress-bar {
-        height: 9px;
-        margin-bottom: 7px;
+        height: 8px;
+        margin-bottom: 6px;
       }
 
       .founder-slots {
-        font-size: .66rem;
+        font-size: .62rem;
       }
 
       .founder-urgency {
-        margin-top: 6px;
-        padding: 5px 8px;
-        font-size: .56rem;
+        margin-top: 5px;
+        padding: 4px 7px;
+        font-size: .52rem;
       }
 
-      .founder-list-preview {
-        display: none;
-      }
-
-      .layout-grid {
-        display: block;
-      }
-
-      .main-column {
-        display: block;
-      }
-
-      .main-column .card,
-      .side-column .card,
+      .stats-card,
       .level-card,
-      .viral-card {
-        display: none;
+      .settings-card {
+        padding: 12px;
       }
 
-      .main-column .card:first-child {
-        display: block;
-        margin-bottom: 0;
-        padding: 14px;
-        border-radius: 22px;
-      }
-
-      .main-column .card:first-child .section-header {
+      .section-header {
         margin-bottom: 8px;
       }
 
-      .main-column .card:first-child .section-title {
-        font-size: .72rem;
+      .section-title {
+        font-size: .68rem;
       }
 
-      .main-column .card:first-child .section-link {
-        font-size: .62rem;
+      .section-link {
+        font-size: .58rem;
       }
 
       .stats-grid {
@@ -572,52 +700,99 @@
       }
 
       .stat-card {
-        min-height: 74px;
-        padding: 9px 7px;
-        border-radius: 16px;
+        min-height: 66px;
+        padding: 7px 6px;
+        border-radius: 14px;
       }
 
       .stat-label {
-        font-size: .52rem;
+        font-size: .48rem;
       }
 
       .stat-value {
-        font-size: 1.05rem;
+        font-size: .96rem;
       }
 
       .stat-note {
-        font-size: .5rem;
+        font-size: .47rem;
       }
 
-      .mobile-profile-actions {
-        display: grid;
+      .level-main {
+        margin-bottom: 8px;
+      }
+
+      .level-name {
+        font-size: 1rem;
+      }
+
+      .level-copy {
+        font-size: .62rem;
+        line-height: 1.25;
+      }
+
+      .level-percent {
+        font-size: .9rem;
+      }
+
+      .progress-bar {
+        height: 8px;
+      }
+
+      .settings-list {
         grid-template-columns: repeat(3, 1fr);
-        gap: 7px;
-        margin-top: 10px;
+        gap: 6px;
       }
 
-      .mobile-profile-actions a,
-      .mobile-profile-actions button {
-        min-height: 34px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 999px;
-        color: var(--text-soft);
-        background: rgba(255,255,255,.055);
-        border: 1px solid rgba(255,255,255,.09);
-        font-size: .58rem;
-        font-weight: 900;
+      .setting-row {
+        min-height: 44px;
+        grid-template-columns: 1fr;
+        justify-items: center;
         text-align: center;
+        padding: 7px;
+        gap: 4px;
+      }
+
+      .setting-icon {
+        width: 28px;
+        height: 28px;
+        font-size: .85rem;
+      }
+
+      .setting-name {
+        font-size: .56rem;
+      }
+
+      .setting-copy {
+        display: none;
       }
 
       .app-footer {
         padding: 8px 8px 10px;
       }
 
+      .footer-item {
+        font-size: .58rem;
+      }
 
-      .footer-item { font-size: .58rem; }
-      .footer-item span { font-size: 1rem; }
+      .footer-item span {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .profile-copy,
+      .founder-copy,
+      .level-copy {
+        display: none;
+      }
+
+      .stats-card {
+        display: none;
+      }
+
+      .setting-row {
+        min-height: 38px;
+      }
     }
   </style>
 </head>
@@ -632,160 +807,92 @@
       <span class="level-pill">📺 Futbolero</span>
     </header>
 
-    <section class="profile-hero" aria-label="Perfil de participante">
-      <div class="profile-main">
+    <section class="profile-card" aria-label="Perfil de participante">
+      <div class="profile-row">
         <div class="avatar" aria-hidden="true">JV</div>
         <div>
           <p class="profile-kicker">Perfil de participante</p>
           <h1 class="profile-name">Javier</h1>
           <p class="profile-copy">Vas #3 en Los Cuates. Estás a 16 puntos del líder y mantienes una racha activa de 5 pronósticos.</p>
-          <div class="quick-row">
-            <span class="quick-pill gold">📺 Futbolero</span>
-            <span class="quick-pill">🏆 #3 Los Cuates</span>
-            <span class="quick-pill">⚡ Racha 5</span>
-            <span class="quick-pill">🎯 72% aciertos</span>
+          <div class="profile-pills">
+            <span class="pill gold">📺 Futbolero</span>
+            <span class="pill">🏆 #3 Los Cuates</span>
+            <span class="pill">⚡ Racha 5</span>
+            <span class="pill">🎯 72% aciertos</span>
           </div>
         </div>
       </div>
     </section>
 
+    <section class="founder-card" id="founderSection" aria-label="Programa Fundadores PREDIKT">
+      <div class="founder-grid">
+        <div>
+          <span class="founder-badge">👑 Fundadores PREDIKT™</span>
+          <h2 class="founder-title">⚽ ¿Te gusta PREDIKT™?<br />Invítanos un café.</h2>
+          <p class="founder-copy">
+            Aportación única de <strong>$50 MXN</strong>. Sé Fundador PREDIKT™ y conserva
+            <strong>acceso gratuito de por vida</strong>.
+          </p>
+          <button class="founder-button" id="founderButton" type="button">☕ Convertirme en Fundador</button>
+        </div>
 
-    <!-- =========================================================
-      PREDIKT™
-      Founder Public UI Block v1.1
-      Fabricante: JVSys
-      Objetivo:
-        Mostrar el programa Fundadores PREDIKT™ en perfil.html
-        sin depender todavía de Mercado Pago.
-    ========================================================= -->
-    <section class="founder-section" id="founderSection" aria-label="Programa Fundadores PREDIKT">
-      <div class="founder-card">
-        <div class="founder-content">
-          <div>
-            <span class="founder-badge">👑 Fundadores PREDIKT™</span>
-            <h2 class="founder-title">⚽ ¿Te gusta PREDIKT™?<br />Invítanos un café.</h2>
-            <p class="founder-copy">
-              Aportación única de <strong>$50 MXN</strong>. Sé Fundador PREDIKT™ y conserva
-              <strong>acceso gratuito de por vida</strong>.
-            </p>
-
-            <div class="founder-actions">
-              <button class="founder-button" id="founderButton" type="button">
-                ☕ Convertirme en Fundador
-              </button>
-              <span class="founder-mini-note" id="founderNote">
-                Beneficio vitalicio para los primeros 100.
-              </span>
-            </div>
+        <div class="founder-progress-panel">
+          <div class="founder-progress-top">
+            <span class="founder-progress-label">👑 Fundadores</span>
+            <strong class="founder-counter" id="foundersCounter">3 / 100</strong>
           </div>
-
-          <div class="founder-progress-panel">
-            <div class="founder-progress-top">
-              <span class="founder-progress-label">👑 Fundadores</span>
-              <strong class="founder-counter" id="foundersCounter">3 / 100</strong>
-            </div>
-
-            <div class="founder-progress-bar" aria-hidden="true">
-              <div class="founder-progress-fill" id="founderProgressFill"></div>
-            </div>
-
-            <p class="founder-slots" id="founderSlotsText">
-              97 lugares disponibles.
-            </p>
-
-            <span class="founder-urgency" id="founderUrgency">Cupo fundador activo</span>
-
-            <div class="founder-list-preview" aria-label="Fundadores recientes">
-              <span class="founder-chip">👑 Pey</span>
-              <span class="founder-chip">👑 Andre</span>
-              <span class="founder-chip">👑 Founder Test Admin</span>
-            </div>
+          <div class="founder-progress-bar" aria-hidden="true">
+            <div class="founder-progress-fill" id="founderProgressFill"></div>
           </div>
+          <p class="founder-slots" id="founderSlotsText">97 lugares disponibles.</p>
+          <span class="founder-urgency" id="founderUrgency">Cupo fundador activo</span>
         </div>
       </div>
     </section>
 
-    <div class="layout-grid">
-      <section class="main-column">
-        <section class="card" aria-label="Estadísticas personales">
-          <div class="section-header">
-            <h2 class="section-title">Mis estadísticas</h2>
-            <a class="section-link" href="ranking.html">Ver ranking</a>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-card"><p class="stat-label">Puntos</p><strong class="stat-value">124</strong><p class="stat-note">a 16 del líder</p></div>
-            <div class="stat-card"><p class="stat-label">Aciertos</p><strong class="stat-value">72%</strong><p class="stat-note">buen ritmo</p></div>
-            <div class="stat-card"><p class="stat-label">Pronósticos</p><strong class="stat-value">38</strong><p class="stat-note">capturados</p></div>
-            <div class="stat-card"><p class="stat-label">Racha</p><strong class="stat-value">5</strong><p class="stat-note">activa</p></div>
-          </div>
+    <section class="stats-card" aria-label="Estadísticas personales">
+      <div class="section-header">
+        <h2 class="section-title">Mis estadísticas</h2>
+        <a class="section-link" href="ranking.html">Ver ranking</a>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><p class="stat-label">Puntos</p><strong class="stat-value">124</strong><p class="stat-note">a 16 del líder</p></div>
+        <div class="stat-card"><p class="stat-label">Aciertos</p><strong class="stat-value">72%</strong><p class="stat-note">buen ritmo</p></div>
+        <div class="stat-card"><p class="stat-label">Pronósticos</p><strong class="stat-value">38</strong><p class="stat-note">capturados</p></div>
+        <div class="stat-card"><p class="stat-label">Racha</p><strong class="stat-value">5</strong><p class="stat-note">activa</p></div>
+      </div>
+    </section>
 
-          <div class="mobile-profile-actions" aria-label="Accesos rápidos del perfil">
-            <a href="ranking.html">🏆 Ranking</a>
-            <a href="mi-quiniela.html">⚽ Mi quiniela</a>
-            <button type="button" data-action="Compartir perfil">📲 Compartir</button>
-          </div>
-        </section>
-
-        <section class="level-card" aria-label="Nivel del participante">
-          <p class="level-title">Nivel actual</p>
+    <section class="level-card" aria-label="Nivel del participante">
+      <div class="level-main">
+        <div>
           <h2 class="level-name">📺 Futbolero</h2>
-          <p class="level-copy">Vas avanzando hacia Conocedor. Sigue pronosticando para subir de nivel y desbloquear más reconocimientos.</p>
-          <div class="progress-top"><span>Progreso a 🎯 Conocedor</span><span>68%</span></div>
-          <div class="progress-bar" aria-hidden="true"><div class="progress-fill"></div></div>
-        </section>
+          <p class="level-copy">Progreso hacia 🎯 Conocedor.</p>
+        </div>
+        <strong class="level-percent">68%</strong>
+      </div>
+      <div class="progress-bar" aria-hidden="true"><div class="progress-fill"></div></div>
+    </section>
 
-        <section class="card" aria-label="Reconocimientos">
-          <div class="section-header">
-            <h2 class="section-title">Reconocimientos</h2>
-            <a class="section-link" href="ranking.html">Competir</a>
-          </div>
-          <div class="achievement-grid">
-            <div class="achievement-card"><div class="achievement-icon">🔥</div><div><p class="achievement-name">Rey de la Jornada</p><p class="achievement-copy">Ganaste una jornada anterior.</p></div></div>
-            <div class="achievement-card"><div class="achievement-icon">⚡</div><div><p class="achievement-name">Enrachado</p><p class="achievement-copy">Cinco pronósticos activos.</p></div></div>
-            <div class="achievement-card"><div class="achievement-icon">🎯</div><div><p class="achievement-name">Golpe Maestro</p><p class="achievement-copy">Marcador exacto conseguido.</p></div></div>
-            <div class="achievement-card locked"><div class="achievement-icon">😱</div><div><p class="achievement-name">El Inesperado</p><p class="achievement-copy">Pendiente por desbloquear.</p></div></div>
-          </div>
-        </section>
-
-        <section class="card" aria-label="Mis quinielas">
-          <div class="section-header">
-            <h2 class="section-title">Mis Quinielas</h2>
-            <a class="section-link" href="crear-quiniela.html">Crear</a>
-          </div>
-          <div class="pool-list">
-            <a class="pool-row active" href="mi-quiniela.html"><div><p class="pool-name">🏆 Los Cuates</p><p class="pool-meta">18 participantes · Mundial 2026 · Activa</p></div><div class="pool-rank">#3<p class="pool-points">124 pts</p></div></a>
-            <a class="pool-row" href="crear-quiniela.html"><div><p class="pool-name">➕ Crear nueva quiniela</p><p class="pool-meta">Invita amigos y abre otra competencia.</p></div><div class="pool-rank">Nuevo<p class="pool-points">viral</p></div></a>
-          </div>
-        </section>
-      </section>
-
-      <aside class="side-column">
-        <section class="card" aria-label="Temporada">
-          <h2 class="section-title">Rendimiento</h2>
-          <div class="season-card">
-            <h3 class="season-title">Últimas jornadas</h3>
-            <p class="season-copy">Tu rendimiento reciente viene subiendo. Estás en zona de pelea.</p>
-            <div class="mini-chart" aria-hidden="true"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-          </div>
-        </section>
-
-        <section class="card" aria-label="Configuración">
-          <h2 class="section-title">Configuración</h2>
-          <div class="settings-list">
-            <button class="setting-row" type="button" data-action="Editar perfil"><span class="setting-icon">✏️</span><span><strong class="setting-name">Editar perfil</strong><span class="setting-copy">Nombre, foto y alias.</span></span><span class="setting-action">Abrir</span></button>
-            <button class="setting-row" type="button" data-action="Notificaciones"><span class="setting-icon">🔔</span><span><strong class="setting-name">Notificaciones</strong><span class="setting-copy">Recordatorios de partidos.</span></span><span class="setting-action">Configurar</span></button>
-            <button class="setting-row" type="button" data-action="Compartir perfil"><span class="setting-icon">📲</span><span><strong class="setting-name">Compartir perfil</strong><span class="setting-copy">Presume tu ranking.</span></span><span class="setting-action">Compartir</span></button>
-            <button class="setting-row" type="button" data-action="Cerrar sesión"><span class="setting-icon">🚪</span><span><strong class="setting-name">Cerrar sesión</strong><span class="setting-copy">Simulado para la Beta.</span></span><span class="setting-action">Salir</span></button>
-          </div>
-        </section>
-      </aside>
-    </div>
-
-    <section class="viral-card" aria-label="Crear quiniela">
-      <p class="viral-kicker">Motor viral</p>
-      <h2 class="viral-title">Tu perfil mejora cuando compites con más amigos.</h2>
-      <p class="viral-copy">Crea otra quiniela, invita a tus cuates y sube de nivel jugando más partidos.</p>
-      <a class="viral-btn" href="crear-quiniela.html">Crear Quiniela</a>
+    <section class="settings-card" aria-label="Configuración">
+      <div class="section-header">
+        <h2 class="section-title">Configuración</h2>
+        <a class="section-link" href="mis-logros.html">Mis logros</a>
+      </div>
+      <div class="settings-list">
+        <button class="setting-row" type="button" data-action="Editar perfil">
+          <span class="setting-icon">✏️</span>
+          <span><strong class="setting-name">Editar</strong><span class="setting-copy">Nombre, foto y alias.</span></span>
+        </button>
+        <button class="setting-row" type="button" data-action="Notificaciones">
+          <span class="setting-icon">🔔</span>
+          <span><strong class="setting-name">Avisos</strong><span class="setting-copy">Recordatorios de partidos.</span></span>
+        </button>
+        <button class="setting-row" type="button" data-action="Cerrar sesión">
+          <span class="setting-icon">🚪</span>
+          <span><strong class="setting-name">Salir</strong><span class="setting-copy">Simulado para la Beta.</span></span>
+        </button>
+      </div>
     </section>
   </main>
 
@@ -809,7 +916,6 @@
       showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2300);
     }
 
-
     const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
     const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
 
@@ -818,10 +924,9 @@
       const founderProgressFill = document.getElementById("founderProgressFill");
       const founderSlotsText = document.getElementById("founderSlotsText");
       const founderButton = document.getElementById("founderButton");
-      const founderNote = document.getElementById("founderNote");
       const founderUrgency = document.getElementById("founderUrgency");
 
-      if (!foundersCounter || !founderProgressFill || !founderSlotsText || !founderButton || !founderNote || !founderUrgency) {
+      if (!foundersCounter || !founderProgressFill || !founderSlotsText || !founderButton || !founderUrgency) {
         return;
       }
 
@@ -839,13 +944,11 @@
         founderUrgency.textContent = remaining <= 15 ? "⚠ Últimos lugares disponibles" : "Cupo fundador activo";
         founderButton.disabled = false;
         founderButton.textContent = "☕ Convertirme en Fundador";
-        founderNote.textContent = "Beneficio vitalicio para los primeros 100.";
       } else {
         founderSlotsText.textContent = "Programa de Fundadores finalizado.";
         founderUrgency.textContent = "Programa finalizado";
         founderButton.disabled = true;
         founderButton.textContent = "Programa finalizado";
-        founderNote.textContent = "Gracias a los 100 Fundadores PREDIKT™.";
       }
     }
 
@@ -877,7 +980,6 @@
 
         const rows = await response.json();
         const liveStatus = Array.isArray(rows) && rows.length > 0 ? rows[0] : fallbackFounderProgramStatus;
-
         renderFounderProgramStatus(liveStatus);
       } catch (error) {
         console.warn("PREDIKT Founder live status unavailable. Using safe fallback.", error);
@@ -885,7 +987,6 @@
       }
 
       const founderButton = document.getElementById("founderButton");
-
       if (founderButton) {
         founderButton.addEventListener("click", () => {
           showToast("Registro de Fundador: por ahora JVSys lo activa manualmente. Mercado Pago se conectará en la siguiente etapa.");
@@ -903,4 +1004,3 @@
   </script>
 </body>
 </html>
-
