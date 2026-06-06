@@ -1,1 +1,335 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: mis-logros.html
+    Fecha: 2026-06-05
+    Versión: v1.0
+    Fabricante: JVSys
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla de logros, reconocimientos y rendimiento.
+      Extraída desde perfil.html para mantener el perfil principal
+      minimalista, humano y sin scroll excesivo.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 334
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Mis Logros</title>
+  <meta name="theme-color" content="#061826" />
+  <link rel="icon" href="assets/logos/predikt-icon.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-card: #0f2740;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --border: rgba(255,255,255,.11);
+      --shadow: 0 18px 45px rgba(0,0,0,.35);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --footer-height: 82px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(245,185,66,.13), transparent 28%),
+        radial-gradient(circle at top right, rgba(93,173,226,.12), transparent 24%),
+        linear-gradient(135deg, #061826 0%, #061826 43%, #020b13 100%);
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 18px);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page-shell {
+      width: min(100%, 880px);
+      margin: 0 auto;
+      padding: 22px 16px 0;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .brand-name { letter-spacing: .09em; font-size: 1.18rem; font-weight: 950; line-height: 1; }
+    .hello { color: var(--text-soft); font-size: .78rem; font-weight: 750; }
+
+    .back-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border: 1px solid rgba(245,185,66,.35);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245,185,66,.09);
+      font-size: .72rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .hero-card,
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+      box-shadow: 0 14px 36px rgba(0,0,0,.22);
+      margin-bottom: 14px;
+    }
+
+    .hero-card {
+      padding: 20px;
+      border-color: rgba(245,185,66,.28);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(245,185,66,.16), transparent 26%),
+        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+    }
+
+    .hero-kicker {
+      color: var(--gold);
+      font-size: .72rem;
+      font-weight: 980;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 6vw, 3rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -.04em;
+      margin-bottom: 8px;
+    }
+
+    .hero-copy {
+      color: var(--text-soft);
+      font-size: .9rem;
+      font-weight: 760;
+      max-width: 620px;
+    }
+
+    .card {
+      padding: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: .86rem;
+      font-weight: 980;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: .72rem;
+      font-weight: 950;
+    }
+
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .achievement-card {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 11px;
+      align-items: center;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.075);
+      padding: 12px;
+    }
+
+    .achievement-card.locked {
+      opacity: .58;
+      filter: grayscale(.35);
+    }
+
+    .achievement-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(245,185,66,.12);
+      border: 1px solid rgba(245,185,66,.22);
+      font-size: 1.4rem;
+    }
+
+    .achievement-name {
+      font-size: .88rem;
+      font-weight: 950;
+      line-height: 1.1;
+      margin-bottom: 3px;
+    }
+
+    .achievement-copy {
+      color: var(--text-soft);
+      font-size: .71rem;
+      font-weight: 740;
+    }
+
+    .season-card {
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,.045);
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    .season-title { font-size: .95rem; font-weight: 960; margin-bottom: 4px; }
+    .season-copy { color: var(--text-soft); font-size: .76rem; font-weight: 720; margin-bottom: 12px; }
+
+    .mini-chart {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 7px;
+      height: 90px;
+      align-items: end;
+    }
+
+    .bar {
+      border-radius: 999px 999px 6px 6px;
+      background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+      min-height: 12px;
+      opacity: .92;
+    }
+
+    .bar:nth-child(1) { height: 44%; }
+    .bar:nth-child(2) { height: 62%; }
+    .bar:nth-child(3) { height: 52%; }
+    .bar:nth-child(4) { height: 78%; }
+    .bar:nth-child(5) { height: 65%; }
+    .bar:nth-child(6) { height: 88%; }
+    .bar:nth-child(7) { height: 74%; }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 30;
+      width: min(100%, 780px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255,255,255,.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4,17,29,.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0,0,0,.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: .67rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+
+    .footer-item span { font-size: 1.05rem; line-height: 1; }
+
+    @media (max-width: 640px) {
+      .page-shell { padding: 16px 12px 0; }
+      .hero-card, .card { border-radius: 22px; padding: 14px; }
+      .achievement-grid { grid-template-columns: 1fr; }
+      .achievement-card { grid-template-columns: 42px 1fr; padding: 10px; }
+      .achievement-icon { width: 42px; height: 42px; font-size: 1.2rem; }
+      .footer-item { font-size: .58rem; }
+      .footer-item span { font-size: 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="top-bar" aria-label="Encabezado de PREDIKT">
+      <a href="index.html" aria-label="Ir a inicio">
+        <strong class="brand-name">PREDIKT™</strong>
+        <div class="hello">Mis logros</div>
+      </a>
+      <a class="back-pill" href="perfil.html">← Perfil</a>
+    </header>
+
+    <section class="hero-card" aria-label="Resumen de logros">
+      <p class="hero-kicker">Historial del participante</p>
+      <h1 class="hero-title">Tus logros y rendimiento.</h1>
+      <p class="hero-copy">Aquí viven tus medallas, rachas y evolución. El perfil principal se mantiene limpio para que veas lo importante sin perder tiempo.</p>
+    </section>
+
+    <section class="card" aria-label="Reconocimientos">
+      <div class="section-header">
+        <h2 class="section-title">Reconocimientos</h2>
+        <a class="section-link" href="ranking.html">Competir</a>
+      </div>
+
+      <div class="achievement-grid">
+        <div class="achievement-card"><div class="achievement-icon">🔥</div><div><p class="achievement-name">Rey de la Jornada</p><p class="achievement-copy">Ganaste una jornada anterior.</p></div></div>
+        <div class="achievement-card"><div class="achievement-icon">⚡</div><div><p class="achievement-name">Enrachado</p><p class="achievement-copy">Cinco pronósticos activos.</p></div></div>
+        <div class="achievement-card"><div class="achievement-icon">🎯</div><div><p class="achievement-name">Golpe Maestro</p><p class="achievement-copy">Marcador exacto conseguido.</p></div></div>
+        <div class="achievement-card locked"><div class="achievement-icon">😱</div><div><p class="achievement-name">El Inesperado</p><p class="achievement-copy">Pendiente por desbloquear.</p></div></div>
+      </div>
+    </section>
+
+    <section class="card" aria-label="Rendimiento">
+      <div class="section-header">
+        <h2 class="section-title">Rendimiento</h2>
+        <a class="section-link" href="perfil.html">Volver</a>
+      </div>
+
+      <div class="season-card">
+        <h3 class="season-title">Últimas jornadas</h3>
+        <p class="season-copy">Tu rendimiento reciente viene subiendo. Estás en zona de pelea.</p>
+        <div class="mini-chart" aria-hidden="true">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item" href="perfil.html"><span>👤</span>Perfil</a>
+  </nav>
+</body>
+</html>
 
