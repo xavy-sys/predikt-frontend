@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: perfil.html
     Fecha: 2026-06-05
-    Versión: v1.4 Founder Supabase Live Connection
+    Versión: v1.5 Mobile No-Scroll Profile UX
     Fabricante: JVSys
     Proyecto: PREDIKT™
     Descripción:
@@ -12,9 +12,9 @@
       Pantalla mobile-first tipo aplicación deportiva social.
       Incluye identidad del participante, nivel, estadísticas personales,
       reconocimientos, mis quinielas, configuración simulada, notificaciones
-      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™ conectado a Supabase en vivo.
-    Líneas versión anterior: 650
-    Líneas versión nueva: 677
+      navegación inferior de aplicación, módulo Fundadores conectado a Supabase y optimización mobile no-scroll.
+    Líneas versión anterior: 677
+    Líneas versión nueva: 906
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -359,6 +359,11 @@
       font-weight: 880;
     }
 
+
+    .mobile-profile-actions {
+      display: none;
+    }
+
     @media (max-width: 920px) {
       .page-shell { width: min(100%, 760px); }
       .layout-grid { grid-template-columns: 1fr; }
@@ -393,6 +398,224 @@
       .side-column { grid-template-columns: 1fr; }
       .viral-card { padding: 28px 16px; }
       .app-footer { width: 100%; border-radius: 22px 22px 0 0; }
+
+      /* =========================================================
+        PREDIKT™ v1.5
+        Mobile No-Scroll Profile UX
+        Objetivo:
+          Convertir perfil.html en una experiencia tipo app:
+          compacta, clara, humana y sin scroll largo en móvil.
+      ========================================================= */
+
+      body {
+        min-height: 100svh;
+        padding-bottom: calc(var(--footer-height) + 10px);
+      }
+
+      .page-shell {
+        min-height: calc(100svh - var(--footer-height));
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .top-bar {
+        margin-bottom: 2px;
+      }
+
+      .profile-hero {
+        margin-bottom: 8px;
+        padding: 14px;
+      }
+
+      .avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        font-size: 1.2rem;
+      }
+
+      .profile-kicker {
+        font-size: .58rem;
+        margin-bottom: 3px;
+      }
+
+      .profile-name {
+        font-size: 1.55rem;
+        margin-bottom: 5px;
+      }
+
+      .profile-copy {
+        font-size: .72rem;
+        line-height: 1.32;
+      }
+
+      .quick-row {
+        gap: 6px;
+        margin-top: 9px;
+      }
+
+      .quick-pill {
+        min-height: 26px;
+        padding: 0 8px;
+        font-size: .58rem;
+      }
+
+      .founder-section {
+        margin-bottom: 8px;
+      }
+
+      .founder-card {
+        padding: 13px;
+        border-radius: 22px;
+      }
+
+      .founder-badge {
+        padding: 6px 10px;
+        font-size: .58rem;
+        margin-bottom: 7px;
+      }
+
+      .founder-title {
+        font-size: 1.05rem;
+        line-height: 1.05;
+        margin-bottom: 5px;
+      }
+
+      .founder-copy {
+        font-size: .68rem;
+        line-height: 1.28;
+        margin-bottom: 8px;
+      }
+
+      .founder-button {
+        min-height: 38px;
+        font-size: .65rem;
+      }
+
+      .founder-mini-note {
+        display: none;
+      }
+
+      .founder-progress-panel {
+        padding: 10px;
+      }
+
+      .founder-progress-top {
+        margin-bottom: 7px;
+      }
+
+      .founder-progress-label {
+        font-size: .58rem;
+      }
+
+      .founder-counter {
+        font-size: 1.1rem;
+      }
+
+      .founder-progress-bar {
+        height: 9px;
+        margin-bottom: 7px;
+      }
+
+      .founder-slots {
+        font-size: .66rem;
+      }
+
+      .founder-urgency {
+        margin-top: 6px;
+        padding: 5px 8px;
+        font-size: .56rem;
+      }
+
+      .founder-list-preview {
+        display: none;
+      }
+
+      .layout-grid {
+        display: block;
+      }
+
+      .main-column {
+        display: block;
+      }
+
+      .main-column .card,
+      .side-column .card,
+      .level-card,
+      .viral-card {
+        display: none;
+      }
+
+      .main-column .card:first-child {
+        display: block;
+        margin-bottom: 0;
+        padding: 14px;
+        border-radius: 22px;
+      }
+
+      .main-column .card:first-child .section-header {
+        margin-bottom: 8px;
+      }
+
+      .main-column .card:first-child .section-title {
+        font-size: .72rem;
+      }
+
+      .main-column .card:first-child .section-link {
+        font-size: .62rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .stat-card {
+        min-height: 74px;
+        padding: 9px 7px;
+        border-radius: 16px;
+      }
+
+      .stat-label {
+        font-size: .52rem;
+      }
+
+      .stat-value {
+        font-size: 1.05rem;
+      }
+
+      .stat-note {
+        font-size: .5rem;
+      }
+
+      .mobile-profile-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .mobile-profile-actions a,
+      .mobile-profile-actions button {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        color: var(--text-soft);
+        background: rgba(255,255,255,.055);
+        border: 1px solid rgba(255,255,255,.09);
+        font-size: .58rem;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .app-footer {
+        padding: 8px 8px 10px;
+      }
+
+
       .footer-item { font-size: .58rem; }
       .footer-item span { font-size: 1rem; }
     }
@@ -494,6 +717,12 @@
             <div class="stat-card"><p class="stat-label">Aciertos</p><strong class="stat-value">72%</strong><p class="stat-note">buen ritmo</p></div>
             <div class="stat-card"><p class="stat-label">Pronósticos</p><strong class="stat-value">38</strong><p class="stat-note">capturados</p></div>
             <div class="stat-card"><p class="stat-label">Racha</p><strong class="stat-value">5</strong><p class="stat-note">activa</p></div>
+          </div>
+
+          <div class="mobile-profile-actions" aria-label="Accesos rápidos del perfil">
+            <a href="ranking.html">🏆 Ranking</a>
+            <a href="mi-quiniela.html">⚽ Mi quiniela</a>
+            <button type="button" data-action="Compartir perfil">📲 Compartir</button>
           </div>
         </section>
 
