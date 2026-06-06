@@ -3,8 +3,8 @@
 <head>
   <!--
     Nombre del archivo: ranking.html
-    Fecha: 2026-06-05
-    Versión: v1.0
+    Fecha: 2026-06-06
+    Versión: v1.1
     Fabricante: JVSys
     Proyecto: PREDIKT™
     Descripción:
@@ -12,9 +12,9 @@
       Pantalla mobile-first tipo aplicación deportiva social.
       Incluye podio visual, posición personal destacada, top 20 participantes,
       movimiento de posiciones, diferencia contra líder, reconocimientos,
-      motor viral y navegación inferior de aplicación.
-    Líneas versión anterior: 0
-    Líneas versión nueva: 1118
+      motor viral, navegación a rankings de selecciones y navegación inferior de aplicación.
+    Líneas versión anterior: 1379
+    Líneas versión nueva: 1446
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,7 +27,9 @@
   />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" href="assets/logos/predikt-icon.png" />
+  <link rel="icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/predikt-logo.png" />
 
   <style>
     :root {
@@ -627,6 +629,55 @@
       background: linear-gradient(90deg, var(--gold), var(--gold-soft));
     }
 
+
+
+    .selection-rankings-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(93, 173, 226, 0.24);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(93, 173, 226, 0.16), transparent 28%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.92), rgba(7, 30, 50, 0.96));
+      padding: 20px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+      margin-bottom: 18px;
+    }
+
+    .selection-rankings-card::after {
+      content: "🌎";
+      position: absolute;
+      right: 18px;
+      top: 12px;
+      font-size: 4.4rem;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    .selection-rankings-title {
+      position: relative;
+      font-size: 1rem;
+      font-weight: 980;
+      margin-bottom: 8px;
+    }
+
+    .selection-rankings-copy {
+      position: relative;
+      max-width: 560px;
+      color: var(--text-soft);
+      font-size: 0.84rem;
+      font-weight: 740;
+      margin-bottom: 14px;
+    }
+
+    .selection-rankings-actions {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+
     .viral-card {
       position: relative;
       overflow: hidden;
@@ -881,6 +932,10 @@
       }
 
       .side-column {
+        grid-template-columns: 1fr;
+      }
+
+      .selection-rankings-actions {
         grid-template-columns: 1fr;
       }
 
@@ -1336,6 +1391,18 @@
         </section>
       </aside>
     </div>
+
+
+    <section class="selection-rankings-card" aria-label="Rankings de selecciones">
+      <h2 class="selection-rankings-title">🌎 Rankings de Selecciones</h2>
+      <p class="selection-rankings-copy">
+        Consulta el ranking oficial y la lectura PREDIKT™ de las selecciones.
+      </p>
+      <div class="selection-rankings-actions">
+        <a class="app-btn secondary" href="ranking-oficial.html">Ranking Oficial</a>
+        <a class="app-btn primary" href="ranking-predikt.html">Ranking PREDIKT™</a>
+      </div>
+    </section>
 
     <section class="viral-card" aria-label="Crear quiniela">
       <p class="viral-kicker">Motor viral</p>
