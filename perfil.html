@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: perfil.html
     Fecha: 2026-06-05
-    Versión: v1.3 Founder Conversion Optimization
+    Versión: v1.4 Founder Supabase Live Connection
     Fabricante: JVSys
     Proyecto: PREDIKT™
     Descripción:
@@ -12,9 +12,9 @@
       Pantalla mobile-first tipo aplicación deportiva social.
       Incluye identidad del participante, nivel, estadísticas personales,
       reconocimientos, mis quinielas, configuración simulada, notificaciones
-      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™ optimizado para conversión.
-    Líneas versión anterior: 628
-    Líneas versión nueva: 650
+      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™ conectado a Supabase en vivo.
+    Líneas versión anterior: 650
+    Líneas versión nueva: 677
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -581,7 +581,10 @@
     }
 
 
-    function loadFounderProgramStatus() {
+    const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
+    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+
+    function renderFounderProgramStatus(founderProgramStatus) {
       const foundersCounter = document.getElementById("foundersCounter");
       const founderProgressFill = document.getElementById("founderProgressFill");
       const founderSlotsText = document.getElementById("founderSlotsText");
@@ -593,32 +596,16 @@
         return;
       }
 
-      /*
-        Fuente futura:
-        founders.v_founder_program_public_status
-
-        Estado actual validado en Supabase:
-        founders_registered = 3
-        founder_limit = 100
-        founder_slots_remaining = 97
-        show_founder_button = true
-      */
-      const founderProgramStatus = {
-        founders_registered: 3,
-        founder_limit: 100,
-        founder_slots_remaining: 97,
-        show_founder_button: true
-      };
-
-      const registered = founderProgramStatus.founders_registered;
-      const limit = founderProgramStatus.founder_limit;
-      const remaining = founderProgramStatus.founder_slots_remaining;
-      const progress = Math.min((registered / limit) * 100, 100);
+      const registered = Number(founderProgramStatus.founders_registered || 0);
+      const limit = Number(founderProgramStatus.founder_limit || 100);
+      const remaining = Number(founderProgramStatus.founder_slots_remaining || 0);
+      const showButton = Boolean(founderProgramStatus.show_founder_button);
+      const progress = limit > 0 ? Math.min((registered / limit) * 100, 100) : 0;
 
       foundersCounter.textContent = `${registered} / ${limit}`;
       founderProgressFill.style.width = `${progress}%`;
 
-      if (founderProgramStatus.show_founder_button) {
+      if (showButton && remaining > 0) {
         founderSlotsText.textContent = `${remaining} lugares disponibles.`;
         founderUrgency.textContent = remaining <= 15 ? "⚠ Últimos lugares disponibles" : "Cupo fundador activo";
         founderButton.disabled = false;
@@ -631,10 +618,50 @@
         founderButton.textContent = "Programa finalizado";
         founderNote.textContent = "Gracias a los 100 Fundadores PREDIKT™.";
       }
+    }
 
-      founderButton.addEventListener("click", () => {
-        showToast("Registro de Fundador: por ahora JVSys lo activa manualmente. Mercado Pago se conectará en la siguiente etapa.");
-      });
+    async function loadFounderProgramStatus() {
+      const fallbackFounderProgramStatus = {
+        founders_registered: 3,
+        founder_limit: 100,
+        founder_slots_remaining: 97,
+        show_founder_button: true
+      };
+
+      try {
+        const response = await fetch(
+          `${PREDIKT_SUPABASE_REST_URL}/v_founder_program_public_status?select=*`,
+          {
+            method: "GET",
+            headers: {
+              "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
+              "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+              "Accept": "application/json",
+              "Accept-Profile": "founders"
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Supabase status ${response.status}`);
+        }
+
+        const rows = await response.json();
+        const liveStatus = Array.isArray(rows) && rows.length > 0 ? rows[0] : fallbackFounderProgramStatus;
+
+        renderFounderProgramStatus(liveStatus);
+      } catch (error) {
+        console.warn("PREDIKT Founder live status unavailable. Using safe fallback.", error);
+        renderFounderProgramStatus(fallbackFounderProgramStatus);
+      }
+
+      const founderButton = document.getElementById("founderButton");
+
+      if (founderButton) {
+        founderButton.addEventListener("click", () => {
+          showToast("Registro de Fundador: por ahora JVSys lo activa manualmente. Mercado Pago se conectará en la siguiente etapa.");
+        });
+      }
     }
 
     loadFounderProgramStatus();
