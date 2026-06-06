@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: perfil.html
     Fecha: 2026-06-05
-    Versión: v1.2 Founder UI Clean Visual
+    Versión: v1.3 Founder Conversion Optimization
     Fabricante: JVSys
     Proyecto: PREDIKT™
     Descripción:
@@ -12,9 +12,9 @@
       Pantalla mobile-first tipo aplicación deportiva social.
       Incluye identidad del participante, nivel, estadísticas personales,
       reconocimientos, mis quinielas, configuración simulada, notificaciones
-      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™ con limpieza visual de fondos fantasma.
-    Líneas versión anterior: 638
-    Líneas versión nueva: 628
+      navegación inferior de aplicación y módulo público de Fundadores PREDIKT™ optimizado para conversión.
+    Líneas versión anterior: 628
+    Líneas versión nueva: 650
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -173,13 +173,13 @@
     .founder-card {
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(245,185,66,.32);
+      border: 1px solid rgba(245,185,66,.34);
       border-radius: var(--radius-lg);
       background:
-        radial-gradient(circle at 12% 18%, rgba(245,185,66,.16), transparent 28%),
+        radial-gradient(circle at 12% 18%, rgba(245,185,66,.14), transparent 28%),
         linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
       box-shadow: var(--shadow);
-      padding: 22px;
+      padding: 18px;
     }
 
     /* v1.2: Se elimina corona fantasma de fondo para evitar ruido visual. */
@@ -188,8 +188,8 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 18px;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 14px;
       align-items: center;
     }
 
@@ -211,20 +211,20 @@
     }
 
     .founder-title {
-      font-size: clamp(1.32rem, 4vw, 2rem);
+      font-size: clamp(1.26rem, 3.6vw, 1.78rem);
       font-weight: 980;
       line-height: 1.08;
       letter-spacing: -.04em;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .founder-copy {
       color: var(--text-soft);
-      font-size: .88rem;
+      font-size: .84rem;
       font-weight: 740;
-      line-height: 1.55;
+      line-height: 1.45;
       max-width: 620px;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .founder-copy strong {
@@ -239,19 +239,20 @@
     }
 
     .founder-button {
-      min-height: 48px;
+      min-height: 44px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 0 18px;
+      padding: 0 16px;
       border-radius: 999px;
       color: #061826;
       background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      font-size: .82rem;
+      font-size: .78rem;
       font-weight: 980;
-      letter-spacing: .04em;
+      letter-spacing: .035em;
       text-transform: uppercase;
       box-shadow: 0 14px 30px rgba(245,185,66,.24);
+      white-space: nowrap;
     }
 
     .founder-button:disabled {
@@ -270,7 +271,7 @@
       border: 1px solid rgba(255,255,255,.09);
       border-radius: var(--radius-md);
       background: rgba(255,255,255,.055);
-      padding: 16px;
+      padding: 14px;
     }
 
     .founder-progress-top {
@@ -291,7 +292,7 @@
 
     .founder-counter {
       color: var(--gold);
-      font-size: 1.35rem;
+      font-size: 1.55rem;
       font-weight: 980;
       line-height: 1;
     }
@@ -315,10 +316,26 @@
     }
 
     .founder-slots {
-      color: var(--text-soft);
-      font-size: .78rem;
-      font-weight: 790;
-      line-height: 1.4;
+      color: var(--gold-soft);
+      font-size: .82rem;
+      font-weight: 920;
+      line-height: 1.35;
+    }
+
+    .founder-urgency {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(245,185,66,.1);
+      border: 1px solid rgba(245,185,66,.24);
+      font-size: .68rem;
+      font-weight: 950;
+      letter-spacing: .04em;
+      text-transform: uppercase;
     }
 
     .founder-list-preview {
@@ -423,10 +440,10 @@
         <div class="founder-content">
           <div>
             <span class="founder-badge">👑 Fundadores PREDIKT™</span>
-            <h2 class="founder-title">⚽ Si te gusta PREDIKT™, invítanos un café.</h2>
+            <h2 class="founder-title">⚽ ¿Te gusta PREDIKT™?<br />Invítanos un café.</h2>
             <p class="founder-copy">
-              Con una aportación única de <strong>$50 MXN</strong> puedes convertirte en Fundador PREDIKT™
-              y conservar <strong>acceso gratuito de por vida</strong>.
+              Aportación única de <strong>$50 MXN</strong>. Sé Fundador PREDIKT™ y conserva
+              <strong>acceso gratuito de por vida</strong>.
             </p>
 
             <div class="founder-actions">
@@ -434,14 +451,14 @@
                 ☕ Convertirme en Fundador
               </button>
               <span class="founder-mini-note" id="founderNote">
-                Cupo limitado a los primeros 100 fundadores.
+                Beneficio vitalicio para los primeros 100.
               </span>
             </div>
           </div>
 
           <div class="founder-progress-panel">
             <div class="founder-progress-top">
-              <span class="founder-progress-label">👑 Registrados</span>
+              <span class="founder-progress-label">👑 Fundadores</span>
               <strong class="founder-counter" id="foundersCounter">3 / 100</strong>
             </div>
 
@@ -450,8 +467,10 @@
             </div>
 
             <p class="founder-slots" id="founderSlotsText">
-              Quedan 97 lugares de fundador.
+              97 lugares disponibles.
             </p>
+
+            <span class="founder-urgency" id="founderUrgency">Cupo fundador activo</span>
 
             <div class="founder-list-preview" aria-label="Fundadores recientes">
               <span class="founder-chip">👑 Pey</span>
@@ -568,8 +587,9 @@
       const founderSlotsText = document.getElementById("founderSlotsText");
       const founderButton = document.getElementById("founderButton");
       const founderNote = document.getElementById("founderNote");
+      const founderUrgency = document.getElementById("founderUrgency");
 
-      if (!foundersCounter || !founderProgressFill || !founderSlotsText || !founderButton || !founderNote) {
+      if (!foundersCounter || !founderProgressFill || !founderSlotsText || !founderButton || !founderNote || !founderUrgency) {
         return;
       }
 
@@ -599,12 +619,14 @@
       founderProgressFill.style.width = `${progress}%`;
 
       if (founderProgramStatus.show_founder_button) {
-        founderSlotsText.textContent = `Quedan ${remaining} lugares de fundador.`;
+        founderSlotsText.textContent = `${remaining} lugares disponibles.`;
+        founderUrgency.textContent = remaining <= 15 ? "⚠ Últimos lugares disponibles" : "Cupo fundador activo";
         founderButton.disabled = false;
         founderButton.textContent = "☕ Convertirme en Fundador";
-        founderNote.textContent = "Cupo limitado a los primeros 100 fundadores.";
+        founderNote.textContent = "Beneficio vitalicio para los primeros 100.";
       } else {
         founderSlotsText.textContent = "Programa de Fundadores finalizado.";
+        founderUrgency.textContent = "Programa finalizado";
         founderButton.disabled = true;
         founderButton.textContent = "Programa finalizado";
         founderNote.textContent = "Gracias a los 100 Fundadores PREDIKT™.";
