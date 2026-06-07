@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.1.0 HOME CONVERSION ENGINE™
+    Versión: v5.1.1 Match Detail Link
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -14,8 +14,9 @@
       ranking personal, programa Fundadores e invitación a crear grupos.
       Mantiene footer limpio de 5 botones y branding oficial PREDIKT™.
       Convierte la Home en motor de participación continua.
-    Líneas versión anterior: 885
-    Líneas versión nueva: 1059
+      Conecta la tarjeta del partido con partido-detalle.html.
+    Líneas versión anterior: 1059
+    Líneas versión nueva: 1098
   -->
 
   <meta charset="UTF-8" />
@@ -346,6 +347,7 @@
     }
 
     .match-card {
+      position: relative;
       border: 1px solid rgba(72, 242, 154, 0.22);
       border-radius: var(--radius-xl);
       background:
@@ -353,6 +355,41 @@
         linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
       box-shadow: var(--shadow);
       padding: 17px;
+    }
+
+    .match-card-link {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: var(--radius-xl);
+    }
+
+    .match-card > *:not(.match-card-link) {
+      position: relative;
+      z-index: 2;
+    }
+
+    .match-card button,
+    .match-card a:not(.match-card-link) {
+      position: relative;
+      z-index: 3;
+    }
+
+    .analysis-link {
+      display: inline-flex;
+      width: 100%;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(72, 242, 154, 0.10);
+      border: 1px solid rgba(72, 242, 154, 0.22);
+      font-size: 0.7rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 10px;
     }
 
     .match-top {
@@ -850,6 +887,7 @@
       </div>
 
       <article class="match-card">
+        <a class="match-card-link" href="partido-detalle.html" aria-label="Ver análisis del partido México vs Alemania"></a>
         <div class="match-top">
           <span class="pill green">Te falta este partido</span>
           <span class="pill gold">2026</span>
@@ -881,6 +919,7 @@
           <button class="prediction-choice" type="button" data-prediction="Alemania">Alemania</button>
         </div>
 
+        <a class="analysis-link" href="partido-detalle.html">Ver análisis del partido</a>
         <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
         <p class="prediction-note">Beta rápida: primero elegimos ganador. Después agregaremos marcador exacto.</p>
       </article>
