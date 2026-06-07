@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.1.1 Match Detail Link
+    Versión: v5.1.2 Group Context Visible
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -15,8 +15,9 @@
       Mantiene footer limpio de 5 botones y branding oficial PREDIKT™.
       Convierte la Home en motor de participación continua.
       Conecta la tarjeta del partido con partido-detalle.html.
-    Líneas versión anterior: 1059
-    Líneas versión nueva: 1098
+      Muestra fase, grupo y jornada dentro de la tarjeta de próximo pronóstico.
+    Líneas versión anterior: 1098
+    Líneas versión nueva: 1140
   -->
 
   <meta charset="UTF-8" />
@@ -426,7 +427,42 @@
     .match-title {
       font-size: 1.05rem;
       font-weight: 980;
+      margin-bottom: 9px;
+    }
+
+    .match-context-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-bottom: 13px;
+    }
+
+    .context-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 25px;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      font-size: 0.58rem;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .context-chip.gold {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      border-color: rgba(245, 185, 66, 0.32);
+    }
+
+    .context-chip.green {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: rgba(72, 242, 154, 0.22);
     }
 
     .teams {
@@ -894,6 +930,12 @@
         </div>
 
         <h3 class="match-title">México vs Alemania</h3>
+
+        <div class="match-context-row" aria-label="Contexto del partido">
+          <span class="context-chip green">Fase de Grupos</span>
+          <span class="context-chip gold">Grupo A</span>
+          <span class="context-chip">Jornada 1</span>
+        </div>
 
         <div class="teams">
           <div class="team-box">
