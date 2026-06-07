@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-07
-    Versión: v1.4.1 Branding & Favicon Fix
+    Versión: v1.4.2 Branding Header Optimization
     Fabricante: JVSys™
     Autor: JVSys™
     Proyecto: PREDIKT™
@@ -12,9 +12,10 @@
     Descripción:
       Pantalla detalle de partido para PREDIKT™.
       Mobile-first tipo app deportiva, sin convertir la app en landing.
-      Corrige branding oficial PREDIKT™: logo superior, favicon, shortcut icon
+      Corrige y optimiza branding oficial PREDIKT™: logo superior, favicon, shortcut icon
       y apple-touch-icon apuntan a assets/predikt-logo.png, evitando el ícono
-      genérico del navegador.
+      genérico del navegador. Ajusta tamaño, proporción y presencia visual del
+      logo en el encabezado para evitar visualización microscópica.
 
       Integración principal actualizada a:
       - sports.v_event_match_intelligence_api
@@ -40,9 +41,11 @@
       - Bitácora del partido si existen datos publicados.
       - Tabla de grupo, timeline de fases y ruta del torneo.
       - Favicon oficial PREDIKT™.
+      - Header Branding Optimization: logo visible, sin fondo artificial,
+        con proporción profesional para móvil y escritorio.
 
-    Líneas versión anterior: 2070
-    Líneas versión nueva: 2070
+    Líneas versión anterior: 2073
+    Líneas versión nueva: 2082
   -->
 
   <meta charset="UTF-8" />
@@ -141,7 +144,7 @@
       justify-content: space-between;
       gap: 12px;
       margin: -18px -14px 14px;
-      padding: 15px 14px 12px;
+      padding: 18px 14px 16px;
       background:
         linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88)),
         rgba(6, 24, 38, 0.9);
@@ -152,17 +155,18 @@
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
+      gap: 12px;
       min-width: 0;
     }
 
     .brand-logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
+      width: 64px;
+      height: 64px;
+      border-radius: 0;
       object-fit: contain;
-      background: rgba(255, 255, 255, 0.04);
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+      background: transparent;
+      box-shadow: none;
+      flex-shrink: 0;
     }
 
     .brand-text {
@@ -172,7 +176,7 @@
     }
 
     .brand-name {
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       font-weight: 980;
       letter-spacing: 0.08em;
       line-height: 1;
@@ -180,7 +184,7 @@
 
     .brand-sub {
       color: var(--text-muted);
-      font-size: 0.64rem;
+      font-size: 0.72rem;
       font-weight: 820;
       white-space: nowrap;
     }
@@ -1035,6 +1039,11 @@
         margin-left: 0;
         margin-right: 0;
         border-radius: 0 0 22px 22px;
+      }
+
+      .brand-logo {
+        width: 72px;
+        height: 72px;
       }
     }
   </style>
