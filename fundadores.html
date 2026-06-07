@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: fundadores.html
     Fecha: 2026-06-06
-    Versión: v1.2.1 Human Checkout Copy
+    Versión: v1.3.0 Founder Conversion Engine
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -543,7 +543,7 @@
             <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
             <p class="status-message" id="statusMessage">Programa abierto. El contador público aparecerá al llegar al fundador 85.</p>
           </div>
-          <button class="founder-btn" id="founderBtn" type="button">☕ Invitar un café</button>
+          <button class="founder-btn" id="founderBtn" type="button">⚽ Quiero ser Fundador</button>
           <p class="micro-trust">Tu café se procesa de forma segura con Mercado Pago. Tu distintivo Fundador se activará cuando el pago quede confirmado.</p>
         </section>
 
@@ -610,7 +610,7 @@
           <div class="faq-list">
             <div class="faq-item"><h3 class="faq-question">¿Es una suscripción?</h3><p class="faq-answer">No. Es una donación única de $50 MXN para el programa de los primeros 100 Fundadores.</p></div>
             <div class="faq-item"><h3 class="faq-question">¿Qué pasa cuando llegue a 100?</h3><p class="faq-answer">El programa se cerrará automáticamente y el botón de donación dejará de mostrarse.</p></div>
-            <div class="faq-item"><h3 class="faq-question">¿Cuándo se activa mi distintivo?</h3><p class="faq-answer">Tu distintivo Fundador se activará cuando Mercado Pago confirme correctamente tu aportación.</p></div>
+            <div class="faq-item"><h3 class="faq-question">¿Cuándo me convierto en Fundador?</h3><p class="faq-answer">Tu acceso Fundador se activará automáticamente cuando Mercado Pago confirme tu aportación.</p></div>
           </div>
         </section>
       </section>
@@ -759,7 +759,7 @@
         statusMessage.textContent = "Programa abierto. El contador público aparecerá al llegar al fundador 85.";
       }
 
-      founderBtn.textContent = `☕ Invitar un café · ${formatMoney(amount, currency)}`;
+      founderBtn.textContent = `⚽ Quiero ser Fundador · ${formatMoney(amount, currency)}`;
     }
 
     async function loadFounderProgramStatus() {
