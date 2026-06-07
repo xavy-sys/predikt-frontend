@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.1.2 Group Context Visible
+    Versión: v5.1.3 Large Match Tap Area
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -16,8 +16,10 @@
       Convierte la Home en motor de participación continua.
       Conecta la tarjeta del partido con partido-detalle.html.
       Muestra fase, grupo y jornada dentro de la tarjeta de próximo pronóstico.
-    Líneas versión anterior: 1098
-    Líneas versión nueva: 1140
+      Mejora el área táctil para abrir partido-detalle.html con un botón visible
+      y una indicación humana clara.
+    Líneas versión anterior: 1140
+    Líneas versión nueva: 1153
   -->
 
   <meta charset="UTF-8" />
@@ -379,18 +381,27 @@
     .analysis-link {
       display: inline-flex;
       width: 100%;
-      min-height: 38px;
+      min-height: 48px;
       align-items: center;
       justify-content: center;
       border-radius: 999px;
-      color: var(--green);
-      background: rgba(72, 242, 154, 0.10);
-      border: 1px solid rgba(72, 242, 154, 0.22);
-      font-size: 0.7rem;
-      font-weight: 950;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      border: 1px solid rgba(245, 185, 66, 0.32);
+      box-shadow: 0 12px 28px rgba(245, 185, 66, 0.20);
+      font-size: 0.76rem;
+      font-weight: 980;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-top: 10px;
+      letter-spacing: 0.05em;
+      margin-top: 12px;
+    }
+
+    .tap-hint {
+      color: var(--gold-soft);
+      font-size: 0.66rem;
+      font-weight: 860;
+      text-align: center;
+      margin: 8px 0 0;
     }
 
     .match-top {
@@ -955,13 +966,15 @@
 
         <p class="match-time">Próximo partido · Horario local del usuario</p>
 
+        <a class="analysis-link" href="partido-detalle.html">Ver análisis, grupo y alineaciones</a>
+        <p class="tap-hint">También puedes tocar la tarjeta completa del partido.</p>
+
         <div class="prediction-actions" aria-label="Selecciona tu pronóstico rápido">
           <button class="prediction-choice" type="button" data-prediction="México">México</button>
           <button class="prediction-choice" type="button" data-prediction="Empate">Empate</button>
           <button class="prediction-choice" type="button" data-prediction="Alemania">Alemania</button>
         </div>
 
-        <a class="analysis-link" href="partido-detalle.html">Ver análisis del partido</a>
         <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
         <p class="prediction-note">Beta rápida: primero elegimos ganador. Después agregaremos marcador exacto.</p>
       </article>
