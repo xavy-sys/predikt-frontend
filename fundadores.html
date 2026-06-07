@@ -3,24 +3,27 @@
 <head>
   <!--
     Nombre del archivo: fundadores.html
-    Fecha: 2026-06-05
-    Versión: v1.1
-    Fabricante: JVSys
+    Fecha: 2026-06-06
+    Versión: v1.2.0 Founder Checkout Connected
+    Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla Fundadores PREDIKT™ para iniciar el programa de monetización inicial.
-      Mobile-first, con beneficio vitalicio, donación única de $50 MXN, límite de 100 fundadores,
-      contador condicional simulado, estado abierto/cerrado simulado, CTA de pago futuro con Mercado Pago
-      y navegación inferior de aplicación.
-    Líneas versión anterior: 686
-    Líneas versión nueva: 726
+      Pantalla Fundadores PREDIKT™ conectada al Founder Payment Module real.
+      Mobile-first, con beneficio vitalicio, donación única dinámica desde Supabase,
+      límite de 100 fundadores, contador público live, CTA real a Mercado Pago
+      mediante Edge Function create-founder-payment y navegación inferior oficial.
+      Corrige favicon oficial a assets/logos/predikt-logo.png.
+    Líneas versión anterior: 726
+    Líneas versión nueva: 863
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PREDIKT™ | Fundadores</title>
   <meta name="description" content="Sé parte de los primeros 100 Fundadores PREDIKT™ con una donación única de $50 MXN y recibe acceso gratuito de por vida." />
   <meta name="theme-color" content="#061826" />
-  <link rel="icon" href="assets/logos/predikt-icon.png" />
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
   <style>
     :root {
       --bg-main: #061826;
@@ -515,13 +518,13 @@
 
     <div class="layout-grid">
       <section class="main-column">
-        <section class="success-card" id="successCard" aria-label="Checkout simulado">
+        <section class="success-card" id="successCard" aria-label="Checkout Mercado Pago">
           <div class="success-badge">✅</div>
           <h2 class="success-title">Checkout preparado</h2>
-          <p class="success-copy">En la versión conectada, este botón abrirá Mercado Pago Checkout Pro. La confirmación real se hará por webhook seguro.</p>
+          <p class="success-copy">El checkout real de Mercado Pago se abrirá en modo sandbox durante la certificación. La confirmación final se hará por webhook seguro.</p>
           <div class="checkout-box">
-            <span class="checkout-text">Mercado Pago Checkout Pro · sandbox pendiente</span>
-            <button class="checkout-btn" id="copyCheckoutBtn" type="button">Copiar nota</button>
+            <span class="checkout-text">Mercado Pago Checkout Pro · conectado</span>
+            <button class="checkout-btn" id="copyCheckoutBtn" type="button">Abrir pago</button>
           </div>
         </section>
 
@@ -658,7 +661,17 @@
   </nav>
 
   <script>
-    const founderProgram = { founderCount: 84, limit: 100 };
+    const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
+    const PREDIKT_EDGE_CREATE_FOUNDER_PAYMENT_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/functions/v1/create-founder-payment";
+    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+
+    /*
+      Modo de checkout:
+      - "sandbox": recomendado durante pruebas controladas.
+      - "production": usar cuando Mercado Pago quede listo para cobro real público.
+    */
+    const PREDIKT_CHECKOUT_MODE = "sandbox";
+
     const founderBtn = document.getElementById("founderBtn");
     const progressFill = document.getElementById("progressFill");
     const statusNumber = document.getElementById("statusNumber");
@@ -667,60 +680,184 @@
     const copyCheckoutBtn = document.getElementById("copyCheckoutBtn");
     const toast = document.getElementById("toast");
 
+    let founderProgramStatus = {
+      founders_registered: 3,
+      founder_limit: 100,
+      founder_slots_remaining: 97,
+      donation_amount: 50,
+      currency: "MXN",
+      is_program_open: true,
+      show_founder_button: true
+    };
+
+    let lastCheckoutUrl = "";
+
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
       window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2300);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function formatMoney(amount, currency) {
+      return `${Number(amount || 50).toLocaleString("es-MX")} ${currency || "MXN"}`;
+    }
+
+    function getSafeUserProfile() {
+      const storedName = window.localStorage.getItem("predikt_user_name");
+      const storedEmail = window.localStorage.getItem("predikt_user_email");
+
+      return {
+        payer_name: storedName || "Fundador PREDIKT",
+        payer_email: storedEmail || "test@predikt.mx",
+        source: "fundadores_html_v1_2_0"
+      };
     }
 
     function renderFounderStatus() {
-      const count = founderProgram.founderCount;
-      const limit = founderProgram.limit;
-      const remaining = Math.max(limit - count, 0);
-      const percent = Math.min(Math.round((count / limit) * 100), 100);
+      const count = Number(founderProgramStatus.founders_registered || founderProgramStatus.confirmed_founders || 0);
+      const limit = Number(founderProgramStatus.founder_limit || 100);
+      const remaining = Number(founderProgramStatus.founder_slots_remaining || founderProgramStatus.remaining_spots || 0);
+      const amount = Number(founderProgramStatus.donation_amount || 50);
+      const currency = founderProgramStatus.currency || "MXN";
+      const isOpen = founderProgramStatus.is_program_open !== false;
+      const showButton = founderProgramStatus.show_founder_button !== false;
+      const percent = limit > 0 ? Math.min(Math.round((count / limit) * 100), 100) : 0;
+
       progressFill.style.width = `${percent}%`;
       statusNumber.textContent = `${count} / ${limit}`;
       statusMessage.classList.remove("urgent");
       founderBtn.classList.remove("disabled");
+      founderBtn.disabled = false;
 
-      if (count >= limit) {
+      document.querySelectorAll(".price-main").forEach((node) => {
+        node.textContent = `$${amount}`;
+      });
+
+      document.querySelectorAll(".price-currency").forEach((node) => {
+        node.textContent = currency;
+      });
+
+      document.querySelectorAll(".badge-value").forEach((node) => {
+        if (node.textContent.includes("$50")) {
+          node.textContent = `$${amount} ${currency}`;
+        }
+      });
+
+      if (!isOpen || !showButton || remaining <= 0 || count >= limit) {
         statusMessage.textContent = "Programa de Fundadores Completado. Gracias a los primeros 100 fundadores de PREDIKT™.";
         founderBtn.textContent = "Programa completado";
         founderBtn.classList.add("disabled");
+        founderBtn.disabled = true;
         return;
       }
 
       if (count >= 85) {
         statusMessage.textContent = `⚠ Solo quedan ${remaining} lugares de Fundador.`;
         statusMessage.classList.add("urgent");
-        return;
+      } else {
+        statusMessage.textContent = "Programa abierto. El contador público aparecerá al llegar al fundador 85.";
       }
 
-      statusMessage.textContent = "Programa abierto. El contador público aparecerá al llegar al fundador 85.";
+      founderBtn.textContent = `☕ Invitar un café · ${formatMoney(amount, currency)}`;
     }
 
-    founderBtn.addEventListener("click", () => {
-      if (founderProgram.founderCount >= founderProgram.limit) {
-        showToast("El programa de Fundadores ya fue completado.");
+    async function loadFounderProgramStatus() {
+      try {
+        const response = await fetch(
+          `${PREDIKT_SUPABASE_REST_URL}/v_founder_program_public_status?select=*`,
+          {
+            method: "GET",
+            headers: {
+              "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
+              "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+              "Accept": "application/json",
+              "Accept-Profile": "founders"
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Supabase status ${response.status}`);
+        }
+
+        const rows = await response.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          founderProgramStatus = rows[0];
+        }
+      } catch (error) {
+        console.warn("PREDIKT Founder live status unavailable. Using safe fallback.", error);
+      }
+
+      renderFounderStatus();
+    }
+
+    async function startFounderCheckout() {
+      if (!founderBtn || founderBtn.disabled || founderBtn.classList.contains("disabled")) {
+        showToast("El programa de Fundadores no está disponible en este momento.");
         return;
       }
-      successCard.classList.add("show");
-      successCard.scrollIntoView({ behavior: "smooth", block: "center" });
-      showToast("Checkout simulado preparado. Siguiente sprint: Mercado Pago.");
-    });
 
-    copyCheckoutBtn.addEventListener("click", async () => {
-      const note = "Mercado Pago Checkout Pro · crear preferencia desde Supabase Edge Function";
+      const originalText = founderBtn.textContent;
+      founderBtn.disabled = true;
+      founderBtn.textContent = "Preparando Mercado Pago...";
+      showToast("Preparando checkout seguro de Mercado Pago...");
+
       try {
-        await navigator.clipboard.writeText(note);
-        showToast("Nota copiada.");
+        const payload = getSafeUserProfile();
+
+        const response = await fetch(PREDIKT_EDGE_CREATE_FOUNDER_PAYMENT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
+            "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json().catch(() => null);
+
+        if (!response.ok || !result || result.ok !== true) {
+          throw new Error(result?.error || `create-founder-payment status ${response.status}`);
+        }
+
+        const checkout = result.checkout || {};
+        lastCheckoutUrl = PREDIKT_CHECKOUT_MODE === "sandbox"
+          ? checkout.sandbox_init_point || checkout.init_point
+          : checkout.init_point || checkout.sandbox_init_point;
+
+        if (!lastCheckoutUrl) {
+          throw new Error("Mercado Pago no devolvió URL de checkout.");
+        }
+
+        successCard.classList.add("show");
+        successCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        showToast("Checkout listo. Redirigiendo a Mercado Pago...");
+
+        window.setTimeout(() => {
+          window.location.href = lastCheckoutUrl;
+        }, 650);
       } catch (error) {
-        showToast("Nota lista para copiar manualmente.");
+        console.error("PREDIKT Founder checkout error:", error);
+        founderBtn.disabled = false;
+        founderBtn.textContent = originalText;
+        showToast("No se pudo abrir Mercado Pago. Intenta de nuevo en unos segundos.");
       }
+    }
+
+    founderBtn.addEventListener("click", startFounderCheckout);
+
+    copyCheckoutBtn.addEventListener("click", () => {
+      if (lastCheckoutUrl) {
+        window.location.href = lastCheckoutUrl;
+        return;
+      }
+
+      startFounderCheckout();
     });
 
-    renderFounderStatus();
+    loadFounderProgramStatus();
   </script>
 </body>
 </html>
