@@ -3,32 +3,43 @@
 <head>
   <!--
     Nombre del archivo: partido-detalle.html
-    Fecha: 2026-06-06
-    Versión: v1.3.0 Venue Intelligence Integration
+    Fecha: 2026-06-07
+    Versión: v1.4.0 Frontend Intelligence Integration
     Fabricante: JVSys™
+    Autor: JVSys™
     Proyecto: PREDIKT™
+    Slogan: Predice • Compite • Gana
     Descripción:
       Pantalla detalle de partido para PREDIKT™.
-      Mobile-first tipo app deportiva.
-      Presenta fase del torneo, grupo, jornada, partido, hora local,
-      probabilidad PREDIKT™ de ejemplo, alineaciones probables completas,
-      bitácora del partido y acción rápida de pronóstico.
-      Ajusta UX para mostrar 11 jugadores en formato compacto mobile-first.
-      Integra Tournament Intelligence Foundation: tabla de grupo, timeline
-      de fases y ruta del torneo.
+      Mobile-first tipo app deportiva, sin convertir la app en landing.
 
-      Preparada para consumir:
-      - sports.v_event_match_intelligence_enriched
-      - Carga automática del primer partido disponible si la URL no trae ?id=
-      - Integra Venue Intelligence: estadio, ciudad, país sede, capacidad y zona horaria.
-      - sports.v_event_projected_lineups
-      - sports.v_event_match_action_log
+      Integración principal actualizada a:
+      - sports.v_event_match_intelligence_api
 
-      Incluye fallback seguro cuando no exista event_id o datos publicados.
-      Prepara espacios futuros para transmisión y clima sin activar lógica externa.
+      Esta versión incorpora:
+      - Equipos reales desde API.
+      - Banderas reales desde assets/flags/{home_flag_code}.svg y assets/flags/{away_flag_code}.svg.
+      - Grupo y jornada desde API.
+      - Estadio, ciudad, país, capacidad y zona horaria desde API.
+      - Marcador en vivo con estado, minuto y periodo.
+      - Live Match Center™.
+      - Momentum PREDIKT™ usando probabilidades live y fallback a pre-match cuando no esté en vivo.
+      - Explicación IA desde live_ai_explanation.
+      - MVP Intelligence™ con espacio dinámico para jugador del partido.
+      - Indicadores de posesión, tiros, tiros a puerta, xG y tarjetas rojas.
+      - Eliminación de datos demo específicos como fuente visual principal.
+      - Fallbacks neutrales cuando el backend no regrese datos.
 
-    Líneas versión anterior: 1570
-    Líneas versión nueva: 1687
+      Conserva:
+      - Venue Intelligence Foundation.
+      - Tournament Intelligence Foundation.
+      - Alineaciones probables si existen datos publicados.
+      - Bitácora del partido si existen datos publicados.
+      - Tabla de grupo, timeline de fases y ruta del torneo.
+      - Favicon oficial PREDIKT™.
+
+    Líneas versión anterior: 1687
+    Líneas versión nueva: 2070
   -->
 
   <meta charset="UTF-8" />
@@ -37,7 +48,7 @@
   <title>PREDIKT™ | Detalle del Partido</title>
   <meta
     name="description"
-    content="Detalle del partido en PREDIKT™: fase, grupo, alineaciones probables, bitácora y pronóstico."
+    content="Detalle del partido en PREDIKT™: marcador en vivo, momentum, explicación IA, sede, grupo, alineaciones y pronóstico."
   />
   <meta name="theme-color" content="#061826" />
 
@@ -270,6 +281,180 @@
       border: 1px solid rgba(255, 255, 255, 0.13);
       font-size: 1.05rem;
       font-weight: 980;
+    }
+
+    .team-flag-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .live-center {
+      display: grid;
+      gap: 11px;
+      margin: 4px 0 13px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(245, 185, 66, 0.16), transparent 34%),
+        rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(245, 185, 66, 0.18);
+      padding: 13px;
+    }
+
+    .live-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .live-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.62rem;
+      font-weight: 980;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .live-status-pill.is-live {
+      color: #ffffff;
+      background: rgba(255, 90, 95, 0.18);
+      border: 1px solid rgba(255, 90, 95, 0.34);
+    }
+
+    .live-minute {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 900;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .score-team {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .score-team.away {
+      text-align: right;
+    }
+
+    .score-name {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .score-value {
+      font-size: 2.05rem;
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .score-separator {
+      color: var(--gold);
+      font-size: 1.25rem;
+      font-weight: 980;
+    }
+
+    .live-state-label {
+      border-radius: 15px;
+      background: rgba(72, 242, 154, 0.10);
+      border: 1px solid rgba(72, 242, 154, 0.22);
+      color: var(--green);
+      padding: 8px 10px;
+      font-size: 0.68rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .intelligence-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .stat-mini-card {
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 9px 10px;
+      text-align: center;
+    }
+
+    .stat-mini-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.54rem;
+      font-weight: 940;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .stat-mini-value {
+      color: var(--text-main);
+      font-size: 0.78rem;
+      font-weight: 980;
+      line-height: 1.12;
+    }
+
+    .ai-copy {
+      color: var(--text-soft);
+      font-size: 0.74rem;
+      font-weight: 760;
+      line-height: 1.36;
+      border-radius: 17px;
+      background: rgba(93, 173, 226, 0.10);
+      border: 1px solid rgba(93, 173, 226, 0.18);
+      padding: 12px;
+    }
+
+    .mvp-card {
+      display: grid;
+      gap: 7px;
+      border-radius: 18px;
+      background: rgba(245, 185, 66, 0.09);
+      border: 1px solid rgba(245, 185, 66, 0.20);
+      padding: 13px;
+    }
+
+    .mvp-name {
+      color: var(--gold);
+      font-size: 1rem;
+      font-weight: 980;
+    }
+
+    .mvp-meta {
+      color: var(--text-soft);
+      font-size: 0.67rem;
+      font-weight: 840;
+    }
+
+    .mvp-reason {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 740;
+      line-height: 1.32;
     }
 
     .team-name {
@@ -873,22 +1058,45 @@
         <span class="pill gold" id="matchdayLabel">Jornada 1</span>
       </div>
 
-      <h1 class="match-title" id="matchTitle">México vs Sudáfrica</h1>
+      <h1 class="match-title" id="matchTitle">Partido por confirmar</h1>
 
       <div class="teams">
         <div class="team-box">
-          <div class="team-flag" id="homeCode">MX</div>
-          <strong class="team-name" id="homeName">México</strong>
+          <div class="team-flag" id="homeFlagWrap"><img class="team-flag-img" id="homeFlag" src="" alt="Bandera local" /></div>
+          <strong class="team-name" id="homeName">Equipo local</strong>
           <span class="team-code" id="homeSmallCode">MX</span>
         </div>
 
         <div class="versus">VS</div>
 
         <div class="team-box">
-          <div class="team-flag" id="awayCode">ZA</div>
-          <strong class="team-name" id="awayName">Sudáfrica</strong>
+          <div class="team-flag" id="awayFlagWrap"><img class="team-flag-img" id="awayFlag" src="" alt="Bandera visitante" /></div>
+          <strong class="team-name" id="awayName">Equipo visitante</strong>
           <span class="team-code" id="awaySmallCode">ZA</span>
         </div>
+      </div>
+
+      <div class="live-center" aria-label="Marcador en vivo PREDIKT">
+        <div class="live-status-row">
+          <span class="live-status-pill" id="liveStatusLabel">Estado por confirmar</span>
+          <span class="live-minute" id="liveMinuteLabel">Minuto por confirmar</span>
+        </div>
+
+        <div class="scoreboard" aria-label="Marcador del partido">
+          <div class="score-team home">
+            <span class="score-name" id="scoreHomeName">Equipo local</span>
+            <strong class="score-value" id="liveHomeScore">-</strong>
+          </div>
+
+          <div class="score-separator">:</div>
+
+          <div class="score-team away">
+            <span class="score-name" id="scoreAwayName">Equipo visitante</span>
+            <strong class="score-value" id="liveAwayScore">-</strong>
+          </div>
+        </div>
+
+        <p class="live-state-label" id="matchStateLabel">Marcador pendiente de actualización.</p>
       </div>
 
       <div class="match-meta">
@@ -924,28 +1132,74 @@
       </div>
     </section>
 
-    <section class="section" aria-label="Probabilidad PREDIKT">
+    <section class="section" aria-label="Momentum PREDIKT">
       <div class="section-head">
-        <h2 class="section-title">Probabilidad PREDIKT™</h2>
+        <h2 class="section-title">Momentum PREDIKT™</h2>
         <a class="section-link" href="ranking-predikt.html">Ver ranking</a>
       </div>
 
       <div class="card">
         <div class="probability-grid">
           <div class="prob-card">
-            <p class="prob-value" id="homeProbability">42%</p>
-            <p class="prob-label" id="homeProbabilityLabel">México</p>
+            <p class="prob-value" id="homeProbability">--%</p>
+            <p class="prob-label" id="homeProbabilityLabel">Local</p>
           </div>
           <div class="prob-card">
-            <p class="prob-value">28%</p>
+            <p class="prob-value" id="drawProbability">--%</p>
             <p class="prob-label">Empate</p>
           </div>
           <div class="prob-card">
-            <p class="prob-value" id="awayProbability">30%</p>
-            <p class="prob-label" id="awayProbabilityLabel">Sudáfrica</p>
+            <p class="prob-value" id="awayProbability">--%</p>
+            <p class="prob-label" id="awayProbabilityLabel">Visitante</p>
           </div>
         </div>
-        <p class="soft-note">Lectura inicial de ejemplo. Se actualizará con datos de fase, alineaciones y forma reciente.</p>
+
+        <div class="intelligence-grid" aria-label="Estadísticas inteligentes del partido">
+          <div class="stat-mini-card">
+            <span class="stat-mini-label">Posesión</span>
+            <strong class="stat-mini-value" id="possessionLabel">-- / --</strong>
+          </div>
+          <div class="stat-mini-card">
+            <span class="stat-mini-label">Tiros</span>
+            <strong class="stat-mini-value" id="shotsLabel">-- / --</strong>
+          </div>
+          <div class="stat-mini-card">
+            <span class="stat-mini-label">A puerta</span>
+            <strong class="stat-mini-value" id="shotsTargetLabel">-- / --</strong>
+          </div>
+          <div class="stat-mini-card">
+            <span class="stat-mini-label">xG</span>
+            <strong class="stat-mini-value" id="xgLabel">-- / --</strong>
+          </div>
+        </div>
+
+        <p class="soft-note" id="momentumNote">Lectura PREDIKT™ conectada a la inteligencia del partido.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Explicación IA PREDIKT">
+      <div class="section-head">
+        <h2 class="section-title">PREDIKT™ explica</h2>
+        <span class="section-link" id="confidenceLabel">Confianza --</span>
+      </div>
+
+      <div class="card">
+        <p class="ai-copy" id="aiExplanation">La explicación IA aparecerá cuando exista información publicada para este partido.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-label="MVP del partido">
+      <div class="section-head">
+        <h2 class="section-title">MVP PREDIKT™</h2>
+        <span class="section-link" id="mvpStatusLabel">Calculando</span>
+      </div>
+
+      <div class="card">
+        <div class="mvp-card">
+          <p class="mvp-name" id="mvpPlayerName">⭐ Calculando desempeño...</p>
+          <p class="mvp-meta" id="mvpMeta">Disponible conforme avance el partido.</p>
+          <p class="mvp-reason" id="mvpReason">El jugador del partido se actualizará cuando PREDIKT™ tenga evidencia suficiente.</p>
+        </div>
       </div>
     </section>
 
@@ -957,8 +1211,8 @@
 
       <div class="card">
         <div class="lineup-tabs">
-          <button class="lineup-tab active" type="button" id="homeLineupTab">México</button>
-          <button class="lineup-tab" type="button" id="awayLineupTab">Sudáfrica</button>
+          <button class="lineup-tab active" type="button" id="homeLineupTab">Local</button>
+          <button class="lineup-tab" type="button" id="awayLineupTab">Visitante</button>
         </div>
 
         <p class="lineup-context" id="lineupContext">Alineación probable · 4-3-3 · 11 titulares</p>
@@ -985,9 +1239,9 @@
 
       <div class="card">
         <div class="prediction-actions" aria-label="Selecciona tu pronóstico">
-          <button class="prediction-choice" type="button" data-prediction="home" id="homePredictionBtn">México</button>
+          <button class="prediction-choice" type="button" data-prediction="home" id="homePredictionBtn">Local</button>
           <button class="prediction-choice" type="button" data-prediction="draw">Empate</button>
-          <button class="prediction-choice" type="button" data-prediction="away" id="awayPredictionBtn">Sudáfrica</button>
+          <button class="prediction-choice" type="button" data-prediction="away" id="awayPredictionBtn">Visitante</button>
         </div>
 
         <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
@@ -1079,72 +1333,72 @@
     const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
 
     const fallbackMatch = {
-      event_id: "demo",
-      event_name: "México vs Sudáfrica",
-      phase_name: "Fase de Grupos",
-      group_name: "Grupo A",
-      matchday: 1,
+      event_id: "",
+      event_name: "Partido por confirmar",
+      event_type: "MATCH",
+      event_stage: "",
+      phase_name: "Fase por confirmar",
+      phase_code: "",
+      group_id: "",
+      group_name: "Grupo por confirmar",
+      group_code: "",
+      matchday: null,
       starts_at: null,
+      ends_at: null,
       venue_name: "Sede por confirmar",
       venue_city: "Por confirmar",
       venue_country_code: "",
+      venue_country_name: "Por confirmar",
       venue_capacity: null,
       venue_timezone: "",
-      home_name: "México",
-      home_code: "MX",
-      away_name: "Sudáfrica",
-      away_code: "ZA"
+      venue_display_label: "Sede por confirmar",
+      home_name: "Equipo local",
+      home_code: "LOC",
+      home_country_code: "",
+      home_flag_code: "",
+      away_name: "Equipo visitante",
+      away_code: "VIS",
+      away_country_code: "",
+      away_flag_code: "",
+      pre_probability_home: null,
+      pre_probability_draw: null,
+      pre_probability_away: null,
+      live_match_minute: null,
+      live_stoppage_minute: null,
+      live_match_period: "",
+      live_home_score: null,
+      live_away_score: null,
+      live_home_possession: null,
+      live_away_possession: null,
+      live_home_shots: null,
+      live_away_shots: null,
+      live_home_shots_on_target: null,
+      live_away_shots_on_target: null,
+      live_home_red_cards: null,
+      live_away_red_cards: null,
+      live_home_xg: null,
+      live_away_xg: null,
+      live_probability_home: null,
+      live_probability_draw: null,
+      live_probability_away: null,
+      live_confidence_score: null,
+      is_live: false,
+      live_is_verified: false,
+      live_source_reliability: "",
+      live_ai_explanation: "",
+      mvp_player_name: null,
+      mvp_team_name: null,
+      mvp_team_code: null,
+      mvp_score: null,
+      mvp_selection_status: null,
+      mvp_selection_method: null,
+      mvp_ai_reason: null,
+      tournament_label: "",
+      predikt_status_label: "Estado por confirmar",
+      match_state_label: "Marcador pendiente de actualización"
     };
 
-    const fallbackLineups = {
-      home: [
-        { player_number: 1, player_name: "Portero", player_position: "POR", lineup_status: "projected" },
-        { player_number: 2, player_name: "Lateral derecho", player_position: "LD", lineup_status: "projected" },
-        { player_number: 4, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
-        { player_number: 5, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
-        { player_number: 3, player_name: "Lateral izquierdo", player_position: "LI", lineup_status: "projected" },
-        { player_number: 6, player_name: "Contención", player_position: "MCD", lineup_status: "projected" },
-        { player_number: 8, player_name: "Interior", player_position: "MC", lineup_status: "projected" },
-        { player_number: 10, player_name: "Enganche", player_position: "MCO", lineup_status: "projected" },
-        { player_number: 7, player_name: "Extremo derecho", player_position: "ED", lineup_status: "projected" },
-        { player_number: 11, player_name: "Extremo izquierdo", player_position: "EI", lineup_status: "projected" },
-        { player_number: 9, player_name: "Delantero centro", player_position: "DC", lineup_status: "projected" }
-      ],
-      away: [
-        { player_number: 1, player_name: "Portero", player_position: "POR", lineup_status: "projected" },
-        { player_number: 2, player_name: "Lateral derecho", player_position: "LD", lineup_status: "projected" },
-        { player_number: 4, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
-        { player_number: 5, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
-        { player_number: 3, player_name: "Lateral izquierdo", player_position: "LI", lineup_status: "projected" },
-        { player_number: 6, player_name: "Contención", player_position: "MCD", lineup_status: "projected" },
-        { player_number: 8, player_name: "Interior", player_position: "MC", lineup_status: "projected" },
-        { player_number: 10, player_name: "Enganche", player_position: "MCO", lineup_status: "projected" },
-        { player_number: 7, player_name: "Extremo derecho", player_position: "ED", lineup_status: "projected" },
-        { player_number: 11, player_name: "Extremo izquierdo", player_position: "EI", lineup_status: "projected" },
-        { player_number: 9, player_name: "Delantero centro", player_position: "DC", lineup_status: "projected" }
-      ]
-    };
-
-    const fallbackTimeline = [
-      {
-        match_minute: null,
-        action_title: "Previa abierta",
-        action_description: "La bitácora del partido está lista para registrar alineaciones, lesiones, cambios tácticos y eventos relevantes."
-      },
-      {
-        match_minute: null,
-        action_title: "Alineaciones por confirmar",
-        action_description: "Cuando existan datos oficiales o confiables, PREDIKT™ actualizará esta sección."
-      }
-    ];
-
-    const fallbackStandings = [
-      { position: 1, participant_name: "México", participant_code: "MX", played: 0, points: 0, goal_difference: 0 },
-      { position: 2, participant_name: "Sudáfrica", participant_code: "ZA", played: 0, points: 0, goal_difference: 0 },
-      { position: 3, participant_name: "Selección 3", participant_code: "T3", played: 0, points: 0, goal_difference: 0 },
-      { position: 4, participant_name: "Selección 4", participant_code: "T4", played: 0, points: 0, goal_difference: 0 }
-    ];
-
+    const fallbackStandings = [];
     const fallbackPhases = [
       { phase_short_name: "Grupos", phase_name: "Fase de Grupos", timeline_status: "current" },
       { phase_short_name: "R32", phase_name: "Ronda de 32", timeline_status: "upcoming" },
@@ -1156,7 +1410,7 @@
 
     const fallbackBracket = [
       {
-        bracket_name: "Siguiente fase",
+        bracket_name: "Ruta por definir",
         home_source_label: "Clasificado por definir",
         away_source_label: "Clasificado por definir",
         bracket_status: "pending"
@@ -1165,8 +1419,8 @@
 
     const state = {
       match: fallbackMatch,
-      homeLineup: fallbackLineups.home,
-      awayLineup: fallbackLineups.away,
+      homeLineup: [],
+      awayLineup: [],
       activeLineup: "home",
       selectedPrediction: ""
     };
@@ -1194,10 +1448,43 @@
       };
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function valueOrFallback(value, fallback = "Por confirmar") {
+      if (value === null || value === undefined || value === "") return fallback;
+      return value;
+    }
+
+    function numberOrNull(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const numeric = Number(value);
+      return Number.isFinite(numeric) ? numeric : null;
+    }
+
+    function formatPercent(value) {
+      const numeric = numberOrNull(value);
+      if (numeric === null) return "--%";
+      return `${numeric.toFixed(2)}%`;
+    }
+
+    function formatCompactNumber(value, decimals = 0) {
+      const numeric = numberOrNull(value);
+      if (numeric === null) return "--";
+      return numeric.toLocaleString("es-MX", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
     function formatLocalDate(value) {
-      if (!value) {
-        return "🕒 Horario local del usuario";
-      }
+      if (!value) return "🕒 Horario por confirmar";
 
       try {
         const date = new Date(value);
@@ -1206,160 +1493,253 @@
           day: "2-digit",
           month: "short",
           hour: "2-digit",
-          minute: "2-digit"
-        })}`;
+          minute: "2-digit",
+          timeZone: "America/Mexico_City"
+        })} · CDMX`;
       } catch (error) {
-        return "🕒 Horario local del usuario";
+        return "🕒 Horario por confirmar";
       }
     }
 
-    function countryNameFromCode(code) {
-      const normalized = String(code || "").toUpperCase();
-
-      const countries = {
-        MX: "México",
-        US: "Estados Unidos",
-        CA: "Canadá"
-      };
-
-      return countries[normalized] || normalized || "Por confirmar";
-    }
-
     function formatCapacity(value) {
-      const numeric = Number(value || 0);
+      const numeric = numberOrNull(value);
       if (!numeric) return "Por confirmar";
-
       return `${numeric.toLocaleString("es-MX")} espectadores`;
     }
 
     function compactTimezone(value) {
       if (!value) return "Por confirmar";
-      return String(value).replace("America/", "").replace("_", " ");
+      return String(value).replace("America/", "").replaceAll("_", " ");
     }
 
-    function inferTeamCode(name, fallback) {
-      if (!name) return fallback;
-      const clean = String(name).trim();
-      if (clean.length <= 3) return clean.toUpperCase();
-      return clean.slice(0, 2).toUpperCase();
+    function flagSrc(flagCode) {
+      const normalized = String(flagCode || "").trim().toLowerCase();
+      if (!normalized) return "";
+      return `assets/flags/${normalized}.svg`;
     }
 
-    function splitMatchName(eventName) {
-      const name = eventName || "México vs Sudáfrica";
-      const parts = name.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
-      if (parts.length >= 2) {
-        return {
-          home: parts[0].trim(),
-          away: parts[1].trim()
-        };
+    function handleFlagError(imgElement, fallbackCode) {
+      const code = String(fallbackCode || "--").slice(0, 3).toUpperCase();
+      const wrapper = imgElement.closest(".team-flag");
+      if (wrapper) {
+        wrapper.innerHTML = `<span>${escapeHtml(code)}</span>`;
       }
-      return {
-        home: "México",
-        away: "Sudáfrica"
-      };
     }
 
     function normalizeMatch(row) {
       if (!row) return fallbackMatch;
 
-      const teams = splitMatchName(row.event_name);
-      const homeName = row.home_team_name || teams.home || fallbackMatch.home_name;
-      const awayName = row.away_team_name || teams.away || fallbackMatch.away_name;
-
       return {
-        event_id: row.event_id || "demo",
-        home_participant_id: row.home_participant_id || "",
-        away_participant_id: row.away_participant_id || "",
-        event_name: row.event_name || `${homeName} vs ${awayName}` || fallbackMatch.event_name,
+        ...fallbackMatch,
+        event_id: row.event_id || "",
+        event_code: row.event_code || "",
+        event_name: row.event_name || fallbackMatch.event_name,
+        event_type: row.event_type || "MATCH",
+        event_stage: row.event_stage || row.phase_name || "",
         phase_name: row.phase_name || fallbackMatch.phase_name,
+        phase_code: row.phase_code || "",
         group_id: row.group_id || "",
         group_name: row.group_name || fallbackMatch.group_name,
-        matchday: row.matchday || fallbackMatch.matchday,
+        group_code: row.group_code || "",
+        matchday: row.matchday ?? null,
         starts_at: row.starts_at || null,
-        venue_name: row.venue_name || "Sede por confirmar",
-        venue_city: row.venue_city || "Por confirmar",
+        ends_at: row.ends_at || null,
+        venue_id: row.venue_id || "",
+        venue_name: row.venue_name || fallbackMatch.venue_name,
+        venue_city: row.venue_city || fallbackMatch.venue_city,
         venue_country_code: row.venue_country_code || "",
-        venue_capacity: row.venue_capacity || null,
-        venue_timezone: row.venue_timezone || row.timezone || "",
-        home_name: homeName,
-        home_code: row.home_team_code || row.home_country_code || inferTeamCode(homeName, "MX"),
-        away_name: awayName,
-        away_code: row.away_team_code || row.away_country_code || inferTeamCode(awayName, "ZA")
+        venue_country_name: row.venue_country_name || "Por confirmar",
+        venue_capacity: row.venue_capacity ?? null,
+        venue_timezone: row.venue_timezone || "",
+        venue_display_label: row.venue_display_label || "",
+        home_participant_id: row.home_participant_id || "",
+        away_participant_id: row.away_participant_id || "",
+        home_name: row.home_team_name || fallbackMatch.home_name,
+        home_code: row.home_team_code || row.home_country_code || fallbackMatch.home_code,
+        home_country_code: row.home_country_code || "",
+        home_flag_code: row.home_flag_code || row.home_country_code || "",
+        away_name: row.away_team_name || fallbackMatch.away_name,
+        away_code: row.away_team_code || row.away_country_code || fallbackMatch.away_code,
+        away_country_code: row.away_country_code || "",
+        away_flag_code: row.away_flag_code || row.away_country_code || "",
+        pre_probability_home: row.pre_probability_home ?? null,
+        pre_probability_draw: row.pre_probability_draw ?? null,
+        pre_probability_away: row.pre_probability_away ?? null,
+        live_match_minute: row.live_match_minute ?? null,
+        live_stoppage_minute: row.live_stoppage_minute ?? null,
+        live_match_period: row.live_match_period || "",
+        live_home_score: row.live_home_score ?? null,
+        live_away_score: row.live_away_score ?? null,
+        live_home_possession: row.live_home_possession ?? null,
+        live_away_possession: row.live_away_possession ?? null,
+        live_home_shots: row.live_home_shots ?? null,
+        live_away_shots: row.live_away_shots ?? null,
+        live_home_shots_on_target: row.live_home_shots_on_target ?? null,
+        live_away_shots_on_target: row.live_away_shots_on_target ?? null,
+        live_home_red_cards: row.live_home_red_cards ?? null,
+        live_away_red_cards: row.live_away_red_cards ?? null,
+        live_home_xg: row.live_home_xg ?? null,
+        live_away_xg: row.live_away_xg ?? null,
+        live_probability_home: row.live_probability_home ?? null,
+        live_probability_draw: row.live_probability_draw ?? null,
+        live_probability_away: row.live_probability_away ?? null,
+        live_confidence_score: row.live_confidence_score ?? null,
+        is_live: Boolean(row.is_live),
+        live_is_verified: Boolean(row.live_is_verified),
+        live_source_reliability: row.live_source_reliability || "",
+        live_ai_explanation: row.live_ai_explanation || "",
+        mvp_player_name: row.mvp_player_name || null,
+        mvp_team_name: row.mvp_team_name || null,
+        mvp_team_code: row.mvp_team_code || null,
+        mvp_score: row.mvp_score ?? null,
+        mvp_selection_status: row.mvp_selection_status || null,
+        mvp_selection_method: row.mvp_selection_method || null,
+        mvp_ai_reason: row.mvp_ai_reason || null,
+        tournament_label: row.tournament_label || "",
+        predikt_status_label: row.predikt_status_label || (row.is_live ? "EN VIVO" : "Programado"),
+        match_state_label: row.match_state_label || "Marcador pendiente de actualización",
+        event_metadata: row.event_metadata || {},
+        context_metadata: row.context_metadata || {}
       };
     }
 
     function renderMatch() {
       const match = state.match;
+      const matchdayLabel = match.matchday ? `Jornada ${match.matchday}` : "Jornada por confirmar";
+      const homeFlag = document.getElementById("homeFlag");
+      const awayFlag = document.getElementById("awayFlag");
+      const homeFlagPath = flagSrc(match.home_flag_code);
+      const awayFlagPath = flagSrc(match.away_flag_code);
 
       document.getElementById("phaseLabel").textContent = match.phase_name || "Fase por confirmar";
       document.getElementById("groupLabel").textContent = match.group_name || "Grupo por confirmar";
-      document.getElementById("matchdayLabel").textContent = match.matchday ? `Jornada ${match.matchday}` : "Jornada por confirmar";
-      document.getElementById("matchTitle").textContent = match.event_name;
+      document.getElementById("matchdayLabel").textContent = matchdayLabel;
+      document.getElementById("matchTitle").textContent = match.event_name || `${match.home_name} vs ${match.away_name}`;
+
+      if (homeFlagPath) homeFlag.src = homeFlagPath;
+      homeFlag.alt = `Bandera de ${match.home_name}`;
+      homeFlag.onerror = () => handleFlagError(homeFlag, match.home_code);
+
+      if (awayFlagPath) awayFlag.src = awayFlagPath;
+      awayFlag.alt = `Bandera de ${match.away_name}`;
+      awayFlag.onerror = () => handleFlagError(awayFlag, match.away_code);
 
       document.getElementById("homeName").textContent = match.home_name;
-      document.getElementById("homeCode").textContent = match.home_code;
       document.getElementById("homeSmallCode").textContent = match.home_code;
-
       document.getElementById("awayName").textContent = match.away_name;
-      document.getElementById("awayCode").textContent = match.away_code;
       document.getElementById("awaySmallCode").textContent = match.away_code;
 
+      document.getElementById("scoreHomeName").textContent = match.home_name;
+      document.getElementById("scoreAwayName").textContent = match.away_name;
+      document.getElementById("liveHomeScore").textContent = match.live_home_score ?? "-";
+      document.getElementById("liveAwayScore").textContent = match.live_away_score ?? "-";
+
+      const liveStatusLabel = document.getElementById("liveStatusLabel");
+      liveStatusLabel.textContent = match.predikt_status_label || (match.is_live ? "EN VIVO" : "Programado");
+      liveStatusLabel.classList.toggle("is-live", Boolean(match.is_live));
+
+      const stoppage = numberOrNull(match.live_stoppage_minute);
+      const stoppageText = stoppage && stoppage > 0 ? `+${stoppage}` : "";
+      const minuteText = match.live_match_minute !== null ? `Min ${match.live_match_minute}${stoppageText}` : "Minuto por confirmar";
+      document.getElementById("liveMinuteLabel").textContent = minuteText;
+      document.getElementById("matchStateLabel").textContent = match.match_state_label || minuteText;
+
       document.getElementById("timeLabel").textContent = formatLocalDate(match.starts_at);
-      document.getElementById("venueLabel").textContent = `📍 ${match.venue_name || "Sede por confirmar"}${match.venue_city ? ` · ${match.venue_city}` : ""}`;
+      document.getElementById("venueLabel").textContent = `📍 ${match.venue_display_label || `${match.venue_name} · ${match.venue_city}`}`;
       document.getElementById("venueCityLabel").textContent = match.venue_city || "Por confirmar";
-      document.getElementById("venueCountryLabel").textContent = countryNameFromCode(match.venue_country_code);
+      document.getElementById("venueCountryLabel").textContent = match.venue_country_name || match.venue_country_code || "Por confirmar";
       document.getElementById("venueCapacityLabel").textContent = formatCapacity(match.venue_capacity);
       document.getElementById("venueTimezoneLabel").textContent = compactTimezone(match.venue_timezone);
 
       document.getElementById("homeProbabilityLabel").textContent = match.home_name;
       document.getElementById("awayProbabilityLabel").textContent = match.away_name;
-
       document.getElementById("homeLineupTab").textContent = match.home_name;
       document.getElementById("awayLineupTab").textContent = match.away_name;
-
       document.getElementById("homePredictionBtn").textContent = match.home_name;
       document.getElementById("awayPredictionBtn").textContent = match.away_name;
-
       document.getElementById("groupSummaryTitle").textContent = `${match.phase_name || "Fase por confirmar"} · ${match.group_name || "Grupo por confirmar"}`;
+      document.getElementById("groupSummaryCopy").textContent = match.tournament_label || `${match.group_name || "Grupo por confirmar"} · ${matchdayLabel}`;
+    }
+
+    function renderMomentum() {
+      const match = state.match;
+      const useLive = match.is_live || match.live_probability_home !== null || match.live_probability_draw !== null || match.live_probability_away !== null;
+
+      document.getElementById("homeProbability").textContent = formatPercent(useLive ? match.live_probability_home : match.pre_probability_home);
+      document.getElementById("drawProbability").textContent = formatPercent(useLive ? match.live_probability_draw : match.pre_probability_draw);
+      document.getElementById("awayProbability").textContent = formatPercent(useLive ? match.live_probability_away : match.pre_probability_away);
+
+      document.getElementById("possessionLabel").textContent = `${formatCompactNumber(match.live_home_possession)} / ${formatCompactNumber(match.live_away_possession)}`;
+      document.getElementById("shotsLabel").textContent = `${formatCompactNumber(match.live_home_shots)} / ${formatCompactNumber(match.live_away_shots)}`;
+      document.getElementById("shotsTargetLabel").textContent = `${formatCompactNumber(match.live_home_shots_on_target)} / ${formatCompactNumber(match.live_away_shots_on_target)}`;
+      document.getElementById("xgLabel").textContent = `${formatCompactNumber(match.live_home_xg, 2)} / ${formatCompactNumber(match.live_away_xg, 2)}`;
+
+      const verifiedText = match.live_is_verified ? "verificado" : "pendiente de verificación";
+      const sourceText = match.live_source_reliability ? ` · fuente ${match.live_source_reliability}` : "";
+      document.getElementById("momentumNote").textContent = `Lectura ${useLive ? "en vivo" : "previa"} PREDIKT™ · ${verifiedText}${sourceText}.`;
+      document.getElementById("confidenceLabel").textContent = `Confianza ${formatPercent(match.live_confidence_score)}`;
+    }
+
+    function renderAIExplanation() {
+      const explanation = state.match.live_ai_explanation || "La explicación IA aparecerá cuando exista información publicada para este partido.";
+      document.getElementById("aiExplanation").textContent = explanation;
+    }
+
+    function renderMvp() {
+      const match = state.match;
+      const hasMvp = Boolean(match.mvp_player_name);
+
+      document.getElementById("mvpStatusLabel").textContent = hasMvp ? valueOrFallback(match.mvp_selection_status, "Seleccionado") : "Calculando";
+      document.getElementById("mvpPlayerName").textContent = hasMvp ? `⭐ ${match.mvp_player_name}` : "⭐ Calculando desempeño...";
+
+      if (hasMvp) {
+        const score = match.mvp_score !== null ? ` · Score ${formatCompactNumber(match.mvp_score, 2)}` : "";
+        const team = match.mvp_team_name || match.mvp_team_code || "Equipo por confirmar";
+        document.getElementById("mvpMeta").textContent = `${team}${score}`;
+        document.getElementById("mvpReason").textContent = match.mvp_ai_reason || "PREDIKT™ seleccionó al jugador por impacto observable en el partido.";
+      } else {
+        document.getElementById("mvpMeta").textContent = "Disponible conforme avance el partido.";
+        document.getElementById("mvpReason").textContent = "El jugador del partido se actualizará cuando PREDIKT™ tenga evidencia suficiente.";
+      }
     }
 
     function renderLineup() {
       const list = document.getElementById("lineupList");
       const rows = state.activeLineup === "home" ? state.homeLineup : state.awayLineup;
+      const teamName = state.activeLineup === "home" ? state.match.home_name : state.match.away_name;
+      const lineupContext = document.getElementById("lineupContext");
+
+      if (lineupContext) {
+        lineupContext.textContent = `${teamName} · Alineación probable`;
+      }
 
       if (!rows || rows.length === 0) {
         list.innerHTML = `
           <div class="empty-state">
-            Alineación probable pendiente. Se mostrará cuando exista información confiable.
+            Alineación probable pendiente. Se mostrará cuando exista información confiable publicada.
           </div>
         `;
         return;
       }
 
-      const lineupContext = document.getElementById("lineupContext");
-      if (lineupContext) {
-        const teamName = state.activeLineup === "home" ? state.match.home_name : state.match.away_name;
-        lineupContext.textContent = `${teamName} · Alineación probable · 4-3-3 · 11 titulares`;
-      }
-
       list.innerHTML = rows.map((player) => `
         <div class="player-row">
-          <span class="player-number">${player.player_number || "-"}</span>
+          <span class="player-number">${escapeHtml(player.player_number || "-")}</span>
           <div>
-            <p class="player-name">${player.player_name || "Jugador por confirmar"}</p>
-            <p class="player-position">${player.player_position || player.tactical_position || "Posición por confirmar"}</p>
+            <p class="player-name">${escapeHtml(player.player_name || "Jugador por confirmar")}</p>
+            <p class="player-position">${escapeHtml(player.player_position || player.tactical_position || "Posición por confirmar")}</p>
           </div>
         </div>
       `).join("");
     }
 
-    function renderTimeline(rows = fallbackTimeline) {
+    function renderTimeline(rows = []) {
       const timeline = document.getElementById("timeline");
 
       if (!rows || rows.length === 0) {
         timeline.innerHTML = `
           <div class="empty-state">
-            La bitácora todavía no tiene acciones publicadas.
+            La bitácora todavía no tiene acciones publicadas para este partido.
           </div>
         `;
         return;
@@ -1367,10 +1747,10 @@
 
       timeline.innerHTML = rows.map((item) => `
         <div class="timeline-row">
-          <div class="timeline-time">${item.match_minute ? `${item.match_minute}'` : "PRE"}</div>
+          <div class="timeline-time">${item.match_minute ? `${escapeHtml(item.match_minute)}'` : "PRE"}</div>
           <div class="timeline-card">
-            <p class="timeline-title">${item.action_title || "Acción relevante"}</p>
-            <p class="timeline-copy">${item.action_description || "Actualización del partido."}</p>
+            <p class="timeline-title">${escapeHtml(item.action_title || "Acción relevante")}</p>
+            <p class="timeline-copy">${escapeHtml(item.action_description || "Actualización del partido.")}</p>
           </div>
         </div>
       `).join("");
@@ -1380,7 +1760,7 @@
       if (!eventId) return null;
 
       const response = await fetch(
-        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_enriched?event_id=eq.${eventId}&select=*`,
+        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_api?event_id=eq.${eventId}&select=*`,
         {
           method: "GET",
           headers: headersForSports()
@@ -1388,16 +1768,16 @@
       );
 
       if (!response.ok) {
-        throw new Error(`Match intelligence status ${response.status}`);
+        throw new Error(`Match intelligence API status ${response.status}`);
       }
 
       const rows = await response.json();
       return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
     }
 
-    async function fetchFirstUpcomingMatch() {
+    async function fetchFirstAvailableMatch() {
       const response = await fetch(
-        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_enriched?select=*&order=starts_at.asc&limit=1`,
+        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_api?select=*&order=starts_at.asc&limit=1`,
         {
           method: "GET",
           headers: headersForSports()
@@ -1405,7 +1785,7 @@
       );
 
       if (!response.ok) {
-        throw new Error(`First upcoming match status ${response.status}`);
+        throw new Error(`First match intelligence API status ${response.status}`);
       }
 
       const rows = await response.json();
@@ -1431,7 +1811,7 @@
     }
 
     async function fetchTimeline(eventId) {
-      if (!eventId) return fallbackTimeline;
+      if (!eventId) return [];
 
       const response = await fetch(
         `${PREDIKT_SUPABASE_REST_URL}/v_event_match_action_log?event_id=eq.${eventId}&select=*`,
@@ -1446,34 +1826,39 @@
       }
 
       const rows = await response.json();
-      return Array.isArray(rows) && rows.length > 0 ? rows : fallbackTimeline;
+      return Array.isArray(rows) ? rows : [];
     }
 
     function splitLineupsByTeam(rows) {
       if (!Array.isArray(rows) || rows.length === 0) {
-        state.homeLineup = fallbackLineups.home;
-        state.awayLineup = fallbackLineups.away;
+        state.homeLineup = [];
+        state.awayLineup = [];
         return;
       }
 
       const homeRows = rows.filter((row) => row.participant_id === state.match.home_participant_id);
       const awayRows = rows.filter((row) => row.participant_id === state.match.away_participant_id);
 
-      state.homeLineup = homeRows.length > 0 ? homeRows : rows.slice(0, Math.ceil(rows.length / 2));
-      state.awayLineup = awayRows.length > 0 ? awayRows : rows.slice(Math.ceil(rows.length / 2));
-
-      if (state.homeLineup.length === 0) state.homeLineup = fallbackLineups.home;
-      if (state.awayLineup.length === 0) state.awayLineup = fallbackLineups.away;
+      state.homeLineup = homeRows.length > 0 ? homeRows : [];
+      state.awayLineup = awayRows.length > 0 ? awayRows : [];
     }
-
 
     function renderGroupStandings(rows = fallbackStandings) {
       const body = document.getElementById("groupStandingsBody");
-
       if (!body) return;
 
       if (!Array.isArray(rows) || rows.length === 0) {
-        rows = fallbackStandings;
+        body.innerHTML = `
+          <tr>
+            <td colspan="5">
+              <span class="team-cell">
+                <strong>Tabla pendiente</strong>
+                <small>Se mostrará cuando existan datos publicados del grupo.</small>
+              </span>
+            </td>
+          </tr>
+        `;
+        return;
       }
 
       body.innerHTML = rows
@@ -1481,36 +1866,33 @@
         .sort((a, b) => Number(a.position || 99) - Number(b.position || 99))
         .map((row, index) => `
           <tr>
-            <td>${row.position || index + 1}</td>
+            <td>${escapeHtml(row.position || index + 1)}</td>
             <td>
               <span class="team-cell">
-                <strong>${row.participant_name || "Equipo por confirmar"}</strong>
-                <small>${row.participant_code || ""}</small>
+                <strong>${escapeHtml(row.participant_name || "Equipo por confirmar")}</strong>
+                <small>${escapeHtml(row.participant_code || "")}</small>
               </span>
             </td>
-            <td>${row.played ?? 0}</td>
-            <td>${row.points ?? 0}</td>
-            <td>${Number(row.goal_difference || 0) > 0 ? "+" : ""}${row.goal_difference ?? 0}</td>
+            <td>${escapeHtml(row.played ?? 0)}</td>
+            <td>${escapeHtml(row.points ?? 0)}</td>
+            <td>${Number(row.goal_difference || 0) > 0 ? "+" : ""}${escapeHtml(row.goal_difference ?? 0)}</td>
           </tr>
         `).join("");
     }
 
     function renderPhaseTimeline(rows = fallbackPhases) {
       const timeline = document.getElementById("phaseTimeline");
-
       if (!timeline) return;
 
-      if (!Array.isArray(rows) || rows.length === 0) {
-        rows = fallbackPhases;
-      }
+      if (!Array.isArray(rows) || rows.length === 0) rows = fallbackPhases;
 
       timeline.innerHTML = rows.map((phase) => {
         const status = phase.timeline_status || "upcoming";
         const label = phase.phase_short_name || phase.phase_name || "Fase";
         return `
-          <div class="phase-step ${status}">
+          <div class="phase-step ${escapeHtml(status)}">
             <span class="phase-dot"></span>
-            <p class="phase-name">${label}</p>
+            <p class="phase-name">${escapeHtml(label)}</p>
           </div>
         `;
       }).join("");
@@ -1518,28 +1900,25 @@
 
     function renderBracket(rows = fallbackBracket) {
       const list = document.getElementById("bracketList");
-
       if (!list) return;
 
-      if (!Array.isArray(rows) || rows.length === 0) {
-        rows = fallbackBracket;
-      }
+      if (!Array.isArray(rows) || rows.length === 0) rows = fallbackBracket;
 
       list.innerHTML = rows.slice(0, 3).map((row) => `
         <div class="bracket-row">
-          <p class="bracket-title">${row.bracket_name || "Ruta por definir"}</p>
+          <p class="bracket-title">${escapeHtml(row.bracket_name || "Ruta por definir")}</p>
           <p class="bracket-copy">
-            ${row.home_source_label || "Clasificado por definir"} vs ${row.away_source_label || "Clasificado por definir"}
+            ${escapeHtml(row.home_source_label || "Clasificado por definir")} vs ${escapeHtml(row.away_source_label || "Clasificado por definir")}
           </p>
         </div>
       `).join("");
     }
 
-    async function fetchGroupStandings(groupId) {
-      if (!groupId) return fallbackStandings;
+    async function fetchGroupStandings(groupCode) {
+      if (!groupCode) return [];
 
       const response = await fetch(
-        `${PREDIKT_SUPABASE_REST_URL}/v_group_standings?group_id=eq.${groupId}&select=*`,
+        `${PREDIKT_SUPABASE_REST_URL}/v_group_standings?group_code=eq.${groupCode}&select=*`,
         {
           method: "GET",
           headers: headersForSports()
@@ -1551,7 +1930,7 @@
       }
 
       const rows = await response.json();
-      return Array.isArray(rows) && rows.length > 0 ? rows : fallbackStandings;
+      return Array.isArray(rows) ? rows : [];
     }
 
     async function fetchPhaseTimeline() {
@@ -1588,55 +1967,59 @@
       return Array.isArray(rows) && rows.length > 0 ? rows : fallbackBracket;
     }
 
+    function renderAllPrimaryBlocks() {
+      renderMatch();
+      renderMomentum();
+      renderAIExplanation();
+      renderMvp();
+    }
+
     async function init() {
       let eventId = getEventIdFromUrl();
 
       try {
-        const row = eventId ? await fetchMatchIntelligence(eventId) : await fetchFirstUpcomingMatch();
+        const row = eventId ? await fetchMatchIntelligence(eventId) : await fetchFirstAvailableMatch();
         if (row) {
           state.match = normalizeMatch(row);
-          state.match.home_participant_id = row.home_participant_id;
-          state.match.away_participant_id = row.away_participant_id;
           eventId = row.event_id || eventId;
         }
       } catch (error) {
-        console.warn("PREDIKT match intelligence unavailable. Using safe fallback.", error);
+        console.warn("PREDIKT match intelligence API unavailable. Using neutral fallback.", error);
       }
 
-      renderMatch();
+      renderAllPrimaryBlocks();
 
       try {
         const lineups = await fetchLineups(eventId);
         splitLineupsByTeam(lineups);
       } catch (error) {
-        console.warn("PREDIKT projected lineups unavailable. Using demo fallback.", error);
-        state.homeLineup = fallbackLineups.home;
-        state.awayLineup = fallbackLineups.away;
+        console.warn("PREDIKT projected lineups unavailable.", error);
+        state.homeLineup = [];
+        state.awayLineup = [];
       }
-
       renderLineup();
 
       try {
         const timelineRows = await fetchTimeline(eventId);
         renderTimeline(timelineRows);
       } catch (error) {
-        console.warn("PREDIKT match action log unavailable. Using demo fallback.", error);
-        renderTimeline(fallbackTimeline);
+        console.warn("PREDIKT match action log unavailable.", error);
+        renderTimeline([]);
       }
 
       try {
-        const standingsRows = await fetchGroupStandings(state.match.group_id);
+        const standingsRows = await fetchGroupStandings(state.match.group_code);
         renderGroupStandings(standingsRows);
       } catch (error) {
-        console.warn("PREDIKT group standings unavailable. Using demo fallback.", error);
-        renderGroupStandings(fallbackStandings);
+        console.warn("PREDIKT group standings unavailable.", error);
+        renderGroupStandings([]);
       }
 
       try {
         const phaseRows = await fetchPhaseTimeline();
         renderPhaseTimeline(phaseRows);
       } catch (error) {
-        console.warn("PREDIKT phase timeline unavailable. Using demo fallback.", error);
+        console.warn("PREDIKT phase timeline unavailable. Using neutral fallback.", error);
         renderPhaseTimeline(fallbackPhases);
       }
 
@@ -1644,7 +2027,7 @@
         const bracketRows = await fetchBracket();
         renderBracket(bracketRows);
       } catch (error) {
-        console.warn("PREDIKT tournament bracket unavailable. Using demo fallback.", error);
+        console.warn("PREDIKT tournament bracket unavailable. Using neutral fallback.", error);
         renderBracket(fallbackBracket);
       }
     }
