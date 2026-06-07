@@ -4,53 +4,25 @@
   <!--
     Nombre del archivo: dashboard-admin.html
     Fecha: 2026-06-07
-    Versión: v1.0.0 Launch Readiness Dashboard™
+    Versión: v1.0.1 Executive Launch Command Center™
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Dashboard administrativo mobile-first para monitorear el lanzamiento público
-      de PREDIKT™ desde el día 1. Esta pantalla no está diseñada para usuarios
-      normales; debe publicarse únicamente como pantalla administrativa y después
-      protegerse con validación real de rol admin desde Supabase/Auth.
-
-      Muestra métricas ejecutivas de:
-      - Usuarios registrados hoy, semana y total.
-      - Pronósticos hoy, semana y total.
-      - Top 5 participantes del ranking oficial.
-      - Top 5 partidos más populares por cantidad de pronósticos.
-      - Estado del programa Fundadores PREDIKT™.
-      - Salud del lanzamiento con usuarios activos, pronósticos por usuario y
-        actividad de las últimas 24 horas.
-
-      Arquitectura Beta-safe:
-      - Usa REST de Supabase con headers compatibles con los esquemas actuales.
-      - Está preparada para consumir vistas analíticas futuras.
-      - Si una vista todavía no existe, conserva fallback visual para no romper
-        la experiencia durante la Beta Pública.
-      - Mantiene branding oficial PREDIKT™, favicon oficial y footer oficial de
-        5 botones.
-
-      Fuentes REST esperadas / recomendadas:
-      - analytics.v_launch_user_metrics
-      - analytics.v_launch_prediction_metrics
-      - rankings.v_leaderboard
-      - analytics.v_popular_matches
-      - analytics.v_founder_metrics
-      - analytics.v_launch_health
-
-      Líneas versión anterior: 0
-      Líneas versión nueva: 1094
+      Dashboard administrativo de lanzamiento para PREDIKT™.
+      Rediseño ejecutivo KPI First™ basado en validación visual de v1.0.0.
+      Reduce hero, elimina estado rojo de riesgo, prioriza usuarios, pronósticos
+      y fundadores en tarjetas gigantes, mejora uso de escritorio sin perder
+      experiencia mobile-first y mantiene branding oficial PREDIKT™.
+      Usa datos demo/fallback para validación visual inmediata en Vercel.
+      Preparado para conexión posterior con Supabase Analytics.
+    Líneas versión anterior: 1125
+    Líneas versión nueva: 1011
   -->
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>PREDIKT™ Admin | Launch Readiness Dashboard™</title>
-
-  <meta
-    name="description"
-    content="Dashboard administrativo de lanzamiento para monitorear usuarios, pronósticos, fundadores y salud de crecimiento de PREDIKT™."
-  />
+  <title>PREDIKT™ Admin | Executive Launch Command Center™</title>
+  <meta name="description" content="Centro de Control de Lanzamiento PREDIKT™ para monitorear usuarios, pronósticos, fundadores y actividad." />
   <meta name="theme-color" content="#061826" />
 
   <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
@@ -69,11 +41,9 @@
       --green: #48f29a;
       --green-soft: rgba(72, 242, 154, 0.14);
       --blue: #5dade2;
-      --blue-soft: rgba(93, 173, 226, 0.13);
+      --blue-soft: rgba(93, 173, 226, 0.14);
       --red: #ff5a5f;
-      --red-soft: rgba(255, 90, 95, 0.14);
       --orange: #ff9f43;
-      --orange-soft: rgba(255, 159, 67, 0.14);
       --text-main: #ffffff;
       --text-soft: #c9d7e6;
       --text-muted: #7f95aa;
@@ -84,7 +54,7 @@
       --radius-md: 18px;
       --radius-sm: 14px;
       --footer-height: 82px;
-      --app-max: 560px;
+      --app-max: 1180px;
     }
 
     * {
@@ -205,9 +175,102 @@
       font-size: 1rem;
     }
 
-    .admin-badge {
+    .admin-pill {
       min-height: 38px;
-      padding: 0 12px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 24px rgba(245, 185, 66, 0.25);
+    }
+
+    .command-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245, 185, 66, 0.30);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.20), transparent 34%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .command-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: -26px;
+      width: 132px;
+      height: 132px;
+      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
+      opacity: 0.08;
+      transform: rotate(12deg);
+      pointer-events: none;
+    }
+
+    .command-kicker {
+      color: var(--gold);
+      font-size: 0.70rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .command-title-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 10px;
+    }
+
+    .command-title {
+      font-size: clamp(1.25rem, 5.2vw, 2.05rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .launch-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+      padding: 10px 12px;
+    }
+
+    .launch-label {
+      display: grid;
+      gap: 2px;
+    }
+
+    .launch-label strong {
+      color: var(--gold-soft);
+      font-size: 0.80rem;
+      font-weight: 980;
+    }
+
+    .launch-label span {
+      color: var(--text-soft);
+      font-size: 0.64rem;
+      font-weight: 820;
+    }
+
+    .launch-badge {
+      min-width: 128px;
+      min-height: 38px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -218,111 +281,95 @@
       font-weight: 980;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      box-shadow: 0 10px 24px rgba(245, 185, 66, 0.22);
-    }
-
-    .hero-card {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(245, 185, 66, 0.24);
-      border-radius: var(--radius-xl);
-      background:
-        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.2), transparent 34%),
-        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
-      padding: 20px;
-      box-shadow: var(--shadow);
-      margin-bottom: 14px;
-    }
-
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      right: -20px;
-      top: -18px;
-      width: 132px;
-      height: 132px;
-      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
-      opacity: 0.09;
-      transform: rotate(12deg);
-      pointer-events: none;
-    }
-
-    .kicker {
-      color: var(--gold);
-      font-size: 0.72rem;
-      font-weight: 980;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .hero-title {
-      max-width: 360px;
-      font-size: clamp(1.45rem, 6.6vw, 2.35rem);
-      font-weight: 980;
-      line-height: 0.98;
-      letter-spacing: -0.045em;
-      margin-bottom: 9px;
-    }
-
-    .hero-copy {
-      max-width: 390px;
-      color: var(--text-soft);
-      font-size: 0.84rem;
-      font-weight: 720;
-    }
-
-    .pulse-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-    }
-
-    .pulse-title {
-      font-size: 0.76rem;
-      font-weight: 960;
-      margin-bottom: 3px;
-    }
-
-    .pulse-copy {
-      color: var(--text-muted);
-      font-size: 0.64rem;
-      font-weight: 800;
-    }
-
-    .pulse-pill {
-      display: inline-flex;
-      min-width: 98px;
-      align-items: center;
-      justify-content: center;
-      min-height: 36px;
-      border-radius: 999px;
-      color: #061826;
-      background: linear-gradient(135deg, var(--green), #8cffc4);
-      font-size: 0.7rem;
-      font-weight: 980;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
       white-space: nowrap;
     }
 
-    .pulse-pill.medium {
-      background: linear-gradient(135deg, var(--orange), #ffd39b);
+    .scoreboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .pulse-pill.low {
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--red), #ff8c90);
+    .kpi-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 132px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(15, 39, 64, 0.86);
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.21);
+      display: grid;
+      align-content: space-between;
+    }
+
+    .kpi-card::after {
+      content: attr(data-icon);
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 2rem;
+      opacity: 0.20;
+    }
+
+    .kpi-card.users {
+      border-color: rgba(93, 173, 226, 0.30);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(93, 173, 226, 0.16), transparent 34%),
+        rgba(15, 39, 64, 0.88);
+    }
+
+    .kpi-card.predictions {
+      border-color: rgba(72, 242, 154, 0.28);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(72, 242, 154, 0.14), transparent 34%),
+        rgba(15, 39, 64, 0.88);
+    }
+
+    .kpi-card.founders {
+      border-color: rgba(245, 185, 66, 0.32);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.18), transparent 34%),
+        rgba(15, 39, 64, 0.88);
+    }
+
+    .kpi-label {
+      color: var(--text-soft);
+      font-size: 0.74rem;
+      font-weight: 940;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      font-size: clamp(2.35rem, 12vw, 4.4rem);
+      font-weight: 980;
+      line-height: 0.92;
+      letter-spacing: -0.07em;
+      margin: 10px 0 6px;
+    }
+
+    .kpi-value.blue {
+      color: var(--blue);
+    }
+
+    .kpi-value.green {
+      color: var(--green);
+    }
+
+    .kpi-value.gold {
+      color: var(--gold);
+    }
+
+    .kpi-sub {
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      font-weight: 820;
     }
 
     .section {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .section-head {
@@ -340,273 +387,181 @@
       text-transform: uppercase;
     }
 
-    .section-link,
-    .refresh-button {
+    .section-link {
       color: var(--gold);
-      background: transparent;
       font-size: 0.7rem;
       font-weight: 950;
     }
 
-    .metric-grid {
+    .exec-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .metric-card {
-      position: relative;
-      overflow: hidden;
+    .exec-card {
       border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      background:
-        radial-gradient(circle at 92% 0%, rgba(93, 173, 226, 0.11), transparent 28%),
-        rgba(15, 39, 64, 0.84);
-      padding: 16px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.21);
+      border-radius: var(--radius-lg);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 14px;
+      min-height: 106px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
     }
 
-    .metric-card.gold {
-      border-color: rgba(245, 185, 66, 0.25);
-      background:
-        radial-gradient(circle at 92% 0%, rgba(245, 185, 66, 0.16), transparent 30%),
-        rgba(15, 39, 64, 0.84);
-    }
-
-    .metric-card.green {
-      border-color: rgba(72, 242, 154, 0.22);
-      background:
-        radial-gradient(circle at 92% 0%, rgba(72, 242, 154, 0.15), transparent 30%),
-        rgba(15, 39, 64, 0.84);
-    }
-
-    .metric-top {
+    .exec-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 13px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .metric-label {
-      color: var(--text-main);
-      font-size: 0.86rem;
-      font-weight: 980;
+    .exec-title {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 950;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
-    .metric-icon {
-      width: 38px;
-      height: 38px;
+    .exec-icon {
+      width: 34px;
+      height: 34px;
       display: grid;
       place-items: center;
-      border-radius: 16px;
+      border-radius: 14px;
       background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 1.08rem;
+      border: 1px solid rgba(255, 255, 255, 0.11);
     }
 
-    .metric-values {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .metric-box {
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      padding: 11px 8px;
-      text-align: center;
-      min-height: 74px;
-    }
-
-    .metric-value {
-      color: var(--gold);
-      font-size: 1.24rem;
+    .exec-value {
+      font-size: 1.8rem;
       font-weight: 980;
       line-height: 1;
-      margin-bottom: 6px;
-      letter-spacing: -0.03em;
+      margin-bottom: 5px;
     }
 
-    .metric-value.green-text {
+    .exec-value.gold {
+      color: var(--gold);
+    }
+
+    .exec-value.green {
       color: var(--green);
     }
 
-    .metric-value.blue-text {
+    .exec-value.blue {
       color: var(--blue);
     }
 
-    .metric-caption {
-      color: var(--text-soft);
-      font-size: 0.6rem;
-      font-weight: 850;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+    .exec-copy {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 780;
     }
 
-    .cards-list {
+    .content-grid {
       display: grid;
-      gap: 9px;
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
 
-    .list-card {
+    .panel-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+    }
+
+    .ranking-list,
+    .matches-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ranking-row,
+    .match-row {
       display: grid;
       grid-template-columns: auto 1fr auto;
-      gap: 11px;
+      gap: 10px;
       align-items: center;
-      border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      background: rgba(15, 39, 64, 0.82);
-      padding: 12px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.085);
+      padding: 10px;
     }
 
-    .rank-badge {
+    .rank-medal {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 1rem;
+      font-weight: 980;
+    }
+
+    .match-number {
       width: 34px;
       height: 34px;
       display: grid;
       place-items: center;
       border-radius: 50%;
       color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      font-size: 0.76rem;
+      background: linear-gradient(135deg, var(--blue), #a6d9ff);
+      font-size: 0.78rem;
       font-weight: 980;
     }
 
-    .rank-badge.blue {
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--blue), #2774a6);
-    }
-
-    .list-title {
-      font-size: 0.82rem;
-      font-weight: 950;
+    .row-title {
+      font-size: 0.84rem;
+      font-weight: 960;
       line-height: 1.1;
     }
 
-    .list-sub {
+    .row-sub {
       color: var(--text-muted);
-      font-size: 0.64rem;
-      font-weight: 790;
+      font-size: 0.62rem;
+      font-weight: 780;
       margin-top: 3px;
     }
 
-    .list-score {
+    .row-score {
       color: var(--green);
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 980;
       white-space: nowrap;
     }
 
-    .founder-card {
-      border: 1px solid rgba(245, 185, 66, 0.3);
-      border-radius: var(--radius-xl);
-      background:
-        radial-gradient(circle at 12% 10%, rgba(245, 185, 66, 0.2), transparent 30%),
-        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(64, 48, 18, 0.72));
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .founder-title {
-      font-size: 1rem;
-      font-weight: 980;
-      margin-bottom: 6px;
-    }
-
-    .founder-copy {
-      color: var(--text-soft);
-      font-size: 0.78rem;
-      font-weight: 740;
-      margin-bottom: 12px;
-    }
-
-    .founder-meter {
+    .founder-progress {
+      margin-top: 10px;
       width: 100%;
       height: 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.09);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       overflow: hidden;
-      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .founder-fill {
-      width: 0%;
+    .founder-progress-bar {
       height: 100%;
-      border-radius: 999px;
+      width: 0%;
+      border-radius: inherit;
       background: linear-gradient(90deg, var(--gold), var(--gold-soft));
-      transition: width 0.3s ease;
-    }
-
-    .founder-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .health-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .health-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: rgba(15, 39, 64, 0.82);
-      padding: 14px;
-      min-height: 112px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-    }
-
-    .health-card.wide {
-      grid-column: 1 / -1;
-    }
-
-    .health-kicker {
-      color: var(--text-muted);
-      font-size: 0.62rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 8px;
-    }
-
-    .health-value {
-      color: var(--gold);
-      font-size: 1.42rem;
-      font-weight: 980;
-      line-height: 1;
-      margin-bottom: 7px;
-    }
-
-    .health-value.green {
-      color: var(--green);
-    }
-
-    .health-value.blue {
-      color: var(--blue);
-    }
-
-    .health-copy {
-      color: var(--text-soft);
-      font-size: 0.68rem;
-      font-weight: 740;
     }
 
     .admin-note {
-      border: 1px solid rgba(255, 159, 67, 0.25);
+      margin-top: 12px;
+      border: 1px dashed rgba(245, 185, 66, 0.28);
       border-radius: var(--radius-lg);
-      background: rgba(255, 159, 67, 0.08);
-      padding: 14px;
+      background: rgba(245, 185, 66, 0.08);
+      padding: 12px;
       color: var(--text-soft);
-      font-size: 0.72rem;
-      font-weight: 760;
-    }
-
-    .admin-note strong {
-      color: var(--gold-soft);
+      font-size: 0.70rem;
+      font-weight: 790;
     }
 
     .toast {
@@ -615,7 +570,7 @@
       bottom: calc(var(--footer-height) + 18px);
       transform: translateX(-50%) translateY(20px);
       z-index: 60;
-      width: min(calc(100% - 28px), var(--app-max));
+      width: min(calc(100% - 28px), 560px);
       border: 1px solid rgba(72, 242, 154, 0.34);
       border-radius: 18px;
       background: rgba(7, 28, 46, 0.98);
@@ -640,7 +595,7 @@
       left: 50%;
       bottom: 0;
       z-index: 40;
-      width: min(100%, var(--app-max));
+      width: min(100%, 560px);
       transform: translateX(-50%);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -679,15 +634,24 @@
       border: 1px solid rgba(245, 185, 66, 0.22);
     }
 
-    @media (min-width: 760px) {
-      body {
-        background:
-          radial-gradient(circle at center top, rgba(245, 185, 66, 0.08), transparent 28%),
-          linear-gradient(145deg, #061826 0%, #020b13 100%);
+    @media (min-width: 640px) {
+      .scoreboard-grid {
+        grid-template-columns: repeat(3, 1fr);
       }
 
+      .exec-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .command-title-row {
+        grid-template-columns: 1fr 1.1fr;
+        align-items: end;
+      }
+    }
+
+    @media (min-width: 900px) {
       .app-shell {
-        padding-top: 22px;
+        padding: 22px 18px 0;
       }
 
       .app-header {
@@ -695,189 +659,197 @@
         margin-right: 0;
         border-radius: 0 0 22px 22px;
       }
+
+      .content-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .command-card {
+        padding: 18px;
+      }
+
+      .panel-card {
+        min-height: 266px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .launch-status {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .launch-badge {
+        width: 100%;
+      }
+
+      .kpi-card {
+        min-height: 120px;
+      }
     }
   </style>
 </head>
 
 <body>
   <main class="app-shell">
-    <header class="app-header" aria-label="Encabezado administrativo PREDIKT">
+    <header class="app-header" aria-label="Encabezado PREDIKT Admin">
       <a class="brand" href="index.html" aria-label="Ir a inicio">
         <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
-          <small class="brand-sub">Launch Readiness Dashboard™</small>
+          <small class="brand-sub">Executive Launch Command Center™</small>
         </span>
       </a>
 
       <div class="header-actions">
-        <button class="icon-btn" type="button" id="refreshIconBtn" aria-label="Actualizar métricas">↻</button>
-        <span class="admin-badge">Admin</span>
+        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar dashboard">↻</button>
+        <span class="admin-pill">Admin</span>
       </div>
     </header>
 
-    <section class="hero-card" aria-label="Resumen de lanzamiento">
-      <p class="kicker">Beta Pública · Control de lanzamiento</p>
-      <h1 class="hero-title">¿PREDIKT™ está despegando?</h1>
-      <p class="hero-copy">
-        Monitorea usuarios, pronósticos, partidos populares, fundadores y salud de actividad desde una sola pantalla.
-      </p>
-
-      <div class="pulse-row" aria-label="Pulso de lanzamiento">
-        <div>
-          <p class="pulse-title">Launch Pulse™</p>
-          <p class="pulse-copy" id="launchPulseCopy">Esperando actividad real de usuarios y pronósticos.</p>
+    <section class="command-card" aria-label="Estado del lanzamiento">
+      <p class="command-kicker">⚽ PREDIKT™ · Control de Lanzamiento</p>
+      <div class="command-title-row">
+        <h1 class="command-title">Centro de Control Ejecutivo.</h1>
+        <div class="launch-status">
+          <span class="launch-label">
+            <strong>🚀 Launch Pulse™</strong>
+            <span>Beta pública en preparación.</span>
+          </span>
+          <span class="launch-badge" id="launchPulseBadge">Preparando</span>
         </div>
-        <strong class="pulse-pill medium" id="launchPulsePill">Preparando</strong>
       </div>
     </section>
 
-    <section class="section" aria-label="Métricas principales">
-      <div class="section-head">
-        <h2 class="section-title">Métricas clave</h2>
-        <button class="refresh-button" type="button" id="refreshTextBtn">Actualizar</button>
-      </div>
+    <section class="scoreboard-grid" aria-label="KPIs principales">
+      <article class="kpi-card users" data-icon="👥">
+        <p class="kpi-label">Usuarios</p>
+        <p class="kpi-value blue" id="totalUsers">0</p>
+        <p class="kpi-sub"><span id="todayUsers">0</span> hoy · <span id="weekUsers">0</span> semana</p>
+      </article>
 
-      <div class="metric-grid">
-        <article class="metric-card gold">
-          <div class="metric-top">
-            <h3 class="metric-label">👥 Usuarios</h3>
-            <span class="metric-icon">👥</span>
-          </div>
-          <div class="metric-values">
-            <div class="metric-box">
-              <p class="metric-value" id="usersToday">0</p>
-              <p class="metric-caption">Hoy</p>
-            </div>
-            <div class="metric-box">
-              <p class="metric-value blue-text" id="usersWeek">0</p>
-              <p class="metric-caption">Semana</p>
-            </div>
-            <div class="metric-box">
-              <p class="metric-value green-text" id="usersTotal">0</p>
-              <p class="metric-caption">Total</p>
-            </div>
-          </div>
-        </article>
+      <article class="kpi-card predictions" data-icon="🎯">
+        <p class="kpi-label">Pronósticos</p>
+        <p class="kpi-value green" id="totalPredictions">0</p>
+        <p class="kpi-sub"><span id="todayPredictions">0</span> hoy · <span id="weekPredictions">0</span> semana</p>
+      </article>
 
-        <article class="metric-card green">
-          <div class="metric-top">
-            <h3 class="metric-label">🎯 Pronósticos</h3>
-            <span class="metric-icon">🎯</span>
-          </div>
-          <div class="metric-values">
-            <div class="metric-box">
-              <p class="metric-value" id="predictionsToday">0</p>
-              <p class="metric-caption">Hoy</p>
-            </div>
-            <div class="metric-box">
-              <p class="metric-value blue-text" id="predictionsWeek">0</p>
-              <p class="metric-caption">Semana</p>
-            </div>
-            <div class="metric-box">
-              <p class="metric-value green-text" id="predictionsTotal">0</p>
-              <p class="metric-caption">Total</p>
-            </div>
-          </div>
-        </article>
-      </div>
+      <article class="kpi-card founders" data-icon="💎">
+        <p class="kpi-label">Fundadores</p>
+        <p class="kpi-value gold"><span id="foundersRegistered">0</span>/<span id="foundersGoal">100</span></p>
+        <p class="kpi-sub"><span id="foundersAvailable">100</span> lugares disponibles</p>
+        <div class="founder-progress" aria-label="Avance fundadores">
+          <div class="founder-progress-bar" id="foundersProgressBar"></div>
+        </div>
+      </article>
     </section>
 
-    <section class="section" aria-label="Top participantes">
-      <div class="section-head">
-        <h2 class="section-title">🏆 Top participantes</h2>
-        <a class="section-link" href="ranking.html">Ver ranking</a>
-      </div>
+    <section class="exec-grid" aria-label="Métricas ejecutivas">
+      <article class="exec-card">
+        <div class="exec-top">
+          <p class="exec-title">Actividad 24h</p>
+          <span class="exec-icon">📈</span>
+        </div>
+        <p class="exec-value gold" id="activity24h">Preparando</p>
+        <p class="exec-copy" id="activity24hCopy">Esperando tráfico real.</p>
+      </article>
 
-      <div class="cards-list" id="topParticipantsList">
-        <article class="list-card">
-          <span class="rank-badge">#1</span>
-          <div>
-            <p class="list-title">Sin datos aún</p>
-            <p class="list-sub">Ranking listo para actividad real</p>
-          </div>
-          <strong class="list-score">0 pts</strong>
-        </article>
-      </div>
+      <article class="exec-card">
+        <div class="exec-top">
+          <p class="exec-title">Pronósticos / Usuario</p>
+          <span class="exec-icon">⚽</span>
+        </div>
+        <p class="exec-value green" id="predictionsPerUser">0.0</p>
+        <p class="exec-copy">Promedio acumulado.</p>
+      </article>
+
+      <article class="exec-card">
+        <div class="exec-top">
+          <p class="exec-title">Líder Actual</p>
+          <span class="exec-icon">🏆</span>
+        </div>
+        <p class="exec-value blue" id="currentLeader">Sin datos</p>
+        <p class="exec-copy" id="currentLeaderCopy">Ranking listo para actividad real.</p>
+      </article>
     </section>
 
-    <section class="section" aria-label="Partidos más populares">
-      <div class="section-head">
-        <h2 class="section-title">⚽ Partidos populares</h2>
-        <a class="section-link" href="pronostico.html">Pronósticos</a>
-      </div>
-
-      <div class="cards-list" id="popularMatchesList">
-        <article class="list-card">
-          <span class="rank-badge blue">1</span>
-          <div>
-            <p class="list-title">Sin actividad todavía</p>
-            <p class="list-sub">Aparecerán los partidos con más pronósticos</p>
-          </div>
-          <strong class="list-score">0</strong>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" aria-label="Fundadores PREDIKT">
-      <article class="founder-card">
-        <h2 class="founder-title">💎 Fundadores PREDIKT™</h2>
-        <p class="founder-copy">
-          Preparado para Mercado Pago. Si aún no hay tabla de fundadores, se mostrará 0 / 100 sin romper el lanzamiento.
-        </p>
-
-        <div class="founder-meter" aria-label="Progreso de fundadores">
-          <div class="founder-fill" id="founderFill"></div>
+    <section class="content-grid" aria-label="Actividad de lanzamiento">
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🏆 Top Participantes</h2>
+          <a class="section-link" href="ranking.html">Ver ranking</a>
         </div>
 
-        <div class="founder-row">
-          <div class="metric-box">
-            <p class="metric-value" id="foundersRegistered">0</p>
-            <p class="metric-caption">Registrados</p>
+        <div class="ranking-list" id="topParticipantsList">
+          <div class="ranking-row">
+            <span class="rank-medal">🥇</span>
+            <div>
+              <p class="row-title">Sin datos aún</p>
+              <p class="row-sub">Aparecerá el primer líder con actividad real.</p>
+            </div>
+            <strong class="row-score">0 pts</strong>
           </div>
-          <div class="metric-box">
-            <p class="metric-value blue-text" id="foundersAvailable">100</p>
-            <p class="metric-caption">Disponibles</p>
+
+          <div class="ranking-row">
+            <span class="rank-medal">🥈</span>
+            <div>
+              <p class="row-title">Pendiente</p>
+              <p class="row-sub">Segundo lugar en espera.</p>
+            </div>
+            <strong class="row-score">0 pts</strong>
           </div>
-          <div class="metric-box">
-            <p class="metric-value green-text">100</p>
-            <p class="metric-caption">Meta</p>
+
+          <div class="ranking-row">
+            <span class="rank-medal">🥉</span>
+            <div>
+              <p class="row-title">Pendiente</p>
+              <p class="row-sub">Tercer lugar en espera.</p>
+            </div>
+            <strong class="row-score">0 pts</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">⚽ Partidos Populares</h2>
+          <a class="section-link" href="pronostico.html">Pronósticos</a>
+        </div>
+
+        <div class="matches-list" id="popularMatchesList">
+          <div class="match-row">
+            <span class="match-number">1</span>
+            <div>
+              <p class="row-title">Sin actividad todavía</p>
+              <p class="row-sub">Aparecerán los partidos con más pronósticos.</p>
+            </div>
+            <strong class="row-score">0</strong>
+          </div>
+
+          <div class="match-row">
+            <span class="match-number">2</span>
+            <div>
+              <p class="row-title">Pendiente</p>
+              <p class="row-sub">Segundo partido más popular.</p>
+            </div>
+            <strong class="row-score">0</strong>
+          </div>
+
+          <div class="match-row">
+            <span class="match-number">3</span>
+            <div>
+              <p class="row-title">Pendiente</p>
+              <p class="row-sub">Tercer partido más popular.</p>
+            </div>
+            <strong class="row-score">0</strong>
           </div>
         </div>
       </article>
     </section>
 
-    <section class="section" aria-label="Salud del lanzamiento">
-      <div class="section-head">
-        <h2 class="section-title">📈 Salud del lanzamiento</h2>
-      </div>
-
-      <div class="health-grid">
-        <article class="health-card">
-          <p class="health-kicker">Usuarios activos</p>
-          <p class="health-value green" id="activeUsers">0</p>
-          <p class="health-copy">Con actividad reciente.</p>
-        </article>
-
-        <article class="health-card">
-          <p class="health-kicker">Pronósticos / usuario</p>
-          <p class="health-value blue" id="predictionsPerUser">0.0</p>
-          <p class="health-copy">Promedio acumulado.</p>
-        </article>
-
-        <article class="health-card wide">
-          <p class="health-kicker">Actividad últimas 24h</p>
-          <p class="health-value" id="activity24h">Baja</p>
-          <p class="health-copy" id="activity24hCopy">Sin suficiente evidencia de actividad. Revisar campaña e invitaciones.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" aria-label="Nota administrativa">
-      <div class="admin-note">
-        <strong>Nota de seguridad:</strong> esta pantalla debe mantenerse fuera del flujo público. La versión incluye preparación visual y técnica; la protección definitiva debe aplicarse con rol admin, RLS y vistas seguras que no expongan datos sensibles.
-      </div>
-    </section>
+    <p class="admin-note">
+      Vista administrativa no pública. Esta versión valida UX/UI con datos fallback. La siguiente etapa conecta vistas reales Supabase y protección por rol administrador.
+    </p>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite">Dashboard actualizado.</div>
@@ -886,23 +858,63 @@
     const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
     const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
 
-    const ADMIN_CONFIG = {
-      founderGoal: 100,
-      enableAdminGuard: false,
-      expectedAdminFlagKey: "predikt_admin_access",
-      views: {
-        userMetrics: "v_launch_user_metrics",
-        predictionMetrics: "v_launch_prediction_metrics",
-        topParticipants: "v_leaderboard",
-        popularMatches: "v_popular_matches",
-        founderMetrics: "v_founder_metrics",
-        launchHealth: "v_launch_health"
-      }
+    const dashboardState = {
+      users: {
+        today: 0,
+        week: 0,
+        total: 0
+      },
+      predictions: {
+        today: 0,
+        week: 0,
+        total: 0
+      },
+      founders: {
+        registered: 0,
+        goal: 100
+      },
+      activity: {
+        status: "Preparando",
+        copy: "Esperando tráfico real."
+      },
+      leaderboard: [],
+      popularMatches: []
+    };
+
+    const demoVisualMode = false;
+    const demoState = {
+      users: {
+        today: 23,
+        week: 121,
+        total: 451
+      },
+      predictions: {
+        today: 89,
+        week: 642,
+        total: 3251
+      },
+      founders: {
+        registered: 3,
+        goal: 100
+      },
+      activity: {
+        status: "Alta",
+        copy: "Actividad positiva de lanzamiento."
+      },
+      leaderboard: [
+        { name: "ElTigre", detail: "Racha perfecta", score: 98 },
+        { name: "Pey", detail: "Subiendo rápido", score: 92 },
+        { name: "Javier", detail: "Consistente", score: 89 }
+      ],
+      popularMatches: [
+        { match: "México vs Japón", detail: "Partido con mayor intención", count: 124 },
+        { match: "Brasil vs España", detail: "Alto interés competitivo", count: 98 },
+        { match: "Argentina vs Alemania", detail: "Clásico de alta tracción", count: 77 }
+      ]
     };
 
     const toast = document.getElementById("toast");
-    const refreshIconBtn = document.getElementById("refreshIconBtn");
-    const refreshTextBtn = document.getElementById("refreshTextBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
 
     function showToast(message) {
       toast.textContent = message;
@@ -911,299 +923,225 @@
       showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
     }
 
-    function safeNumber(value, fallback = 0) {
-      const number = Number(value);
-      return Number.isFinite(number) ? number : fallback;
+    function adminHeaders(profile) {
+      const headers = {
+        "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
+        "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        "Accept": "application/json"
+      };
+
+      if (profile) {
+        headers["Accept-Profile"] = profile;
+      }
+
+      return headers;
     }
 
     function formatNumber(value) {
-      return safeNumber(value).toLocaleString("es-MX");
+      const numeric = Number(value || 0);
+      return numeric.toLocaleString("es-MX");
     }
 
-    function setText(id, value) {
-      const element = document.getElementById(id);
-      if (element) element.textContent = value;
+    function calculatePredictionsPerUser(totalPredictions, totalUsers) {
+      const predictions = Number(totalPredictions || 0);
+      const users = Number(totalUsers || 0);
+
+      if (users <= 0) {
+        return "0.0";
+      }
+
+      return (predictions / users).toFixed(1);
     }
 
-    function analyticsHeaders(profile) {
+    function computeLaunchPulse(state) {
+      const totalUsers = Number(state.users.total || 0);
+      const totalPredictions = Number(state.predictions.total || 0);
+      const founders = Number(state.founders.registered || 0);
+
+      if (totalUsers === 0 && totalPredictions === 0 && founders === 0) {
+        return "Preparando";
+      }
+
+      if (totalUsers >= 50 && totalPredictions >= 200) {
+        return "Creciendo";
+      }
+
+      return "Activando";
+    }
+
+    function mergeState(base, incoming) {
       return {
-        "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
-        "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
-        "Accept": "application/json",
-        "Accept-Profile": profile
+        users: { ...base.users, ...(incoming.users || {}) },
+        predictions: { ...base.predictions, ...(incoming.predictions || {}) },
+        founders: { ...base.founders, ...(incoming.founders || {}) },
+        activity: { ...base.activity, ...(incoming.activity || {}) },
+        leaderboard: incoming.leaderboard || base.leaderboard,
+        popularMatches: incoming.popularMatches || base.popularMatches
       };
     }
 
-    async function fetchRows(schema, viewName, query = "select=*") {
-      const response = await fetch(
-        `${PREDIKT_SUPABASE_REST_URL}/${viewName}?${query}`,
-        {
-          method: "GET",
-          headers: analyticsHeaders(schema)
-        }
-      );
+    function renderDashboard(state) {
+      const foundersRegistered = Number(state.founders.registered || 0);
+      const foundersGoal = Number(state.founders.goal || 100);
+      const foundersAvailable = Math.max(foundersGoal - foundersRegistered, 0);
+      const foundersProgress = foundersGoal > 0 ? Math.min((foundersRegistered / foundersGoal) * 100, 100) : 0;
+      const launchPulse = computeLaunchPulse(state);
 
-      if (!response.ok) {
-        throw new Error(`${schema}.${viewName} status ${response.status}`);
-      }
+      document.getElementById("todayUsers").textContent = formatNumber(state.users.today);
+      document.getElementById("weekUsers").textContent = formatNumber(state.users.week);
+      document.getElementById("totalUsers").textContent = formatNumber(state.users.total);
 
-      const rows = await response.json();
-      return Array.isArray(rows) ? rows : [];
+      document.getElementById("todayPredictions").textContent = formatNumber(state.predictions.today);
+      document.getElementById("weekPredictions").textContent = formatNumber(state.predictions.week);
+      document.getElementById("totalPredictions").textContent = formatNumber(state.predictions.total);
+
+      document.getElementById("foundersRegistered").textContent = formatNumber(foundersRegistered);
+      document.getElementById("foundersGoal").textContent = formatNumber(foundersGoal);
+      document.getElementById("foundersAvailable").textContent = formatNumber(foundersAvailable);
+      document.getElementById("foundersProgressBar").style.width = `${foundersProgress}%`;
+
+      document.getElementById("launchPulseBadge").textContent = launchPulse;
+      document.getElementById("activity24h").textContent = state.activity.status || "Preparando";
+      document.getElementById("activity24hCopy").textContent = state.activity.copy || "Esperando tráfico real.";
+      document.getElementById("predictionsPerUser").textContent = calculatePredictionsPerUser(state.predictions.total, state.users.total);
+
+      renderLeaderboard(state.leaderboard);
+      renderPopularMatches(state.popularMatches);
     }
 
-    function assertAdminAccess() {
-      if (!ADMIN_CONFIG.enableAdminGuard) return true;
+    function renderLeaderboard(rows) {
+      const list = document.getElementById("topParticipantsList");
+      const medals = ["🥇", "🥈", "🥉"];
+      const safeRows = Array.isArray(rows) && rows.length > 0 ? rows.slice(0, 3) : [];
 
-      const hasLocalAdminFlag = window.localStorage.getItem(ADMIN_CONFIG.expectedAdminFlagKey) === "true";
-
-      if (!hasLocalAdminFlag) {
-        window.location.href = "index.html";
-        return false;
-      }
-
-      return true;
-    }
-
-    function renderUserMetrics(row) {
-      setText("usersToday", formatNumber(row.registered_today || row.users_today || row.today || 0));
-      setText("usersWeek", formatNumber(row.registered_week || row.users_week || row.week || 0));
-      setText("usersTotal", formatNumber(row.registered_total || row.users_total || row.total || 0));
-    }
-
-    function renderPredictionMetrics(row) {
-      setText("predictionsToday", formatNumber(row.predictions_today || row.today || 0));
-      setText("predictionsWeek", formatNumber(row.predictions_week || row.week || 0));
-      setText("predictionsTotal", formatNumber(row.predictions_total || row.total || 0));
-    }
-
-    function renderTopParticipants(rows) {
-      const container = document.getElementById("topParticipantsList");
-      if (!container) return;
-
-      const safeRows = rows.slice(0, 5);
-
-      if (safeRows.length === 0) {
-        container.innerHTML = `
-          <article class="list-card">
-            <span class="rank-badge">#1</span>
-            <div>
-              <p class="list-title">Sin datos aún</p>
-              <p class="list-sub">Ranking listo para actividad real</p>
-            </div>
-            <strong class="list-score">0 pts</strong>
-          </article>
-        `;
+      if (!safeRows.length) {
+        document.getElementById("currentLeader").textContent = "Sin datos";
+        document.getElementById("currentLeaderCopy").textContent = "Ranking listo para actividad real.";
         return;
       }
 
-      container.innerHTML = safeRows.map((row, index) => {
-        const position = row.position || row.rank || index + 1;
-        const name = row.display_name || row.participant_name || row.alias || row.name || `Participante ${position}`;
-        const points = row.total_points || row.points || row.score || 0;
-        const subtitle = row.rank_label || row.status_label || "Ranking oficial";
+      document.getElementById("currentLeader").textContent = safeRows[0].name || "Líder";
+      document.getElementById("currentLeaderCopy").textContent = `${formatNumber(safeRows[0].score || 0)} puntos acumulados.`;
 
-        return `
-          <article class="list-card">
-            <span class="rank-badge">#${position}</span>
-            <div>
-              <p class="list-title">${escapeHtml(name)}</p>
-              <p class="list-sub">${escapeHtml(subtitle)}</p>
-            </div>
-            <strong class="list-score">${formatNumber(points)} pts</strong>
-          </article>
-        `;
-      }).join("");
+      list.innerHTML = safeRows.map((row, index) => `
+        <div class="ranking-row">
+          <span class="rank-medal">${medals[index] || `#${index + 1}`}</span>
+          <div>
+            <p class="row-title">${row.name || "Participante"}</p>
+            <p class="row-sub">${row.detail || "Actividad registrada"}</p>
+          </div>
+          <strong class="row-score">${formatNumber(row.score)} pts</strong>
+        </div>
+      `).join("");
     }
 
     function renderPopularMatches(rows) {
-      const container = document.getElementById("popularMatchesList");
-      if (!container) return;
+      const list = document.getElementById("popularMatchesList");
+      const safeRows = Array.isArray(rows) && rows.length > 0 ? rows.slice(0, 3) : [];
 
-      const safeRows = rows.slice(0, 5);
-
-      if (safeRows.length === 0) {
-        container.innerHTML = `
-          <article class="list-card">
-            <span class="rank-badge blue">1</span>
-            <div>
-              <p class="list-title">Sin actividad todavía</p>
-              <p class="list-sub">Aparecerán los partidos con más pronósticos</p>
-            </div>
-            <strong class="list-score">0</strong>
-          </article>
-        `;
+      if (!safeRows.length) {
         return;
       }
 
-      container.innerHTML = safeRows.map((row, index) => {
-        const matchName = row.match_name || row.event_name || row.partido || row.name || `Partido ${index + 1}`;
-        const predictionCount = row.prediction_count || row.total_predictions || row.cantidad_pronosticos || row.total || 0;
-        const subtitle = row.group_name || row.phase_name || "Interés de usuarios";
-
-        return `
-          <article class="list-card">
-            <span class="rank-badge blue">${index + 1}</span>
-            <div>
-              <p class="list-title">${escapeHtml(matchName)}</p>
-              <p class="list-sub">${escapeHtml(subtitle)}</p>
-            </div>
-            <strong class="list-score">${formatNumber(predictionCount)}</strong>
-          </article>
-        `;
-      }).join("");
+      list.innerHTML = safeRows.map((row, index) => `
+        <div class="match-row">
+          <span class="match-number">${index + 1}</span>
+          <div>
+            <p class="row-title">${row.match || "Partido"}</p>
+            <p class="row-sub">${row.detail || "Pronósticos registrados"}</p>
+          </div>
+          <strong class="row-score">${formatNumber(row.count)}</strong>
+        </div>
+      `).join("");
     }
 
-    function renderFounderMetrics(row) {
-      const goal = ADMIN_CONFIG.founderGoal;
-      const registered = safeNumber(row.founders_registered || row.registered || row.total || 0);
-      const available = Math.max(goal - registered, 0);
-      const percent = Math.min((registered / goal) * 100, 100);
+    async function fetchJson(path, profile) {
+      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${path}`, {
+        method: "GET",
+        headers: adminHeaders(profile)
+      });
 
-      setText("foundersRegistered", formatNumber(registered));
-      setText("foundersAvailable", formatNumber(row.available || row.disponibles || available));
-
-      const fill = document.getElementById("founderFill");
-      if (fill) fill.style.width = `${percent}%`;
-    }
-
-    function renderLaunchHealth(row) {
-      const activeUsers = safeNumber(row.active_users || row.usuarios_activos || 0);
-      const predictionsPerUser = safeNumber(row.predictions_per_user || row.pronosticos_por_usuario || 0);
-      const activityCount24h = safeNumber(row.activity_24h_count || row.actividad_24h || row.events_24h || 0);
-      const activityLabel = row.activity_24h_label || inferActivityLabel(activityCount24h);
-
-      setText("activeUsers", formatNumber(activeUsers));
-      setText("predictionsPerUser", predictionsPerUser.toFixed(1));
-      setText("activity24h", activityLabel);
-
-      const copy = activityCount24h > 0
-        ? `${formatNumber(activityCount24h)} eventos detectados en las últimas 24 horas.`
-        : "Sin suficiente evidencia de actividad. Revisar campaña e invitaciones.";
-
-      setText("activity24hCopy", copy);
-      renderLaunchPulse(activeUsers, predictionsPerUser, activityCount24h);
-    }
-
-    function inferActivityLabel(activityCount24h) {
-      if (activityCount24h >= 100) return "Alta";
-      if (activityCount24h >= 25) return "Media";
-      return "Baja";
-    }
-
-    function renderLaunchPulse(activeUsers, predictionsPerUser, activityCount24h) {
-      const pill = document.getElementById("launchPulsePill");
-      const copy = document.getElementById("launchPulseCopy");
-      if (!pill || !copy) return;
-
-      pill.classList.remove("medium", "low");
-
-      if (activeUsers >= 25 && predictionsPerUser >= 1.2 && activityCount24h >= 50) {
-        pill.textContent = "Creciendo";
-        copy.textContent = "La app muestra adopción inicial saludable y participación real.";
-        return;
+      if (!response.ok) {
+        throw new Error(`${path} status ${response.status}`);
       }
 
-      if (activeUsers >= 5 || activityCount24h >= 10 || predictionsPerUser >= 0.5) {
-        pill.textContent = "Estable";
-        pill.classList.add("medium");
-        copy.textContent = "Hay señales iniciales. Conviene reforzar invitaciones y contenido social.";
-        return;
-      }
-
-      pill.textContent = "Riesgo";
-      pill.classList.add("low");
-      copy.textContent = "Actividad baja. Reforzar campaña, grupos privados y llamado a pronosticar.";
+      return response.json();
     }
 
-    function escapeHtml(value) {
-      return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+    async function loadAnalyticsFromSupabase() {
+      const nextState = { ...dashboardState };
 
-    async function loadDashboard() {
-      if (!assertAdminAccess()) return;
-
-      const jobs = [
-        loadUserMetrics(),
-        loadPredictionMetrics(),
-        loadTopParticipants(),
-        loadPopularMatches(),
-        loadFounderMetrics(),
-        loadLaunchHealth()
-      ];
-
-      await Promise.allSettled(jobs);
-      showToast("✅ Dashboard actualizado. Si alguna vista no existe, se mantuvo fallback seguro.");
-    }
-
-    async function loadUserMetrics() {
       try {
-        const rows = await fetchRows("analytics", ADMIN_CONFIG.views.userMetrics, "select=*&limit=1");
-        renderUserMetrics(rows[0] || {});
+        const rows = await fetchJson("v_launch_readiness_metrics?select=*", "analytics");
+        const metrics = Array.isArray(rows) && rows.length ? rows[0] : null;
+
+        if (metrics) {
+          nextState.users = {
+            today: metrics.users_today || 0,
+            week: metrics.users_week || 0,
+            total: metrics.users_total || 0
+          };
+
+          nextState.predictions = {
+            today: metrics.predictions_today || 0,
+            week: metrics.predictions_week || 0,
+            total: metrics.predictions_total || 0
+          };
+
+          nextState.founders = {
+            registered: metrics.founders_registered || 0,
+            goal: metrics.founders_goal || 100
+          };
+
+          nextState.activity = {
+            status: metrics.activity_status || "Preparando",
+            copy: metrics.activity_copy || "Esperando tráfico real."
+          };
+        }
       } catch (error) {
-        console.warn("PREDIKT user metrics unavailable. Using fallback.", error);
-        renderUserMetrics({});
+        console.warn("PREDIKT analytics metrics unavailable. Using fallback.", error);
       }
-    }
 
-    async function loadPredictionMetrics() {
       try {
-        const rows = await fetchRows("analytics", ADMIN_CONFIG.views.predictionMetrics, "select=*&limit=1");
-        renderPredictionMetrics(rows[0] || {});
+        const rows = await fetchJson("v_launch_top_participants?select=display_name,score,detail&order=score.desc&limit=3", "analytics");
+        nextState.leaderboard = rows.map((row) => ({
+          name: row.display_name,
+          detail: row.detail || "Participante activo",
+          score: row.score || 0
+        }));
       } catch (error) {
-        console.warn("PREDIKT prediction metrics unavailable. Using fallback.", error);
-        renderPredictionMetrics({});
+        console.warn("PREDIKT top participants unavailable. Using fallback.", error);
       }
-    }
 
-    async function loadTopParticipants() {
       try {
-        const rows = await fetchRows("rankings", ADMIN_CONFIG.views.topParticipants, "select=*&limit=5");
-        renderTopParticipants(rows);
-      } catch (error) {
-        console.warn("PREDIKT leaderboard unavailable. Using fallback.", error);
-        renderTopParticipants([]);
-      }
-    }
-
-    async function loadPopularMatches() {
-      try {
-        const rows = await fetchRows("analytics", ADMIN_CONFIG.views.popularMatches, "select=*&limit=5");
-        renderPopularMatches(rows);
+        const rows = await fetchJson("v_launch_popular_matches?select=match_name,prediction_count,detail&order=prediction_count.desc&limit=3", "analytics");
+        nextState.popularMatches = rows.map((row) => ({
+          match: row.match_name,
+          detail: row.detail || "Pronósticos registrados",
+          count: row.prediction_count || 0
+        }));
       } catch (error) {
         console.warn("PREDIKT popular matches unavailable. Using fallback.", error);
-        renderPopularMatches([]);
       }
+
+      return nextState;
     }
 
-    async function loadFounderMetrics() {
-      try {
-        const rows = await fetchRows("analytics", ADMIN_CONFIG.views.founderMetrics, "select=*&limit=1");
-        renderFounderMetrics(rows[0] || {});
-      } catch (error) {
-        console.warn("PREDIKT founder metrics unavailable. Using fallback.", error);
-        renderFounderMetrics({});
+    async function refreshDashboard() {
+      if (demoVisualMode) {
+        renderDashboard(demoState);
+        showToast("Modo demo visual activado.");
+        return;
       }
+
+      const liveState = await loadAnalyticsFromSupabase();
+      renderDashboard(liveState);
+      showToast("Dashboard actualizado.");
     }
 
-    async function loadLaunchHealth() {
-      try {
-        const rows = await fetchRows("analytics", ADMIN_CONFIG.views.launchHealth, "select=*&limit=1");
-        renderLaunchHealth(rows[0] || {});
-      } catch (error) {
-        console.warn("PREDIKT launch health unavailable. Using fallback.", error);
-        renderLaunchHealth({});
-      }
-    }
-
-    if (refreshIconBtn) refreshIconBtn.addEventListener("click", loadDashboard);
-    if (refreshTextBtn) refreshTextBtn.addEventListener("click", loadDashboard);
-
-    loadDashboard();
+    refreshBtn.addEventListener("click", refreshDashboard);
+    renderDashboard(dashboardState);
+    refreshDashboard();
   </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
