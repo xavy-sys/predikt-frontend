@@ -4,18 +4,18 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.0.1 APP DASHBOARD FIRST™ Branding Fix
+    Versión: v5.1.0 HOME CONVERSION ENGINE™
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Home principal rediseñada como app deportiva mobile-first.
       Sustituye la percepción de landing/web por experiencia tipo dashboard PWA.
-      Prioriza: estado del usuario, siguiente partido, acceso a pronóstico,
-      ranking rápido, quinielas, torneos y fundadores.
+      Prioriza: acción inmediata del usuario, próximo pronóstico pendiente,
+      ranking personal, programa Fundadores e invitación a crear grupos.
       Mantiene footer limpio de 5 botones y branding oficial PREDIKT™.
-      Corrige favicon/logo oficial a assets/logos/predikt-logo.png.
+      Convierte la Home en motor de participación continua.
     Líneas versión anterior: 885
-    Líneas versión nueva: 886
+    Líneas versión nueva: 1059
   -->
 
   <meta charset="UTF-8" />
@@ -608,6 +608,121 @@
       white-space: nowrap;
     }
 
+
+    .prediction-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .prediction-choice {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.72rem;
+      font-weight: 950;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .prediction-choice.selected {
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      border-color: rgba(72, 242, 154, 0.36);
+      transform: translateY(-1px);
+    }
+
+    .prediction-note {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 780;
+      text-align: center;
+      margin-top: 9px;
+    }
+
+    .founder-mini-card {
+      border: 1px solid rgba(245, 185, 66, 0.30);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(245, 185, 66, 0.18), transparent 30%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(64, 48, 18, 0.72));
+      padding: 17px;
+      box-shadow: var(--shadow);
+    }
+
+    .founder-availability {
+      color: var(--gold);
+      font-size: 1.7rem;
+      font-weight: 980;
+      line-height: 1;
+      margin: 5px 0;
+      letter-spacing: -0.04em;
+    }
+
+    .invite-card {
+      border: 1px solid rgba(93, 173, 226, 0.22);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 90% 0%, rgba(93, 173, 226, 0.14), transparent 30%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.96), rgba(7, 30, 50, 0.98));
+      padding: 17px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+    }
+
+    .dual-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .soft-action {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.72rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 18px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 60;
+      width: min(calc(100% - 28px), var(--app-max));
+      border: 1px solid rgba(72, 242, 154, 0.34);
+      border-radius: 18px;
+      background: rgba(7, 28, 46, 0.98);
+      color: var(--text-main);
+      padding: 13px 15px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.83rem;
+      font-weight: 830;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     .app-footer {
       position: fixed;
       left: 50%;
@@ -691,9 +806,9 @@
 
     <section class="welcome-card" aria-label="Resumen principal">
       <p class="hello">Hola, Javier 👋</p>
-      <h1 class="welcome-title">Tu quiniela está viva.</h1>
+      <h1 class="welcome-title">Tu próximo pronóstico te espera.</h1>
       <p class="welcome-copy">
-        Estás a una buena jornada de meterte al Top 10. Revisa tu próximo partido y pronostica antes del cierre.
+        Entra, elige tu pronóstico y sigue compitiendo con tus cuates. Cada partido cuenta.
       </p>
 
       <div class="quick-stats" aria-label="Resumen rápido">
@@ -728,15 +843,15 @@
       </article>
     </section>
 
-    <section class="section" aria-label="Próximo partido">
+    <section class="section" aria-label="Tu próximo pronóstico">
       <div class="section-head">
-        <h2 class="section-title">Próximo partido</h2>
+        <h2 class="section-title">Tu próximo pronóstico</h2>
         <a class="section-link" href="pronostico.html">Ver todos</a>
       </div>
 
       <article class="match-card">
         <div class="match-top">
-          <span class="pill green">Partido destacado</span>
+          <span class="pill green">Te falta este partido</span>
           <span class="pill gold">2026</span>
         </div>
 
@@ -758,9 +873,16 @@
           </div>
         </div>
 
-        <p class="match-time">Sábado 15 Junio · 13:00 CDMX</p>
+        <p class="match-time">Próximo partido · Horario local del usuario</p>
 
-        <a class="primary-action" href="pronostico.html">Pronosticar marcador</a>
+        <div class="prediction-actions" aria-label="Selecciona tu pronóstico rápido">
+          <button class="prediction-choice" type="button" data-prediction="México">México</button>
+          <button class="prediction-choice" type="button" data-prediction="Empate">Empate</button>
+          <button class="prediction-choice" type="button" data-prediction="Alemania">Alemania</button>
+        </div>
+
+        <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
+        <p class="prediction-note">Beta rápida: primero elegimos ganador. Después agregaremos marcador exacto.</p>
       </article>
     </section>
 
@@ -842,19 +964,70 @@
     </section>
 
     <section class="section" aria-label="Programa Fundadores">
-      <article class="founder-card">
-        <h2 class="founder-title">☕ Invítanos un café</h2>
+      <article class="founder-mini-card">
+        <h2 class="founder-title">☕ Un café para PREDIKT™</h2>
         <p class="founder-copy">
-          Sé Fundador PREDIKT™ con una donación única y conserva acceso gratuito de por vida.
+          Sé parte de los primeros 100 Fundadores y conserva acceso gratuito de por vida.
         </p>
-
+        <p class="founder-availability">97 lugares disponibles</p>
         <div class="founder-row">
           <strong class="founder-price">$50 MXN</strong>
-          <a class="secondary-action" href="fundadores.html">Ser Fundador</a>
+          <a class="secondary-action" href="fundadores.html">Quiero ser Fundador</a>
         </div>
       </article>
     </section>
+
+    <section class="section" aria-label="Invita amigos">
+      <article class="invite-card">
+        <h2 class="founder-title">👥 Compite con tus cuates</h2>
+        <p class="founder-copy">
+          Crea una quiniela privada, comparte el enlace y ve quién le atina mejor al marcador.
+        </p>
+        <div class="dual-actions">
+          <a class="secondary-action" href="crear-quiniela.html">Crear grupo</a>
+          <a class="soft-action" href="mi-quiniela.html">Mi quiniela</a>
+        </div>
+      </article>
+    </section>
+
   </main>
+
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Pronóstico guardado.</div>
+
+  <script>
+    const toast = document.getElementById("toast");
+    const predictionButtons = document.querySelectorAll("[data-prediction]");
+    const savePredictionBtn = document.getElementById("savePredictionBtn");
+    let selectedPrediction = "";
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    predictionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        predictionButtons.forEach((item) => item.classList.remove("selected"));
+        button.classList.add("selected");
+        selectedPrediction = button.dataset.prediction;
+      });
+    });
+
+    if (savePredictionBtn) {
+      savePredictionBtn.addEventListener("click", () => {
+        if (!selectedPrediction) {
+          showToast("Elige México, Empate o Alemania para guardar tu pronóstico.");
+          return;
+        }
+
+        window.localStorage.setItem("predikt_last_prediction", selectedPrediction);
+        showToast(`✅ Pronóstico guardado: ${selectedPrediction}. Siguiente partido listo en Pronósticos.`);
+      });
+    }
+  </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
     <a class="footer-item active" href="index.html" aria-current="page">
