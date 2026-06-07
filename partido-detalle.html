@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-06
-    Versión: v1.1.0 Tournament Intelligence UX
+    Versión: v1.2.0 Tournament Intelligence UX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -19,13 +19,14 @@
 
       Preparada para consumir:
       - sports.v_event_match_intelligence
+      - Carga automática del primer partido disponible si la URL no trae ?id=
       - sports.v_event_projected_lineups
       - sports.v_event_match_action_log
 
       Incluye fallback demo cuando no exista event_id o datos publicados.
 
     Líneas versión anterior: 1176
-    Líneas versión nueva: 1209
+    Líneas versión nueva: 1570
   -->
 
   <meta charset="UTF-8" />
@@ -820,7 +821,7 @@
         <span class="pill gold" id="matchdayLabel">Jornada 1</span>
       </div>
 
-      <h1 class="match-title" id="matchTitle">México vs Alemania</h1>
+      <h1 class="match-title" id="matchTitle">México vs Sudáfrica</h1>
 
       <div class="teams">
         <div class="team-box">
@@ -832,9 +833,9 @@
         <div class="versus">VS</div>
 
         <div class="team-box">
-          <div class="team-flag" id="awayCode">DE</div>
-          <strong class="team-name" id="awayName">Alemania</strong>
-          <span class="team-code" id="awaySmallCode">DE</span>
+          <div class="team-flag" id="awayCode">ZA</div>
+          <strong class="team-name" id="awayName">Sudáfrica</strong>
+          <span class="team-code" id="awaySmallCode">ZA</span>
         </div>
       </div>
 
@@ -862,7 +863,7 @@
           </div>
           <div class="prob-card">
             <p class="prob-value" id="awayProbability">30%</p>
-            <p class="prob-label" id="awayProbabilityLabel">Alemania</p>
+            <p class="prob-label" id="awayProbabilityLabel">Sudáfrica</p>
           </div>
         </div>
         <p class="soft-note">Lectura inicial de ejemplo. Se actualizará con datos de fase, alineaciones y forma reciente.</p>
@@ -878,7 +879,7 @@
       <div class="card">
         <div class="lineup-tabs">
           <button class="lineup-tab active" type="button" id="homeLineupTab">México</button>
-          <button class="lineup-tab" type="button" id="awayLineupTab">Alemania</button>
+          <button class="lineup-tab" type="button" id="awayLineupTab">Sudáfrica</button>
         </div>
 
         <p class="lineup-context" id="lineupContext">Alineación probable · 4-3-3 · 11 titulares</p>
@@ -907,7 +908,7 @@
         <div class="prediction-actions" aria-label="Selecciona tu pronóstico">
           <button class="prediction-choice" type="button" data-prediction="home" id="homePredictionBtn">México</button>
           <button class="prediction-choice" type="button" data-prediction="draw">Empate</button>
-          <button class="prediction-choice" type="button" data-prediction="away" id="awayPredictionBtn">Alemania</button>
+          <button class="prediction-choice" type="button" data-prediction="away" id="awayPredictionBtn">Sudáfrica</button>
         </div>
 
         <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
@@ -1000,7 +1001,7 @@
 
     const fallbackMatch = {
       event_id: "demo",
-      event_name: "México vs Alemania",
+      event_name: "México vs Sudáfrica",
       phase_name: "Fase de Grupos",
       group_name: "Grupo A",
       matchday: 1,
@@ -1008,8 +1009,8 @@
       venue_name: "Sede por confirmar",
       home_name: "México",
       home_code: "MX",
-      away_name: "Alemania",
-      away_code: "DE"
+      away_name: "Sudáfrica",
+      away_code: "ZA"
     };
 
     const fallbackLineups = {
@@ -1056,7 +1057,7 @@
 
     const fallbackStandings = [
       { position: 1, participant_name: "México", participant_code: "MX", played: 0, points: 0, goal_difference: 0 },
-      { position: 2, participant_name: "Alemania", participant_code: "DE", played: 0, points: 0, goal_difference: 0 },
+      { position: 2, participant_name: "Sudáfrica", participant_code: "ZA", played: 0, points: 0, goal_difference: 0 },
       { position: 3, participant_name: "Selección 3", participant_code: "T3", played: 0, points: 0, goal_difference: 0 },
       { position: 4, participant_name: "Selección 4", participant_code: "T4", played: 0, points: 0, goal_difference: 0 }
     ];
@@ -1137,7 +1138,7 @@
     }
 
     function splitMatchName(eventName) {
-      const name = eventName || "México vs Alemania";
+      const name = eventName || "México vs Sudáfrica";
       const parts = name.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
       if (parts.length >= 2) {
         return {
@@ -1147,7 +1148,7 @@
       }
       return {
         home: "México",
-        away: "Alemania"
+        away: "Sudáfrica"
       };
     }
 
@@ -1158,6 +1159,8 @@
 
       return {
         event_id: row.event_id || "demo",
+        home_participant_id: row.home_participant_id || "",
+        away_participant_id: row.away_participant_id || "",
         event_name: row.event_name || fallbackMatch.event_name,
         phase_name: row.phase_name || fallbackMatch.phase_name,
         group_id: row.group_id || "",
@@ -1168,7 +1171,7 @@
         home_name: teams.home,
         home_code: inferTeamCode(teams.home, "MX"),
         away_name: teams.away,
-        away_code: inferTeamCode(teams.away, "DE")
+        away_code: inferTeamCode(teams.away, "ZA")
       };
     }
 
@@ -1269,6 +1272,23 @@
 
       if (!response.ok) {
         throw new Error(`Match intelligence status ${response.status}`);
+      }
+
+      const rows = await response.json();
+      return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    }
+
+    async function fetchFirstUpcomingMatch() {
+      const response = await fetch(
+        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=*&order=starts_at.asc&limit=1`,
+        {
+          method: "GET",
+          headers: headersForSports()
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`First upcoming match status ${response.status}`);
       }
 
       const rows = await response.json();
@@ -1452,17 +1472,18 @@
     }
 
     async function init() {
-      const eventId = getEventIdFromUrl();
+      let eventId = getEventIdFromUrl();
 
       try {
-        const row = await fetchMatchIntelligence(eventId);
+        const row = eventId ? await fetchMatchIntelligence(eventId) : await fetchFirstUpcomingMatch();
         if (row) {
           state.match = normalizeMatch(row);
           state.match.home_participant_id = row.home_participant_id;
           state.match.away_participant_id = row.away_participant_id;
+          eventId = row.event_id || eventId;
         }
       } catch (error) {
-        console.warn("PREDIKT match intelligence unavailable. Using demo fallback.", error);
+        console.warn("PREDIKT match intelligence unavailable. Using safe fallback.", error);
       }
 
       renderMatch();
