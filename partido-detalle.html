@@ -4,15 +4,16 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-06
-    Versión: v1.0.0 Match Detail Intelligence
+    Versión: v1.0.1 Compact Full Lineup UX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla detalle de partido para PREDIKT™.
       Mobile-first tipo app deportiva.
       Presenta fase del torneo, grupo, jornada, partido, hora local,
-      probabilidad PREDIKT™ de ejemplo, alineaciones probables, bitácora
-      del partido y acción rápida de pronóstico.
+      probabilidad PREDIKT™ de ejemplo, alineaciones probables completas,
+      bitácora del partido y acción rápida de pronóstico.
+      Ajusta UX para mostrar 11 jugadores en formato compacto mobile-first.
 
       Preparada para consumir:
       - sports.v_event_match_intelligence
@@ -21,8 +22,8 @@
 
       Incluye fallback demo cuando no exista event_id o datos publicados.
 
-    Líneas versión anterior: 0
-    Líneas versión nueva: 947
+    Líneas versión anterior: 1176
+    Líneas versión nueva: 1209
   -->
 
   <meta charset="UTF-8" />
@@ -392,50 +393,64 @@
 
     .lineup-list {
       display: grid;
-      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .lineup-context {
+      color: var(--text-soft);
+      font-size: 0.66rem;
+      font-weight: 780;
+      text-align: center;
+      margin: 0 0 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 8px;
     }
 
     .player-row {
       display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 10px;
+      grid-template-columns: auto 1fr;
+      gap: 7px;
       align-items: center;
-      border-radius: 15px;
+      border-radius: 14px;
       background: rgba(255, 255, 255, 0.045);
       border: 1px solid rgba(255, 255, 255, 0.075);
-      padding: 9px;
+      padding: 7px;
+      min-height: 46px;
     }
 
     .player-number {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       display: grid;
       place-items: center;
       border-radius: 50%;
       color: #061826;
       background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      font-size: 0.72rem;
+      font-size: 0.66rem;
       font-weight: 980;
     }
 
     .player-name {
-      font-size: 0.78rem;
+      font-size: 0.66rem;
       font-weight: 940;
-      line-height: 1.1;
+      line-height: 1.08;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .player-position {
       color: var(--text-muted);
-      font-size: 0.6rem;
+      font-size: 0.52rem;
       font-weight: 820;
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     .player-status {
-      color: var(--green);
-      font-size: 0.58rem;
-      font-weight: 940;
-      text-transform: uppercase;
+      display: none;
     }
 
     .timeline {
@@ -733,6 +748,7 @@
           <button class="lineup-tab" type="button" id="awayLineupTab">Alemania</button>
         </div>
 
+        <p class="lineup-context" id="lineupContext">Alineación probable · 4-3-3 · 11 titulares</p>
         <div class="lineup-list" id="lineupList"></div>
       </div>
     </section>
@@ -830,18 +846,30 @@
 
     const fallbackLineups = {
       home: [
-        { player_number: 1, player_name: "Portero por confirmar", player_position: "POR", lineup_status: "projected" },
-        { player_number: 4, player_name: "Defensa central", player_position: "DEF", lineup_status: "projected" },
-        { player_number: 8, player_name: "Mediocampista", player_position: "MED", lineup_status: "projected" },
-        { player_number: 10, player_name: "Enganche ofensivo", player_position: "MED", lineup_status: "projected" },
-        { player_number: 9, player_name: "Delantero centro", player_position: "DEL", lineup_status: "projected" }
+        { player_number: 1, player_name: "Portero", player_position: "POR", lineup_status: "projected" },
+        { player_number: 2, player_name: "Lateral derecho", player_position: "LD", lineup_status: "projected" },
+        { player_number: 4, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
+        { player_number: 5, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
+        { player_number: 3, player_name: "Lateral izquierdo", player_position: "LI", lineup_status: "projected" },
+        { player_number: 6, player_name: "Contención", player_position: "MCD", lineup_status: "projected" },
+        { player_number: 8, player_name: "Interior", player_position: "MC", lineup_status: "projected" },
+        { player_number: 10, player_name: "Enganche", player_position: "MCO", lineup_status: "projected" },
+        { player_number: 7, player_name: "Extremo derecho", player_position: "ED", lineup_status: "projected" },
+        { player_number: 11, player_name: "Extremo izquierdo", player_position: "EI", lineup_status: "projected" },
+        { player_number: 9, player_name: "Delantero centro", player_position: "DC", lineup_status: "projected" }
       ],
       away: [
-        { player_number: 1, player_name: "Portero por confirmar", player_position: "POR", lineup_status: "projected" },
-        { player_number: 5, player_name: "Defensa central", player_position: "DEF", lineup_status: "projected" },
-        { player_number: 6, player_name: "Contención", player_position: "MED", lineup_status: "projected" },
-        { player_number: 11, player_name: "Extremo", player_position: "DEL", lineup_status: "projected" },
-        { player_number: 9, player_name: "Delantero centro", player_position: "DEL", lineup_status: "projected" }
+        { player_number: 1, player_name: "Portero", player_position: "POR", lineup_status: "projected" },
+        { player_number: 2, player_name: "Lateral derecho", player_position: "LD", lineup_status: "projected" },
+        { player_number: 4, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
+        { player_number: 5, player_name: "Defensa central", player_position: "DFC", lineup_status: "projected" },
+        { player_number: 3, player_name: "Lateral izquierdo", player_position: "LI", lineup_status: "projected" },
+        { player_number: 6, player_name: "Contención", player_position: "MCD", lineup_status: "projected" },
+        { player_number: 8, player_name: "Interior", player_position: "MC", lineup_status: "projected" },
+        { player_number: 10, player_name: "Enganche", player_position: "MCO", lineup_status: "projected" },
+        { player_number: 7, player_name: "Extremo derecho", player_position: "ED", lineup_status: "projected" },
+        { player_number: 11, player_name: "Extremo izquierdo", player_position: "EI", lineup_status: "projected" },
+        { player_number: 9, player_name: "Delantero centro", player_position: "DC", lineup_status: "projected" }
       ]
     };
 
@@ -994,6 +1022,12 @@
         return;
       }
 
+      const lineupContext = document.getElementById("lineupContext");
+      if (lineupContext) {
+        const teamName = state.activeLineup === "home" ? state.match.home_name : state.match.away_name;
+        lineupContext.textContent = `${teamName} · Alineación probable · 4-3-3 · 11 titulares`;
+      }
+
       list.innerHTML = rows.map((player) => `
         <div class="player-row">
           <span class="player-number">${player.player_number || "-"}</span>
@@ -1001,7 +1035,6 @@
             <p class="player-name">${player.player_name || "Jugador por confirmar"}</p>
             <p class="player-position">${player.player_position || player.tactical_position || "Posición por confirmar"}</p>
           </div>
-          <span class="player-status">${player.lineup_status || "previa"}</span>
         </div>
       `).join("");
     }
