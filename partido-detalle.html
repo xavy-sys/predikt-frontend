@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-06
-    Versión: v1.0.1 Compact Full Lineup UX
+    Versión: v1.1.0 Tournament Intelligence UX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -14,6 +14,8 @@
       probabilidad PREDIKT™ de ejemplo, alineaciones probables completas,
       bitácora del partido y acción rápida de pronóstico.
       Ajusta UX para mostrar 11 jugadores en formato compacto mobile-first.
+      Integra Tournament Intelligence Foundation: tabla de grupo, timeline
+      de fases y ruta del torneo.
 
       Preparada para consumir:
       - sports.v_event_match_intelligence
@@ -576,6 +578,137 @@
       text-align: center;
     }
 
+
+    .group-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 7px;
+    }
+
+    .group-table th {
+      color: var(--text-muted);
+      font-size: 0.56rem;
+      font-weight: 950;
+      text-align: left;
+      text-transform: uppercase;
+      padding: 0 7px 2px;
+    }
+
+    .group-table td {
+      background: rgba(255, 255, 255, 0.045);
+      border-top: 1px solid rgba(255, 255, 255, 0.075);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 8px 7px;
+      font-size: 0.66rem;
+      font-weight: 850;
+    }
+
+    .group-table td:first-child {
+      border-left: 1px solid rgba(255, 255, 255, 0.075);
+      border-radius: 14px 0 0 14px;
+      color: var(--gold);
+      width: 32px;
+      text-align: center;
+      font-weight: 980;
+    }
+
+    .group-table td:last-child {
+      border-right: 1px solid rgba(255, 255, 255, 0.075);
+      border-radius: 0 14px 14px 0;
+      text-align: right;
+    }
+
+    .team-cell {
+      display: grid;
+      gap: 1px;
+    }
+
+    .team-cell strong {
+      font-size: 0.68rem;
+      line-height: 1.1;
+    }
+
+    .team-cell small {
+      color: var(--text-muted);
+      font-size: 0.52rem;
+      font-weight: 850;
+    }
+
+    .phase-timeline {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding: 2px 0 3px;
+      scrollbar-width: none;
+    }
+
+    .phase-timeline::-webkit-scrollbar {
+      display: none;
+    }
+
+    .phase-step {
+      min-width: 82px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 9px 7px;
+      text-align: center;
+    }
+
+    .phase-step.current {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      border-color: rgba(245, 185, 66, 0.32);
+    }
+
+    .phase-step.completed {
+      color: var(--green);
+      border-color: rgba(72, 242, 154, 0.24);
+      background: rgba(72, 242, 154, 0.10);
+    }
+
+    .phase-dot {
+      width: 10px;
+      height: 10px;
+      display: block;
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.85;
+    }
+
+    .phase-name {
+      font-size: 0.58rem;
+      font-weight: 950;
+      line-height: 1.05;
+    }
+
+    .bracket-card {
+      display: grid;
+      gap: 7px;
+    }
+
+    .bracket-row {
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 10px;
+    }
+
+    .bracket-title {
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 980;
+      margin-bottom: 3px;
+    }
+
+    .bracket-copy {
+      color: var(--text-soft);
+      font-size: 0.62rem;
+      font-weight: 760;
+    }
+
+
     .toast {
       position: fixed;
       left: 50%;
@@ -791,8 +924,43 @@
       <div class="card">
         <p class="timeline-title" id="groupSummaryTitle">Fase de Grupos · Grupo A</p>
         <p class="timeline-copy" id="groupSummaryCopy">
-          Este partido pertenece a la fase inicial del torneo. La tabla de grupo se integrará en la siguiente iteración.
+          Este partido pertenece a la fase inicial del torneo.
         </p>
+
+        <table class="group-table" aria-label="Tabla del grupo">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Equipo</th>
+              <th>PJ</th>
+              <th>PTS</th>
+              <th>DG</th>
+            </tr>
+          </thead>
+          <tbody id="groupStandingsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Timeline de fases del torneo">
+      <div class="section-head">
+        <h2 class="section-title">Fases del torneo</h2>
+        <span class="section-link">Ruta oficial</span>
+      </div>
+
+      <div class="card">
+        <div class="phase-timeline" id="phaseTimeline"></div>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Ruta del torneo">
+      <div class="section-head">
+        <h2 class="section-title">Ruta posible</h2>
+        <span class="section-link">Bracket</span>
+      </div>
+
+      <div class="card">
+        <div class="bracket-card" id="bracketList"></div>
       </div>
     </section>
   </main>
@@ -886,6 +1054,31 @@
       }
     ];
 
+    const fallbackStandings = [
+      { position: 1, participant_name: "México", participant_code: "MX", played: 0, points: 0, goal_difference: 0 },
+      { position: 2, participant_name: "Alemania", participant_code: "DE", played: 0, points: 0, goal_difference: 0 },
+      { position: 3, participant_name: "Selección 3", participant_code: "T3", played: 0, points: 0, goal_difference: 0 },
+      { position: 4, participant_name: "Selección 4", participant_code: "T4", played: 0, points: 0, goal_difference: 0 }
+    ];
+
+    const fallbackPhases = [
+      { phase_short_name: "Grupos", phase_name: "Fase de Grupos", timeline_status: "current" },
+      { phase_short_name: "R32", phase_name: "Ronda de 32", timeline_status: "upcoming" },
+      { phase_short_name: "Octavos", phase_name: "Octavos", timeline_status: "upcoming" },
+      { phase_short_name: "Cuartos", phase_name: "Cuartos", timeline_status: "upcoming" },
+      { phase_short_name: "Semis", phase_name: "Semifinal", timeline_status: "upcoming" },
+      { phase_short_name: "Final", phase_name: "Final", timeline_status: "upcoming" }
+    ];
+
+    const fallbackBracket = [
+      {
+        bracket_name: "Siguiente fase",
+        home_source_label: "Clasificado por definir",
+        away_source_label: "Clasificado por definir",
+        bracket_status: "pending"
+      }
+    ];
+
     const state = {
       match: fallbackMatch,
       homeLineup: fallbackLineups.home,
@@ -967,6 +1160,7 @@
         event_id: row.event_id || "demo",
         event_name: row.event_name || fallbackMatch.event_name,
         phase_name: row.phase_name || fallbackMatch.phase_name,
+        group_id: row.group_id || "",
         group_name: row.group_name || fallbackMatch.group_name,
         matchday: row.matchday || fallbackMatch.matchday,
         starts_at: row.starts_at || null,
@@ -1135,6 +1329,128 @@
       if (state.awayLineup.length === 0) state.awayLineup = fallbackLineups.away;
     }
 
+
+    function renderGroupStandings(rows = fallbackStandings) {
+      const body = document.getElementById("groupStandingsBody");
+
+      if (!body) return;
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        rows = fallbackStandings;
+      }
+
+      body.innerHTML = rows
+        .slice()
+        .sort((a, b) => Number(a.position || 99) - Number(b.position || 99))
+        .map((row, index) => `
+          <tr>
+            <td>${row.position || index + 1}</td>
+            <td>
+              <span class="team-cell">
+                <strong>${row.participant_name || "Equipo por confirmar"}</strong>
+                <small>${row.participant_code || ""}</small>
+              </span>
+            </td>
+            <td>${row.played ?? 0}</td>
+            <td>${row.points ?? 0}</td>
+            <td>${Number(row.goal_difference || 0) > 0 ? "+" : ""}${row.goal_difference ?? 0}</td>
+          </tr>
+        `).join("");
+    }
+
+    function renderPhaseTimeline(rows = fallbackPhases) {
+      const timeline = document.getElementById("phaseTimeline");
+
+      if (!timeline) return;
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        rows = fallbackPhases;
+      }
+
+      timeline.innerHTML = rows.map((phase) => {
+        const status = phase.timeline_status || "upcoming";
+        const label = phase.phase_short_name || phase.phase_name || "Fase";
+        return `
+          <div class="phase-step ${status}">
+            <span class="phase-dot"></span>
+            <p class="phase-name">${label}</p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderBracket(rows = fallbackBracket) {
+      const list = document.getElementById("bracketList");
+
+      if (!list) return;
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        rows = fallbackBracket;
+      }
+
+      list.innerHTML = rows.slice(0, 3).map((row) => `
+        <div class="bracket-row">
+          <p class="bracket-title">${row.bracket_name || "Ruta por definir"}</p>
+          <p class="bracket-copy">
+            ${row.home_source_label || "Clasificado por definir"} vs ${row.away_source_label || "Clasificado por definir"}
+          </p>
+        </div>
+      `).join("");
+    }
+
+    async function fetchGroupStandings(groupId) {
+      if (!groupId) return fallbackStandings;
+
+      const response = await fetch(
+        `${PREDIKT_SUPABASE_REST_URL}/v_group_standings?group_id=eq.${groupId}&select=*`,
+        {
+          method: "GET",
+          headers: headersForSports()
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Group standings status ${response.status}`);
+      }
+
+      const rows = await response.json();
+      return Array.isArray(rows) && rows.length > 0 ? rows : fallbackStandings;
+    }
+
+    async function fetchPhaseTimeline() {
+      const response = await fetch(
+        `${PREDIKT_SUPABASE_REST_URL}/v_tournament_phase_timeline?select=*`,
+        {
+          method: "GET",
+          headers: headersForSports()
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Phase timeline status ${response.status}`);
+      }
+
+      const rows = await response.json();
+      return Array.isArray(rows) && rows.length > 0 ? rows : fallbackPhases;
+    }
+
+    async function fetchBracket() {
+      const response = await fetch(
+        `${PREDIKT_SUPABASE_REST_URL}/v_tournament_bracket?select=*`,
+        {
+          method: "GET",
+          headers: headersForSports()
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Tournament bracket status ${response.status}`);
+      }
+
+      const rows = await response.json();
+      return Array.isArray(rows) && rows.length > 0 ? rows : fallbackBracket;
+    }
+
     async function init() {
       const eventId = getEventIdFromUrl();
 
@@ -1168,6 +1484,30 @@
       } catch (error) {
         console.warn("PREDIKT match action log unavailable. Using demo fallback.", error);
         renderTimeline(fallbackTimeline);
+      }
+
+      try {
+        const standingsRows = await fetchGroupStandings(state.match.group_id);
+        renderGroupStandings(standingsRows);
+      } catch (error) {
+        console.warn("PREDIKT group standings unavailable. Using demo fallback.", error);
+        renderGroupStandings(fallbackStandings);
+      }
+
+      try {
+        const phaseRows = await fetchPhaseTimeline();
+        renderPhaseTimeline(phaseRows);
+      } catch (error) {
+        console.warn("PREDIKT phase timeline unavailable. Using demo fallback.", error);
+        renderPhaseTimeline(fallbackPhases);
+      }
+
+      try {
+        const bracketRows = await fetchBracket();
+        renderBracket(bracketRows);
+      } catch (error) {
+        console.warn("PREDIKT tournament bracket unavailable. Using demo fallback.", error);
+        renderBracket(fallbackBracket);
       }
     }
 
