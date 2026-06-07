@@ -4,16 +4,16 @@
   <!--
     Nombre del archivo: fundadores.html
     Fecha: 2026-06-06
-    Versión: v1.2.0 Founder Checkout Connected
+    Versión: v1.2.1 Human Checkout Copy
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla Fundadores PREDIKT™ conectada al Founder Payment Module real.
       Mobile-first, con beneficio vitalicio, donación única dinámica desde Supabase,
-      límite de 100 fundadores, contador público live, CTA real a Mercado Pago
-      mediante Edge Function create-founder-payment y navegación inferior oficial.
-      Corrige favicon oficial a assets/logos/predikt-logo.png.
-    Líneas versión anterior: 726
+      límite de 100 fundadores, contador público live y CTA real a Mercado Pago.
+      Se humaniza el lenguaje de confirmación de pago: se elimina la palabra técnica webhook
+      de la interfaz visible para reducir ansiedad y mantener Claridad Humana Auditada.
+    Líneas versión anterior: 863
     Líneas versión nueva: 863
   -->
   <meta charset="UTF-8" />
@@ -521,9 +521,9 @@
         <section class="success-card" id="successCard" aria-label="Checkout Mercado Pago">
           <div class="success-badge">✅</div>
           <h2 class="success-title">Checkout preparado</h2>
-          <p class="success-copy">El checkout real de Mercado Pago se abrirá en modo sandbox durante la certificación. La confirmación final se hará por webhook seguro.</p>
+          <p class="success-copy">Te llevaremos a Mercado Pago para completar tu aportación de forma segura. Cuando el pago quede confirmado, activaremos tu distintivo Fundador PREDIKT™.</p>
           <div class="checkout-box">
-            <span class="checkout-text">Mercado Pago Checkout Pro · conectado</span>
+            <span class="checkout-text">Mercado Pago listo para continuar</span>
             <button class="checkout-btn" id="copyCheckoutBtn" type="button">Abrir pago</button>
           </div>
         </section>
@@ -544,7 +544,7 @@
             <p class="status-message" id="statusMessage">Programa abierto. El contador público aparecerá al llegar al fundador 85.</p>
           </div>
           <button class="founder-btn" id="founderBtn" type="button">☕ Invitar un café</button>
-          <p class="micro-trust">Tu café se procesará vía Mercado Pago. El distintivo Fundador se activará solo después de validación segura por webhook.</p>
+          <p class="micro-trust">Tu café se procesa de forma segura con Mercado Pago. Tu distintivo Fundador se activará cuando el pago quede confirmado.</p>
         </section>
 
         <section class="card" aria-label="Por qué un café">
@@ -610,7 +610,7 @@
           <div class="faq-list">
             <div class="faq-item"><h3 class="faq-question">¿Es una suscripción?</h3><p class="faq-answer">No. Es una donación única de $50 MXN para el programa de los primeros 100 Fundadores.</p></div>
             <div class="faq-item"><h3 class="faq-question">¿Qué pasa cuando llegue a 100?</h3><p class="faq-answer">El programa se cerrará automáticamente y el botón de donación dejará de mostrarse.</p></div>
-            <div class="faq-item"><h3 class="faq-question">¿Cómo se confirma el pago?</h3><p class="faq-answer">La confirmación confiable vendrá del webhook de Mercado Pago, no de la pantalla de regreso.</p></div>
+            <div class="faq-item"><h3 class="faq-question">¿Cuándo se activa mi distintivo?</h3><p class="faq-answer">Tu distintivo Fundador se activará cuando Mercado Pago confirme correctamente tu aportación.</p></div>
           </div>
         </section>
       </section>
@@ -634,16 +634,16 @@
         <section class="card" aria-label="Seguridad del pago">
           <h2 class="section-title">Seguridad</h2>
           <div class="audit-card">
-            <h3 class="audit-title">Pago validado por webhook</h3>
-            <p class="audit-copy">PREDIKT™ no activará un fundador solo porque el usuario regrese del checkout. Se validará el evento real del proveedor de pago.</p>
+            <h3 class="audit-title">Confirmación segura del pago</h3>
+            <p class="audit-copy">PREDIKT™ activará tu distintivo Fundador únicamente cuando Mercado Pago confirme que tu aportación fue aprobada.</p>
           </div>
         </section>
 
         <section class="card" aria-label="Arquitectura de pago">
           <h2 class="section-title">Arquitectura</h2>
           <div class="faq-list">
-            <div class="faq-item"><h3 class="faq-question">Proveedor inicial</h3><p class="faq-answer">Mercado Pago Checkout Pro.</p></div>
-            <div class="faq-item"><h3 class="faq-question">Diseño futuro</h3><p class="faq-answer">Payment Provider Abstraction Layer: Mercado Pago hoy, NexoPay mañana.</p></div>
+            <div class="faq-item"><h3 class="faq-question">Proveedor inicial</h3><p class="faq-answer">Mercado Pago.</p></div>
+            <div class="faq-item"><h3 class="faq-question">Diseño futuro</h3><p class="faq-answer">Hoy usamos Mercado Pago. Más adelante podremos integrar NexoPay como motor propio de cobro JVSys.</p></div>
           </div>
         </section>
       </aside>
@@ -801,7 +801,7 @@
       const originalText = founderBtn.textContent;
       founderBtn.disabled = true;
       founderBtn.textContent = "Preparando Mercado Pago...";
-      showToast("Preparando checkout seguro de Mercado Pago...");
+      showToast("Preparando tu café de Fundador en Mercado Pago...");
 
       try {
         const payload = getSafeUserProfile();
@@ -833,7 +833,7 @@
 
         successCard.classList.add("show");
         successCard.scrollIntoView({ behavior: "smooth", block: "center" });
-        showToast("Checkout listo. Redirigiendo a Mercado Pago...");
+        showToast("Listo. Te llevamos a Mercado Pago para completar tu café.");
 
         window.setTimeout(() => {
           window.location.href = lastCheckoutUrl;
@@ -842,7 +842,7 @@
         console.error("PREDIKT Founder checkout error:", error);
         founderBtn.disabled = false;
         founderBtn.textContent = originalText;
-        showToast("No se pudo abrir Mercado Pago. Intenta de nuevo en unos segundos.");
+        showToast("No pudimos abrir Mercado Pago en este momento. Intenta de nuevo en unos segundos.");
       }
     }
 
