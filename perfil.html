@@ -3,24 +3,27 @@
 <head>
   <!--
     Nombre del archivo: perfil.html
-    Fecha: 2026-06-05
-    Versión: v2.0 Minimal Profile UX
-    Fabricante: JVSys
+    Fecha: 2026-06-06
+    Versión: v2.1.0 Founder Checkout Connected
+    Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla Perfil minimalista para PREDIKT™.
       Enfoque mobile-first tipo app: identidad, ranking, fundadores,
       estadísticas esenciales, nivel y configuración básica.
-      Se eliminan bloques largos para reducir scroll y mejorar claridad humana.
-    Líneas versión anterior: 906
-    Líneas versión nueva: {LINE_COUNT}
+      Conecta el botón Fundador con la Edge Function create-founder-payment.
+      Corrige favicon oficial a assets/logos/predikt-logo.png.
+    Líneas versión anterior: 1006
+    Líneas versión nueva: 1077
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PREDIKT™ | Perfil</title>
   <meta name="description" content="Perfil PREDIKT™ minimalista: ranking, puntos, nivel y estado fundador." />
   <meta name="theme-color" content="#061826" />
-  <link rel="icon" href="assets/logos/predikt-icon.png" />
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
 
   <style>
     :root {
@@ -909,15 +912,34 @@
   <script>
     const toast = document.getElementById("toast");
 
+    const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
+    const PREDIKT_EDGE_CREATE_FOUNDER_PAYMENT_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/functions/v1/create-founder-payment";
+    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+
+    /*
+      Modo de checkout:
+      - "sandbox": recomendado durante pruebas controladas.
+      - "production": usar cuando Mercado Pago quede listo para cobro real público.
+    */
+    const PREDIKT_CHECKOUT_MODE = "sandbox";
+
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
       window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2300);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
     }
 
-    const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
-    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+    function getSafeUserProfile() {
+      const storedName = window.localStorage.getItem("predikt_user_name");
+      const storedEmail = window.localStorage.getItem("predikt_user_email");
+
+      return {
+        payer_name: storedName || "Fundador PREDIKT",
+        payer_email: storedEmail || "test@predikt.mx",
+        source: "perfil_html_v2_1_0"
+      };
+    }
 
     function renderFounderProgramStatus(founderProgramStatus) {
       const foundersCounter = document.getElementById("foundersCounter");
@@ -930,16 +952,17 @@
         return;
       }
 
-      const registered = Number(founderProgramStatus.founders_registered || 0);
+      const registered = Number(founderProgramStatus.founders_registered || founderProgramStatus.confirmed_founders || 0);
       const limit = Number(founderProgramStatus.founder_limit || 100);
-      const remaining = Number(founderProgramStatus.founder_slots_remaining || 0);
+      const remaining = Number(founderProgramStatus.founder_slots_remaining || founderProgramStatus.remaining_spots || 0);
       const showButton = Boolean(founderProgramStatus.show_founder_button);
+      const isOpen = founderProgramStatus.is_program_open !== false;
       const progress = limit > 0 ? Math.min((registered / limit) * 100, 100) : 0;
 
       foundersCounter.textContent = `${registered} / ${limit}`;
       founderProgressFill.style.width = `${progress}%`;
 
-      if (showButton && remaining > 0) {
+      if (isOpen && showButton && remaining > 0) {
         founderSlotsText.textContent = `${remaining} lugares disponibles.`;
         founderUrgency.textContent = remaining <= 15 ? "⚠ Últimos lugares disponibles" : "Cupo fundador activo";
         founderButton.disabled = false;
@@ -957,7 +980,8 @@
         founders_registered: 3,
         founder_limit: 100,
         founder_slots_remaining: 97,
-        show_founder_button: true
+        show_founder_button: true,
+        is_program_open: true
       };
 
       try {
@@ -985,16 +1009,63 @@
         console.warn("PREDIKT Founder live status unavailable. Using safe fallback.", error);
         renderFounderProgramStatus(fallbackFounderProgramStatus);
       }
+    }
 
+    async function startFounderCheckout() {
       const founderButton = document.getElementById("founderButton");
-      if (founderButton) {
-        founderButton.addEventListener("click", () => {
-          showToast("Registro de Fundador: por ahora JVSys lo activa manualmente. Mercado Pago se conectará en la siguiente etapa.");
+
+      if (!founderButton || founderButton.disabled) {
+        return;
+      }
+
+      const originalText = founderButton.textContent;
+      founderButton.disabled = true;
+      founderButton.textContent = "Preparando Mercado Pago...";
+      showToast("Preparando checkout seguro de Mercado Pago...");
+
+      try {
+        const payload = getSafeUserProfile();
+
+        const response = await fetch(PREDIKT_EDGE_CREATE_FOUNDER_PAYMENT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
+            "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`
+          },
+          body: JSON.stringify(payload)
         });
+
+        const result = await response.json().catch(() => null);
+
+        if (!response.ok || !result || result.ok !== true) {
+          throw new Error(result?.error || `create-founder-payment status ${response.status}`);
+        }
+
+        const checkout = result.checkout || {};
+        const checkoutUrl = PREDIKT_CHECKOUT_MODE === "sandbox"
+          ? checkout.sandbox_init_point || checkout.init_point
+          : checkout.init_point || checkout.sandbox_init_point;
+
+        if (!checkoutUrl) {
+          throw new Error("Mercado Pago no devolvió URL de checkout.");
+        }
+
+        window.location.href = checkoutUrl;
+      } catch (error) {
+        console.error("PREDIKT Founder checkout error:", error);
+        founderButton.disabled = false;
+        founderButton.textContent = originalText;
+        showToast("No se pudo abrir Mercado Pago. Intenta de nuevo en unos segundos.");
       }
     }
 
     loadFounderProgramStatus();
+
+    const founderButton = document.getElementById("founderButton");
+    if (founderButton) {
+      founderButton.addEventListener("click", startFounderCheckout);
+    }
 
     document.querySelectorAll("[data-action]").forEach((button) => {
       button.addEventListener("click", () => {
