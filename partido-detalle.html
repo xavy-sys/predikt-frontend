@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-06
-    Versión: v1.2.0 Tournament Intelligence UX
+    Versión: v1.3.0 Venue Intelligence Integration
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -18,15 +18,17 @@
       de fases y ruta del torneo.
 
       Preparada para consumir:
-      - sports.v_event_match_intelligence
+      - sports.v_event_match_intelligence_enriched
       - Carga automática del primer partido disponible si la URL no trae ?id=
+      - Integra Venue Intelligence: estadio, ciudad, país sede, capacidad y zona horaria.
       - sports.v_event_projected_lineups
       - sports.v_event_match_action_log
 
-      Incluye fallback demo cuando no exista event_id o datos publicados.
+      Incluye fallback seguro cuando no exista event_id o datos publicados.
+      Prepara espacios futuros para transmisión y clima sin activar lógica externa.
 
-    Líneas versión anterior: 1176
-    Líneas versión nueva: 1570
+    Líneas versión anterior: 1570
+    Líneas versión nueva: 1687
   -->
 
   <meta charset="UTF-8" />
@@ -308,6 +310,56 @@
       padding: 10px 11px;
       font-size: 0.72rem;
       font-weight: 860;
+    }
+
+    .venue-intelligence-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .venue-mini-card {
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 9px 10px;
+      min-height: 48px;
+    }
+
+    .venue-mini-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.55rem;
+      font-weight: 940;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .venue-mini-value {
+      color: var(--text-main);
+      font-size: 0.68rem;
+      font-weight: 900;
+      line-height: 1.14;
+    }
+
+    .future-context-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .future-context-card {
+      border-radius: 16px;
+      background: rgba(245, 185, 66, 0.08);
+      border: 1px solid rgba(245, 185, 66, 0.18);
+      padding: 9px 10px;
+      color: var(--text-soft);
+      font-size: 0.64rem;
+      font-weight: 820;
+      text-align: center;
     }
 
     .section {
@@ -842,6 +894,33 @@
       <div class="match-meta">
         <p class="meta-row" id="timeLabel">🕒 Horario local del usuario</p>
         <p class="meta-row" id="venueLabel">📍 Sede por confirmar</p>
+
+        <div class="venue-intelligence-grid" aria-label="Información de sede">
+          <div class="venue-mini-card">
+            <span class="venue-mini-label">Ciudad sede</span>
+            <strong class="venue-mini-value" id="venueCityLabel">Por confirmar</strong>
+          </div>
+
+          <div class="venue-mini-card">
+            <span class="venue-mini-label">País sede</span>
+            <strong class="venue-mini-value" id="venueCountryLabel">Por confirmar</strong>
+          </div>
+
+          <div class="venue-mini-card">
+            <span class="venue-mini-label">Capacidad</span>
+            <strong class="venue-mini-value" id="venueCapacityLabel">Por confirmar</strong>
+          </div>
+
+          <div class="venue-mini-card">
+            <span class="venue-mini-label">Zona horaria</span>
+            <strong class="venue-mini-value" id="venueTimezoneLabel">Por confirmar</strong>
+          </div>
+        </div>
+
+        <div class="future-context-row" aria-label="Información futura del partido">
+          <div class="future-context-card">📺 Dónde verlo · Próximamente</div>
+          <div class="future-context-card">🌦 Clima esperado · Próximamente</div>
+        </div>
       </div>
     </section>
 
@@ -1007,6 +1086,10 @@
       matchday: 1,
       starts_at: null,
       venue_name: "Sede por confirmar",
+      venue_city: "Por confirmar",
+      venue_country_code: "",
+      venue_capacity: null,
+      venue_timezone: "",
       home_name: "México",
       home_code: "MX",
       away_name: "Sudáfrica",
@@ -1130,6 +1213,30 @@
       }
     }
 
+    function countryNameFromCode(code) {
+      const normalized = String(code || "").toUpperCase();
+
+      const countries = {
+        MX: "México",
+        US: "Estados Unidos",
+        CA: "Canadá"
+      };
+
+      return countries[normalized] || normalized || "Por confirmar";
+    }
+
+    function formatCapacity(value) {
+      const numeric = Number(value || 0);
+      if (!numeric) return "Por confirmar";
+
+      return `${numeric.toLocaleString("es-MX")} espectadores`;
+    }
+
+    function compactTimezone(value) {
+      if (!value) return "Por confirmar";
+      return String(value).replace("America/", "").replace("_", " ");
+    }
+
     function inferTeamCode(name, fallback) {
       if (!name) return fallback;
       const clean = String(name).trim();
@@ -1156,22 +1263,28 @@
       if (!row) return fallbackMatch;
 
       const teams = splitMatchName(row.event_name);
+      const homeName = row.home_team_name || teams.home || fallbackMatch.home_name;
+      const awayName = row.away_team_name || teams.away || fallbackMatch.away_name;
 
       return {
         event_id: row.event_id || "demo",
         home_participant_id: row.home_participant_id || "",
         away_participant_id: row.away_participant_id || "",
-        event_name: row.event_name || fallbackMatch.event_name,
+        event_name: row.event_name || `${homeName} vs ${awayName}` || fallbackMatch.event_name,
         phase_name: row.phase_name || fallbackMatch.phase_name,
         group_id: row.group_id || "",
         group_name: row.group_name || fallbackMatch.group_name,
         matchday: row.matchday || fallbackMatch.matchday,
         starts_at: row.starts_at || null,
         venue_name: row.venue_name || "Sede por confirmar",
-        home_name: teams.home,
-        home_code: inferTeamCode(teams.home, "MX"),
-        away_name: teams.away,
-        away_code: inferTeamCode(teams.away, "ZA")
+        venue_city: row.venue_city || "Por confirmar",
+        venue_country_code: row.venue_country_code || "",
+        venue_capacity: row.venue_capacity || null,
+        venue_timezone: row.venue_timezone || row.timezone || "",
+        home_name: homeName,
+        home_code: row.home_team_code || row.home_country_code || inferTeamCode(homeName, "MX"),
+        away_name: awayName,
+        away_code: row.away_team_code || row.away_country_code || inferTeamCode(awayName, "ZA")
       };
     }
 
@@ -1192,7 +1305,11 @@
       document.getElementById("awaySmallCode").textContent = match.away_code;
 
       document.getElementById("timeLabel").textContent = formatLocalDate(match.starts_at);
-      document.getElementById("venueLabel").textContent = `📍 ${match.venue_name || "Sede por confirmar"}`;
+      document.getElementById("venueLabel").textContent = `📍 ${match.venue_name || "Sede por confirmar"}${match.venue_city ? ` · ${match.venue_city}` : ""}`;
+      document.getElementById("venueCityLabel").textContent = match.venue_city || "Por confirmar";
+      document.getElementById("venueCountryLabel").textContent = countryNameFromCode(match.venue_country_code);
+      document.getElementById("venueCapacityLabel").textContent = formatCapacity(match.venue_capacity);
+      document.getElementById("venueTimezoneLabel").textContent = compactTimezone(match.venue_timezone);
 
       document.getElementById("homeProbabilityLabel").textContent = match.home_name;
       document.getElementById("awayProbabilityLabel").textContent = match.away_name;
@@ -1263,7 +1380,7 @@
       if (!eventId) return null;
 
       const response = await fetch(
-        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?event_id=eq.${eventId}&select=*`,
+        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_enriched?event_id=eq.${eventId}&select=*`,
         {
           method: "GET",
           headers: headersForSports()
@@ -1280,7 +1397,7 @@
 
     async function fetchFirstUpcomingMatch() {
       const response = await fetch(
-        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=*&order=starts_at.asc&limit=1`,
+        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_enriched?select=*&order=starts_at.asc&limit=1`,
         {
           method: "GET",
           headers: headersForSports()
