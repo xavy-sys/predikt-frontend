@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-07
-    Versión: v1.4.2 Branding Header Optimization
+    Versión: v1.4.3 Intelligence Experience
     Fabricante: JVSys™
     Autor: JVSys™
     Proyecto: PREDIKT™
@@ -44,8 +44,8 @@
       - Header Branding Optimization: logo visible, sin fondo artificial,
         con proporción profesional para móvil y escritorio.
 
-    Líneas versión anterior: 2073
-    Líneas versión nueva: 2082
+    Líneas versión anterior: 2082
+    Líneas versión nueva: 2235
   -->
 
   <meta charset="UTF-8" />
@@ -143,8 +143,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: -18px -14px 14px;
-      padding: 18px 14px 16px;
+      margin: -18px -14px 12px;
+      padding: 12px 14px 11px;
       background:
         linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88)),
         rgba(6, 24, 38, 0.9);
@@ -160,8 +160,8 @@
     }
 
     .brand-logo {
-      width: 64px;
-      height: 64px;
+      width: 52px;
+      height: 52px;
       border-radius: 0;
       object-fit: contain;
       background: transparent;
@@ -176,7 +176,7 @@
     }
 
     .brand-name {
-      font-size: 1.15rem;
+      font-size: 1.03rem;
       font-weight: 980;
       letter-spacing: 0.08em;
       line-height: 1;
@@ -184,14 +184,14 @@
 
     .brand-sub {
       color: var(--text-muted);
-      font-size: 0.72rem;
+      font-size: 0.66rem;
       font-weight: 820;
       white-space: nowrap;
     }
 
     .back-btn {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       display: grid;
       place-items: center;
       border-radius: 15px;
@@ -613,6 +613,98 @@
       color: var(--text-soft);
       font-size: 0.62rem;
       font-weight: 850;
+    }
+
+    .momentum-visual {
+      display: grid;
+      gap: 10px;
+      margin-top: 13px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.042);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 12px;
+    }
+
+    .momentum-row {
+      display: grid;
+      gap: 5px;
+    }
+
+    .momentum-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.66rem;
+      font-weight: 920;
+    }
+
+    .momentum-percent {
+      color: var(--green);
+      font-weight: 980;
+      white-space: nowrap;
+    }
+
+    .momentum-track {
+      width: 100%;
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .momentum-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      transition: width 0.35s ease;
+    }
+
+    .explain-card {
+      display: grid;
+      gap: 10px;
+      border-radius: 19px;
+      background:
+        radial-gradient(circle at top right, rgba(93, 173, 226, 0.13), transparent 34%),
+        rgba(93, 173, 226, 0.08);
+      border: 1px solid rgba(93, 173, 226, 0.20);
+      padding: 13px;
+    }
+
+    .explain-title {
+      color: var(--gold);
+      font-size: 0.75rem;
+      font-weight: 980;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .explain-confidence {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      padding: 7px 10px;
+      font-size: 0.64rem;
+      font-weight: 980;
+    }
+
+    .mvp-score-pill {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      padding: 7px 10px;
+      font-size: 0.68rem;
+      font-weight: 980;
     }
 
     .lineup-tabs {
@@ -1042,8 +1134,8 @@
       }
 
       .brand-logo {
-        width: 72px;
-        height: 72px;
+        width: 58px;
+        height: 58px;
       }
     }
   </style>
@@ -1166,6 +1258,38 @@
           </div>
         </div>
 
+        <div class="momentum-visual" aria-label="Momentum visual del partido">
+          <div class="momentum-row">
+            <div class="momentum-row-head">
+              <span id="homeMomentumLabel">Local</span>
+              <strong class="momentum-percent" id="homeMomentumPercent">--%</strong>
+            </div>
+            <div class="momentum-track">
+              <div class="momentum-fill" id="homeMomentumFill"></div>
+            </div>
+          </div>
+
+          <div class="momentum-row">
+            <div class="momentum-row-head">
+              <span>Empate</span>
+              <strong class="momentum-percent" id="drawMomentumPercent">--%</strong>
+            </div>
+            <div class="momentum-track">
+              <div class="momentum-fill" id="drawMomentumFill"></div>
+            </div>
+          </div>
+
+          <div class="momentum-row">
+            <div class="momentum-row-head">
+              <span id="awayMomentumLabel">Visitante</span>
+              <strong class="momentum-percent" id="awayMomentumPercent">--%</strong>
+            </div>
+            <div class="momentum-track">
+              <div class="momentum-fill" id="awayMomentumFill"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="intelligence-grid" aria-label="Estadísticas inteligentes del partido">
           <div class="stat-mini-card">
             <span class="stat-mini-label">Posesión</span>
@@ -1191,24 +1315,29 @@
 
     <section class="section" aria-label="Explicación IA PREDIKT">
       <div class="section-head">
-        <h2 class="section-title">PREDIKT™ explica</h2>
-        <span class="section-link" id="confidenceLabel">Confianza --</span>
+        <h2 class="section-title">🧠 PREDIKT™ EXPLICA</h2>
+        <span class="section-link">Claridad Humana</span>
       </div>
 
       <div class="card">
-        <p class="ai-copy" id="aiExplanation">La explicación IA aparecerá cuando exista información publicada para este partido.</p>
+        <div class="explain-card">
+          <p class="explain-title">Lectura inteligente del partido</p>
+          <p class="ai-copy" id="aiExplanation">Generando explicación inteligente...</p>
+          <span class="explain-confidence" id="confidenceLabel">Confianza --</span>
+        </div>
       </div>
     </section>
 
     <section class="section" aria-label="MVP del partido">
       <div class="section-head">
-        <h2 class="section-title">MVP PREDIKT™</h2>
+        <h2 class="section-title">⭐ MVP DEL PARTIDO</h2>
         <span class="section-link" id="mvpStatusLabel">Calculando</span>
       </div>
 
       <div class="card">
         <div class="mvp-card">
-          <p class="mvp-name" id="mvpPlayerName">⭐ Calculando desempeño...</p>
+          <p class="mvp-name" id="mvpPlayerName">Calculando desempeño...</p>
+          <span class="mvp-score-pill" id="mvpScoreLabel">Score -- / 10</span>
           <p class="mvp-meta" id="mvpMeta">Disponible conforme avance el partido.</p>
           <p class="mvp-reason" id="mvpReason">El jugador del partido se actualizará cuando PREDIKT™ tenga evidencia suficiente.</p>
         </div>
@@ -1486,6 +1615,20 @@
       return `${numeric.toFixed(2)}%`;
     }
 
+    function percentNumber(value) {
+      const numeric = numberOrNull(value);
+      if (numeric === null) return 0;
+      return Math.max(0, Math.min(100, numeric));
+    }
+
+    function setMomentumBar(fillId, percentId, value) {
+      const fill = document.getElementById(fillId);
+      const percent = document.getElementById(percentId);
+      const safeValue = percentNumber(value);
+      if (fill) fill.style.width = `${safeValue}%`;
+      if (percent) percent.textContent = formatPercent(value);
+    }
+
     function formatCompactNumber(value, decimals = 0) {
       const numeric = numberOrNull(value);
       if (numeric === null) return "--";
@@ -1676,10 +1819,19 @@
     function renderMomentum() {
       const match = state.match;
       const useLive = match.is_live || match.live_probability_home !== null || match.live_probability_draw !== null || match.live_probability_away !== null;
+      const homeValue = useLive ? match.live_probability_home : match.pre_probability_home;
+      const drawValue = useLive ? match.live_probability_draw : match.pre_probability_draw;
+      const awayValue = useLive ? match.live_probability_away : match.pre_probability_away;
 
-      document.getElementById("homeProbability").textContent = formatPercent(useLive ? match.live_probability_home : match.pre_probability_home);
-      document.getElementById("drawProbability").textContent = formatPercent(useLive ? match.live_probability_draw : match.pre_probability_draw);
-      document.getElementById("awayProbability").textContent = formatPercent(useLive ? match.live_probability_away : match.pre_probability_away);
+      document.getElementById("homeProbability").textContent = formatPercent(homeValue);
+      document.getElementById("drawProbability").textContent = formatPercent(drawValue);
+      document.getElementById("awayProbability").textContent = formatPercent(awayValue);
+
+      document.getElementById("homeMomentumLabel").textContent = match.home_name;
+      document.getElementById("awayMomentumLabel").textContent = match.away_name;
+      setMomentumBar("homeMomentumFill", "homeMomentumPercent", homeValue);
+      setMomentumBar("drawMomentumFill", "drawMomentumPercent", drawValue);
+      setMomentumBar("awayMomentumFill", "awayMomentumPercent", awayValue);
 
       document.getElementById("possessionLabel").textContent = `${formatCompactNumber(match.live_home_possession)} / ${formatCompactNumber(match.live_away_possession)}`;
       document.getElementById("shotsLabel").textContent = `${formatCompactNumber(match.live_home_shots)} / ${formatCompactNumber(match.live_away_shots)}`;
@@ -1693,25 +1845,26 @@
     }
 
     function renderAIExplanation() {
-      const explanation = state.match.live_ai_explanation || "La explicación IA aparecerá cuando exista información publicada para este partido.";
+      const explanation = state.match.live_ai_explanation || "Generando explicación inteligente...";
       document.getElementById("aiExplanation").textContent = explanation;
     }
 
     function renderMvp() {
       const match = state.match;
       const hasMvp = Boolean(match.mvp_player_name);
+      const scoreValue = numberOrNull(match.mvp_score);
 
       document.getElementById("mvpStatusLabel").textContent = hasMvp ? valueOrFallback(match.mvp_selection_status, "Seleccionado") : "Calculando";
-      document.getElementById("mvpPlayerName").textContent = hasMvp ? `⭐ ${match.mvp_player_name}` : "⭐ Calculando desempeño...";
+      document.getElementById("mvpPlayerName").textContent = hasMvp ? match.mvp_player_name : "Calculando desempeño...";
+      document.getElementById("mvpScoreLabel").textContent = scoreValue !== null ? `Score ${formatCompactNumber(scoreValue, 1)} / 10` : "Score -- / 10";
 
       if (hasMvp) {
-        const score = match.mvp_score !== null ? ` · Score ${formatCompactNumber(match.mvp_score, 2)}` : "";
         const team = match.mvp_team_name || match.mvp_team_code || "Equipo por confirmar";
-        document.getElementById("mvpMeta").textContent = `${team}${score}`;
-        document.getElementById("mvpReason").textContent = match.mvp_ai_reason || "PREDIKT™ seleccionó al jugador por impacto observable en el partido.";
+        document.getElementById("mvpMeta").textContent = `${team} · ${valueOrFallback(match.mvp_selection_method, "Método PREDIKT™")}`;
+        document.getElementById("mvpReason").textContent = match.mvp_ai_reason || "Razón: PREDIKT™ seleccionó al jugador por impacto observable en el partido.";
       } else {
         document.getElementById("mvpMeta").textContent = "Disponible conforme avance el partido.";
-        document.getElementById("mvpReason").textContent = "El jugador del partido se actualizará cuando PREDIKT™ tenga evidencia suficiente.";
+        document.getElementById("mvpReason").textContent = "Calculando desempeño con evidencia de marcador, participación ofensiva, momentum e impacto del jugador.";
       }
     }
 
