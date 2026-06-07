@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-07
-    Versión: v1.4.0 Frontend Intelligence Integration
+    Versión: v1.4.1 Branding & Favicon Fix
     Fabricante: JVSys™
     Autor: JVSys™
     Proyecto: PREDIKT™
@@ -12,6 +12,9 @@
     Descripción:
       Pantalla detalle de partido para PREDIKT™.
       Mobile-first tipo app deportiva, sin convertir la app en landing.
+      Corrige branding oficial PREDIKT™: logo superior, favicon, shortcut icon
+      y apple-touch-icon apuntan a assets/predikt-logo.png, evitando el ícono
+      genérico del navegador.
 
       Integración principal actualizada a:
       - sports.v_event_match_intelligence_api
@@ -38,7 +41,7 @@
       - Tabla de grupo, timeline de fases y ruta del torneo.
       - Favicon oficial PREDIKT™.
 
-    Líneas versión anterior: 1687
+    Líneas versión anterior: 2070
     Líneas versión nueva: 2070
   -->
 
@@ -52,9 +55,9 @@
   />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+  <link rel="icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/predikt-logo.png" />
 
   <style>
     :root {
@@ -1041,7 +1044,7 @@
   <main class="app-shell">
     <header class="app-header" aria-label="Encabezado PREDIKT">
       <a class="brand" href="index.html" aria-label="Ir a inicio">
-        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <img class="brand-logo" src="assets/predikt-logo.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
           <small class="brand-sub">Detalle del Partido</small>
