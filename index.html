@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.2.0 Live Upcoming Event
+    Versión: v5.3.0 Match Intelligence Live Home
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -18,10 +18,11 @@
       Muestra fase, grupo y jornada dentro de la tarjeta de próximo pronóstico.
       Mejora el acceso al detalle del partido con un botón dedicado, visible
       antes de la zona de pronóstico, evitando que quede oculto por el footer.
-      Conecta la tarjeta principal con sports.v_upcoming_events para cargar
-      automáticamente el próximo partido disponible desde Supabase.
-    Líneas versión anterior: 1142
-    Líneas versión nueva: 1254
+      Conecta la tarjeta principal con sports.v_event_match_intelligence para cargar
+      automáticamente el próximo partido real, incluyendo grupo, jornada, fase,
+      fecha local, equipo local y equipo visitante.
+    Líneas versión anterior: 1250
+    Líneas versión nueva: 1259
   -->
 
   <meta charset="UTF-8" />
@@ -929,12 +930,12 @@
           <span class="pill gold">2026</span>
         </div>
 
-        <h3 class="match-title" id="upcomingMatchName">México vs Alemania</h3>
+        <h3 class="match-title" id="upcomingMatchName">México vs Sudáfrica</h3>
 
         <div class="match-context-row" aria-label="Contexto del partido">
           <span class="context-chip green" id="upcomingStage">Fase de Grupos</span>
-          <span class="context-chip gold" id="upcomingGroup">Grupo por confirmar</span>
-          <span class="context-chip" id="upcomingSeason">2026</span>
+          <span class="context-chip gold" id="upcomingGroup">Grupo A</span>
+          <span class="context-chip" id="upcomingSeason">Jornada 1</span>
         </div>
 
         <div class="detail-action-row">
@@ -952,9 +953,9 @@
           <div class="versus">VS</div>
 
           <div class="team-box">
-            <div class="team-flag" id="awayTeamCode">DE</div>
-            <strong class="team-name" id="awayTeamName">Alemania</strong>
-            <span class="team-code" id="awayTeamSmallCode">DE</span>
+            <div class="team-flag" id="awayTeamCode">ZA</div>
+            <strong class="team-name" id="awayTeamName">Sudáfrica</strong>
+            <span class="team-code" id="awayTeamSmallCode">ZA</span>
           </div>
         </div>
 
@@ -963,7 +964,7 @@
         <div class="prediction-actions" aria-label="Selecciona tu pronóstico rápido">
           <button class="prediction-choice" type="button" data-prediction="México" id="homePredictionChoice">México</button>
           <button class="prediction-choice" type="button" data-prediction="Empate">Empate</button>
-          <button class="prediction-choice" type="button" data-prediction="Alemania" id="awayPredictionChoice">Alemania</button>
+          <button class="prediction-choice" type="button" data-prediction="Sudáfrica" id="awayPredictionChoice">Sudáfrica</button>
         </div>
 
         <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
@@ -1106,7 +1107,7 @@
     }
 
     function splitMatchName(name) {
-      const safeName = name || "México vs Alemania";
+      const safeName = name || "México vs Sudáfrica";
       const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
 
       if (parts.length >= 2) {
@@ -1118,7 +1119,7 @@
 
       return {
         home: "México",
-        away: "Alemania"
+        away: "Sudáfrica"
       };
     }
 
@@ -1152,14 +1153,18 @@
     function renderUpcomingEvent(eventRow) {
       if (!eventRow) return;
 
-      const teams = splitMatchName(eventRow.name);
+      const teams = splitMatchName(eventRow.event_name || eventRow.name);
       const homeCode = inferCode(teams.home, "MX");
-      const awayCode = inferCode(teams.away, "DE");
-      const detailHref = `partido-detalle.html?id=${eventRow.id}`;
+      const awayCode = inferCode(teams.away, "ZA");
+      const eventId = eventRow.event_id || eventRow.id || "";
+      const detailHref = eventId ? `partido-detalle.html?id=${eventId}` : "partido-detalle.html";
+      const groupLabel = eventRow.group_name || "Grupo por confirmar";
+      const matchdayLabel = eventRow.matchday ? `Jornada ${eventRow.matchday}` : "Jornada por confirmar";
 
-      document.getElementById("upcomingMatchName").textContent = eventRow.name || "México vs Alemania";
-      document.getElementById("upcomingStage").textContent = eventRow.event_stage || "Fase por confirmar";
-      document.getElementById("upcomingSeason").textContent = eventRow.season_name || "2026";
+      document.getElementById("upcomingMatchName").textContent = eventRow.event_name || eventRow.name || "Próximo partido";
+      document.getElementById("upcomingStage").textContent = eventRow.phase_name || eventRow.event_stage || "Fase por confirmar";
+      document.getElementById("upcomingGroup").textContent = groupLabel;
+      document.getElementById("upcomingSeason").textContent = matchdayLabel;
       document.getElementById("upcomingMatchTime").textContent = formatUpcomingDate(eventRow.starts_at);
 
       document.getElementById("homeTeamName").textContent = teams.home;
@@ -1182,7 +1187,7 @@
     async function loadUpcomingEvent() {
       try {
         const response = await fetch(
-          `${PREDIKT_SUPABASE_REST_URL}/v_upcoming_events?select=id,code,name,event_stage,event_status,starts_at,season_name,competition_name&order=starts_at.asc&limit=1`,
+          `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=event_id,event_code,event_name,event_stage,starts_at,event_status,home_participant_id,away_participant_id,phase_name,phase_short_name,group_code,group_name,matchday,display_label,event_metadata&order=starts_at.asc&limit=1`,
           {
             method: "GET",
             headers: sportsHeaders()
@@ -1190,7 +1195,7 @@
         );
 
         if (!response.ok) {
-          throw new Error(`v_upcoming_events status ${response.status}`);
+          throw new Error(`v_event_match_intelligence status ${response.status}`);
         }
 
         const rows = await response.json();
@@ -1214,7 +1219,7 @@
     if (savePredictionBtn) {
       savePredictionBtn.addEventListener("click", () => {
         if (!selectedPrediction) {
-          showToast("Elige México, Empate o Alemania para guardar tu pronóstico.");
+          showToast("Elige México, Empate o Sudáfrica para guardar tu pronóstico.");
           return;
         }
 
