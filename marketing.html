@@ -1,1 +1,378 @@
+<!--
+===============================================================================
+ARCHIVO DESTINO: marketing.html
+PROYECTO: PREDIKT™
+FECHA: 2026-06-08
+VERSIÓN: v1.0.0 War Room Campaign
+FABRICANTE: JVSys™
+DESCRIPCIÓN:
+  Pantalla administrativa simple para campaña de lanzamiento PREDIKT™.
+  Corrige error 404 del botón CAMPAÑA en dashboard-admin.html.
+  Archivo completo. No es parche.
+===============================================================================
+-->
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PREDIKT™ | Campaña</title>
+  <meta name="description" content="Centro de campaña de lanzamiento PREDIKT™." />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
+  <script>
+    document.documentElement.classList.add("admin-guard-pending");
+  </script>
+
+  <style>
+    html.admin-guard-pending { visibility:hidden; opacity:0; }
+
+    :root {
+      --bg-main:#061826;
+      --bg-card:#0f2740;
+      --gold:#f5b942;
+      --gold-soft:#ffe28a;
+      --green:#48f29a;
+      --blue:#5dade2;
+      --red:#ff5a5f;
+      --text-main:#ffffff;
+      --text-soft:#c9d7e6;
+      --text-muted:#7f95aa;
+      --border:rgba(255,255,255,.11);
+      --footer-height:82px;
+      --app-max:1180px;
+    }
+
+    * { box-sizing:border-box; margin:0; padding:0; }
+
+    body {
+      min-height:100vh;
+      color:var(--text-main);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(245,185,66,.14), transparent 26%),
+        radial-gradient(circle at top right, rgba(72,242,154,.11), transparent 23%),
+        linear-gradient(145deg,#061826 0%,#04111d 50%,#020b13 100%);
+      padding-bottom:calc(var(--footer-height) + 18px);
+    }
+
+    a { color:inherit; text-decoration:none; }
+    button { font:inherit; border:0; cursor:pointer; }
+
+    .app-shell {
+      width:min(100%,var(--app-max));
+      margin:0 auto;
+      padding:18px 14px 0;
+    }
+
+    .app-header {
+      position:sticky;
+      top:0;
+      z-index:20;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin:-18px -14px 14px;
+      padding:15px 14px 12px;
+      background:linear-gradient(180deg,rgba(6,24,38,.98),rgba(6,24,38,.88));
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .brand {
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      min-width:0;
+    }
+
+    .brand-logo {
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      object-fit:contain;
+      background:rgba(255,255,255,.04);
+    }
+
+    .brand-text { display:grid; gap:1px; min-width:0; }
+    .brand-name { font-size:.95rem; font-weight:980; letter-spacing:.08em; line-height:1; }
+    .brand-sub { color:var(--text-muted); font-size:.64rem; font-weight:820; white-space:nowrap; }
+
+    .header-actions { display:flex; align-items:center; gap:8px; }
+
+    .icon-btn {
+      width:38px;
+      height:38px;
+      display:grid;
+      place-items:center;
+      border-radius:15px;
+      color:var(--text-main);
+      background:rgba(255,255,255,.065);
+      border:1px solid rgba(255,255,255,.095);
+    }
+
+    .admin-pill {
+      min-height:38px;
+      padding:0 14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      color:#061826;
+      background:linear-gradient(135deg,var(--gold),var(--gold-soft));
+      font-size:.72rem;
+      font-weight:980;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .hero-card {
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(245,185,66,.30);
+      border-radius:30px;
+      background:
+        radial-gradient(circle at 100% 0%,rgba(245,185,66,.20),transparent 34%),
+        linear-gradient(145deg,rgba(15,39,64,.98),rgba(7,30,50,.98));
+      padding:18px;
+      box-shadow:0 18px 45px rgba(0,0,0,.35);
+      margin-bottom:12px;
+    }
+
+    .hero-kicker {
+      color:var(--gold);
+      font-size:.70rem;
+      font-weight:980;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+
+    .hero-title {
+      font-size:clamp(1.45rem,5.2vw,2.25rem);
+      font-weight:980;
+      line-height:1;
+      letter-spacing:-.04em;
+      margin-bottom:8px;
+    }
+
+    .hero-copy {
+      color:var(--text-soft);
+      max-width:780px;
+      font-size:.84rem;
+      font-weight:760;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .card {
+      border:1px solid var(--border);
+      border-radius:24px;
+      background:rgba(15,39,64,.82);
+      padding:14px;
+      box-shadow:0 12px 32px rgba(0,0,0,.22);
+    }
+
+    .card h2 {
+      font-size:.78rem;
+      font-weight:980;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+
+    .big {
+      font-size:clamp(2.1rem,10vw,4rem);
+      font-weight:980;
+      line-height:.95;
+      color:var(--gold);
+      margin-bottom:6px;
+    }
+
+    .copy {
+      color:var(--text-muted);
+      font-size:.72rem;
+      font-weight:820;
+    }
+
+    .task-list {
+      display:grid;
+      gap:8px;
+    }
+
+    .task {
+      border-radius:18px;
+      background:rgba(255,255,255,.055);
+      border:1px solid rgba(255,255,255,.085);
+      padding:11px;
+    }
+
+    .task strong {
+      display:block;
+      font-size:.84rem;
+      margin-bottom:4px;
+    }
+
+    .task span {
+      color:var(--text-muted);
+      font-size:.68rem;
+      font-weight:780;
+    }
+
+    .message-box {
+      border:1px dashed rgba(245,185,66,.28);
+      border-radius:24px;
+      background:rgba(245,185,66,.08);
+      padding:14px;
+      color:var(--text-soft);
+      font-size:.8rem;
+      font-weight:780;
+      margin-bottom:12px;
+    }
+
+    .app-footer {
+      position:fixed;
+      left:50%;
+      bottom:0;
+      z-index:40;
+      width:min(100%,560px);
+      transform:translateX(-50%);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:4px;
+      padding:9px 10px 11px;
+      border:1px solid rgba(255,255,255,.11);
+      border-bottom:0;
+      border-radius:24px 24px 0 0;
+      background:rgba(4,17,29,.97);
+      backdrop-filter:blur(18px);
+    }
+
+    .footer-item {
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      border-radius:16px;
+      padding:7px 4px;
+      color:var(--text-muted);
+      font-size:.58rem;
+      font-weight:880;
+      gap:3px;
+    }
+
+    .footer-item span { font-size:1rem; line-height:1; }
+    .footer-item.active { color:var(--gold); background:rgba(245,185,66,.12); border:1px solid rgba(245,185,66,.22); }
+
+    @media (min-width:720px) {
+      .grid { grid-template-columns:repeat(3,1fr); }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado PREDIKT Campaña">
+      <a class="brand" href="dashboard-admin.html" aria-label="Volver al Centro de Lanzamiento">
+        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">📢 Campaña</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <button class="icon-btn" type="button" onclick="location.reload()">↻</button>
+        <a class="admin-pill" href="dashboard-admin.html">Centro</a>
+      </div>
+    </header>
+
+    <section class="hero-card">
+      <p class="hero-kicker">📢 PREDIKT™ · War Room</p>
+      <h1 class="hero-title">Campaña de Lanzamiento</h1>
+      <p class="hero-copy">
+        Control rápido de mensajes, publicaciones y acciones previas a la salida pública.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>⏱ Urgencia</h2>
+        <p class="big">Alta</p>
+        <p class="copy">Mantener publicaciones y validación diaria.</p>
+      </article>
+
+      <article class="card">
+        <h2>📲 Canales</h2>
+        <p class="big">3</p>
+        <p class="copy">TikTok, Instagram y Facebook.</p>
+      </article>
+
+      <article class="card">
+        <h2>🎯 CTA</h2>
+        <p class="big">Listo</p>
+        <p class="copy">¿Quién le atina al marcador?</p>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>✅ Acciones de campaña</h2>
+      <div class="task-list">
+        <div class="task">
+          <strong>Publicar teaser de continuidad</strong>
+          <span>Mensaje corto, futbolero, mexicano y sin revelar demasiado.</span>
+        </div>
+        <div class="task">
+          <strong>Invitar a primeros participantes</strong>
+          <span>Objetivo inmediato: primeros 10 usuarios reales.</span>
+        </div>
+        <div class="task">
+          <strong>Impulsar fundadores</strong>
+          <span>Meta inicial: conseguir primeros fundadores de confianza.</span>
+        </div>
+        <div class="task">
+          <strong>Validar flujo usuario</strong>
+          <span>Entrar, pronosticar y ver ranking antes de abrir público.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="message-box">
+      Mensaje base: <strong>“¿Quién le atina al marcador?”</strong><br />
+      Usar tono divertido, cercano y competitivo. No mencionar FIFA como marca oficial.
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/admin-guard.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const ok = await window.PrediktAdminGuard.requireAdminAccess();
+      if(!ok){ return; }
+      document.documentElement.classList.remove("admin-guard-pending");
+    });
+  </script>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item active" href="perfil.html"><span>👤</span>Perfil</a>
+  </nav>
+</body>
+</html>
 
