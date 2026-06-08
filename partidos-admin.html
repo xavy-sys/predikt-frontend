@@ -2,26 +2,26 @@
 <html lang="es-MX">
 <head>
   <!--
-    Nombre del archivo: pronosticos-admin.html
+    Nombre del archivo: partidos-admin.html
     Fecha: 2026-06-07
-    Versión: v1.0.1 Predictions Management + Admin Guard
+    Versión: v1.0.1 Match Management + Admin Guard
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla administrativa para monitoreo de pronósticos PREDIKT™ durante Beta Pública.
-      Permite revisar KPIs, actividad reciente, top pronosticadores, partidos más
-      pronosticados, buscador y acciones rápidas. Versión mobile-first con datos
-      demo/fallback, preparada para conexión posterior con Supabase Analytics y
-      protección por rol administrador.
+      Pantalla administrativa para monitoreo de partidos PREDIKT™ durante Beta Pública.
+      Permite revisar KPIs de partidos, estado operativo, partidos más populares,
+      partidos que requieren atención, buscador y listado de calendario administrativo.
+      Versión mobile-first con datos demo/fallback, preparada para conexión posterior
+      con Supabase Sports/Analytics y protección por rol administrador.
     Líneas versión anterior: 0
-    Líneas versión nueva: 718
+    Líneas versión nueva: 704
   -->
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>PREDIKT™ | Pronósticos Admin</title>
-  <meta name="description" content="Administración de pronósticos PREDIKT™." />
+  <title>PREDIKT™ | Partidos Admin</title>
+  <meta name="description" content="Administración de partidos PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
   <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
@@ -42,7 +42,6 @@
   <style>
     :root {
       --bg-main: #061826;
-      --bg-deep: #020b13;
       --bg-card: #0f2740;
       --gold: #f5b942;
       --gold-soft: #ffe28a;
@@ -210,6 +209,19 @@
       font-weight: 760;
     }
 
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .quick-actions .admin-pill {
+      width: 100%;
+      min-height: 42px;
+      text-align: center;
+    }
+
     .kpi-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -259,6 +271,7 @@
     .green { color: var(--green); }
     .gold { color: var(--gold); }
     .orange { color: var(--orange); }
+    .red { color: var(--red); }
 
     .kpi-sub {
       color: var(--text-muted);
@@ -357,14 +370,14 @@
       gap: 12px;
     }
 
-    .ranking-list,
-    .matches-list,
-    .prediction-list {
+    .data-list,
+    .match-list {
       display: grid;
       gap: 8px;
     }
 
-    .data-row {
+    .data-row,
+    .match-row {
       display: grid;
       grid-template-columns: auto 1fr auto;
       gap: 10px;
@@ -407,30 +420,6 @@
       white-space: nowrap;
     }
 
-    .prediction-row {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 11px;
-      align-items: center;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.055);
-      border: 1px solid rgba(255, 255, 255, 0.085);
-      padding: 11px;
-    }
-
-    .prediction-main {
-      display: grid;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .prediction-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
     .status-pill {
       min-height: 28px;
       display: inline-flex;
@@ -444,13 +433,18 @@
       letter-spacing: 0.04em;
       white-space: nowrap;
       color: #061826;
-      background: linear-gradient(135deg, var(--green), #8cffc4);
     }
 
-    .prediction-metrics {
+    .status-upcoming { background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .status-live { background: linear-gradient(135deg, var(--green), #8cffc4); }
+    .status-final { background: linear-gradient(135deg, var(--blue), #a6d9ff); }
+    .status-attention { color: #ffffff; background: rgba(255, 90, 95, 0.72); }
+
+    .match-detail-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 7px;
+      margin-top: 8px;
     }
 
     .metric {
@@ -567,162 +561,167 @@
       .app-shell { padding: 22px 18px 0; }
       .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; }
       .list-grid { grid-template-columns: 1fr 1fr; }
-      .prediction-row { grid-template-columns: auto 1fr; }
     }
 
-    @media (max-width: 520px) {
+    @media (max-width: 620px) {
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
       .filter-row,
-      .prediction-metrics { grid-template-columns: 1fr; }
-      .prediction-top { flex-direction: column; }
-      .status-pill { width: fit-content; }
+      .match-detail-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
   <main class="app-shell">
-    <header class="app-header" aria-label="Encabezado PREDIKT Pronósticos Admin">
+    <header class="app-header" aria-label="Encabezado PREDIKT Partidos Admin">
       <a class="brand" href="dashboard-admin.html" aria-label="Volver al Centro de Lanzamiento">
         <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
-          <small class="brand-sub">🎯 Pronósticos Admin</small>
+          <small class="brand-sub">⚽ Partidos Admin</small>
         </span>
       </a>
 
       <div class="header-actions">
-        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar pronósticos">↻</button>
+        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar partidos">↻</button>
         <a class="admin-pill" href="dashboard-admin.html">Centro</a>
       </div>
     </header>
 
-    <section class="hero-card" aria-label="Administración de pronósticos">
-      <p class="hero-kicker">🎯 PREDIKT™ · Administración Beta</p>
-      <h1 class="hero-title">Pronósticos Admin</h1>
+    <section class="hero-card" aria-label="Administración de partidos">
+      <p class="hero-kicker">⚽ PREDIKT™ · Administración Beta</p>
+      <h1 class="hero-title">Partidos Admin</h1>
       <p class="hero-copy">
-        Monitorea volumen de pronósticos, partidos con mayor interés, usuarios más activos y actividad de las últimas 24 horas.
+        Monitorea calendario, estado de partidos, interés generado, pronósticos recibidos y eventos que requieren atención.
       </p>
     </section>
 
-    <section class="kpi-grid" aria-label="KPIs de pronósticos">
-      <article class="kpi-card" data-icon="🎯">
-        <p class="kpi-label">Pronósticos Totales</p>
-        <p class="kpi-value green" id="totalPredictions">3251</p>
-        <p class="kpi-sub">Acumulado Beta.</p>
+    <section class="quick-actions" aria-label="Acciones rápidas">
+      <a class="admin-pill" href="dashboard-admin.html">🚀 Lanzamiento</a>
+      <a class="admin-pill" href="pronosticos-admin.html">🎯 Pronósticos</a>
+      <a class="admin-pill" href="usuarios.html">👥 Usuarios</a>
+      <a class="admin-pill" href="ranking.html">🏆 Ranking</a>
+    </section>
+
+    <section class="kpi-grid" aria-label="KPIs de partidos">
+      <article class="kpi-card" data-icon="⚽">
+        <p class="kpi-label">Partidos Totales</p>
+        <p class="kpi-value blue">72</p>
+        <p class="kpi-sub">Fase de grupos cargada.</p>
       </article>
 
-      <article class="kpi-card" data-icon="📅">
-        <p class="kpi-label">Hoy</p>
-        <p class="kpi-value gold" id="todayPredictions">89</p>
-        <p class="kpi-sub">Actividad del día.</p>
+      <article class="kpi-card" data-icon="🕒">
+        <p class="kpi-label">Próximos</p>
+        <p class="kpi-value gold">68</p>
+        <p class="kpi-sub">Pendientes por jugarse.</p>
       </article>
 
-      <article class="kpi-card" data-icon="📈">
-        <p class="kpi-label">Semana</p>
-        <p class="kpi-value blue" id="weekPredictions">642</p>
-        <p class="kpi-sub">Últimos 7 días.</p>
+      <article class="kpi-card" data-icon="✅">
+        <p class="kpi-label">Finalizados</p>
+        <p class="kpi-value green">4</p>
+        <p class="kpi-sub">Con resultado registrado.</p>
       </article>
 
-      <article class="kpi-card" data-icon="👤">
-        <p class="kpi-label">Promedio Usuario</p>
-        <p class="kpi-value orange" id="avgPredictions">7.2</p>
-        <p class="kpi-sub">Pronósticos por usuario.</p>
+      <article class="kpi-card" data-icon="🚨">
+        <p class="kpi-label">Atención</p>
+        <p class="kpi-value red">2</p>
+        <p class="kpi-sub">Revisar datos o interés.</p>
       </article>
     </section>
 
-    <section class="activity-grid" aria-label="Actividad rápida">
-      <article class="panel-card">
-        <div class="section-head">
-          <h2 class="section-title">⏱ Actividad 24h</h2>
-        </div>
-        <p class="kpi-value gold" style="font-size:2rem;">Alta</p>
-        <p class="kpi-sub">89 pronósticos registrados hoy.</p>
-      </article>
-
+    <section class="activity-grid" aria-label="Actividad de partidos">
       <article class="panel-card">
         <div class="section-head">
           <h2 class="section-title">🔥 Partido caliente</h2>
         </div>
         <p class="row-title">🇲🇽 México vs Japón</p>
-        <p class="kpi-sub">124 pronósticos.</p>
+        <p class="kpi-sub">124 pronósticos · alto interés.</p>
       </article>
 
       <article class="panel-card">
         <div class="section-head">
-          <h2 class="section-title">🏆 Usuario activo</h2>
+          <h2 class="section-title">⏱ Próximo partido</h2>
         </div>
-        <p class="row-title">💎 ElTigre</p>
-        <p class="kpi-sub">12 pronósticos · 98 pts.</p>
+        <p class="row-title">🇲🇽 México vs Sudáfrica</p>
+        <p class="kpi-sub">Jornada 1 · Grupo A.</p>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🚨 Requiere atención</h2>
+        </div>
+        <p class="row-title">TV / horario pendiente</p>
+        <p class="kpi-sub">2 partidos sin confirmación completa.</p>
       </article>
     </section>
 
     <section class="toolbar" aria-label="Búsqueda y filtros">
-      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por usuario, partido o pronóstico..." />
+      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por selección, grupo, sede o estado..." />
       <div class="filter-row">
         <button class="filter-chip active" type="button" data-filter="all">Todos</button>
-        <button class="filter-chip" type="button" data-filter="today">Hoy</button>
-        <button class="filter-chip" type="button" data-filter="hot">Populares</button>
+        <button class="filter-chip" type="button" data-filter="upcoming">Próximos</button>
+        <button class="filter-chip" type="button" data-filter="attention">Atención</button>
       </div>
     </section>
 
-    <section class="list-grid" aria-label="Resumen de pronósticos">
+    <section class="list-grid" aria-label="Resumen de partidos">
       <article class="panel-card">
         <div class="section-head">
-          <h2 class="section-title">🏆 Top Pronosticadores</h2>
-          <a class="section-link" href="usuarios.html">Usuarios</a>
+          <h2 class="section-title">⚽ Partidos Más Populares</h2>
+          <a class="section-link" href="pronosticos-admin.html">Pronósticos</a>
         </div>
 
-        <div class="ranking-list" id="topUsersList"></div>
+        <div class="data-list" id="popularMatchesList"></div>
       </article>
 
       <article class="panel-card">
         <div class="section-head">
-          <h2 class="section-title">⚽ Partidos Más Pronosticados</h2>
-          <a class="section-link" href="pronostico.html">Ver pronósticos</a>
+          <h2 class="section-title">🚨 Atención Operativa</h2>
+          <a class="section-link" href="dashboard-admin.html">Centro</a>
         </div>
 
-        <div class="matches-list" id="topMatchesList"></div>
+        <div class="data-list" id="attentionList"></div>
       </article>
     </section>
 
-    <section class="panel-card" aria-label="Últimos pronósticos">
+    <section class="panel-card" aria-label="Listado de partidos">
       <div class="section-head">
-        <h2 class="section-title">Últimos Pronósticos</h2>
-        <a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a>
+        <h2 class="section-title">Calendario Administrativo</h2>
+        <a class="section-link" href="pronostico.html">Ver usuario</a>
       </div>
 
-      <div class="prediction-list" id="predictionList"></div>
+      <div class="match-list" id="matchList"></div>
     </section>
 
     <p class="admin-note">
-      Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta pronósticos reales desde Supabase y protección por rol administrador.
+      Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta sports.v_event_match_intelligence y protección por rol administrador.
     </p>
   </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">Pronósticos actualizados.</div>
+  <div class="toast" id="toast" role="status" aria-live="polite">Partidos actualizados.</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/admin-guard.js"></script>
 
   <script>
-    const topUsers = [
-      { name: "💎 ElTigre", detail: "12 pronósticos · Racha perfecta", score: "98 pts" },
-      { name: "Pey", detail: "10 pronósticos · Subiendo rápido", score: "92 pts" },
-      { name: "Javier", detail: "9 pronósticos · Consistente", score: "89 pts" }
+    const popularMatches = [
+      { title: "🇲🇽 México vs Japón", detail: "Partido con mayor intención", score: "124" },
+      { title: "🇧🇷 Brasil vs España", detail: "Alto interés competitivo", score: "98" },
+      { title: "🇦🇷 Argentina vs Alemania", detail: "Clásico de alta tracción", score: "77" }
     ];
 
-    const topMatches = [
-      { match: "🇲🇽 México vs Japón", detail: "Partido con mayor intención", count: 124 },
-      { match: "🇧🇷 Brasil vs España", detail: "Alto interés competitivo", count: 98 },
-      { match: "🇦🇷 Argentina vs Alemania", detail: "Clásico de alta tracción", count: 77 }
+    const attentionItems = [
+      { title: "Horario TV pendiente", detail: "2 partidos requieren confirmación", score: "2" },
+      { title: "Sedes por revisar", detail: "Validar consistencia de venue intelligence", score: "1" },
+      { title: "Pronósticos bajos", detail: "Impulsar campaña en partidos fríos", score: "5" }
     ];
 
-    const predictions = [
-      { user: "💎 ElTigre", match: "México vs Japón", pick: "México gana", time: "Hoy", points: "Pendiente", type: "today" },
-      { user: "Pey", match: "Brasil vs España", pick: "Empate", time: "Hoy", points: "Pendiente", type: "today" },
-      { user: "Javier", match: "Argentina vs Alemania", pick: "Argentina gana", time: "Hoy", points: "Pendiente", type: "today" },
-      { user: "GolMaster", match: "Francia vs Inglaterra", pick: "Francia gana", time: "Ayer", points: "Pendiente", type: "hot" },
-      { user: "FutboleroMX", match: "Portugal vs Italia", pick: "Portugal gana", time: "Ayer", points: "Pendiente", type: "hot" }
+    const matches = [
+      { match: "México vs Sudáfrica", group: "Grupo A", date: "Jornada 1", venue: "Por confirmar", predictions: 44, status: "upcoming", label: "Próximo" },
+      { match: "México vs Japón", group: "Grupo A", date: "Jornada 2", venue: "Por confirmar", predictions: 124, status: "upcoming", label: "Popular" },
+      { match: "Brasil vs España", group: "Grupo B", date: "Jornada 1", venue: "Por confirmar", predictions: 98, status: "upcoming", label: "Popular" },
+      { match: "Argentina vs Alemania", group: "Grupo C", date: "Jornada 1", venue: "Por confirmar", predictions: 77, status: "upcoming", label: "Popular" },
+      { match: "Francia vs Inglaterra", group: "Grupo D", date: "Jornada 1", venue: "Horario TV pendiente", predictions: 21, status: "attention", label: "Atención" }
     ];
 
     const searchInput = document.getElementById("searchInput");
@@ -738,13 +737,13 @@
       toast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    function renderTopUsers() {
-      const list = document.getElementById("topUsersList");
-      list.innerHTML = topUsers.map((row, index) => `
+    function renderRows(listId, rows) {
+      const list = document.getElementById(listId);
+      list.innerHTML = rows.map((row, index) => `
         <div class="data-row">
           <span class="badge">${index + 1}</span>
           <div>
-            <p class="row-title">${row.name}</p>
+            <p class="row-title">${row.title}</p>
             <p class="row-sub">${row.detail}</p>
           </div>
           <strong class="row-score">${row.score}</strong>
@@ -752,81 +751,74 @@
       `).join("");
     }
 
-    function renderTopMatches() {
-      const list = document.getElementById("topMatchesList");
-      list.innerHTML = topMatches.map((row, index) => `
-        <div class="data-row">
-          <span class="badge">${index + 1}</span>
-          <div>
-            <p class="row-title">${row.match}</p>
-            <p class="row-sub">${row.detail}</p>
-          </div>
-          <strong class="row-score">${row.count}</strong>
-        </div>
-      `).join("");
+    function statusClass(status) {
+      if (status === "attention") return "status-attention";
+      if (status === "live") return "status-live";
+      if (status === "final") return "status-final";
+      return "status-upcoming";
     }
 
-    function predictionMatches(row, query) {
+    function matchMatches(row, query) {
       const q = query.trim().toLowerCase();
       if (!q) return true;
-      return [row.user, row.match, row.pick, row.time].some((value) => String(value || "").toLowerCase().includes(q));
+      return [row.match, row.group, row.date, row.venue, row.label].some((value) => String(value || "").toLowerCase().includes(q));
     }
 
     function filterMatches(row) {
       if (activeFilter === "all") return true;
-      if (activeFilter === "today") return row.type === "today";
-      if (activeFilter === "hot") return row.type === "hot";
-      return true;
+      return row.status === activeFilter;
     }
 
-    function renderPredictions() {
+    function renderMatches() {
       const query = searchInput.value || "";
-      const rows = predictions.filter((row) => predictionMatches(row, query) && filterMatches(row));
+      const rows = matches.filter((row) => matchMatches(row, query) && filterMatches(row));
 
       if (!rows.length) {
-        document.getElementById("predictionList").innerHTML = `
-          <div class="prediction-row">
+        document.getElementById("matchList").innerHTML = `
+          <div class="match-row">
             <span class="badge">--</span>
-            <div class="prediction-main">
+            <div>
               <p class="row-title">Sin resultados</p>
               <p class="row-sub">Ajusta búsqueda o filtros.</p>
             </div>
+            <strong class="row-score">0</strong>
           </div>
         `;
         return;
       }
 
-      document.getElementById("predictionList").innerHTML = rows.map((row) => `
-        <article class="prediction-row">
-          <span class="badge">🎯</span>
-          <div class="prediction-main">
-            <div class="prediction-top">
+      document.getElementById("matchList").innerHTML = rows.map((row) => `
+        <article class="match-row">
+          <span class="badge">⚽</span>
+          <div>
+            <div class="section-head" style="margin:0 0 6px;">
               <div>
-                <p class="row-title">${row.user}</p>
-                <p class="row-sub">${row.match}</p>
+                <p class="row-title">${row.match}</p>
+                <p class="row-sub">${row.group} · ${row.date}</p>
               </div>
-              <span class="status-pill">${row.time}</span>
+              <span class="status-pill ${statusClass(row.status)}">${row.label}</span>
             </div>
 
-            <div class="prediction-metrics">
+            <div class="match-detail-grid">
               <div class="metric">
-                <strong>${row.pick}</strong>
-                <span>Pronóstico</span>
+                <strong>${row.predictions}</strong>
+                <span>Pronósticos</span>
               </div>
               <div class="metric">
-                <strong>${row.points}</strong>
-                <span>Puntos</span>
+                <strong>${row.venue}</strong>
+                <span>Sede/TV</span>
               </div>
               <div class="metric">
-                <strong>${row.time}</strong>
-                <span>Registro</span>
-              </div>
-              <div class="metric">
-                <strong>Activo</strong>
+                <strong>${row.status === "attention" ? "Revisar" : "OK"}</strong>
                 <span>Estado</span>
+              </div>
+              <div class="metric">
+                <strong>Detalle</strong>
+                <span>Partido</span>
               </div>
             </div>
           </div>
+          <strong class="row-score">${row.predictions}</strong>
         </article>
       `).join("");
     }
@@ -836,31 +828,31 @@
         filterButtons.forEach((item) => item.classList.remove("active"));
         button.classList.add("active");
         activeFilter = button.dataset.filter;
-        renderPredictions();
+        renderMatches();
       });
     });
 
-    searchInput.addEventListener("input", renderPredictions);
+    searchInput.addEventListener("input", renderMatches);
 
     refreshBtn.addEventListener("click", () => {
-      renderTopUsers();
-      renderTopMatches();
-      renderPredictions();
-      showToast("Pronósticos actualizados.");
+      renderRows("popularMatchesList", popularMatches);
+      renderRows("attentionList", attentionItems);
+      renderMatches();
+      showToast("Partidos actualizados.");
     });
 
-    async function initializePredictionsAdmin(){
+    async function initializeMatchesAdmin(){
       const ok = await window.PrediktAdminGuard.requireAdminAccess();
       if(!ok){ return; }
 
       document.documentElement.classList.remove("admin-guard-pending");
 
-      renderTopUsers();
-      renderTopMatches();
-      renderPredictions();
+      renderRows("popularMatchesList", popularMatches);
+      renderRows("attentionList", attentionItems);
+      renderMatches();
     }
 
-    initializePredictionsAdmin();
+    initializeMatchesAdmin();
   </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
