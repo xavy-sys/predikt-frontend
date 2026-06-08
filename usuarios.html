@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: usuarios.html
     Fecha: 2026-06-07
-    Versión: v1.0.0 Beta User Management
+    Versión: v1.0.1 🔐 Guardia Admin Real
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -14,7 +14,7 @@
       pronósticos y puntos acumulados. Versión mobile-first con datos demo/fallback,
       preparada para conexión posterior con Supabase Analytics y protección admin.
     Líneas versión anterior: 0
-    Líneas versión nueva: 613
+    Líneas versión nueva: 360
   -->
 
   <meta charset="UTF-8" />
@@ -26,6 +26,17 @@
   <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
+  <script>
+    document.documentElement.classList.add("admin-guard-pending");
+  </script>
+
+  <style>
+    html.admin-guard-pending{
+      visibility:hidden;
+      opacity:0;
+    }
+  </style>
 
   <style>
     :root {
@@ -219,6 +230,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite">Usuarios actualizados.</div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/admin-guard.js"></script>
+
   <script>
     const demoUsers = [
       { alias: "ElTigre", name: "Carlos Rivera", email: "eltigre@predikt.demo", registered: "06 Jun", lastAccess: "Hoy", predictions: 12, points: 98, status: "active", founder: true },
@@ -323,8 +337,16 @@
       });
     });
     refreshBtn.addEventListener("click", () => { renderKpis(); renderUsers(); showToast("Usuarios actualizados."); });
-    renderKpis();
-    renderUsers();
+    async function initializeUsersAdmin(){
+      const ok = await window.PrediktAdminGuard.requireAdminAccess();
+      if(!ok){ return; }
+
+      document.documentElement.classList.remove("admin-guard-pending");
+      renderKpis();
+      renderUsers();
+    }
+
+    initializeUsersAdmin();
   </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
@@ -336,4 +358,3 @@
   </nav>
 </body>
 </html>
-
