@@ -2,7 +2,7 @@
 ===============================================================================
 Archivo: admin-guard.js
 Proyecto: PREDIKT™
-Versión: 1.0.0
+Versión: 1.0.1
 Fecha: 2026-06-08
 Elaborado por: JVSys
 Descripción:
@@ -56,7 +56,7 @@ Nota importante:
   const SUPABASE_URL = "https://bhsffngulgvwfzjhiymy.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
 
-  const LOGIN_PAGE = "login.html";
+  const LOGIN_PAGE = "admin-login.html";
   const UNAUTHORIZED_MESSAGE = "Acceso administrativo no autorizado.";
 
   const ALLOWED_ROLES = ["master_admin", "super_admin", "admin", "directivo"];
@@ -253,4 +253,3 @@ Nota importante:
     getSupabaseClient
   };
 })();
-
