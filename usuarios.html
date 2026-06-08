@@ -1,1 +1,339 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: usuarios.html
+    Fecha: 2026-06-07
+    Versión: v1.0.0 Beta User Management
+    Fabricante: JVSys™
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla administrativa de usuarios para Beta Pública PREDIKT™.
+      Conecta desde el Centro de Lanzamiento mediante el botón 👥 Usuarios.
+      Permite visualizar KPIs, buscar usuarios, revisar estado, actividad,
+      pronósticos y puntos acumulados. Versión mobile-first con datos demo/fallback,
+      preparada para conexión posterior con Supabase Analytics y protección admin.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 613
+  -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Usuarios</title>
+  <meta name="description" content="Administración Beta de usuarios PREDIKT™." />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-deep: #020b13;
+      --bg-card: #0f2740;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --green: #48f29a;
+      --blue: #5dade2;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --footer-height: 82px;
+      --app-max: 1180px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: var(--bg-main); }
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.42;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.14), transparent 26%),
+        radial-gradient(circle at top right, rgba(72, 242, 154, 0.11), transparent 23%),
+        linear-gradient(145deg, #061826 0%, #04111d 50%, #020b13 100%);
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 18px);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+
+    .app-shell { width: min(100%, var(--app-max)); margin: 0 auto; padding: 18px 14px 0; }
+    .app-header {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin: -18px -14px 14px; padding: 15px 14px 12px;
+      background: linear-gradient(180deg, rgba(6,24,38,.98), rgba(6,24,38,.88)), rgba(6,24,38,.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .brand { display: inline-flex; align-items: center; gap: 9px; min-width: 0; }
+    .brand-logo { width: 34px; height: 34px; border-radius: 12px; object-fit: contain; background: rgba(255,255,255,.04); }
+    .brand-text { display: grid; gap: 1px; min-width: 0; }
+    .brand-name { font-size: .95rem; font-weight: 980; letter-spacing: .08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: .64rem; font-weight: 820; white-space: nowrap; }
+    .header-actions { display: inline-flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 15px;
+      color: var(--text-main); background: rgba(255,255,255,.065); border: 1px solid rgba(255,255,255,.095);
+      font-size: 1rem;
+    }
+    .admin-pill {
+      min-height: 38px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 999px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: .72rem; font-weight: 980; letter-spacing: .04em; text-transform: uppercase;
+      box-shadow: 0 10px 24px rgba(245,185,66,.25); white-space: nowrap;
+    }
+
+    .hero-card {
+      position: relative; overflow: hidden; border: 1px solid rgba(245,185,66,.30); border-radius: var(--radius-xl);
+      background: radial-gradient(circle at 100% 0%, rgba(245,185,66,.20), transparent 34%), linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+      padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px;
+    }
+    .hero-card::after {
+      content: ""; position: absolute; right: -20px; top: -26px; width: 132px; height: 132px;
+      background: url("assets/logos/predikt-logo.png") center / contain no-repeat; opacity: .08; transform: rotate(12deg); pointer-events: none;
+    }
+    .hero-kicker { color: var(--gold); font-size: .70rem; font-weight: 980; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+    .hero-title { position: relative; z-index: 1; font-size: clamp(1.35rem,5.2vw,2.15rem); font-weight: 980; line-height: 1; letter-spacing: -.04em; margin-bottom: 8px; }
+    .hero-copy { position: relative; z-index: 1; color: var(--text-soft); max-width: 680px; font-size: .82rem; font-weight: 760; }
+
+    .kpi-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+    .kpi-card {
+      position: relative; overflow: hidden; min-height: 124px; border-radius: var(--radius-lg); border: 1px solid var(--border);
+      background: rgba(15,39,64,.86); padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.21); display: grid; align-content: space-between;
+    }
+    .kpi-card::after { content: attr(data-icon); position: absolute; right: 15px; top: 10px; font-size: 2rem; opacity: .20; }
+    .kpi-label { color: var(--text-soft); font-size: .72rem; font-weight: 940; letter-spacing: .07em; text-transform: uppercase; }
+    .kpi-value { font-size: clamp(2.2rem,10vw,4rem); font-weight: 980; line-height: .92; letter-spacing: -.06em; margin: 9px 0 6px; }
+    .blue { color: var(--blue); } .green { color: var(--green); } .gold { color: var(--gold); } .orange { color: var(--orange); }
+    .kpi-sub { color: var(--text-muted); font-size: .66rem; font-weight: 820; }
+
+    .toolbar { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+    .search-box {
+      width: 100%; min-height: 46px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px;
+      background: rgba(15,39,64,.86); color: var(--text-main); padding: 0 16px; outline: none;
+      box-shadow: 0 10px 28px rgba(0,0,0,.16);
+    }
+    .search-box::placeholder { color: var(--text-muted); }
+    .filter-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .filter-chip {
+      min-height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
+      color: var(--text-main); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      font-size: .68rem; font-weight: 920; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .filter-chip.active { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+
+    .users-panel { border: 1px solid var(--border); border-radius: var(--radius-xl); background: rgba(15,39,64,.82); padding: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.22); margin-bottom: 12px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 10px; }
+    .section-title { font-size: .78rem; font-weight: 980; letter-spacing: .08em; text-transform: uppercase; }
+    .section-link { color: var(--gold); font-size: .7rem; font-weight: 950; }
+    .user-list { display: grid; gap: 8px; }
+    .user-row { display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: center; border-radius: var(--radius-md); background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.085); padding: 11px; }
+    .avatar { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); font-size: .86rem; font-weight: 980; }
+    .user-main { min-width: 0; display: grid; gap: 8px; }
+    .user-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .user-name { font-size: .9rem; font-weight: 960; line-height: 1.1; }
+    .user-email { color: var(--text-muted); font-size: .64rem; font-weight: 760; margin-top: 2px; overflow-wrap: anywhere; }
+    .status-pill { min-height: 28px; display: inline-flex; align-items: center; justify-content: center; padding: 0 9px; border-radius: 999px; font-size: .58rem; font-weight: 980; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+    .status-active { color: #061826; background: linear-gradient(135deg, var(--green), #8cffc4); }
+    .status-new { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .status-idle { color: var(--text-soft); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
+    .user-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+    .metric { border-radius: 14px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.08); padding: 8px 6px; text-align: center; }
+    .metric strong { display: block; font-size: .82rem; font-weight: 980; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+    .metric span { display: block; color: var(--text-muted); font-size: .54rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+    .user-actions { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+    .action-btn { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: var(--text-main); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); font-size: .64rem; font-weight: 920; text-transform: uppercase; letter-spacing: .03em; }
+    .action-btn.primary { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .admin-note { margin-top: 12px; border: 1px dashed rgba(245,185,66,.28); border-radius: var(--radius-lg); background: rgba(245,185,66,.08); padding: 12px; color: var(--text-soft); font-size: .70rem; font-weight: 790; }
+    .toast { position: fixed; left: 50%; bottom: calc(var(--footer-height) + 18px); transform: translateX(-50%) translateY(20px); z-index: 60; width: min(calc(100% - 28px), 560px); border: 1px solid rgba(72,242,154,.34); border-radius: 18px; background: rgba(7,28,46,.98); color: var(--text-main); padding: 13px 15px; box-shadow: 0 14px 36px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; font-size: .83rem; font-weight: 830; text-align: center; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .app-footer { position: fixed; left: 50%; bottom: 0; z-index: 40; width: min(100%,560px); transform: translateX(-50%); display: grid; grid-template-columns: repeat(5,1fr); gap: 4px; padding: 9px 10px 11px; border: 1px solid rgba(255,255,255,.11); border-bottom: 0; border-radius: 24px 24px 0 0; background: rgba(4,17,29,.97); backdrop-filter: blur(18px); box-shadow: 0 -12px 34px rgba(0,0,0,.34); }
+    .footer-item { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; padding: 7px 4px; color: var(--text-muted); font-size: .58rem; font-weight: 880; gap: 3px; }
+    .footer-item span { font-size: 1rem; line-height: 1; }
+    .footer-item.active { color: var(--gold); background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); }
+    @media (min-width:640px) { .kpi-grid { grid-template-columns: repeat(4,1fr); } .toolbar { grid-template-columns: 1.4fr 1fr; align-items: center; } }
+    @media (min-width:900px) { .app-shell { padding: 22px 18px 0; } .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; } .user-row { grid-template-columns: auto 1fr 260px; } .user-actions { align-self: stretch; align-content: center; } }
+    @media (max-width:520px) { .filter-row, .user-metrics, .user-actions { grid-template-columns: 1fr; } .user-topline { flex-direction: column; } .status-pill { width: fit-content; } }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado PREDIKT Usuarios">
+      <a class="brand" href="dashboard-admin.html" aria-label="Volver al Centro de Lanzamiento">
+        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">👥 Usuarios</small>
+        </span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar usuarios">↻</button>
+        <a class="admin-pill" href="dashboard-admin.html">Centro</a>
+      </div>
+    </header>
+
+    <section class="hero-card" aria-label="Administración de usuarios">
+      <p class="hero-kicker">👥 PREDIKT™ · Administración Beta</p>
+      <h1 class="hero-title">Usuarios PREDIKT™</h1>
+      <p class="hero-copy">Monitorea registros, actividad, pronósticos, puntos y estado de usuarios durante la Beta Pública.</p>
+    </section>
+
+    <section class="kpi-grid" aria-label="KPIs de usuarios">
+      <article class="kpi-card" data-icon="👥"><p class="kpi-label">Usuarios Totales</p><p class="kpi-value blue" id="totalUsers">6</p><p class="kpi-sub">Base inicial Beta.</p></article>
+      <article class="kpi-card" data-icon="🟢"><p class="kpi-label">Activos 7 Días</p><p class="kpi-value green" id="activeUsers">3</p><p class="kpi-sub">Con actividad reciente.</p></article>
+      <article class="kpi-card" data-icon="🎯"><p class="kpi-label">Con Pronósticos</p><p class="kpi-value gold" id="usersWithPredictions">4</p><p class="kpi-sub">Ya participaron.</p></article>
+      <article class="kpi-card" data-icon="💎"><p class="kpi-label">Fundadores</p><p class="kpi-value orange" id="founderUsers">1</p><p class="kpi-sub">Registrados como fundadores.</p></article>
+    </section>
+
+    <section class="toolbar" aria-label="Búsqueda y filtros">
+      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por alias, nombre o correo..." />
+      <div class="filter-row">
+        <button class="filter-chip active" type="button" data-filter="all">Todos</button>
+        <button class="filter-chip" type="button" data-filter="active">Activos</button>
+        <button class="filter-chip" type="button" data-filter="idle">Sin actividad</button>
+      </div>
+    </section>
+
+    <section class="users-panel" aria-label="Listado de usuarios">
+      <div class="section-head"><h2 class="section-title">Listado Beta</h2><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div>
+      <div class="user-list" id="userList"></div>
+    </section>
+
+    <p class="admin-note">Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta usuarios reales desde Supabase y protección por rol administrador.</p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Usuarios actualizados.</div>
+
+  <script>
+    const demoUsers = [
+      { alias: "ElTigre", name: "Carlos Rivera", email: "eltigre@predikt.demo", registered: "06 Jun", lastAccess: "Hoy", predictions: 12, points: 98, status: "active", founder: true },
+      { alias: "Pey", name: "Pey", email: "pey@predikt.demo", registered: "06 Jun", lastAccess: "Hoy", predictions: 10, points: 92, status: "active", founder: false },
+      { alias: "Javier", name: "Javier", email: "javier@predikt.demo", registered: "05 Jun", lastAccess: "Ayer", predictions: 9, points: 89, status: "active", founder: false },
+      { alias: "GolMaster", name: "Gol Master", email: "golmaster@predikt.demo", registered: "05 Jun", lastAccess: "Hace 3 días", predictions: 4, points: 41, status: "new", founder: false },
+      { alias: "FutboleroMX", name: "Futbolero MX", email: "futbolero@predikt.demo", registered: "04 Jun", lastAccess: "Sin acceso", predictions: 0, points: 0, status: "idle", founder: false },
+      { alias: "LaQuiniela", name: "La Quiniela", email: "quiniela@predikt.demo", registered: "04 Jun", lastAccess: "Sin acceso", predictions: 0, points: 0, status: "idle", founder: false }
+    ];
+
+    const userList = document.getElementById("userList");
+    const searchInput = document.getElementById("searchInput");
+    const filterButtons = document.querySelectorAll("[data-filter]");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const toast = document.getElementById("toast");
+    let activeFilter = "all";
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function statusLabel(status) {
+      if (status === "active") return { label: "🟢 Activo", className: "status-active" };
+      if (status === "new") return { label: "🟡 Nuevo", className: "status-new" };
+      return { label: "⚪ Sin actividad", className: "status-idle" };
+    }
+
+    function initials(alias) { return String(alias || "U").slice(0, 2).toUpperCase(); }
+
+    function userMatches(user, query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return true;
+      return [user.alias, user.name, user.email].some((value) => String(value || "").toLowerCase().includes(q));
+    }
+
+    function filterMatches(user) {
+      if (activeFilter === "all") return true;
+      if (activeFilter === "active") return user.status === "active" || user.status === "new";
+      if (activeFilter === "idle") return user.status === "idle";
+      return true;
+    }
+
+    function renderUsers() {
+      const query = searchInput.value || "";
+      const rows = demoUsers.filter((user) => userMatches(user, query) && filterMatches(user));
+      if (!rows.length) {
+        userList.innerHTML = '<div class="user-row"><div class="avatar">--</div><div class="user-main"><p class="user-name">Sin resultados</p><p class="user-email">Ajusta búsqueda o filtros.</p></div></div>';
+        return;
+      }
+      userList.innerHTML = rows.map((user) => {
+        const status = statusLabel(user.status);
+        return `
+          <article class="user-row">
+            <div class="avatar">${initials(user.alias)}</div>
+            <div class="user-main">
+              <div class="user-topline">
+                <div><p class="user-name">${user.alias}</p><p class="user-email">${user.name} · ${user.email}</p></div>
+                <span class="status-pill ${status.className}">${status.label}</span>
+              </div>
+              <div class="user-metrics">
+                <div class="metric"><strong>${user.registered}</strong><span>Registro</span></div>
+                <div class="metric"><strong>${user.lastAccess}</strong><span>Acceso</span></div>
+                <div class="metric"><strong>${user.predictions}</strong><span>Pronósticos</span></div>
+                <div class="metric"><strong>${user.points}</strong><span>Puntos</span></div>
+              </div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn primary" type="button" data-action="view" data-user="${user.alias}">👁 Ver</button>
+              <button class="action-btn" type="button" data-action="predictions" data-user="${user.alias}">🏆 Picks</button>
+              <button class="action-btn" type="button" data-action="block" data-user="${user.alias}">🚫 Bloquear</button>
+            </div>
+          </article>`;
+      }).join("");
+      document.querySelectorAll("[data-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const user = button.dataset.user;
+          const action = button.dataset.action;
+          if (action === "view") showToast(`Vista de ${user} preparada para detalle futuro.`);
+          if (action === "predictions") showToast(`Pronósticos de ${user} preparados para módulo futuro.`);
+          if (action === "block") showToast(`Bloqueo de ${user} requiere confirmación admin futura.`);
+        });
+      });
+    }
+
+    function renderKpis() {
+      document.getElementById("totalUsers").textContent = demoUsers.length;
+      document.getElementById("activeUsers").textContent = demoUsers.filter((user) => user.status === "active").length;
+      document.getElementById("usersWithPredictions").textContent = demoUsers.filter((user) => user.predictions > 0).length;
+      document.getElementById("founderUsers").textContent = demoUsers.filter((user) => user.founder).length;
+    }
+
+    searchInput.addEventListener("input", renderUsers);
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        filterButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        renderUsers();
+      });
+    });
+    refreshBtn.addEventListener("click", () => { renderKpis(); renderUsers(); showToast("Usuarios actualizados."); });
+    renderKpis();
+    renderUsers();
+  </script>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item active" href="perfil.html" aria-current="page"><span>👤</span>Perfil</a>
+  </nav>
+</body>
+</html>
 
