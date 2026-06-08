@@ -1,1 +1,871 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: pronosticos-admin.html
+    Fecha: 2026-06-07
+    Versión: v1.0.0 Predictions Management
+    Fabricante: JVSys™
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla administrativa para monitoreo de pronósticos PREDIKT™ durante Beta Pública.
+      Permite revisar KPIs, actividad reciente, top pronosticadores, partidos más
+      pronosticados, buscador y acciones rápidas. Versión mobile-first con datos
+      demo/fallback, preparada para conexión posterior con Supabase Analytics y
+      protección por rol administrador.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 718
+  -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PREDIKT™ | Pronósticos Admin</title>
+  <meta name="description" content="Administración de pronósticos PREDIKT™." />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-deep: #020b13;
+      --bg-card: #0f2740;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --green: #48f29a;
+      --blue: #5dade2;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --footer-height: 82px;
+      --app-max: 1180px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: var(--bg-main); }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.42;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.14), transparent 26%),
+        radial-gradient(circle at top right, rgba(72, 242, 154, 0.11), transparent 23%),
+        linear-gradient(145deg, #061826 0%, #04111d 50%, #020b13 100%);
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 18px);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+
+    .app-shell {
+      width: min(100%, var(--app-max));
+      margin: 0 auto;
+      padding: 18px 14px 0;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: -18px -14px 14px;
+      padding: 15px 14px 12px;
+      background:
+        linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88)),
+        rgba(6, 24, 38, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    }
+
+    .brand-text { display: grid; gap: 1px; min-width: 0; }
+    .brand-name { font-size: 0.95rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 0.64rem; font-weight: 820; white-space: nowrap; }
+
+    .header-actions { display: inline-flex; align-items: center; gap: 8px; }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.065);
+      border: 1px solid rgba(255, 255, 255, 0.095);
+      font-size: 1rem;
+    }
+
+    .admin-pill {
+      min-height: 38px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 24px rgba(245, 185, 66, 0.25);
+      white-space: nowrap;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245, 185, 66, 0.30);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.20), transparent 34%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: -26px;
+      width: 132px;
+      height: 132px;
+      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
+      opacity: 0.08;
+      transform: rotate(12deg);
+      pointer-events: none;
+    }
+
+    .hero-kicker {
+      color: var(--gold);
+      font-size: 0.70rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .hero-title {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(1.35rem, 5.2vw, 2.15rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      color: var(--text-soft);
+      max-width: 760px;
+      font-size: 0.82rem;
+      font-weight: 760;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 124px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(15, 39, 64, 0.86);
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.21);
+      display: grid;
+      align-content: space-between;
+    }
+
+    .kpi-card::after {
+      content: attr(data-icon);
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 2rem;
+      opacity: 0.20;
+    }
+
+    .kpi-label {
+      color: var(--text-soft);
+      font-size: 0.72rem;
+      font-weight: 940;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      font-size: clamp(2.2rem, 10vw, 4rem);
+      font-weight: 980;
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      margin: 9px 0 6px;
+    }
+
+    .blue { color: var(--blue); }
+    .green { color: var(--green); }
+    .gold { color: var(--gold); }
+    .orange { color: var(--orange); }
+
+    .kpi-sub {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 820;
+    }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .panel-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+      margin-bottom: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 2px 10px;
+    }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 950;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .search-box {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(15, 39, 64, 0.86);
+      color: var(--text-main);
+      padding: 0 16px;
+      outline: none;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+    }
+
+    .search-box::placeholder { color: var(--text-muted); }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .filter-chip {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.68rem;
+      font-weight: 920;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .filter-chip.active {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      border-color: rgba(245, 185, 66, 0.32);
+    }
+
+    .list-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .ranking-list,
+    .matches-list,
+    .prediction-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.085);
+      padding: 10px;
+    }
+
+    .badge {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.8rem;
+      font-weight: 980;
+    }
+
+    .row-title {
+      font-size: 0.84rem;
+      font-weight: 960;
+      line-height: 1.1;
+    }
+
+    .row-sub {
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 780;
+      margin-top: 3px;
+    }
+
+    .row-score {
+      color: var(--green);
+      font-size: 0.82rem;
+      font-weight: 980;
+      white-space: nowrap;
+    }
+
+    .prediction-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 11px;
+      align-items: center;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.085);
+      padding: 11px;
+    }
+
+    .prediction-main {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .prediction-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .status-pill {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 0.58rem;
+      font-weight: 980;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+    }
+
+    .prediction-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .metric {
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 980;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.54rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .admin-note {
+      margin-top: 12px;
+      border: 1px dashed rgba(245, 185, 66, 0.28);
+      border-radius: var(--radius-lg);
+      background: rgba(245, 185, 66, 0.08);
+      padding: 12px;
+      color: var(--text-soft);
+      font-size: 0.70rem;
+      font-weight: 790;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 18px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 60;
+      width: min(calc(100% - 28px), 560px);
+      border: 1px solid rgba(72, 242, 154, 0.34);
+      border-radius: 18px;
+      background: rgba(7, 28, 46, 0.98);
+      color: var(--text-main);
+      padding: 13px 15px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.83rem;
+      font-weight: 830;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 40;
+      width: min(100%, 560px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4, 17, 29, 0.97);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+
+    .footer-item span { font-size: 1rem; line-height: 1; }
+
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+    }
+
+    @media (min-width: 640px) {
+      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+      .toolbar { grid-template-columns: 1.4fr 1fr; align-items: center; }
+      .activity-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (min-width: 900px) {
+      .app-shell { padding: 22px 18px 0; }
+      .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; }
+      .list-grid { grid-template-columns: 1fr 1fr; }
+      .prediction-row { grid-template-columns: auto 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      .filter-row,
+      .prediction-metrics { grid-template-columns: 1fr; }
+      .prediction-top { flex-direction: column; }
+      .status-pill { width: fit-content; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado PREDIKT Pronósticos Admin">
+      <a class="brand" href="dashboard-admin.html" aria-label="Volver al Centro de Lanzamiento">
+        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">🎯 Pronósticos Admin</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar pronósticos">↻</button>
+        <a class="admin-pill" href="dashboard-admin.html">Centro</a>
+      </div>
+    </header>
+
+    <section class="hero-card" aria-label="Administración de pronósticos">
+      <p class="hero-kicker">🎯 PREDIKT™ · Administración Beta</p>
+      <h1 class="hero-title">Pronósticos Admin</h1>
+      <p class="hero-copy">
+        Monitorea volumen de pronósticos, partidos con mayor interés, usuarios más activos y actividad de las últimas 24 horas.
+      </p>
+    </section>
+
+    <section class="kpi-grid" aria-label="KPIs de pronósticos">
+      <article class="kpi-card" data-icon="🎯">
+        <p class="kpi-label">Pronósticos Totales</p>
+        <p class="kpi-value green" id="totalPredictions">3251</p>
+        <p class="kpi-sub">Acumulado Beta.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="📅">
+        <p class="kpi-label">Hoy</p>
+        <p class="kpi-value gold" id="todayPredictions">89</p>
+        <p class="kpi-sub">Actividad del día.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="📈">
+        <p class="kpi-label">Semana</p>
+        <p class="kpi-value blue" id="weekPredictions">642</p>
+        <p class="kpi-sub">Últimos 7 días.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="👤">
+        <p class="kpi-label">Promedio Usuario</p>
+        <p class="kpi-value orange" id="avgPredictions">7.2</p>
+        <p class="kpi-sub">Pronósticos por usuario.</p>
+      </article>
+    </section>
+
+    <section class="activity-grid" aria-label="Actividad rápida">
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">⏱ Actividad 24h</h2>
+        </div>
+        <p class="kpi-value gold" style="font-size:2rem;">Alta</p>
+        <p class="kpi-sub">89 pronósticos registrados hoy.</p>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🔥 Partido caliente</h2>
+        </div>
+        <p class="row-title">🇲🇽 México vs Japón</p>
+        <p class="kpi-sub">124 pronósticos.</p>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🏆 Usuario activo</h2>
+        </div>
+        <p class="row-title">💎 ElTigre</p>
+        <p class="kpi-sub">12 pronósticos · 98 pts.</p>
+      </article>
+    </section>
+
+    <section class="toolbar" aria-label="Búsqueda y filtros">
+      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por usuario, partido o pronóstico..." />
+      <div class="filter-row">
+        <button class="filter-chip active" type="button" data-filter="all">Todos</button>
+        <button class="filter-chip" type="button" data-filter="today">Hoy</button>
+        <button class="filter-chip" type="button" data-filter="hot">Populares</button>
+      </div>
+    </section>
+
+    <section class="list-grid" aria-label="Resumen de pronósticos">
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🏆 Top Pronosticadores</h2>
+          <a class="section-link" href="usuarios.html">Usuarios</a>
+        </div>
+
+        <div class="ranking-list" id="topUsersList"></div>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">⚽ Partidos Más Pronosticados</h2>
+          <a class="section-link" href="pronostico.html">Ver pronósticos</a>
+        </div>
+
+        <div class="matches-list" id="topMatchesList"></div>
+      </article>
+    </section>
+
+    <section class="panel-card" aria-label="Últimos pronósticos">
+      <div class="section-head">
+        <h2 class="section-title">Últimos Pronósticos</h2>
+        <a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a>
+      </div>
+
+      <div class="prediction-list" id="predictionList"></div>
+    </section>
+
+    <p class="admin-note">
+      Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta pronósticos reales desde Supabase y protección por rol administrador.
+    </p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Pronósticos actualizados.</div>
+
+  <script>
+    const topUsers = [
+      { name: "💎 ElTigre", detail: "12 pronósticos · Racha perfecta", score: "98 pts" },
+      { name: "Pey", detail: "10 pronósticos · Subiendo rápido", score: "92 pts" },
+      { name: "Javier", detail: "9 pronósticos · Consistente", score: "89 pts" }
+    ];
+
+    const topMatches = [
+      { match: "🇲🇽 México vs Japón", detail: "Partido con mayor intención", count: 124 },
+      { match: "🇧🇷 Brasil vs España", detail: "Alto interés competitivo", count: 98 },
+      { match: "🇦🇷 Argentina vs Alemania", detail: "Clásico de alta tracción", count: 77 }
+    ];
+
+    const predictions = [
+      { user: "💎 ElTigre", match: "México vs Japón", pick: "México gana", time: "Hoy", points: "Pendiente", type: "today" },
+      { user: "Pey", match: "Brasil vs España", pick: "Empate", time: "Hoy", points: "Pendiente", type: "today" },
+      { user: "Javier", match: "Argentina vs Alemania", pick: "Argentina gana", time: "Hoy", points: "Pendiente", type: "today" },
+      { user: "GolMaster", match: "Francia vs Inglaterra", pick: "Francia gana", time: "Ayer", points: "Pendiente", type: "hot" },
+      { user: "FutboleroMX", match: "Portugal vs Italia", pick: "Portugal gana", time: "Ayer", points: "Pendiente", type: "hot" }
+    ];
+
+    const searchInput = document.getElementById("searchInput");
+    const filterButtons = document.querySelectorAll("[data-filter]");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const toast = document.getElementById("toast");
+    let activeFilter = "all";
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      toast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function renderTopUsers() {
+      const list = document.getElementById("topUsersList");
+      list.innerHTML = topUsers.map((row, index) => `
+        <div class="data-row">
+          <span class="badge">${index + 1}</span>
+          <div>
+            <p class="row-title">${row.name}</p>
+            <p class="row-sub">${row.detail}</p>
+          </div>
+          <strong class="row-score">${row.score}</strong>
+        </div>
+      `).join("");
+    }
+
+    function renderTopMatches() {
+      const list = document.getElementById("topMatchesList");
+      list.innerHTML = topMatches.map((row, index) => `
+        <div class="data-row">
+          <span class="badge">${index + 1}</span>
+          <div>
+            <p class="row-title">${row.match}</p>
+            <p class="row-sub">${row.detail}</p>
+          </div>
+          <strong class="row-score">${row.count}</strong>
+        </div>
+      `).join("");
+    }
+
+    function predictionMatches(row, query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return true;
+      return [row.user, row.match, row.pick, row.time].some((value) => String(value || "").toLowerCase().includes(q));
+    }
+
+    function filterMatches(row) {
+      if (activeFilter === "all") return true;
+      if (activeFilter === "today") return row.type === "today";
+      if (activeFilter === "hot") return row.type === "hot";
+      return true;
+    }
+
+    function renderPredictions() {
+      const query = searchInput.value || "";
+      const rows = predictions.filter((row) => predictionMatches(row, query) && filterMatches(row));
+
+      if (!rows.length) {
+        document.getElementById("predictionList").innerHTML = `
+          <div class="prediction-row">
+            <span class="badge">--</span>
+            <div class="prediction-main">
+              <p class="row-title">Sin resultados</p>
+              <p class="row-sub">Ajusta búsqueda o filtros.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      document.getElementById("predictionList").innerHTML = rows.map((row) => `
+        <article class="prediction-row">
+          <span class="badge">🎯</span>
+          <div class="prediction-main">
+            <div class="prediction-top">
+              <div>
+                <p class="row-title">${row.user}</p>
+                <p class="row-sub">${row.match}</p>
+              </div>
+              <span class="status-pill">${row.time}</span>
+            </div>
+
+            <div class="prediction-metrics">
+              <div class="metric">
+                <strong>${row.pick}</strong>
+                <span>Pronóstico</span>
+              </div>
+              <div class="metric">
+                <strong>${row.points}</strong>
+                <span>Puntos</span>
+              </div>
+              <div class="metric">
+                <strong>${row.time}</strong>
+                <span>Registro</span>
+              </div>
+              <div class="metric">
+                <strong>Activo</strong>
+                <span>Estado</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        filterButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        renderPredictions();
+      });
+    });
+
+    searchInput.addEventListener("input", renderPredictions);
+
+    refreshBtn.addEventListener("click", () => {
+      renderTopUsers();
+      renderTopMatches();
+      renderPredictions();
+      showToast("Pronósticos actualizados.");
+    });
+
+    renderTopUsers();
+    renderTopMatches();
+    renderPredictions();
+  </script>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html">
+      <span>🏠</span>
+      Inicio
+    </a>
+
+    <a class="footer-item" href="mi-quiniela.html">
+      <span>⚽</span>
+      Quiniela
+    </a>
+
+    <a class="footer-item" href="pronostico.html">
+      <span>🎯</span>
+      Pronósticos
+    </a>
+
+    <a class="footer-item" href="ranking.html">
+      <span>🏆</span>
+      Ranking
+    </a>
+
+    <a class="footer-item active" href="perfil.html" aria-current="page">
+      <span>👤</span>
+      Perfil
+    </a>
+  </nav>
+</body>
+</html>
 
