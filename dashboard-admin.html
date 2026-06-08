@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: dashboard-admin.html
     Fecha: 2026-06-08
-    Versión: v1.0.2 🔐 Guardia Admin Real
+    Versión: v1.0.3 🔐 Admin Guard + Campaña Diferida
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -15,6 +15,9 @@
       valida sesión activa antes de ejecutar el dashboard y conserva branding
       oficial PREDIKT™ con favicon/logo oficial.
       Mantiene KPIs, acciones rápidas, datos fallback y conexión REST existente.
+      Retira temporalmente el botón CAMPAÑA del Centro de Lanzamiento para
+      mantener enfoque operativo del MVP. Campaña queda pendiente por redefinir
+      como WAR ROOM PREDIKT™ posterior al lanzamiento.
     Líneas versión anterior: 1200
     Líneas versión nueva: 1241
   -->
@@ -737,12 +740,12 @@
       <div class="section-head">
         <h2 class="section-title">⚡ Acciones Rápidas</h2>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
         <a href="usuarios.html" class="admin-pill" style="text-decoration:none;">👥 Usuarios</a>
         <a href="partidos-admin.html" class="admin-pill" style="text-decoration:none;">⚽ Partidos</a>
         <a href="pronosticos-admin.html" class="admin-pill" style="text-decoration:none;">🎯 Pronósticos</a>
         <a href="fundadores.html" class="admin-pill" style="text-decoration:none;">💎 Fundadores</a>
-        <a href="marketing.html" class="admin-pill" style="text-decoration:none;">📢 Campaña</a>
+        <!-- CAMPAÑA DIFERIDA: pendiente redefinir como WAR ROOM PREDIKT™ post-lanzamiento -->
       </div>
     </section>
 
