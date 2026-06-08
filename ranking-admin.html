@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: ranking-admin.html
     Fecha: 2026-06-07
-    Versión: v1.0.0 Rankings Management
+    Versión: v1.0.1 Rankings Management + Admin Guard
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -27,6 +27,17 @@
   <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
+  <script>
+    document.documentElement.classList.add("admin-guard-pending");
+  </script>
+
+  <style>
+    html.admin-guard-pending{
+      visibility:hidden;
+      opacity:0;
+    }
+  </style>
 
   <style>
     :root {
@@ -677,6 +688,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite">Ranking actualizado.</div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/admin-guard.js"></script>
+
   <script>
     const movements = [
       { title: "GolMaster", detail: "Subió 7 posiciones", score: "+7" },
@@ -821,9 +835,18 @@
       showToast("Ranking actualizado.");
     });
 
-    renderSimpleRows("movementList", movements);
-    renderSimpleRows("accuracyList", accuracy);
-    renderRanking();
+    async function initializeRankingAdmin(){
+      const ok = await window.PrediktAdminGuard.requireAdminAccess();
+      if(!ok){ return; }
+
+      document.documentElement.classList.remove("admin-guard-pending");
+
+      renderSimpleRows("movementList", movements);
+      renderSimpleRows("accuracyList", accuracy);
+      renderRanking();
+    }
+
+    initializeRankingAdmin();
   </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
@@ -854,4 +877,3 @@
   </nav>
 </body>
 </html>
-
