@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: admin-login.html
     Fecha: 2026-06-07
-    Versión: v1.0.0 Secure Admin Access
+    Versión: v1.0.1 Auth Hardening
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -427,6 +427,7 @@
     const ADMIN_BETA_PIN = "2607";
     const ADMIN_SESSION_KEY = "predikt_admin_beta_session";
     const ADMIN_SESSION_TTL_MS = 1000 * 60 * 60 * 6;
+    const ADMIN_LAST_PAGE_KEY = "predikt_admin_last_page";
 
     const pinInput = document.getElementById("adminPin");
     const loginBtn = document.getElementById("loginBtn");
@@ -456,7 +457,17 @@
 
       if (!pin) {
         setStatus("Ingresa el PIN administrativo.", "error");
-        pinInput.focus();
+        try {
+      const existing = JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || "null");
+
+      if(existing && existing.ok && existing.expiresAt > Date.now()){
+        window.location.href =
+          localStorage.getItem(ADMIN_LAST_PAGE_KEY) ||
+          "dashboard-admin.html";
+      }
+    } catch(e){}
+
+    pinInput.focus();
         return;
       }
 
@@ -468,6 +479,8 @@
 
       createAdminSession();
       setStatus("Acceso autorizado. Abriendo Centro de Lanzamiento...", "ok");
+
+      window.localStorage.setItem(ADMIN_LAST_PAGE_KEY,"dashboard-admin.html");
 
       window.setTimeout(() => {
         window.location.href = "dashboard-admin.html";
@@ -481,6 +494,16 @@
         validatePin();
       }
     });
+
+    try {
+      const existing = JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || "null");
+
+      if(existing && existing.ok && existing.expiresAt > Date.now()){
+        window.location.href =
+          localStorage.getItem(ADMIN_LAST_PAGE_KEY) ||
+          "dashboard-admin.html";
+      }
+    } catch(e){}
 
     pinInput.focus();
   </script>
@@ -513,4 +536,3 @@
   </nav>
 </body>
 </html>
-
