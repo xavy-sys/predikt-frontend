@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.3.1 Pronóstico Claro + Progreso MVP
+    Versión: v5.3.2 Auto Guardado + Siguiente Partido MVP
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -24,8 +24,10 @@
       Mejora claridad UX del pronóstico: pregunta explícita de ganador, botones
       con texto 'Gana', avance 1/72, pendientes, aviso de cierre y confirmación
       humana al guardar.
+      Elimina el botón GUARDAR PRONÓSTICO. Ahora tocar una opción guarda
+      automáticamente el pronóstico y muestra acción SIGUIENTE PARTIDO.
     Líneas versión anterior: 1250
-    Líneas versión nueva: 1391
+    Líneas versión nueva: 1482
   -->
 
   <meta charset="UTF-8" />
@@ -554,6 +556,28 @@
       box-shadow: 0 14px 30px rgba(72, 242, 154, 0.24);
     }
 
+
+    .next-match-action {
+      min-height: 46px;
+      width: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.78rem;
+      font-weight: 980;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 12px 28px rgba(245, 185, 66, 0.20);
+      margin-top: 10px;
+    }
+
+    .next-match-action.show {
+      display: inline-flex;
+    }
+
     .cards-list {
       display: grid;
       gap: 9px;
@@ -1060,7 +1084,7 @@
           <button class="prediction-choice" type="button" data-prediction="Sudáfrica" data-kind="away" id="awayPredictionChoice">🏆 Gana Sudáfrica</button>
         </div>
 
-        <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
+        <button class="next-match-action" id="nextMatchBtn" type="button">Siguiente partido ▶</button>
         <p class="prediction-note" id="predictionDeadlineNote">⏰ Puedes modificar tu elección hasta el inicio del partido.</p>
       </article>
     </section>
@@ -1180,8 +1204,35 @@
 
     const toast = document.getElementById("toast");
     const predictionButtons = document.querySelectorAll("[data-prediction]");
-    const savePredictionBtn = document.getElementById("savePredictionBtn");
+    const nextMatchBtn = document.getElementById("nextMatchBtn");
     let selectedPrediction = "";
+    let currentCompletedPredictions = Number(window.localStorage.getItem("predikt_predictions_completed") || 0);
+
+    const fallbackMatches = [
+      {
+        event_name: "México vs Sudáfrica",
+        phase_name: "Fase de Grupos",
+        group_name: "Grupo A",
+        matchday: 1,
+        starts_at: "2026-06-11T13:00:00-06:00"
+      },
+      {
+        event_name: "Brasil vs España",
+        phase_name: "Fase de Grupos",
+        group_name: "Grupo B",
+        matchday: 1,
+        starts_at: "2026-06-12T16:00:00-06:00"
+      },
+      {
+        event_name: "Argentina vs Alemania",
+        phase_name: "Fase de Grupos",
+        group_name: "Grupo C",
+        matchday: 1,
+        starts_at: "2026-06-13T13:00:00-06:00"
+      }
+    ];
+
+    let fallbackMatchIndex = Number(window.localStorage.getItem("predikt_current_match_index") || 0);
 
     function showToast(message) {
       toast.textContent = message;
@@ -1191,7 +1242,7 @@
     }
 
 
-    function updatePredictionProgress(completed = 1, total = 72) {
+    function updatePredictionProgress(completed = 0, total = 72) {
       const safeCompleted = Math.max(0, Math.min(Number(completed || 0), Number(total || 72)));
       const safeTotal = Math.max(1, Number(total || 72));
       const pending = Math.max(safeTotal - safeCompleted, 0);
@@ -1331,33 +1382,73 @@
       }
     }
 
+
+    function autoSavePrediction(selection) {
+      if (!selection) {
+        showToast("Elige quién ganará este partido.");
+        return;
+      }
+
+      currentCompletedPredictions = Math.max(currentCompletedPredictions, 0) + 1;
+      if (currentCompletedPredictions > 72) currentCompletedPredictions = 72;
+
+      window.localStorage.setItem("predikt_last_prediction", selection);
+      window.localStorage.setItem("predikt_predictions_completed", String(currentCompletedPredictions));
+
+      updatePredictionProgress(currentCompletedPredictions, 72);
+
+      const pending = Math.max(72 - currentCompletedPredictions, 0);
+      const progressMessage = pending > 0
+        ? `${currentCompletedPredictions} de 72 partidos completados. Te faltan ${pending}.`
+        : "🏆 ¡Quiniela completa! Has pronosticado todos los partidos disponibles.";
+
+      showToast(`✅ Pronóstico guardado. Elegiste: ${getWinnerMessage(selection)}. ${progressMessage}`);
+
+      if (nextMatchBtn && pending > 0) {
+        nextMatchBtn.classList.add("show");
+      }
+    }
+
+    function loadFallbackMatchByIndex(index) {
+      const safeIndex = Math.max(0, Math.min(index, fallbackMatches.length - 1));
+      renderUpcomingEvent(fallbackMatches[safeIndex]);
+    }
+
+    function goToNextMatch() {
+      fallbackMatchIndex += 1;
+
+      if (fallbackMatchIndex >= fallbackMatches.length) {
+        fallbackMatchIndex = fallbackMatches.length - 1;
+        showToast("Por ahora ya no hay más partidos demo en esta vista. Abre Pronósticos para ver el calendario completo.");
+        return;
+      }
+
+      window.localStorage.setItem("predikt_current_match_index", String(fallbackMatchIndex));
+      selectedPrediction = "";
+      predictionButtons.forEach((item) => item.classList.remove("selected"));
+
+      if (nextMatchBtn) {
+        nextMatchBtn.classList.remove("show");
+      }
+
+      loadFallbackMatchByIndex(fallbackMatchIndex);
+      showToast("Siguiente partido listo para pronosticar.");
+    }
+
     loadUpcomingEvent();
-    updatePredictionProgress(Number(window.localStorage.getItem("predikt_predictions_completed") || 1), 72);
+    updatePredictionProgress(currentCompletedPredictions, 72);
 
     predictionButtons.forEach((button) => {
       button.addEventListener("click", () => {
         predictionButtons.forEach((item) => item.classList.remove("selected"));
         button.classList.add("selected");
         selectedPrediction = button.dataset.prediction;
-
-        if (savePredictionBtn) {
-          savePredictionBtn.textContent = `Guardar pronóstico: ${getWinnerMessage(selectedPrediction)}`;
-        }
+        autoSavePrediction(selectedPrediction);
       });
     });
 
-    if (savePredictionBtn) {
-      savePredictionBtn.addEventListener("click", () => {
-        if (!selectedPrediction) {
-          showToast("Elige quién ganará este partido antes de guardar tu pronóstico.");
-          return;
-        }
-
-        window.localStorage.setItem("predikt_last_prediction", selectedPrediction);
-        window.localStorage.setItem("predikt_predictions_completed", "1");
-        updatePredictionProgress(1, 72);
-        showToast(`✅ Pronóstico guardado. Elegiste: ${getWinnerMessage(selectedPrediction)}. Podrás modificarlo hasta que inicie el partido.`);
-      });
+    if (nextMatchBtn) {
+      nextMatchBtn.addEventListener("click", goToNextMatch);
     }
   </script>
 
