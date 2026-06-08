@@ -3,20 +3,20 @@
 <head>
   <!--
     Nombre del archivo: dashboard-admin.html
-    Fecha: 2026-06-07
-    Versión: v1.0.1 🚀 Centro de Lanzamiento
+    Fecha: 2026-06-08
+    Versión: v1.0.2 🔐 Guardia Admin Real
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Dashboard administrativo de lanzamiento para PREDIKT™.
-      Rediseño ejecutivo KPI First™ basado en validación visual de v1.0.0.
-      Reduce hero, elimina estado rojo de riesgo, prioriza usuarios, pronósticos
-      y fundadores en tarjetas gigantes, mejora uso de escritorio sin perder
-      experiencia mobile-first y mantiene branding oficial PREDIKT™.
-      Usa datos demo/fallback para validación visual inmediata en Vercel.
-      Preparado para conexión posterior con Supabase Analytics.
-    Líneas versión anterior: 1125
-    Líneas versión nueva: 1011
+      Integra Guardia Admin Real mediante Supabase Auth y allowlist administrativa
+      en esquema core.admin_email_allowlist.
+      Bloquea visualización inicial para evitar exposición por URL directa,
+      valida sesión activa antes de ejecutar el dashboard y conserva branding
+      oficial PREDIKT™ con favicon/logo oficial.
+      Mantiene KPIs, acciones rápidas, datos fallback y conexión REST existente.
+    Líneas versión anterior: 1200
+    Líneas versión nueva: 1241
   -->
 
   <meta charset="UTF-8" />
@@ -28,6 +28,17 @@
   <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
+  <script>
+    document.documentElement.classList.add("admin-guard-pending");
+  </script>
+
+  <style>
+    html.admin-guard-pending {
+      visibility: hidden;
+      opacity: 0;
+    }
+  </style>
 
   <style>
     :root {
@@ -728,7 +739,7 @@
       </div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;">
         <a href="usuarios.html" class="admin-pill" style="text-decoration:none;">👥 Usuarios</a>
-        <a href="partidos.html" class="admin-pill" style="text-decoration:none;">⚽ Partidos</a>
+        <a href="partidos-admin.html" class="admin-pill" style="text-decoration:none;">⚽ Partidos</a>
         <a href="pronosticos-admin.html" class="admin-pill" style="text-decoration:none;">🎯 Pronósticos</a>
         <a href="fundadores.html" class="admin-pill" style="text-decoration:none;">💎 Fundadores</a>
         <a href="marketing.html" class="admin-pill" style="text-decoration:none;">📢 Campaña</a>
@@ -879,6 +890,9 @@
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite">Dashboard actualizado.</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/admin-guard.js"></script>
 
   <script>
     const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
@@ -1165,9 +1179,36 @@
       showToast("Dashboard actualizado.");
     }
 
-    refreshBtn.addEventListener("click", refreshDashboard);
-    renderDashboard(dashboardState);
-    refreshDashboard();
+    async function initializeAdminDashboard() {
+      if (!window.PrediktAdminGuard || !window.PrediktAdminGuard.requireAdminAccess) {
+        document.body.innerHTML = `
+          <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#061826;color:#fff;font-family:Arial,sans-serif;padding:24px;text-align:center;">
+            <section style="max-width:420px;border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:28px;background:rgba(255,255,255,.06);">
+              <img src="assets/logos/predikt-logo.png" alt="PREDIKT™" style="width:86px;height:auto;margin-bottom:16px;" />
+              <h1 style="font-size:22px;margin:0 0 10px;">PREDIKT™</h1>
+              <p style="font-size:16px;line-height:1.5;margin:0;color:#d7e3f5;">No se pudo cargar la Guardia Admin.</p>
+            </section>
+          </main>
+        `;
+        document.documentElement.classList.remove("admin-guard-pending");
+        document.documentElement.style.visibility = "visible";
+        document.documentElement.style.opacity = "1";
+        return;
+      }
+
+      const isAuthorized = await window.PrediktAdminGuard.requireAdminAccess();
+
+      if (!isAuthorized) {
+        return;
+      }
+
+      document.documentElement.classList.remove("admin-guard-pending");
+      refreshBtn.addEventListener("click", refreshDashboard);
+      renderDashboard(dashboardState);
+      await refreshDashboard();
+    }
+
+    document.addEventListener("DOMContentLoaded", initializeAdminDashboard);
   </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
