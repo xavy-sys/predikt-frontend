@@ -1,1 +1,857 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: ranking-admin.html
+    Fecha: 2026-06-07
+    Versión: v1.0.0 Rankings Management
+    Fabricante: JVSys™
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla administrativa para monitoreo del ranking PREDIKT™ durante Beta Pública.
+      Permite revisar líder general, movimientos, aciertos, usuarios en ascenso,
+      usuarios en riesgo y proyección de jornada. Versión mobile-first con datos
+      demo/fallback, preparada para conexión posterior con Supabase Ranking Engine,
+      Event Scoring Engine y protección por rol administrador.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 712
+  -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PREDIKT™ | Ranking Admin</title>
+  <meta name="description" content="Administración del ranking PREDIKT™." />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-card: #0f2740;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --green: #48f29a;
+      --blue: #5dade2;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --footer-height: 82px;
+      --app-max: 1180px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: var(--bg-main); }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.42;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.14), transparent 26%),
+        radial-gradient(circle at top right, rgba(72, 242, 154, 0.11), transparent 23%),
+        linear-gradient(145deg, #061826 0%, #04111d 50%, #020b13 100%);
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 18px);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+
+    .app-shell {
+      width: min(100%, var(--app-max));
+      margin: 0 auto;
+      padding: 18px 14px 0;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: -18px -14px 14px;
+      padding: 15px 14px 12px;
+      background:
+        linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88)),
+        rgba(6, 24, 38, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    }
+
+    .brand-text { display: grid; gap: 1px; min-width: 0; }
+    .brand-name { font-size: 0.95rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 0.64rem; font-weight: 820; white-space: nowrap; }
+
+    .header-actions { display: inline-flex; align-items: center; gap: 8px; }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.065);
+      border: 1px solid rgba(255, 255, 255, 0.095);
+      font-size: 1rem;
+    }
+
+    .admin-pill {
+      min-height: 38px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 24px rgba(245, 185, 66, 0.25);
+      white-space: nowrap;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245, 185, 66, 0.30);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.20), transparent 34%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: -26px;
+      width: 132px;
+      height: 132px;
+      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
+      opacity: 0.08;
+      transform: rotate(12deg);
+      pointer-events: none;
+    }
+
+    .hero-kicker {
+      color: var(--gold);
+      font-size: 0.70rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .hero-title {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(1.35rem, 5.2vw, 2.15rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      color: var(--text-soft);
+      max-width: 760px;
+      font-size: 0.82rem;
+      font-weight: 760;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .quick-actions .admin-pill {
+      width: 100%;
+      min-height: 42px;
+      text-align: center;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 124px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(15, 39, 64, 0.86);
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.21);
+      display: grid;
+      align-content: space-between;
+    }
+
+    .kpi-card::after {
+      content: attr(data-icon);
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 2rem;
+      opacity: 0.20;
+    }
+
+    .kpi-label {
+      color: var(--text-soft);
+      font-size: 0.72rem;
+      font-weight: 940;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      font-size: clamp(2.2rem, 10vw, 4rem);
+      font-weight: 980;
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      margin: 9px 0 6px;
+    }
+
+    .blue { color: var(--blue); }
+    .green { color: var(--green); }
+    .gold { color: var(--gold); }
+    .orange { color: var(--orange); }
+    .red { color: var(--red); }
+
+    .kpi-sub {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 820;
+    }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .panel-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+      margin-bottom: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 2px 10px;
+    }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 950;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .search-box {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(15, 39, 64, 0.86);
+      color: var(--text-main);
+      padding: 0 16px;
+      outline: none;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+    }
+
+    .search-box::placeholder { color: var(--text-muted); }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .filter-chip {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.68rem;
+      font-weight: 920;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .filter-chip.active {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      border-color: rgba(245, 185, 66, 0.32);
+    }
+
+    .list-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .data-list,
+    .ranking-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .data-row,
+    .ranking-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.085);
+      padding: 10px;
+    }
+
+    .badge {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.78rem;
+      font-weight: 980;
+    }
+
+    .rank-gold { background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .rank-blue { background: linear-gradient(135deg, var(--blue), #a6d9ff); }
+    .rank-green { background: linear-gradient(135deg, var(--green), #8cffc4); }
+
+    .row-title {
+      font-size: 0.84rem;
+      font-weight: 960;
+      line-height: 1.1;
+    }
+
+    .row-sub {
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 780;
+      margin-top: 3px;
+    }
+
+    .row-score {
+      color: var(--green);
+      font-size: 0.82rem;
+      font-weight: 980;
+      white-space: nowrap;
+    }
+
+    .trend-up { color: var(--green); }
+    .trend-down { color: var(--red); }
+    .trend-stable { color: var(--gold); }
+
+    .ranking-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 980;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.54rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .admin-note {
+      margin-top: 12px;
+      border: 1px dashed rgba(245, 185, 66, 0.28);
+      border-radius: var(--radius-lg);
+      background: rgba(245, 185, 66, 0.08);
+      padding: 12px;
+      color: var(--text-soft);
+      font-size: 0.70rem;
+      font-weight: 790;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 18px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 60;
+      width: min(calc(100% - 28px), 560px);
+      border: 1px solid rgba(72, 242, 154, 0.34);
+      border-radius: 18px;
+      background: rgba(7, 28, 46, 0.98);
+      color: var(--text-main);
+      padding: 13px 15px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.83rem;
+      font-weight: 830;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 40;
+      width: min(100%, 560px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4, 17, 29, 0.97);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+
+    .footer-item span { font-size: 1rem; line-height: 1; }
+
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
+    }
+
+    @media (min-width: 640px) {
+      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+      .toolbar { grid-template-columns: 1.4fr 1fr; align-items: center; }
+      .activity-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (min-width: 900px) {
+      .app-shell { padding: 22px 18px 0; }
+      .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; }
+      .list-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .filter-row,
+      .ranking-detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado PREDIKT Ranking Admin">
+      <a class="brand" href="dashboard-admin.html" aria-label="Volver al Centro de Lanzamiento">
+        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">🏆 Ranking Admin</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar ranking">↻</button>
+        <a class="admin-pill" href="dashboard-admin.html">Centro</a>
+      </div>
+    </header>
+
+    <section class="hero-card" aria-label="Administración de ranking">
+      <p class="hero-kicker">🏆 PREDIKT™ · Administración Beta</p>
+      <h1 class="hero-title">Ranking Admin</h1>
+      <p class="hero-copy">
+        Monitorea posiciones, movimientos, aciertos, usuarios en ascenso y proyección competitiva de la jornada.
+      </p>
+    </section>
+
+    <section class="quick-actions" aria-label="Acciones rápidas">
+      <a class="admin-pill" href="dashboard-admin.html">🚀 Lanzamiento</a>
+      <a class="admin-pill" href="pronosticos-admin.html">🎯 Pronósticos</a>
+      <a class="admin-pill" href="usuarios.html">👥 Usuarios</a>
+      <a class="admin-pill" href="partidos-admin.html">⚽ Partidos</a>
+    </section>
+
+    <section class="kpi-grid" aria-label="KPIs de ranking">
+      <article class="kpi-card" data-icon="🏆">
+        <p class="kpi-label">Líder General</p>
+        <p class="kpi-value gold">98</p>
+        <p class="kpi-sub">💎 ElTigre · 1er lugar</p>
+      </article>
+
+      <article class="kpi-card" data-icon="📈">
+        <p class="kpi-label">Mayor Subida</p>
+        <p class="kpi-value green">+7</p>
+        <p class="kpi-sub">GolMaster subió posiciones.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="🎯">
+        <p class="kpi-label">Mejor Acierto</p>
+        <p class="kpi-value blue">83%</p>
+        <p class="kpi-sub">Precisión máxima individual.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="🔥">
+        <p class="kpi-label">Racha Activa</p>
+        <p class="kpi-value orange">4</p>
+        <p class="kpi-sub">Pronósticos correctos seguidos.</p>
+      </article>
+    </section>
+
+    <section class="activity-grid" aria-label="Actividad rápida">
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🥇 Líder</h2>
+        </div>
+        <p class="row-title">💎 ElTigre</p>
+        <p class="kpi-sub">98 pts · Racha perfecta.</p>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🚀 En ascenso</h2>
+        </div>
+        <p class="row-title">GolMaster</p>
+        <p class="kpi-sub">+7 posiciones esta jornada.</p>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">⚠️ En riesgo</h2>
+        </div>
+        <p class="row-title">FutboleroMX</p>
+        <p class="kpi-sub">Sin pronósticos recientes.</p>
+      </article>
+    </section>
+
+    <section class="toolbar" aria-label="Búsqueda y filtros">
+      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar participante, puntos o estado..." />
+      <div class="filter-row">
+        <button class="filter-chip active" type="button" data-filter="all">Todos</button>
+        <button class="filter-chip" type="button" data-filter="up">Suben</button>
+        <button class="filter-chip" type="button" data-filter="risk">Riesgo</button>
+      </div>
+    </section>
+
+    <section class="list-grid" aria-label="Resumen de ranking">
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">📈 Movimientos</h2>
+          <a class="section-link" href="usuarios.html">Usuarios</a>
+        </div>
+
+        <div class="data-list" id="movementList"></div>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-head">
+          <h2 class="section-title">🎯 Mejores Aciertos</h2>
+          <a class="section-link" href="pronosticos-admin.html">Pronósticos</a>
+        </div>
+
+        <div class="data-list" id="accuracyList"></div>
+      </article>
+    </section>
+
+    <section class="panel-card" aria-label="Ranking general">
+      <div class="section-head">
+        <h2 class="section-title">Ranking General</h2>
+        <a class="section-link" href="ranking.html">Ver público</a>
+      </div>
+
+      <div class="ranking-list" id="rankingList"></div>
+    </section>
+
+    <p class="admin-note">
+      Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta Ranking Engine, Event Scoring Engine y protección por rol administrador.
+    </p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Ranking actualizado.</div>
+
+  <script>
+    const movements = [
+      { title: "GolMaster", detail: "Subió 7 posiciones", score: "+7" },
+      { title: "Pey", detail: "Subió 3 posiciones", score: "+3" },
+      { title: "LaQuiniela", detail: "Nueva entrada al ranking", score: "NEW" }
+    ];
+
+    const accuracy = [
+      { title: "💎 ElTigre", detail: "83% de acierto acumulado", score: "83%" },
+      { title: "Javier", detail: "76% de acierto acumulado", score: "76%" },
+      { title: "Pey", detail: "72% de acierto acumulado", score: "72%" }
+    ];
+
+    const ranking = [
+      { rank: 1, name: "💎 ElTigre", detail: "Racha perfecta", points: 98, change: "+2", type: "up", accuracy: "83%", picks: 12 },
+      { rank: 2, name: "Pey", detail: "Subiendo rápido", points: 92, change: "+3", type: "up", accuracy: "72%", picks: 10 },
+      { rank: 3, name: "Javier", detail: "Consistente", points: 89, change: "0", type: "stable", accuracy: "76%", picks: 9 },
+      { rank: 4, name: "GolMaster", detail: "Mayor subida", points: 41, change: "+7", type: "up", accuracy: "55%", picks: 4 },
+      { rank: 5, name: "FutboleroMX", detail: "Sin actividad reciente", points: 0, change: "-2", type: "risk", accuracy: "0%", picks: 0 }
+    ];
+
+    const searchInput = document.getElementById("searchInput");
+    const filterButtons = document.querySelectorAll("[data-filter]");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const toast = document.getElementById("toast");
+    let activeFilter = "all";
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      toast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function renderSimpleRows(listId, rows) {
+      const list = document.getElementById(listId);
+      list.innerHTML = rows.map((row, index) => `
+        <div class="data-row">
+          <span class="badge">${index + 1}</span>
+          <div>
+            <p class="row-title">${row.title}</p>
+            <p class="row-sub">${row.detail}</p>
+          </div>
+          <strong class="row-score">${row.score}</strong>
+        </div>
+      `).join("");
+    }
+
+    function rowMatches(row, query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return true;
+      return [row.name, row.detail, row.points, row.change, row.accuracy].some((value) => String(value || "").toLowerCase().includes(q));
+    }
+
+    function filterMatches(row) {
+      if (activeFilter === "all") return true;
+      return row.type === activeFilter;
+    }
+
+    function changeClass(change) {
+      if (String(change).startsWith("+")) return "trend-up";
+      if (String(change).startsWith("-")) return "trend-down";
+      return "trend-stable";
+    }
+
+    function badgeClass(rank) {
+      if (rank === 1) return "rank-gold";
+      if (rank === 2) return "rank-blue";
+      if (rank === 3) return "rank-green";
+      return "";
+    }
+
+    function renderRanking() {
+      const query = searchInput.value || "";
+      const rows = ranking.filter((row) => rowMatches(row, query) && filterMatches(row));
+
+      if (!rows.length) {
+        document.getElementById("rankingList").innerHTML = `
+          <div class="ranking-row">
+            <span class="badge">--</span>
+            <div>
+              <p class="row-title">Sin resultados</p>
+              <p class="row-sub">Ajusta búsqueda o filtros.</p>
+            </div>
+            <strong class="row-score">0</strong>
+          </div>
+        `;
+        return;
+      }
+
+      document.getElementById("rankingList").innerHTML = rows.map((row) => `
+        <article class="ranking-row">
+          <span class="badge ${badgeClass(row.rank)}">#${row.rank}</span>
+          <div>
+            <div class="section-head" style="margin:0 0 6px;">
+              <div>
+                <p class="row-title">${row.name}</p>
+                <p class="row-sub">${row.detail}</p>
+              </div>
+              <strong class="${changeClass(row.change)}">${row.change}</strong>
+            </div>
+
+            <div class="ranking-detail-grid">
+              <div class="metric">
+                <strong>${row.points}</strong>
+                <span>Puntos</span>
+              </div>
+              <div class="metric">
+                <strong>${row.accuracy}</strong>
+                <span>Acierto</span>
+              </div>
+              <div class="metric">
+                <strong>${row.picks}</strong>
+                <span>Picks</span>
+              </div>
+              <div class="metric">
+                <strong>${row.type === "risk" ? "Revisar" : "OK"}</strong>
+                <span>Estado</span>
+              </div>
+            </div>
+          </div>
+          <strong class="row-score">${row.points} pts</strong>
+        </article>
+      `).join("");
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        filterButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        renderRanking();
+      });
+    });
+
+    searchInput.addEventListener("input", renderRanking);
+
+    refreshBtn.addEventListener("click", () => {
+      renderSimpleRows("movementList", movements);
+      renderSimpleRows("accuracyList", accuracy);
+      renderRanking();
+      showToast("Ranking actualizado.");
+    });
+
+    renderSimpleRows("movementList", movements);
+    renderSimpleRows("accuracyList", accuracy);
+    renderRanking();
+  </script>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html">
+      <span>🏠</span>
+      Inicio
+    </a>
+
+    <a class="footer-item" href="mi-quiniela.html">
+      <span>⚽</span>
+      Quiniela
+    </a>
+
+    <a class="footer-item" href="pronostico.html">
+      <span>🎯</span>
+      Pronósticos
+    </a>
+
+    <a class="footer-item" href="ranking.html">
+      <span>🏆</span>
+      Ranking
+    </a>
+
+    <a class="footer-item active" href="perfil.html" aria-current="page">
+      <span>👤</span>
+      Perfil
+    </a>
+  </nav>
+</body>
+</html>
 
