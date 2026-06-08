@@ -3,451 +3,585 @@
 <head>
   <!--
     Nombre del archivo: fundadores.html
-    Fecha: 2026-06-06
-    Versión: v1.3.0 Founder Conversion Engine
+    Fecha: 2026-06-07
+    Versión: v1.0.0 Founders Management
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla Fundadores PREDIKT™ conectada al Founder Payment Module real.
-      Mobile-first, con beneficio vitalicio, donación única dinámica desde Supabase,
-      límite de 100 fundadores, contador público live y CTA real a Mercado Pago.
-      Se humaniza el lenguaje de confirmación de pago: se elimina la palabra técnica webhook
-      de la interfaz visible para reducir ansiedad y mantener Claridad Humana Auditada.
-    Líneas versión anterior: 863
-    Líneas versión nueva: 863
+      Pantalla administrativa para gestión del Programa Fundadores PREDIKT™.
+      Permite monitorear fundadores registrados, lugares disponibles, avance de meta,
+      estado de pago, beneficio vitalicio y evidencia. Versión mobile-first con datos
+      demo/fallback preparada para integración futura con Mercado Pago, Supabase
+      Analytics y protección por rol administrador.
+    Líneas versión anterior: 0
+    Líneas versión nueva: 756
   -->
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>PREDIKT™ | Fundadores</title>
-  <meta name="description" content="Sé parte de los primeros 100 Fundadores PREDIKT™ con una donación única de $50 MXN y recibe acceso gratuito de por vida." />
+  <meta name="description" content="Administración del Programa Fundadores PREDIKT™." />
   <meta name="theme-color" content="#061826" />
+
   <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
   <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+
   <style>
     :root {
       --bg-main: #061826;
+      --bg-deep: #020b13;
       --bg-card: #0f2740;
       --gold: #f5b942;
       --gold-soft: #ffe28a;
+      --green: #48f29a;
+      --blue: #5dade2;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
       --text-main: #ffffff;
       --text-soft: #c9d7e6;
       --text-muted: #7f95aa;
-      --green: #2ecc71;
       --border: rgba(255, 255, 255, 0.11);
       --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-      --radius-lg: 28px;
-      --radius-md: 20px;
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
       --footer-height: 82px;
+      --app-max: 1180px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+
+    html { scroll-behavior: smooth; background: var(--bg-main); }
 
     body {
       min-height: 100vh;
-      background:
-        radial-gradient(circle at top left, rgba(245,185,66,.17), transparent 30%),
-        radial-gradient(circle at top right, rgba(93,173,226,.11), transparent 24%),
-        linear-gradient(135deg, #061826 0%, #061826 43%, #020b13 100%);
       color: var(--text-main);
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.45;
+      line-height: 1.42;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.14), transparent 26%),
+        radial-gradient(circle at top right, rgba(72, 242, 154, 0.11), transparent 23%),
+        linear-gradient(145deg, #061826 0%, #04111d 50%, #020b13 100%);
       overflow-x: hidden;
-      padding-bottom: calc(var(--footer-height) + 22px);
+      padding-bottom: calc(var(--footer-height) + 18px);
     }
 
     a { color: inherit; text-decoration: none; }
-    button { font: inherit; border: 0; cursor: pointer; }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
 
-    .page-shell {
-      width: min(100%, 1180px);
+    .app-shell {
+      width: min(100%, var(--app-max));
       margin: 0 auto;
-      padding: 24px 18px 0;
+      padding: 18px 14px 0;
     }
 
-    .top-bar {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .brand-block { display: flex; flex-direction: column; gap: 2px; }
-    .brand-name { letter-spacing: .09em; font-size: 1.25rem; font-weight: 950; line-height: 1; }
-    .hello { color: var(--text-soft); font-size: .78rem; font-weight: 750; }
-
-    .level-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      padding: 8px 12px;
-      border: 1px solid rgba(245,185,66,.35);
-      border-radius: 999px;
-      color: var(--gold);
-      background: rgba(245,185,66,.09);
-      font-size: .72rem;
-      font-weight: 950;
-      white-space: nowrap;
-    }
-
-    .founder-hero {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(245,185,66,.30);
-      border-radius: var(--radius-lg);
-      background:
-        radial-gradient(circle at 85% 25%, rgba(245,185,66,.25), transparent 32%),
-        linear-gradient(135deg, rgba(15,39,64,.98), rgba(8,31,52,.96));
-      padding: 30px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
-    }
-
-    .founder-hero::after {
-      content: "👑";
-      position: absolute;
-      right: 22px;
-      top: 18px;
-      font-size: 6.2rem;
-      opacity: .09;
-      transform: rotate(10deg);
-      pointer-events: none;
-    }
-
-    .eyebrow {
-      color: var(--gold);
-      font-size: .74rem;
-      font-weight: 950;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .hero-title {
-      max-width: 820px;
-      font-size: clamp(1.78rem, 6vw, 3.65rem);
-      font-weight: 980;
-      line-height: .98;
-      letter-spacing: -.045em;
-      margin-bottom: 12px;
-    }
-
-    .hero-copy {
-      max-width: 720px;
-      color: var(--text-soft);
-      font-size: .98rem;
-      font-weight: 680;
-      margin-bottom: 18px;
-    }
-
-    .hero-pills { display: flex; flex-wrap: wrap; gap: 9px; position: relative; z-index: 1; }
-
-    .hero-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      min-height: 36px;
-      padding: 0 12px;
-      border-radius: 999px;
-      color: var(--text-soft);
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      font-size: .76rem;
-      font-weight: 900;
-    }
-
-    .hero-pill.gold {
-      color: var(--gold);
-      border-color: rgba(245,185,66,.30);
-      background: rgba(245,185,66,.10);
-    }
-
-    .layout-grid {
-      display: grid;
-      grid-template-columns: 1fr .9fr;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .card,
-    .price-card,
-    .founder-preview,
-    .success-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
-      box-shadow: 0 14px 36px rgba(0,0,0,.22);
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-
-    .section-header {
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: 0 2px 10px;
+      margin: -18px -14px 14px;
+      padding: 15px 14px 12px;
+      background:
+        linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88)),
+        rgba(6, 24, 38, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .section-title {
-      font-size: .92rem;
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    }
+
+    .brand-text { display: grid; gap: 1px; min-width: 0; }
+    .brand-name { font-size: 0.95rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 0.64rem; font-weight: 820; white-space: nowrap; }
+
+    .header-actions { display: inline-flex; align-items: center; gap: 8px; }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.065);
+      border: 1px solid rgba(255, 255, 255, 0.095);
+      font-size: 1rem;
+    }
+
+    .admin-pill {
+      min-height: 38px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.72rem;
       font-weight: 980;
-      letter-spacing: .08em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
+      box-shadow: 0 10px 24px rgba(245, 185, 66, 0.25);
+      white-space: nowrap;
     }
 
-    .section-link { color: var(--gold); font-size: .76rem; font-weight: 950; }
-
-    .price-card {
+    .hero-card {
       position: relative;
       overflow: hidden;
-      border-color: rgba(245,185,66,.34);
+      border: 1px solid rgba(245, 185, 66, 0.30);
+      border-radius: var(--radius-xl);
       background:
-        radial-gradient(circle at 80% 0%, rgba(245,185,66,.18), transparent 32%),
-        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.20), transparent 34%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
+      padding: 16px;
       box-shadow: var(--shadow);
-      padding: 22px;
+      margin-bottom: 12px;
     }
 
-    .price-kicker {
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: -26px;
+      width: 132px;
+      height: 132px;
+      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
+      opacity: 0.08;
+      transform: rotate(12deg);
+      pointer-events: none;
+    }
+
+    .hero-kicker {
       color: var(--gold);
-      font-size: .75rem;
+      font-size: 0.70rem;
       font-weight: 980;
-      letter-spacing: .1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       margin-bottom: 6px;
     }
 
-    .price { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
-    .price-main { font-size: clamp(2.7rem, 10vw, 4.35rem); font-weight: 980; line-height: 1; letter-spacing: -.06em; color: var(--gold); }
-    .price-currency { color: var(--text-soft); font-size: 1rem; font-weight: 940; }
-    .price-copy { color: var(--text-soft); font-size: .92rem; font-weight: 720; margin-bottom: 16px; }
-
-    .status-box {
-      border-radius: var(--radius-md);
-      background: rgba(255,255,255,.045);
-      border: 1px solid rgba(255,255,255,.09);
-      padding: 13px;
-      margin-bottom: 16px;
+    .hero-title {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(1.35rem, 5.2vw, 2.15rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
     }
 
-    .status-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 9px; }
-    .status-title { font-size: .86rem; font-weight: 950; }
-    .status-number { color: var(--gold); font-size: .82rem; font-weight: 950; white-space: nowrap; }
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      color: var(--text-soft);
+      max-width: 760px;
+      font-size: 0.82rem;
+      font-weight: 760;
+    }
 
-    .progress-bar {
-      height: 12px;
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-card {
+      position: relative;
       overflow: hidden;
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.08);
-      margin-bottom: 9px;
+      min-height: 124px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(15, 39, 64, 0.86);
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.21);
+      display: grid;
+      align-content: space-between;
     }
 
-    .progress-fill {
-      width: 84%;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
-      box-shadow: 0 0 22px rgba(245,185,66,.45);
-      transition: width .25s ease;
+    .kpi-card::after {
+      content: attr(data-icon);
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 2rem;
+      opacity: 0.20;
     }
 
-    .status-message { color: var(--text-soft); font-size: .76rem; font-weight: 760; }
-    .status-message.urgent { color: var(--gold-soft); }
+    .kpi-label {
+      color: var(--text-soft);
+      font-size: 0.72rem;
+      font-weight: 940;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
 
-    .founder-btn {
+    .kpi-value {
+      font-size: clamp(2.2rem, 10vw, 4rem);
+      font-weight: 980;
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      margin: 9px 0 6px;
+    }
+
+    .blue { color: var(--blue); }
+    .green { color: var(--green); }
+    .gold { color: var(--gold); }
+    .orange { color: var(--orange); }
+
+    .kpi-sub {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 820;
+    }
+
+    .program-card {
+      border: 1px solid rgba(245, 185, 66, 0.30);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(245, 185, 66, 0.18), transparent 30%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(64, 48, 18, 0.72));
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .program-title {
+      font-size: 1.05rem;
+      font-weight: 980;
+      margin-bottom: 6px;
+    }
+
+    .program-copy {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 760;
+      margin-bottom: 12px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--gold);
+      font-size: 0.76rem;
+      font-weight: 980;
+      margin-bottom: 8px;
+    }
+
+    .founder-progress {
       width: 100%;
-      min-height: 56px;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .founder-progress-bar {
+      height: 100%;
+      width: 1%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .search-box {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(15, 39, 64, 0.86);
+      color: var(--text-main);
+      padding: 0 16px;
+      outline: none;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+    }
+
+    .search-box::placeholder { color: var(--text-muted); }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .filter-chip {
+      min-height: 42px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 9px;
       border-radius: 999px;
-      color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      box-shadow: 0 14px 32px rgba(245,185,66,.27);
-      font-size: .88rem;
-      font-weight: 980;
-      letter-spacing: .04em;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.68rem;
+      font-weight: 920;
       text-transform: uppercase;
-      transition: transform .18s ease, filter .18s ease;
+      letter-spacing: 0.04em;
     }
 
-    .founder-btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
-    .founder-btn.disabled { pointer-events: none; color: rgba(255,255,255,.72); background: rgba(255,255,255,.08); box-shadow: none; }
+    .filter-chip.active {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      border-color: rgba(245, 185, 66, 0.32);
+    }
 
-    .micro-trust { color: var(--text-muted); font-size: .72rem; font-weight: 720; text-align: center; margin-top: 10px; }
+    .founders-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: rgba(15, 39, 64, 0.82);
+      padding: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+      margin-bottom: 12px;
+    }
 
-    .benefits-list { display: grid; gap: 10px; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 2px 10px;
+    }
 
-    .benefit-row {
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-link {
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 950;
+    }
+
+    .founder-list {
       display: grid;
-      grid-template-columns: 42px 1fr;
+      gap: 8px;
+    }
+
+    .founder-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
       gap: 11px;
-      align-items: start;
-      border-radius: 16px;
-      background: rgba(255,255,255,.045);
-      border: 1px solid rgba(255,255,255,.075);
+      align-items: center;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.085);
       padding: 11px;
     }
 
-    .benefit-icon {
+    .avatar {
       width: 42px;
       height: 42px;
       display: grid;
       place-items: center;
       border-radius: 50%;
-      color: var(--gold);
-      background: rgba(245,185,66,.12);
-      border: 1px solid rgba(245,185,66,.22);
-      font-size: 1.2rem;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.86rem;
+      font-weight: 980;
     }
 
-    .benefit-title { font-size: .88rem; font-weight: 960; line-height: 1.1; margin-bottom: 3px; }
-    .benefit-copy { color: var(--text-soft); font-size: .73rem; font-weight: 750; }
-
-    .founder-preview {
-      position: sticky;
-      top: 18px;
-      border-color: rgba(245,185,66,.28);
-      background:
-        radial-gradient(circle at 90% 0%, rgba(245,185,66,.16), transparent 32%),
-        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
+    .founder-main {
+      min-width: 0;
+      display: grid;
+      gap: 8px;
     }
 
-    .badge-preview {
-      position: relative;
-      overflow: hidden;
-      border-radius: 24px;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(245,185,66,.26), transparent 40%),
-        linear-gradient(145deg, rgba(19,47,76,.98), rgba(8,31,52,.98));
-      border: 1px solid rgba(245,185,66,.25);
-      padding: 20px;
+    .founder-topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .founder-name {
+      font-size: 0.9rem;
+      font-weight: 960;
+      line-height: 1.1;
+    }
+
+    .founder-email {
+      color: var(--text-muted);
+      font-size: 0.64rem;
+      font-weight: 760;
+      margin-top: 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 0.58rem;
+      font-weight: 980;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .status-confirmed {
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+    }
+
+    .status-pending {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    }
+
+    .status-cancelled {
+      color: #ffffff;
+      background: rgba(255, 90, 95, 0.72);
+      border: 1px solid rgba(255, 90, 95, 0.24);
+    }
+
+    .founder-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .metric {
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 6px;
       text-align: center;
     }
 
-    .badge-preview::after {
-      content: "FUNDADOR";
-      position: absolute;
-      left: 50%;
-      bottom: 8px;
-      transform: translateX(-50%);
-      color: rgba(255,255,255,.035);
-      font-size: 2rem;
+    .metric strong {
+      display: block;
+      font-size: 0.82rem;
       font-weight: 980;
-      letter-spacing: .06em;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
     }
 
-    .badge-crown {
-      width: 84px;
-      height: 84px;
+    .metric span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.54rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .founder-actions {
       display: grid;
-      place-items: center;
-      border-radius: 28px;
-      margin: 0 auto 12px;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      color: #061826;
-      font-size: 2.4rem;
-      box-shadow: 0 18px 34px rgba(245,185,66,.2);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
     }
 
-    .badge-kicker { color: var(--gold); font-size: .70rem; font-weight: 980; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
-    .badge-title { font-size: 1.45rem; font-weight: 980; line-height: 1.05; margin-bottom: 5px; }
-    .badge-copy { color: var(--text-soft); font-size: .80rem; font-weight: 740; margin-bottom: 14px; }
-
-    .badge-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; position: relative; z-index: 1; }
-
-    .badge-stat {
-      border-radius: 15px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.09);
-      padding: 10px;
-    }
-
-    .badge-label { color: var(--text-muted); font-size: .65rem; font-weight: 850; margin-bottom: 3px; }
-    .badge-value { color: var(--text-main); font-size: .9rem; font-weight: 980; }
-
-    .faq-list { display: grid; gap: 9px; }
-    .faq-item { border-radius: 16px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.075); padding: 12px; }
-    .faq-question { font-size: .84rem; font-weight: 950; margin-bottom: 4px; }
-    .faq-answer { color: var(--text-soft); font-size: .74rem; font-weight: 730; }
-
-    .audit-card { border: 1px solid rgba(255,255,255,.09); border-radius: var(--radius-md); background: rgba(255,255,255,.045); padding: 14px; }
-    .audit-title { font-size: .92rem; font-weight: 960; margin-bottom: 6px; }
-    .audit-copy { color: var(--text-soft); font-size: .76rem; font-weight: 720; }
-
-    .success-card {
-      display: none;
-      border-color: rgba(46,204,113,.32);
-      background:
-        radial-gradient(circle at 12% 0%, rgba(46,204,113,.14), transparent 28%),
-        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
-    }
-
-    .success-card.show { display: block; }
-    .success-badge { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: rgba(46,204,113,.13); border: 1px solid rgba(46,204,113,.28); font-size: 1.7rem; margin-bottom: 12px; }
-    .success-title { font-size: 1.34rem; font-weight: 980; line-height: 1.1; margin-bottom: 6px; }
-    .success-copy { color: var(--text-soft); font-size: .84rem; font-weight: 720; margin-bottom: 14px; }
-
-    .checkout-box {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 9px;
+    .action-btn {
+      min-height: 36px;
+      display: inline-flex;
       align-items: center;
-      border: 1px solid rgba(245,185,66,.25);
-      border-radius: 17px;
-      background: rgba(245,185,66,.08);
-      padding: 10px;
+      justify-content: center;
+      border-radius: 999px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.64rem;
+      font-weight: 920;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
-    .checkout-text { color: var(--gold-soft); font-size: .82rem; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .checkout-btn { min-height: 36px; padding: 0 12px; border-radius: 999px; color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); font-size: .7rem; font-weight: 980; text-transform: uppercase; }
+    .action-btn.primary {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      border-color: rgba(245, 185, 66, 0.32);
+    }
+
+    .admin-note {
+      margin-top: 12px;
+      border: 1px dashed rgba(245, 185, 66, 0.28);
+      border-radius: var(--radius-lg);
+      background: rgba(245, 185, 66, 0.08);
+      padding: 12px;
+      color: var(--text-soft);
+      font-size: 0.70rem;
+      font-weight: 790;
+    }
 
     .toast {
       position: fixed;
       left: 50%;
       bottom: calc(var(--footer-height) + 18px);
       transform: translateX(-50%) translateY(20px);
-      z-index: 40;
-      width: min(calc(100% - 28px), 440px);
-      border: 1px solid rgba(245,185,66,.34);
+      z-index: 60;
+      width: min(calc(100% - 28px), 560px);
+      border: 1px solid rgba(72, 242, 154, 0.34);
       border-radius: 18px;
-      background: rgba(7,28,46,.98);
+      background: rgba(7, 28, 46, 0.98);
       color: var(--text-main);
       padding: 13px 15px;
-      box-shadow: 0 14px 36px rgba(0,0,0,.35);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
       opacity: 0;
       pointer-events: none;
-      transition: opacity .2s ease, transform .2s ease;
-      font-size: .83rem;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.83rem;
       font-weight: 830;
       text-align: center;
     }
 
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
 
     .app-footer {
       position: fixed;
       left: 50%;
       bottom: 0;
-      z-index: 30;
-      width: min(100%, 780px);
+      z-index: 40;
+      width: min(100%, 560px);
       transform: translateX(-50%);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 4px;
       padding: 9px 10px 11px;
-      border: 1px solid rgba(255,255,255,.11);
+      border: 1px solid rgba(255, 255, 255, 0.11);
       border-bottom: 0;
       border-radius: 24px 24px 0 0;
-      background: rgba(4,17,29,.96);
+      background: rgba(4, 17, 29, 0.97);
       backdrop-filter: blur(18px);
-      box-shadow: 0 -12px 34px rgba(0,0,0,.34);
+      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.34);
     }
 
     .footer-item {
@@ -459,405 +593,344 @@
       border-radius: 16px;
       padding: 7px 4px;
       color: var(--text-muted);
-      font-size: .67rem;
+      font-size: 0.58rem;
       font-weight: 880;
       gap: 3px;
     }
 
-    .footer-item span { font-size: 1.05rem; line-height: 1; }
-    .footer-item.active { color: var(--gold); background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); }
+    .footer-item span { font-size: 1rem; line-height: 1; }
 
-    @media (max-width: 920px) {
-      .page-shell { width: min(100%, 760px); }
-      .layout-grid { grid-template-columns: 1fr; }
-      .founder-preview { position: static; }
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.22);
     }
 
-    @media (max-width: 640px) {
-      body { padding-bottom: calc(var(--footer-height) + 16px); }
-      .page-shell { padding: 18px 14px 0; }
-      .top-bar { align-items: center; margin-bottom: 14px; }
-      .brand-name { font-size: 1.05rem; }
-      .level-pill { padding: 7px 10px; font-size: .67rem; }
-      .founder-hero { padding: 18px; border-radius: 24px; }
-      .founder-hero::after { right: 12px; top: 22px; font-size: 4.8rem; }
-      .hero-copy { font-size: .84rem; max-width: 300px; }
-      .price-card { padding: 18px; }
-      .price-main { font-size: 3.2rem; }
-      .status-top { flex-direction: column; align-items: flex-start; }
-      .checkout-box { grid-template-columns: 1fr; }
-      .checkout-btn { width: 100%; }
-      .app-footer { width: 100%; border-radius: 22px 22px 0 0; }
-      .footer-item { font-size: .58rem; }
-      .footer-item span { font-size: 1rem; }
+    @media (min-width: 640px) {
+      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+      .toolbar { grid-template-columns: 1.4fr 1fr; align-items: center; }
+    }
+
+    @media (min-width: 900px) {
+      .app-shell { padding: 22px 18px 0; }
+      .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; }
+      .founder-row { grid-template-columns: auto 1fr 270px; }
+      .founder-actions { align-self: stretch; align-content: center; }
+    }
+
+    @media (max-width: 520px) {
+      .filter-row,
+      .founder-metrics,
+      .founder-actions { grid-template-columns: 1fr; }
+
+      .founder-topline { flex-direction: column; }
+      .status-pill { width: fit-content; }
     }
   </style>
 </head>
 
 <body>
-  <main class="page-shell">
-    <header class="top-bar" aria-label="Encabezado de PREDIKT">
-      <a href="index.html" class="brand-block" aria-label="Ir a inicio">
-        <strong class="brand-name">PREDIKT™</strong>
-        <span class="hello">Hola Javier 👋</span>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado PREDIKT Fundadores">
+      <a class="brand" href="dashboard-admin.html" aria-label="Volver al Centro de Lanzamiento">
+        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">💎 Fundadores</small>
+        </span>
       </a>
-      <span class="level-pill">👑 Fundadores</span>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar fundadores">↻</button>
+        <a class="admin-pill" href="dashboard-admin.html">Centro</a>
+      </div>
     </header>
 
-    <section class="founder-hero" aria-label="Programa Fundadores PREDIKT">
-      <p class="eyebrow">Programa Fundadores PREDIKT™</p>
-      <h1 class="hero-title">⚽ Si te gusta PREDIKT™, invítanos un café.</h1>
-      <p class="hero-copy">Con una aportación única de $50 MXN nos ayudas a seguir construyendo PREDIKT™. Como agradecimiento formarás parte de los primeros 100 Fundadores y recibirás acceso gratuito de por vida.</p>
-      <div class="hero-pills">
-        <span class="hero-pill gold">👑 Solo 100 lugares</span>
-        <span class="hero-pill">💳 Donación única</span>
-        <span class="hero-pill">♾️ Acceso vitalicio</span>
-        <span class="hero-pill">⚽ Mundial 2026</span>
+    <section class="hero-card" aria-label="Administración de fundadores">
+      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores</p>
+      <h1 class="hero-title">Fundadores PREDIKT™</h1>
+      <p class="hero-copy">
+        Controla los primeros 100 lugares, confirma pagos, conserva evidencia y protege el acceso gratuito de por vida.
+      </p>
+    </section>
+
+    <section class="kpi-grid" aria-label="KPIs de fundadores">
+      <article class="kpi-card" data-icon="💎">
+        <p class="kpi-label">Fundadores</p>
+        <p class="kpi-value gold" id="foundersRegistered">1</p>
+        <p class="kpi-sub">Registrados confirmados.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="🎯">
+        <p class="kpi-label">Meta</p>
+        <p class="kpi-value blue" id="foundersGoal">100</p>
+        <p class="kpi-sub">Cupo máximo fundador.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="📈">
+        <p class="kpi-label">Avance</p>
+        <p class="kpi-value green" id="foundersProgress">1%</p>
+        <p class="kpi-sub">Progreso del programa.</p>
+      </article>
+
+      <article class="kpi-card" data-icon="🪑">
+        <p class="kpi-label">Disponibles</p>
+        <p class="kpi-value orange" id="foundersAvailable">99</p>
+        <p class="kpi-sub">Lugares restantes.</p>
+      </article>
+    </section>
+
+    <section class="program-card" aria-label="Programa Fundadores">
+      <h2 class="program-title">💎 Programa Fundadores</h2>
+      <p class="program-copy">
+        Los primeros 100 fundadores obtienen acceso gratuito de por vida a PREDIKT™. Esta vista queda lista para integrarse con Mercado Pago y evidencia manual.
+      </p>
+      <div class="progress-meta">
+        <span id="progressText">1 / 100</span>
+        <span>$50 MXN · Donación única</span>
+      </div>
+      <div class="founder-progress" aria-label="Avance del programa">
+        <div class="founder-progress-bar" id="foundersProgressBar"></div>
       </div>
     </section>
 
-    <div class="layout-grid">
-      <section class="main-column">
-        <section class="success-card" id="successCard" aria-label="Checkout Mercado Pago">
-          <div class="success-badge">✅</div>
-          <h2 class="success-title">Checkout preparado</h2>
-          <p class="success-copy">Te llevaremos a Mercado Pago para completar tu aportación de forma segura. Cuando el pago quede confirmado, activaremos tu distintivo Fundador PREDIKT™.</p>
-          <div class="checkout-box">
-            <span class="checkout-text">Mercado Pago listo para continuar</span>
-            <button class="checkout-btn" id="copyCheckoutBtn" type="button">Abrir pago</button>
-          </div>
-        </section>
+    <section class="toolbar" aria-label="Búsqueda y filtros">
+      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar fundador por alias, nombre, correo o pago..." />
+      <div class="filter-row">
+        <button class="filter-chip active" type="button" data-filter="all">Todos</button>
+        <button class="filter-chip" type="button" data-filter="confirmed">Confirmados</button>
+        <button class="filter-chip" type="button" data-filter="pending">Pendientes</button>
+      </div>
+    </section>
 
-        <section class="price-card" aria-label="Precio Fundador">
-          <p class="price-kicker">Acceso Fundador</p>
-          <div class="price">
-            <strong class="price-main">$50</strong>
-            <span class="price-currency">MXN</span>
-          </div>
-          <p class="price-copy">Un café simbólico de $50 MXN. No mensualidad. No renovación. Tu apoyo ayuda a mantener servidores, desarrollo y nuevas funcionalidades para la comunidad PREDIKT™.</p>
-          <div class="status-box" aria-label="Estado del programa">
-            <div class="status-top">
-              <p class="status-title">Estado del programa</p>
-              <p class="status-number" id="statusNumber">84 / 100</p>
-            </div>
-            <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
-            <p class="status-message" id="statusMessage">Programa abierto. El contador público aparecerá al llegar al fundador 85.</p>
-          </div>
-          <button class="founder-btn" id="founderBtn" type="button">⚽ Quiero ser Fundador</button>
-          <p class="micro-trust">Tu café se procesa de forma segura con Mercado Pago. Tu distintivo Fundador se activará cuando el pago quede confirmado.</p>
-        </section>
+    <section class="founders-panel" aria-label="Listado de fundadores">
+      <div class="section-head">
+        <h2 class="section-title">Listado Fundadores</h2>
+        <a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a>
+      </div>
 
-        <section class="card" aria-label="Por qué un café">
-          <div class="section-header">
-            <h2 class="section-title">¿Por qué un café?</h2>
-            <a class="section-link" href="crear-quiniela.html">Crear Quiniela</a>
-          </div>
+      <div class="founder-list" id="founderList"></div>
+    </section>
 
-          <div class="benefits-list">
-            <div class="benefit-row">
-              <div class="benefit-icon">☕</div>
-              <div>
-                <h3 class="benefit-title">PREDIKT™ es independiente</h3>
-                <p class="benefit-copy">Cada café ayuda a sostener el desarrollo inicial sin llenar la app de anuncios invasivos.</p>
-              </div>
-            </div>
-
-            <div class="benefit-row">
-              <div class="benefit-icon">📊</div>
-              <div>
-                <h3 class="benefit-title">Más estadísticas</h3>
-                <p class="benefit-copy">Tu apoyo nos permite mejorar pronósticos, rankings, lectura de partidos y experiencia deportiva.</p>
-              </div>
-            </div>
-
-            <div class="benefit-row">
-              <div class="benefit-icon">🏈</div>
-              <div>
-                <h3 class="benefit-title">Más deportes</h3>
-                <p class="benefit-copy">Después del Mundial 2026 podremos crecer hacia NFL, F1, NBA y más competencias.</p>
-              </div>
-            </div>
-
-            <div class="benefit-row">
-              <div class="benefit-icon">🤝</div>
-              <div>
-                <h3 class="benefit-title">Más comunidad</h3>
-                <p class="benefit-copy">Ayudas a que más personas creen quinielas, inviten amigos y compitan de forma divertida.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card" aria-label="Beneficios Fundador">
-          <div class="section-header">
-            <h2 class="section-title">Beneficios</h2>
-            <a class="section-link" href="crear-quiniela.html">Crear Quiniela</a>
-          </div>
-          <div class="benefits-list">
-            <div class="benefit-row"><div class="benefit-icon">♾️</div><div><h3 class="benefit-title">Acceso gratuito de por vida</h3><p class="benefit-copy">Tu cuenta Fundador conservará acceso vitalicio a la experiencia base de PREDIKT™.</p></div></div>
-            <div class="benefit-row"><div class="benefit-icon">👑</div><div><h3 class="benefit-title">Distintivo Fundador</h3><p class="benefit-copy">Tu perfil podrá mostrar un sello especial como uno de los primeros 100.</p></div></div>
-            <div class="benefit-row"><div class="benefit-icon">🚀</div><div><h3 class="benefit-title">Acceso anticipado</h3><p class="benefit-copy">Tendrás prioridad para probar nuevas funciones, rankings, estadísticas y retos.</p></div></div>
-            <div class="benefit-row"><div class="benefit-icon">🏈</div><div><h3 class="benefit-title">Futuros deportes incluidos</h3><p class="benefit-copy">PREDIKT™ iniciará con Mundial 2026 y podrá crecer hacia NFL, F1, NBA y más.</p></div></div>
-            <div class="benefit-row"><div class="benefit-icon">🏆</div><div><h3 class="benefit-title">Reconocimiento dentro de la comunidad</h3><p class="benefit-copy">Los fundadores serán parte visible del arranque histórico de PREDIKT™.</p></div></div>
-          </div>
-        </section>
-
-        <section class="card" aria-label="Preguntas frecuentes">
-          <div class="section-header">
-            <h2 class="section-title">Preguntas rápidas</h2>
-            <a class="section-link" href="perfil.html">Mi Perfil</a>
-          </div>
-          <div class="faq-list">
-            <div class="faq-item"><h3 class="faq-question">¿Es una suscripción?</h3><p class="faq-answer">No. Es una donación única de $50 MXN para el programa de los primeros 100 Fundadores.</p></div>
-            <div class="faq-item"><h3 class="faq-question">¿Qué pasa cuando llegue a 100?</h3><p class="faq-answer">El programa se cerrará automáticamente y el botón de donación dejará de mostrarse.</p></div>
-            <div class="faq-item"><h3 class="faq-question">¿Cuándo me convierto en Fundador?</h3><p class="faq-answer">Tu acceso Fundador se activará automáticamente cuando Mercado Pago confirme tu aportación.</p></div>
-          </div>
-        </section>
-      </section>
-
-      <aside class="side-column">
-        <section class="founder-preview" aria-label="Distintivo Fundador">
-          <div class="badge-preview">
-            <div class="badge-crown">👑</div>
-            <p class="badge-kicker">Distintivo especial</p>
-            <h2 class="badge-title">Fundador PREDIKT™</h2>
-            <p class="badge-copy">Aparecerá como insignia permanente en tu perfil y en futuras experiencias sociales.</p>
-            <div class="badge-stats">
-              <div class="badge-stat"><p class="badge-label">Lugar</p><p class="badge-value">#85</p></div>
-              <div class="badge-stat"><p class="badge-label">Acceso</p><p class="badge-value">Vitalicio</p></div>
-              <div class="badge-stat"><p class="badge-label">Aporte</p><p class="badge-value">$50 MXN</p></div>
-              <div class="badge-stat"><p class="badge-label">Estado</p><p class="badge-value">Reservable</p></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card" aria-label="Seguridad del pago">
-          <h2 class="section-title">Seguridad</h2>
-          <div class="audit-card">
-            <h3 class="audit-title">Confirmación segura del pago</h3>
-            <p class="audit-copy">PREDIKT™ activará tu distintivo Fundador únicamente cuando Mercado Pago confirme que tu aportación fue aprobada.</p>
-          </div>
-        </section>
-
-        <section class="card" aria-label="Arquitectura de pago">
-          <h2 class="section-title">Arquitectura</h2>
-          <div class="faq-list">
-            <div class="faq-item"><h3 class="faq-question">Proveedor inicial</h3><p class="faq-answer">Mercado Pago.</p></div>
-            <div class="faq-item"><h3 class="faq-question">Diseño futuro</h3><p class="faq-answer">Hoy usamos Mercado Pago. Más adelante podremos integrar NexoPay como motor propio de cobro JVSys.</p></div>
-          </div>
-        </section>
-      </aside>
-    </div>
+    <p class="admin-note">
+      Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta pagos reales, Mercado Pago, evidencia y protección por rol administrador.
+    </p>
   </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">Acción simulada.</div>
-
-  <nav class="app-footer" aria-label="Navegación principal">
-    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
-    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
-    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
-    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
-    <a class="footer-item" href="perfil.html"><span>👤</span>Perfil</a>
-  </nav>
+  <div class="toast" id="toast" role="status" aria-live="polite">Fundadores actualizados.</div>
 
   <script>
-    const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
-    const PREDIKT_EDGE_CREATE_FOUNDER_PAYMENT_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/functions/v1/create-founder-payment";
-    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+    const founderGoal = 100;
 
-    /*
-      Modo de checkout:
-      - "sandbox": recomendado durante pruebas controladas.
-      - "production": usar cuando Mercado Pago quede listo para cobro real público.
-    */
-    const PREDIKT_CHECKOUT_MODE = "sandbox";
+    const demoFounders = [
+      {
+        alias: "ElTigre",
+        name: "Carlos Rivera",
+        email: "eltigre@predikt.demo",
+        registered: "06 Jun",
+        payment: "$50 MXN",
+        status: "confirmed",
+        method: "Mercado Pago",
+        benefit: "Vitalicio"
+      },
+      {
+        alias: "Javier",
+        name: "Javier",
+        email: "javier@predikt.demo",
+        registered: "07 Jun",
+        payment: "Pendiente",
+        status: "pending",
+        method: "Manual",
+        benefit: "Reservado"
+      },
+      {
+        alias: "Pey",
+        name: "Pey",
+        email: "pey@predikt.demo",
+        registered: "07 Jun",
+        payment: "Pendiente",
+        status: "pending",
+        method: "Manual",
+        benefit: "Reservado"
+      }
+    ];
 
-    const founderBtn = document.getElementById("founderBtn");
-    const progressFill = document.getElementById("progressFill");
-    const statusNumber = document.getElementById("statusNumber");
-    const statusMessage = document.getElementById("statusMessage");
-    const successCard = document.getElementById("successCard");
-    const copyCheckoutBtn = document.getElementById("copyCheckoutBtn");
+    const founderList = document.getElementById("founderList");
+    const searchInput = document.getElementById("searchInput");
+    const filterButtons = document.querySelectorAll("[data-filter]");
+    const refreshBtn = document.getElementById("refreshBtn");
     const toast = document.getElementById("toast");
-
-    let founderProgramStatus = {
-      founders_registered: 3,
-      founder_limit: 100,
-      founder_slots_remaining: 97,
-      donation_amount: 50,
-      currency: "MXN",
-      is_program_open: true,
-      show_founder_button: true
-    };
-
-    let lastCheckoutUrl = "";
+    let activeFilter = "all";
 
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
       window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    function formatMoney(amount, currency) {
-      return `${Number(amount || 50).toLocaleString("es-MX")} ${currency || "MXN"}`;
+    function statusLabel(status) {
+      if (status === "confirmed") return { label: "🟢 Confirmado", className: "status-confirmed" };
+      if (status === "pending") return { label: "🟡 Pendiente", className: "status-pending" };
+      return { label: "🔴 Cancelado", className: "status-cancelled" };
     }
 
-    function getSafeUserProfile() {
-      const storedName = window.localStorage.getItem("predikt_user_name");
-      const storedEmail = window.localStorage.getItem("predikt_user_email");
-
-      return {
-        payer_name: storedName || "Fundador PREDIKT",
-        payer_email: storedEmail || "test@predikt.mx",
-        source: "fundadores_html_v1_2_0"
-      };
+    function initials(alias) {
+      return String(alias || "F").slice(0, 2).toUpperCase();
     }
 
-    function renderFounderStatus() {
-      const count = Number(founderProgramStatus.founders_registered || founderProgramStatus.confirmed_founders || 0);
-      const limit = Number(founderProgramStatus.founder_limit || 100);
-      const remaining = Number(founderProgramStatus.founder_slots_remaining || founderProgramStatus.remaining_spots || 0);
-      const amount = Number(founderProgramStatus.donation_amount || 50);
-      const currency = founderProgramStatus.currency || "MXN";
-      const isOpen = founderProgramStatus.is_program_open !== false;
-      const showButton = founderProgramStatus.show_founder_button !== false;
-      const percent = limit > 0 ? Math.min(Math.round((count / limit) * 100), 100) : 0;
+    function founderMatches(founder, query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return true;
 
-      progressFill.style.width = `${percent}%`;
-      statusNumber.textContent = `${count} / ${limit}`;
-      statusMessage.classList.remove("urgent");
-      founderBtn.classList.remove("disabled");
-      founderBtn.disabled = false;
+      return [
+        founder.alias,
+        founder.name,
+        founder.email,
+        founder.payment,
+        founder.method,
+        founder.benefit
+      ].some((value) => String(value || "").toLowerCase().includes(q));
+    }
 
-      document.querySelectorAll(".price-main").forEach((node) => {
-        node.textContent = `$${amount}`;
-      });
+    function filterMatches(founder) {
+      if (activeFilter === "all") return true;
+      return founder.status === activeFilter;
+    }
 
-      document.querySelectorAll(".price-currency").forEach((node) => {
-        node.textContent = currency;
-      });
+    function renderFounders() {
+      const query = searchInput.value || "";
+      const rows = demoFounders.filter((founder) => founderMatches(founder, query) && filterMatches(founder));
 
-      document.querySelectorAll(".badge-value").forEach((node) => {
-        if (node.textContent.includes("$50")) {
-          node.textContent = `$${amount} ${currency}`;
-        }
-      });
-
-      if (!isOpen || !showButton || remaining <= 0 || count >= limit) {
-        statusMessage.textContent = "Programa de Fundadores Completado. Gracias a los primeros 100 fundadores de PREDIKT™.";
-        founderBtn.textContent = "Programa completado";
-        founderBtn.classList.add("disabled");
-        founderBtn.disabled = true;
+      if (!rows.length) {
+        founderList.innerHTML = `
+          <div class="founder-row">
+            <div class="avatar">--</div>
+            <div class="founder-main">
+              <p class="founder-name">Sin resultados</p>
+              <p class="founder-email">Ajusta búsqueda o filtros.</p>
+            </div>
+          </div>
+        `;
         return;
       }
 
-      if (count >= 85) {
-        statusMessage.textContent = `⚠ Solo quedan ${remaining} lugares de Fundador.`;
-        statusMessage.classList.add("urgent");
-      } else {
-        statusMessage.textContent = "Programa abierto. El contador público aparecerá al llegar al fundador 85.";
-      }
+      founderList.innerHTML = rows.map((founder) => {
+        const status = statusLabel(founder.status);
 
-      founderBtn.textContent = `⚽ Quiero ser Fundador · ${formatMoney(amount, currency)}`;
-    }
+        return `
+          <article class="founder-row">
+            <div class="avatar">${initials(founder.alias)}</div>
 
-    async function loadFounderProgramStatus() {
-      try {
-        const response = await fetch(
-          `${PREDIKT_SUPABASE_REST_URL}/v_founder_program_public_status?select=*`,
-          {
-            method: "GET",
-            headers: {
-              "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
-              "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
-              "Accept": "application/json",
-              "Accept-Profile": "founders"
-            }
-          }
-        );
+            <div class="founder-main">
+              <div class="founder-topline">
+                <div>
+                  <p class="founder-name">${founder.alias}</p>
+                  <p class="founder-email">${founder.name} · ${founder.email}</p>
+                </div>
+                <span class="status-pill ${status.className}">${status.label}</span>
+              </div>
 
-        if (!response.ok) {
-          throw new Error(`Supabase status ${response.status}`);
-        }
+              <div class="founder-metrics">
+                <div class="metric">
+                  <strong>${founder.registered}</strong>
+                  <span>Registro</span>
+                </div>
+                <div class="metric">
+                  <strong>${founder.payment}</strong>
+                  <span>Pago</span>
+                </div>
+                <div class="metric">
+                  <strong>${founder.method}</strong>
+                  <span>Método</span>
+                </div>
+                <div class="metric">
+                  <strong>${founder.benefit}</strong>
+                  <span>Beneficio</span>
+                </div>
+              </div>
+            </div>
 
-        const rows = await response.json();
-        if (Array.isArray(rows) && rows.length > 0) {
-          founderProgramStatus = rows[0];
-        }
-      } catch (error) {
-        console.warn("PREDIKT Founder live status unavailable. Using safe fallback.", error);
-      }
+            <div class="founder-actions">
+              <button class="action-btn primary" type="button" data-action="view" data-founder="${founder.alias}">👁 Ver</button>
+              <button class="action-btn" type="button" data-action="confirm" data-founder="${founder.alias}">💎 Confirmar</button>
+              <button class="action-btn" type="button" data-action="evidence" data-founder="${founder.alias}">📄 Evidencia</button>
+            </div>
+          </article>
+        `;
+      }).join("");
 
-      renderFounderStatus();
-    }
+      document.querySelectorAll("[data-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const founder = button.dataset.founder;
+          const action = button.dataset.action;
 
-    async function startFounderCheckout() {
-      if (!founderBtn || founderBtn.disabled || founderBtn.classList.contains("disabled")) {
-        showToast("El programa de Fundadores no está disponible en este momento.");
-        return;
-      }
-
-      const originalText = founderBtn.textContent;
-      founderBtn.disabled = true;
-      founderBtn.textContent = "Preparando Mercado Pago...";
-      showToast("Preparando tu café de Fundador en Mercado Pago...");
-
-      try {
-        const payload = getSafeUserProfile();
-
-        const response = await fetch(PREDIKT_EDGE_CREATE_FOUNDER_PAYMENT_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
-            "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`
-          },
-          body: JSON.stringify(payload)
+          if (action === "view") showToast(`Vista de ${founder} preparada para detalle futuro.`);
+          if (action === "confirm") showToast(`Confirmación de ${founder} requiere conexión Supabase futura.`);
+          if (action === "evidence") showToast(`Evidencia de ${founder} preparada para módulo futuro.`);
         });
-
-        const result = await response.json().catch(() => null);
-
-        if (!response.ok || !result || result.ok !== true) {
-          throw new Error(result?.error || `create-founder-payment status ${response.status}`);
-        }
-
-        const checkout = result.checkout || {};
-        lastCheckoutUrl = PREDIKT_CHECKOUT_MODE === "sandbox"
-          ? checkout.sandbox_init_point || checkout.init_point
-          : checkout.init_point || checkout.sandbox_init_point;
-
-        if (!lastCheckoutUrl) {
-          throw new Error("Mercado Pago no devolvió URL de checkout.");
-        }
-
-        successCard.classList.add("show");
-        successCard.scrollIntoView({ behavior: "smooth", block: "center" });
-        showToast("Listo. Te llevamos a Mercado Pago para completar tu café.");
-
-        window.setTimeout(() => {
-          window.location.href = lastCheckoutUrl;
-        }, 650);
-      } catch (error) {
-        console.error("PREDIKT Founder checkout error:", error);
-        founderBtn.disabled = false;
-        founderBtn.textContent = originalText;
-        showToast("No pudimos abrir Mercado Pago en este momento. Intenta de nuevo en unos segundos.");
-      }
+      });
     }
 
-    founderBtn.addEventListener("click", startFounderCheckout);
+    function renderKpis() {
+      const confirmed = demoFounders.filter((founder) => founder.status === "confirmed").length;
+      const available = Math.max(founderGoal - confirmed, 0);
+      const progress = founderGoal > 0 ? Math.round((confirmed / founderGoal) * 100) : 0;
 
-    copyCheckoutBtn.addEventListener("click", () => {
-      if (lastCheckoutUrl) {
-        window.location.href = lastCheckoutUrl;
-        return;
-      }
+      document.getElementById("foundersRegistered").textContent = confirmed;
+      document.getElementById("foundersGoal").textContent = founderGoal;
+      document.getElementById("foundersProgress").textContent = `${progress}%`;
+      document.getElementById("foundersAvailable").textContent = available;
+      document.getElementById("progressText").textContent = `${confirmed} / ${founderGoal}`;
+      document.getElementById("foundersProgressBar").style.width = `${progress}%`;
+    }
 
-      startFounderCheckout();
+    searchInput.addEventListener("input", renderFounders);
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        filterButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        renderFounders();
+      });
     });
 
-    loadFounderProgramStatus();
+    refreshBtn.addEventListener("click", () => {
+      renderKpis();
+      renderFounders();
+      showToast("Fundadores actualizados.");
+    });
+
+    renderKpis();
+    renderFounders();
   </script>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html">
+      <span>🏠</span>
+      Inicio
+    </a>
+
+    <a class="footer-item" href="mi-quiniela.html">
+      <span>⚽</span>
+      Quiniela
+    </a>
+
+    <a class="footer-item" href="pronostico.html">
+      <span>🎯</span>
+      Pronósticos
+    </a>
+
+    <a class="footer-item" href="ranking.html">
+      <span>🏆</span>
+      Ranking
+    </a>
+
+    <a class="footer-item active" href="perfil.html" aria-current="page">
+      <span>👤</span>
+      Perfil
+    </a>
+  </nav>
 </body>
 </html>
