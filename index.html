@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.3.0 Match Intelligence Live Home
+    Versión: v5.3.1 Pronóstico Claro + Progreso MVP
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -21,8 +21,11 @@
       Conecta la tarjeta principal con sports.v_event_match_intelligence para cargar
       automáticamente el próximo partido real, incluyendo grupo, jornada, fase,
       fecha local, equipo local y equipo visitante.
+      Mejora claridad UX del pronóstico: pregunta explícita de ganador, botones
+      con texto 'Gana', avance 1/72, pendientes, aviso de cierre y confirmación
+      humana al guardar.
     Líneas versión anterior: 1250
-    Líneas versión nueva: 1259
+    Líneas versión nueva: 1391
   -->
 
   <meta charset="UTF-8" />
@@ -684,6 +687,80 @@
     }
 
 
+
+    .prediction-progress-card {
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      padding: 12px;
+      margin: 0 0 12px;
+    }
+
+    .prediction-progress-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .prediction-progress-title {
+      color: var(--text-soft);
+      font-size: 0.70rem;
+      font-weight: 950;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .prediction-progress-value {
+      color: var(--gold);
+      font-size: 0.82rem;
+      font-weight: 980;
+      white-space: nowrap;
+    }
+
+    .prediction-progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .prediction-progress-bar {
+      height: 100%;
+      width: 1.38%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), #8cffc4);
+    }
+
+    .prediction-progress-copy {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 780;
+      text-align: center;
+    }
+
+    .prediction-question {
+      margin: 12px 0 8px;
+      text-align: center;
+    }
+
+    .prediction-question-title {
+      color: var(--text-main);
+      font-size: 0.86rem;
+      font-weight: 980;
+      margin-bottom: 3px;
+    }
+
+    .prediction-question-copy {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 780;
+    }
+
     .prediction-actions {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -961,14 +1038,30 @@
 
         <p class="match-time" id="upcomingMatchTime">Próximo partido · Horario local del usuario</p>
 
-        <div class="prediction-actions" aria-label="Selecciona tu pronóstico rápido">
-          <button class="prediction-choice" type="button" data-prediction="México" id="homePredictionChoice">México</button>
-          <button class="prediction-choice" type="button" data-prediction="Empate">Empate</button>
-          <button class="prediction-choice" type="button" data-prediction="Sudáfrica" id="awayPredictionChoice">Sudáfrica</button>
+        <div class="prediction-progress-card" aria-label="Avance de pronósticos">
+          <div class="prediction-progress-top">
+            <span class="prediction-progress-title">Tus pronósticos Mundial 2026</span>
+            <strong class="prediction-progress-value" id="predictionProgressValue">1 / 72</strong>
+          </div>
+          <div class="prediction-progress-track" aria-hidden="true">
+            <div class="prediction-progress-bar" id="predictionProgressBar"></div>
+          </div>
+          <p class="prediction-progress-copy" id="predictionProgressCopy">Te faltan 71 partidos por pronosticar.</p>
+        </div>
+
+        <div class="prediction-question">
+          <p class="prediction-question-title">🏆 ¿Quién ganará este partido?</p>
+          <p class="prediction-question-copy">Selecciona el resultado que crees ocurrirá.</p>
+        </div>
+
+        <div class="prediction-actions" aria-label="Selecciona quién ganará este partido">
+          <button class="prediction-choice" type="button" data-prediction="México" data-kind="home" id="homePredictionChoice">🏆 Gana México</button>
+          <button class="prediction-choice" type="button" data-prediction="Empate" data-kind="draw">🤝 Empate</button>
+          <button class="prediction-choice" type="button" data-prediction="Sudáfrica" data-kind="away" id="awayPredictionChoice">🏆 Gana Sudáfrica</button>
         </div>
 
         <button class="primary-action" id="savePredictionBtn" type="button">Guardar pronóstico</button>
-        <p class="prediction-note">Beta rápida: primero elegimos ganador. Después agregaremos marcador exacto.</p>
+        <p class="prediction-note" id="predictionDeadlineNote">⏰ Puedes modificar tu elección hasta el inicio del partido.</p>
       </article>
     </section>
 
@@ -1094,7 +1187,39 @@
       toast.textContent = message;
       toast.classList.add("show");
       window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+
+    function updatePredictionProgress(completed = 1, total = 72) {
+      const safeCompleted = Math.max(0, Math.min(Number(completed || 0), Number(total || 72)));
+      const safeTotal = Math.max(1, Number(total || 72));
+      const pending = Math.max(safeTotal - safeCompleted, 0);
+      const progressPercent = Math.min((safeCompleted / safeTotal) * 100, 100);
+
+      const progressValue = document.getElementById("predictionProgressValue");
+      const progressBar = document.getElementById("predictionProgressBar");
+      const progressCopy = document.getElementById("predictionProgressCopy");
+
+      if (progressValue) {
+        progressValue.textContent = `${safeCompleted} / ${safeTotal}`;
+      }
+
+      if (progressBar) {
+        progressBar.style.width = `${progressPercent}%`;
+      }
+
+      if (progressCopy) {
+        progressCopy.textContent = pending > 0
+          ? `Te faltan ${pending} partidos por pronosticar.`
+          : "🏆 Quiniela completa.";
+      }
+    }
+
+    function getWinnerMessage(selection) {
+      if (!selection) return "";
+      if (selection === "Empate") return "Empate";
+      return `${selection} ganador`;
     }
 
     function sportsHeaders() {
@@ -1175,10 +1300,10 @@
       document.getElementById("awayTeamCode").textContent = awayCode;
       document.getElementById("awayTeamSmallCode").textContent = awayCode;
 
-      document.getElementById("homePredictionChoice").textContent = teams.home;
+      document.getElementById("homePredictionChoice").textContent = `🏆 Gana ${teams.home}`;
       document.getElementById("homePredictionChoice").dataset.prediction = teams.home;
 
-      document.getElementById("awayPredictionChoice").textContent = teams.away;
+      document.getElementById("awayPredictionChoice").textContent = `🏆 Gana ${teams.away}`;
       document.getElementById("awayPredictionChoice").dataset.prediction = teams.away;
 
       document.getElementById("matchDetailLink").href = detailHref;
@@ -1207,24 +1332,31 @@
     }
 
     loadUpcomingEvent();
+    updatePredictionProgress(Number(window.localStorage.getItem("predikt_predictions_completed") || 1), 72);
 
     predictionButtons.forEach((button) => {
       button.addEventListener("click", () => {
         predictionButtons.forEach((item) => item.classList.remove("selected"));
         button.classList.add("selected");
         selectedPrediction = button.dataset.prediction;
+
+        if (savePredictionBtn) {
+          savePredictionBtn.textContent = `Guardar pronóstico: ${getWinnerMessage(selectedPrediction)}`;
+        }
       });
     });
 
     if (savePredictionBtn) {
       savePredictionBtn.addEventListener("click", () => {
         if (!selectedPrediction) {
-          showToast("Elige México, Empate o Sudáfrica para guardar tu pronóstico.");
+          showToast("Elige quién ganará este partido antes de guardar tu pronóstico.");
           return;
         }
 
         window.localStorage.setItem("predikt_last_prediction", selectedPrediction);
-        showToast(`✅ Pronóstico guardado: ${selectedPrediction}. Siguiente partido listo en Pronósticos.`);
+        window.localStorage.setItem("predikt_predictions_completed", "1");
+        updatePredictionProgress(1, 72);
+        showToast(`✅ Pronóstico guardado. Elegiste: ${getWinnerMessage(selectedPrediction)}. Podrás modificarlo hasta que inicie el partido.`);
       });
     }
   </script>
