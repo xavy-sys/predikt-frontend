@@ -4,17 +4,17 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-09
-    Versión: v1.2.0 Supabase Prediction Insert Certified
+    Versión: v2.0.0 Real Supabase Prediction Engine
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Primera pantalla real de captura de pronósticos para PREDIKT™.
       Pantalla mobile-first tipo aplicación deportiva social.
-      Conecta el primer pronóstico real MVP contra Supabase usando predictions.predictions.
-      Mantiene Auth Guard, sesión real, recuperación de pronósticos guardados y fallback seguro
-      para partidos aún no conectados a event_id real.
+      Conecta la captura de pronósticos con Supabase usando predictions.predictions.
+      Integra Auth Guard real, user_id desde Supabase Auth, event_id real para México vs Sudáfrica,
+      group_id CUATES2026, recuperación de pronósticos guardados y fallback seguro para partidos no conectados.
     Líneas versión anterior: 1546
-    Líneas versión nueva: 1654
+    Líneas versión nueva: 1608
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -137,28 +137,6 @@
       border-radius: 999px;
       color: var(--gold);
       background: rgba(245, 185, 66, 0.09);
-      font-size: 0.72rem;
-      font-weight: 950;
-      white-space: nowrap;
-    }
-
-    .top-actions {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: nowrap;
-    }
-
-    .logout-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      color: var(--text-soft);
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
       font-size: 0.72rem;
       font-weight: 950;
       white-space: nowrap;
@@ -863,14 +841,9 @@
         font-size: 1.05rem;
       }
 
-      .level-pill,
-      .logout-pill {
+      .level-pill {
         padding: 7px 10px;
         font-size: 0.67rem;
-      }
-
-      .top-actions {
-        gap: 6px;
       }
 
       .hero-card {
@@ -1008,10 +981,7 @@
         <span class="hello" data-auth-hello>Validando sesión...</span>
       </a>
 
-      <div class="top-actions">
-        <span class="level-pill">📺 Futbolero</span>
-        <button class="logout-pill" type="button" data-global-logout>🚪 Salir</button>
-      </div>
+      <span class="level-pill">📺 Futbolero</span>
     </header>
 
     <section class="hero-card" aria-label="Resumen de pronósticos">
@@ -1074,14 +1044,14 @@
 
               <div class="intel-box">
                 <p class="intel-label">Referencia video</p>
-                <p class="intel-value">Partido 1</p>
-                <p class="intel-sub">México vs Sudáfrica</p>
+                <p class="intel-value">Apertura</p>
+                <p class="intel-sub">Primer partido conectado</p>
               </div>
 
               <div class="intel-box">
                 <p class="intel-label">Lectura PREDIKT™</p>
-                <p class="intel-value">Partido cerrado</p>
-                <p class="intel-sub">México puede incomodar</p>
+                <p class="intel-value">Inicio clave</p>
+                <p class="intel-sub">México necesita imponer ritmo</p>
               </div>
             </div>
           </div>
@@ -1110,7 +1080,7 @@
 
               <div class="score-row">
                 <div class="score-team">
-                  <p class="score-team-name">🇿🇦 Alemania</p>
+                  <p class="score-team-name">🇿🇦 Sudáfrica</p>
                   <p class="score-team-help">Goles pronosticados</p>
                 </div>
                 <div class="stepper">
@@ -1389,108 +1359,62 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/auth.js"></script>
+
   <script>
     /*
-      Nombre del bloque: PREDIKT™ Global Auth Guard Runtime
-      Fecha: 2026-06-08
+      Nombre del bloque: PREDIKT™ Real Prediction Runtime
+      Fecha: 2026-06-09
       Elaborado por: JVSys™
       Descripción:
-        Protege esta pantalla con sesión real de Supabase Auth.
-        Si no existe sesión, redirige a login.html.
-        Si existe sesión, muestra saludo real del usuario autenticado.
-    */
-    let authenticatedUser = null;
-
-    (async function initializeProtectedPage() {
-      function safeText(value) {
-        return String(value || "").trim();
-      }
-
-      function getDisplayName(user) {
-        const metadata = user && user.user_metadata ? user.user_metadata : {};
-        const candidates = [
-          metadata.alias,
-          metadata.full_name,
-          metadata.name,
-          metadata.display_name
-        ];
-
-        for (const candidate of candidates) {
-          const value = safeText(candidate);
-          if (value) return value.split(" ")[0];
-        }
-
-        const email = safeText(user && user.email);
-        if (email && email.includes("@")) return email.split("@")[0];
-        return "Participante";
-      }
-
-      function renderAuthenticatedUser(user) {
-        const displayName = getDisplayName(user);
-        document.querySelectorAll("[data-auth-hello]").forEach((element) => {
-          element.textContent = `Hola ${displayName} 👋`;
-        });
-      }
-
-      try {
-        if (!window.PrediktAuth) {
-          window.location.href = "login.html";
-          return;
-        }
-
-        const session = await window.PrediktAuth.requireAuth();
-        if (!session) return;
-
-        const user = session.user || await window.PrediktAuth.getCurrentUser();
-        authenticatedUser = user;
-        renderAuthenticatedUser(user);
-        await loadExistingPredictions();
-      } catch (error) {
-        console.error("PREDIKT™ pronostico.html Auth Guard error:", error);
-        window.location.href = "login.html";
-      }
-    })();
-  </script>
-
-  <script>
-    /*
-      Nombre del bloque: Pronósticos Local Runtime
-      Fecha: 2026-06-08
-      Fabricante: JVSys™
-      Descripción:
-        Controla marcadores con botones + / -, vista previa en vivo,
-        guardado simulado por partido, barra de progreso y mensaje de confirmación.
+        Protege la pantalla con Supabase Auth, muestra saludo real,
+        guarda pronósticos reales en predictions.predictions y recupera pronósticos existentes.
     */
 
     const PREDIKT_DEFAULT_GROUP_ID = "11111111-1111-1111-1111-111111111111";
 
     const matchLabels = {
-      "mex-rsa": {
-        home: "México",
-        away: "Sudáfrica"
-      },
-      "bra-esp": {
-        home: "Brasil",
-        away: "España"
-      },
-      "arg-fra": {
-        home: "Argentina",
-        away: "Francia"
-      }
+      "mex-rsa": { home: "México", away: "Sudáfrica" },
+      "bra-esp": { home: "Brasil", away: "España" },
+      "arg-fra": { home: "Argentina", away: "Francia" }
     };
 
     const savedMatches = new Set();
+    let authenticatedUser = null;
 
     const progressFill = document.getElementById("progressFill");
     const progressText = document.getElementById("progressText");
     const rewardNote = document.getElementById("rewardNote");
     const toast = document.getElementById("toast");
 
-    function getSupabaseClient() {
-      if (!window.PREDIKT_SUPABASE_READY || !window.prediktSupabase) {
-        throw new Error("Supabase no está disponible en esta sesión.");
+    function safeText(value) {
+      return String(value || "").trim();
+    }
+
+    function getDisplayName(user) {
+      const metadata = user && user.user_metadata ? user.user_metadata : {};
+      const candidates = [metadata.alias, metadata.full_name, metadata.name, metadata.display_name];
+
+      for (const candidate of candidates) {
+        const value = safeText(candidate);
+        if (value) return value.split(" ")[0];
       }
 
+      const email = safeText(user && user.email);
+      if (email && email.includes("@")) return email.split("@")[0];
+      return "Participante";
+    }
+
+    function renderAuthenticatedUser(user) {
+      const displayName = getDisplayName(user);
+      document.querySelectorAll("[data-auth-hello]").forEach((element) => {
+        element.textContent = `Hola ${displayName} 👋`;
+      });
+    }
+
+    function getSupabaseClient() {
+      if (!window.PREDIKT_SUPABASE_READY || !window.prediktSupabase) {
+        throw new Error("Supabase no está disponible.");
+      }
       return window.prediktSupabase;
     }
 
@@ -1506,20 +1430,16 @@
     }
 
     function getPredictedWinner(card, homeScore, awayScore) {
-      const matchId = card.dataset.matchId;
-      const labels = matchLabels[matchId] || { home: "LOCAL", away: "VISITA" };
-
+      const labels = matchLabels[card.dataset.matchId] || { home: "LOCAL", away: "VISITA" };
       if (homeScore > awayScore) return labels.home;
       if (awayScore > homeScore) return labels.away;
       return "EMPATE";
     }
 
     function updatePreview(card) {
-      const matchId = card.dataset.matchId;
+      const labels = matchLabels[card.dataset.matchId] || { home: "Local", away: "Visitante" };
       const { homeScore, awayScore } = getCardScores(card);
       const preview = card.querySelector("[data-preview]");
-      const labels = matchLabels[matchId];
-
       preview.textContent = `Tu pronóstico: ${labels.home} ${homeScore} - ${awayScore} ${labels.away}`;
     }
 
@@ -1545,17 +1465,15 @@
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
-
       window.clearTimeout(showToast.timer);
       showToast.timer = window.setTimeout(() => {
         toast.classList.remove("show");
-      }, 2600);
+      }, 2800);
     }
 
     function markCardAsSaved(card) {
       const matchId = card.dataset.matchId;
       const saveButton = card.querySelector("[data-save]");
-
       savedMatches.add(matchId);
       saveButton.classList.add("saved");
       saveButton.textContent = "Pronóstico guardado";
@@ -1565,7 +1483,6 @@
     function markCardAsUnsaved(card) {
       const matchId = card.dataset.matchId;
       const saveButton = card.querySelector("[data-save]");
-
       savedMatches.delete(matchId);
       saveButton.classList.remove("saved");
       saveButton.textContent = "Guardar pronóstico";
@@ -1613,18 +1530,18 @@
         return;
       }
 
-      const client = getSupabaseClient();
       const eventId = card.dataset.eventId;
       const groupId = card.dataset.groupId || PREDIKT_DEFAULT_GROUP_ID;
-      const matchId = card.dataset.matchId;
-      const labels = matchLabels[matchId];
-      const saveButton = card.querySelector("[data-save]");
-      const { homeScore, awayScore } = getCardScores(card);
 
       if (!eventId) {
-        showToast("Este partido aún no tiene event_id real. Conectaremos los demás al cargar calendario real.");
+        showToast("Este partido aún no está conectado al calendario real. Usa México vs Sudáfrica para la primera prueba.");
         return;
       }
+
+      const client = getSupabaseClient();
+      const labels = matchLabels[card.dataset.matchId] || { home: "Local", away: "Visitante" };
+      const saveButton = card.querySelector("[data-save]");
+      const { homeScore, awayScore } = getCardScores(card);
 
       const payload = {
         group_id: groupId,
@@ -1677,23 +1594,40 @@
         if (writeError) throw writeError;
 
         markCardAsSaved(card);
-        showToast(`${labels.home} ${homeScore} - ${awayScore} ${labels.away}. Guardado en Supabase.`);
+        showToast(`${labels.home} ${homeScore} - ${awayScore} ${labels.away}. Guardado real en Supabase.`);
       } catch (error) {
         console.error("PREDIKT™ savePredictionToSupabase error:", error);
         saveButton.classList.remove("saved");
         saveButton.textContent = "Guardar pronóstico";
-        showToast(`No se pudo guardar en Supabase: ${error.message || "revisa RLS/permisos"}.`);
+        showToast(`No se pudo guardar: ${error.message || "revisa RLS/permisos"}.`);
       } finally {
         saveButton.disabled = false;
       }
     }
 
-    document.querySelectorAll("[data-global-logout]").forEach((button) => {
-      button.addEventListener("click", async () => {
-        showToast("Cerrando sesión...");
-        await window.PrediktAuth.logoutUser();
-      });
-    });
+    async function initializeProtectedPredictionPage() {
+      try {
+        if (!window.PrediktAuth) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const session = await window.PrediktAuth.requireAuth();
+        if (!session) return;
+
+        authenticatedUser = session.user || await window.PrediktAuth.getCurrentUser();
+        if (!authenticatedUser) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        renderAuthenticatedUser(authenticatedUser);
+        await loadExistingPredictions();
+      } catch (error) {
+        console.error("PREDIKT™ pronostico.html initialization error:", error);
+        window.location.href = "login.html";
+      }
+    }
 
     document.querySelectorAll(".match-card").forEach((card) => {
       card.addEventListener("click", async (event) => {
@@ -1721,32 +1655,15 @@
     });
 
     updateProgress();
-        }
-
-        if (saveButton) {
-          const matchId = card.dataset.matchId;
-          const preview = card.querySelector("[data-preview]").textContent;
-
-          savedMatches.add(matchId);
-          saveButton.classList.add("saved");
-          saveButton.textContent = "Pronóstico guardado";
-
-          updateProgress();
-          showToast(`${preview}. Guardado correctamente.`);
-        }
-      });
-
-      updatePreview(card);
-    });
-
-    updateProgress();
+    initializeProtectedPredictionPage();
   </script>
 </body>
 </html>
 
 <!--
 Cierre de archivo
-Versión: v1.2.0 Supabase Prediction Insert Certified
+Versión: v2.0.0 Real Supabase Prediction Engine
 Fecha: 2026-06-09
 Elaborado por: JVSys™
+Total de líneas: 1608
 -->
