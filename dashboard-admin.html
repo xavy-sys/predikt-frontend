@@ -3,23 +3,25 @@
 <head>
   <!--
     Nombre del archivo: dashboard-admin.html
-    Fecha: 2026-06-08
-    Versión: v1.0.3 🔐 Admin Guard + Campaña Diferida
+    Fecha: 2026-06-09
+    Versión: v1.0.4 🔐 Admin Guard RPC + Logo Path Fix
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Dashboard administrativo de lanzamiento para PREDIKT™.
-      Integra Guardia Admin Real mediante Supabase Auth y allowlist administrativa
-      en esquema core.admin_email_allowlist.
+      Integra Guardia Admin Real mediante Supabase Auth y función RPC pública
+      predikt_current_admin_access(), validando core.admin_users sin exponer
+      directamente el esquema core por API.
       Bloquea visualización inicial para evitar exposición por URL directa,
       valida sesión activa antes de ejecutar el dashboard y conserva branding
       oficial PREDIKT™ con favicon/logo oficial.
       Mantiene KPIs, acciones rápidas, datos fallback y conexión REST existente.
+      Corrige la ruta oficial real del logo en el repositorio: assets/predikt-logo.png.
       Retira temporalmente el botón CAMPAÑA del Centro de Lanzamiento para
       mantener enfoque operativo del MVP. Campaña queda pendiente por redefinir
       como WAR ROOM PREDIKT™ posterior al lanzamiento.
-    Líneas versión anterior: 1200
-    Líneas versión nueva: 1241
+    Líneas versión anterior: 1241
+    Líneas versión nueva: 1246
   -->
 
   <meta charset="UTF-8" />
@@ -28,9 +30,9 @@
   <meta name="description" content="Centro de Control de Lanzamiento PREDIKT™ para monitorear usuarios, pronósticos, fundadores y actividad." />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+  <link rel="icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/predikt-logo.png" />
 
   <script>
     document.documentElement.classList.add("admin-guard-pending");
@@ -225,7 +227,7 @@
       top: -26px;
       width: 132px;
       height: 132px;
-      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
+      background: url("assets/predikt-logo.png") center / contain no-repeat;
       opacity: 0.08;
       transform: rotate(12deg);
       pointer-events: none;
@@ -708,7 +710,7 @@
   <main class="app-shell">
     <header class="app-header" aria-label="Encabezado PREDIKT Admin">
       <a class="brand" href="index.html" aria-label="Ir a inicio">
-        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <img class="brand-logo" src="assets/predikt-logo.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
           <small class="brand-sub">🚀 Centro de Lanzamiento</small>
@@ -888,7 +890,7 @@
     </section>
 
     <p class="admin-note">
-      Vista administrativa no pública. Esta versión valida UX/UI con datos fallback. La siguiente etapa conecta vistas reales Supabase y protección por rol administrador.
+      Vista administrativa no pública. Esta versión valida UX/UI con datos fallback. Guardia Admin activa mediante Supabase Auth + RPC. Las vistas analíticas aún pueden operar con fallback si no están expuestas por API.
     </p>
   </main>
 
@@ -1187,7 +1189,7 @@
         document.body.innerHTML = `
           <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#061826;color:#fff;font-family:Arial,sans-serif;padding:24px;text-align:center;">
             <section style="max-width:420px;border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:28px;background:rgba(255,255,255,.06);">
-              <img src="assets/logos/predikt-logo.png" alt="PREDIKT™" style="width:86px;height:auto;margin-bottom:16px;" />
+              <img src="assets/predikt-logo.png" alt="PREDIKT™" style="width:86px;height:auto;margin-bottom:16px;" />
               <h1 style="font-size:22px;margin:0 0 10px;">PREDIKT™</h1>
               <p style="font-size:16px;line-height:1.5;margin:0;color:#d7e3f5;">No se pudo cargar la Guardia Admin.</p>
             </section>
