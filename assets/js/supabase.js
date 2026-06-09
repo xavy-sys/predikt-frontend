@@ -20,7 +20,7 @@ Líneas versión nueva: 65
     Ruta en Supabase:
     Project Settings → API → Project API keys → anon public
   */
-  const PREDIKT_SUPABASE_ANON_KEY = 'https://bhsffngulgvwfzjhiymy.supabase.co';
+  const PREDIKT_SUPABASE_ANON_KEY = 'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
 
   function validateSupabaseConfig() {
     if (!PREDIKT_SUPABASE_URL || !PREDIKT_SUPABASE_URL.startsWith('https://')) {
@@ -30,7 +30,7 @@ Líneas versión nueva: 65
 
     if (
       !PREDIKT_SUPABASE_ANON_KEY ||
-      PREDIKT_SUPABASE_ANON_KEY === 'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ'
+      PREDIKT_SUPABASE_ANON_KEY === 'PEGAR_AQUI_TU_SUPABASE_ANON_PUBLIC_KEY'
     ) {
       console.error('PREDIKT™ Auth: falta configurar la anon public key de Supabase.');
       return false;
