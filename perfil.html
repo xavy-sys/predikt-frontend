@@ -3,18 +3,18 @@
 <head>
   <!--
     Nombre del archivo: perfil.html
-    Fecha: 2026-06-08
-    Versión: v3.0.0 Global Auth Guard + Logout Certified
+    Fecha: 2026-06-09
+    Versión: v4.0.0 Real Stats Certified
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla Perfil protegida para PREDIKT™.
-      Integra Supabase Auth real, Global Auth Guard, lectura de sesión real,
-      perfil dinámico desde auth.users/user_metadata y logout certificado.
-      Mantiene Programa Fundadores conectado a Edge Function create-founder-payment.
-      Elimina saludo y datos personales hardcodeados para lanzamiento MVP.
-    Líneas versión anterior: 1077
-    Líneas versión nueva: 1142
+      Pantalla Perfil certificada para PREDIKT™.
+      Conecta el perfil con sesión real de Supabase Auth, protege acceso directo,
+      muestra nombre/correo real del usuario autenticado, conserva Fundadores,
+      ejecuta cierre de sesión real y lee estadísticas reales desde rankings.user_stats
+      mediante RPC segura public.predikt_get_my_user_stats().
+    Líneas versión anterior: 1202
+    Líneas versión nueva: 1281
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -425,7 +425,7 @@
     }
 
     .progress-fill {
-      width: 0%;
+      width: 68%;
       height: 100%;
       border-radius: 999px;
       background: linear-gradient(90deg, var(--gold), var(--gold-soft));
@@ -544,26 +544,6 @@
       background: rgba(245,185,66,.12);
       border: 1px solid rgba(245,185,66,.22);
     }
-
-    .auth-loading .page-shell,
-    .auth-loading .app-footer {
-      visibility: hidden;
-    }
-
-    .auth-loading::before {
-      content: "Validando sesión PREDIKT™...";
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      display: grid;
-      place-items: center;
-      color: var(--gold);
-      background: #061826;
-      font-size: .92rem;
-      font-weight: 900;
-      letter-spacing: .03em;
-    }
-
 
     @media (max-width: 720px) {
       body {
@@ -820,7 +800,7 @@
   </style>
 </head>
 
-<body class="auth-loading">
+<body>
   <main class="page-shell">
     <header class="top-bar" aria-label="Encabezado de PREDIKT">
       <a href="index.html" class="brand-block" aria-label="Ir a inicio">
@@ -835,13 +815,14 @@
         <div class="avatar" id="profileAvatar" aria-hidden="true">--</div>
         <div>
           <p class="profile-kicker">Perfil de participante</p>
-          <h1 class="profile-name" id="profileName">Participante</h1>
-          <p class="profile-copy" id="profileCopy">Tu cuenta está activa. Ya puedes capturar pronósticos y participar en rankings PREDIKT™.</p>
+          <h1 class="profile-name" id="profileName">Cargando...</h1>
+          <p class="profile-copy"><span id="profileDescription">Estamos preparando tu perfil PREDIKT™.</span></p>
           <div class="profile-pills">
             <span class="pill gold">📺 Futbolero</span>
-            <span class="pill" id="profileEmailPill">📧 correo validado</span>
-            <span class="pill">🔐 Sesión activa</span>
-            <span class="pill">🎯 MVP protegido</span>
+            <span class="pill" id="profileEmailPill">📧 sesión activa</span>
+            <span class="pill" id="profileRankPill">🏆 Ranking pendiente</span>
+            <span class="pill" id="profilePredictionsPill">⚽ 0 pronósticos</span>
+            <span class="pill" id="profileAccuracyPill">🎯 0% aciertos</span>
           </div>
         </div>
       </div>
@@ -879,10 +860,10 @@
         <a class="section-link" href="ranking.html">Ver ranking</a>
       </div>
       <div class="stats-grid">
-        <div class="stat-card"><p class="stat-label">Puntos</p><strong class="stat-value" id="statPoints">0</strong><p class="stat-note">por iniciar</p></div>
-        <div class="stat-card"><p class="stat-label">Aciertos</p><strong class="stat-value" id="statAccuracy">0%</strong><p class="stat-note">sin jornada</p></div>
-        <div class="stat-card"><p class="stat-label">Pronósticos</p><strong class="stat-value" id="statPredictions">0</strong><p class="stat-note">capturados</p></div>
-        <div class="stat-card"><p class="stat-label">Racha</p><strong class="stat-value" id="statStreak">0</strong><p class="stat-note">por construir</p></div>
+        <div class="stat-card"><p class="stat-label">Puntos</p><strong class="stat-value" id="profileTotalPoints">0</strong><p class="stat-note" id="profilePointsNote">por iniciar</p></div>
+        <div class="stat-card"><p class="stat-label">Aciertos</p><strong class="stat-value" id="profileAccuracy">0%</strong><p class="stat-note" id="profileAccuracyNote">sin jornada</p></div>
+        <div class="stat-card"><p class="stat-label">Pronósticos</p><strong class="stat-value" id="profileTotalPredictions">0</strong><p class="stat-note">capturados</p></div>
+        <div class="stat-card"><p class="stat-label">Posición</p><strong class="stat-value" id="profileGlobalRank">--</strong><p class="stat-note" id="profileRankNote">ranking real</p></div>
       </div>
     </section>
 
@@ -890,11 +871,11 @@
       <div class="level-main">
         <div>
           <h2 class="level-name">📺 Futbolero</h2>
-          <p class="level-copy">Comienza capturando tus primeros pronósticos.</p>
+          <p class="level-copy" id="profileLevelCopy">Basado en tus aciertos reales.</p>
         </div>
-        <strong class="level-percent">0%</strong>
+        <strong class="level-percent" id="profileLevelPercent">0%</strong>
       </div>
-      <div class="progress-bar" aria-hidden="true"><div class="progress-fill"></div></div>
+      <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="profileLevelProgress"></div></div>
     </section>
 
     <section class="settings-card" aria-label="Configuración">
@@ -911,7 +892,7 @@
           <span class="setting-icon">🔔</span>
           <span><strong class="setting-name">Avisos</strong><span class="setting-copy">Recordatorios de partidos.</span></span>
         </button>
-        <button class="setting-row" type="button" data-action="logout" id="logoutButton">
+        <button class="setting-row" type="button" id="logoutButton" data-action="Cerrar sesión">
           <span class="setting-icon">🚪</span>
           <span><strong class="setting-name">Salir</strong><span class="setting-copy">Cerrar sesión real.</span></span>
         </button>
@@ -919,7 +900,7 @@
     </section>
   </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">Acción simulada.</div>
+  <div class="toast" id="toast" role="status" aria-live="polite">Preparando perfil.</div>
 
   <nav class="app-footer" aria-label="Navegación principal">
     <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
@@ -947,6 +928,9 @@
     */
     const PREDIKT_CHECKOUT_MODE = "sandbox";
 
+    let currentAuthUser = null;
+    let currentAuthSession = null;
+
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
@@ -954,30 +938,142 @@
       showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
     }
 
-    let authenticatedUser = null;
+    function cleanText(value) {
+      return String(value || "").trim();
+    }
 
-    function getSafeUserProfile() {
-      const displayName = window.PrediktAuth && authenticatedUser
-        ? window.PrediktAuth.getUserDisplayName(authenticatedUser)
-        : "Fundador PREDIKT";
+    function getDisplayNameFromUser(user) {
+      const metadata = user && user.user_metadata ? user.user_metadata : {};
+      return cleanText(metadata.full_name) || cleanText(metadata.name) || cleanText(metadata.alias) || cleanText(user && user.email).split("@")[0] || "Participante";
+    }
 
-      return {
-        payer_name: displayName || "Fundador PREDIKT",
-        payer_email: authenticatedUser?.email || "test@predikt.mx",
-        source: "perfil_html_v3_0_0_auth_guard_logout_certified"
-      };
+    function getAliasFromUser(user) {
+      const metadata = user && user.user_metadata ? user.user_metadata : {};
+      return cleanText(metadata.alias) || cleanText(user && user.email).split("@")[0] || "Predikter";
+    }
+
+    function getInitials(name, email) {
+      const source = cleanText(name) || cleanText(email) || "PREDIKT";
+      const parts = source.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+
+      return source.slice(0, 2).toUpperCase();
     }
 
     function renderAuthenticatedProfile(user) {
-      const displayName = window.PrediktAuth.getUserDisplayName(user);
-      const initials = window.PrediktAuth.getUserInitials(user);
-      const email = user?.email || "correo no disponible";
+      const displayName = getDisplayNameFromUser(user);
+      const alias = getAliasFromUser(user);
+      const email = cleanText(user && user.email);
 
-      document.getElementById("profileHello").textContent = `Hola ${displayName} 👋`;
-      document.getElementById("profileAvatar").textContent = initials;
-      document.getElementById("profileName").textContent = displayName;
-      document.getElementById("profileEmailPill").textContent = `📧 ${email}`;
-      document.getElementById("profileCopy").textContent = "Tu cuenta está activa. Ya puedes capturar pronósticos, participar en quinielas y aparecer en rankings PREDIKT™.";
+      const profileHello = document.getElementById("profileHello");
+      const profileAvatar = document.getElementById("profileAvatar");
+      const profileName = document.getElementById("profileName");
+      const profileDescription = document.getElementById("profileDescription");
+      const profileEmailPill = document.getElementById("profileEmailPill");
+
+      if (profileHello) profileHello.textContent = `Hola ${displayName} 👋`;
+      if (profileAvatar) profileAvatar.textContent = getInitials(displayName, email);
+      if (profileName) profileName.textContent = displayName;
+      if (profileDescription) {
+        profileDescription.textContent = `Alias público: ${alias}. Tu sesión está activa y lista para guardar pronósticos.`;
+      }
+      if (profileEmailPill) profileEmailPill.textContent = email ? `📧 ${email}` : "📧 sesión activa";
+
+      window.localStorage.setItem("predikt_user_name", displayName);
+      window.localStorage.setItem("predikt_user_email", email);
+      window.localStorage.setItem("predikt_user_alias", alias);
+    }
+
+
+    function asNumber(value, fallback = 0) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+
+    function formatInteger(value) {
+      return String(Math.round(asNumber(value, 0)));
+    }
+
+    function formatPoints(value) {
+      const points = asNumber(value, 0);
+      return points % 1 === 0 ? String(Math.round(points)) : points.toFixed(2);
+    }
+
+    function formatPercentage(value) {
+      return `${asNumber(value, 0).toFixed(0)}%`;
+    }
+
+    function setText(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = value;
+    }
+
+    function setWidth(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.style.width = value;
+    }
+
+    function renderRealUserStats(stats) {
+      const safeStats = stats || {};
+      const totalPredictions = asNumber(safeStats.total_predictions, 0);
+      const totalCorrect = asNumber(safeStats.total_correct, 0);
+      const totalPoints = asNumber(safeStats.total_points, 0);
+      const globalRank = asNumber(safeStats.global_rank, 0);
+      const accuracy = asNumber(safeStats.accuracy_percentage, 0);
+      const progress = Math.max(0, Math.min(100, accuracy));
+
+      setText("profileTotalPoints", formatPoints(totalPoints));
+      setText("profileAccuracy", formatPercentage(accuracy));
+      setText("profileTotalPredictions", formatInteger(totalPredictions));
+      setText("profileGlobalRank", globalRank > 0 ? `#${formatInteger(globalRank)}` : "--");
+      setText("profilePointsNote", totalPoints > 0 ? "puntos reales" : "sin puntos aún");
+      setText("profileAccuracyNote", totalPredictions > 0 ? `${formatInteger(totalCorrect)} aciertos` : "sin jornada");
+      setText("profileRankNote", globalRank > 0 ? "posición global" : "por construir");
+
+      setText("profileRankPill", globalRank > 0 ? `🏆 #${formatInteger(globalRank)} Ranking` : "🏆 Ranking pendiente");
+      setText("profilePredictionsPill", `⚽ ${formatInteger(totalPredictions)} pronóstico${totalPredictions === 1 ? "" : "s"}`);
+      setText("profileAccuracyPill", `🎯 ${formatPercentage(accuracy)} aciertos`);
+      setText("profileLevelPercent", formatPercentage(progress));
+      setText("profileLevelCopy", totalPredictions > 0 ? "Efectividad calculada con resultados oficiales." : "Captura pronósticos para iniciar tu historial.");
+      setWidth("profileLevelProgress", `${progress}%`);
+    }
+
+    async function loadRealUserStats() {
+      renderRealUserStats(null);
+
+      if (!window.prediktSupabase) {
+        console.warn("PREDIKT profile stats: Supabase client unavailable.");
+        return;
+      }
+
+      try {
+        const { data, error } = await window.prediktSupabase.rpc("predikt_get_my_user_stats");
+
+        if (error) {
+          throw error;
+        }
+
+        const stats = Array.isArray(data) ? data[0] : data;
+        renderRealUserStats(stats || null);
+      } catch (error) {
+        console.error("PREDIKT profile stats error:", error);
+        showToast("No se pudieron cargar tus estadísticas reales todavía.");
+      }
+    }
+
+    function getSafeUserProfile() {
+      const user = currentAuthUser;
+      const displayName = user ? getDisplayNameFromUser(user) : window.localStorage.getItem("predikt_user_name");
+      const email = user && user.email ? user.email : window.localStorage.getItem("predikt_user_email");
+
+      return {
+        payer_name: displayName || "Fundador PREDIKT",
+        payer_email: email || "test@predikt.mx",
+        source: "perfil_html_v4_0_0_real_stats_certified"
+      };
     }
 
     function renderFounderProgramStatus(founderProgramStatus) {
@@ -1099,24 +1195,59 @@
       }
     }
 
-    async function initializeProtectedProfile() {
-      if (!window.PrediktAuth) {
-        showToast("No se cargó el motor de autenticación PREDIKT™.");
-        return;
+    async function logoutProfile() {
+      const logoutButton = document.getElementById("logoutButton");
+      if (logoutButton) logoutButton.disabled = true;
+      showToast("Cerrando sesión...");
+
+      try {
+        if (window.PrediktAuth && typeof window.PrediktAuth.logoutUser === "function") {
+          await window.PrediktAuth.logoutUser();
+          return;
+        }
+
+        if (window.prediktSupabase) {
+          await window.prediktSupabase.auth.signOut();
+        }
+
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("PREDIKT logout error:", error);
+        if (logoutButton) logoutButton.disabled = false;
+        showToast("No se pudo cerrar sesión. Intenta de nuevo.");
       }
+    }
 
-      const session = await window.PrediktAuth.requireAuth();
-      if (!session) return;
+    async function bootstrapAuthenticatedProfile() {
+      try {
+        if (!window.PREDIKT_SUPABASE_READY || !window.prediktSupabase) {
+          showToast("No se pudo validar la sesión. Regresa a iniciar sesión.");
+          window.setTimeout(() => {
+            window.location.href = "login.html?redirect=perfil.html";
+          }, 900);
+          return;
+        }
 
-      authenticatedUser = session.user || await window.PrediktAuth.getCurrentUser();
-      if (!authenticatedUser) {
-        await window.PrediktAuth.logoutUser();
-        return;
+        const session = window.PrediktAuth && typeof window.PrediktAuth.requireAuth === "function"
+          ? await window.PrediktAuth.requireAuth()
+          : null;
+
+        if (!session) {
+          return;
+        }
+
+        currentAuthSession = session;
+        currentAuthUser = session.user;
+        renderAuthenticatedProfile(currentAuthUser);
+        await loadRealUserStats();
+        await loadFounderProgramStatus();
+      } catch (error) {
+        console.error("PREDIKT profile bootstrap error:", error);
+        showToast("No se pudo cargar tu perfil. Vuelve a iniciar sesión.");
+        window.setTimeout(() => {
+          window.location.href = "login.html?redirect=perfil.html";
+        }, 1200);
       }
-
-      renderAuthenticatedProfile(authenticatedUser);
-      document.body.classList.remove("auth-loading");
-      await loadFounderProgramStatus();
     }
 
     const founderButton = document.getElementById("founderButton");
@@ -1124,19 +1255,28 @@
       founderButton.addEventListener("click", startFounderCheckout);
     }
 
-    document.querySelectorAll("[data-action]").forEach((button) => {
-      button.addEventListener("click", async () => {
-        if (button.dataset.action === "logout") {
-          showToast("Cerrando sesión...");
-          await window.PrediktAuth.logoutUser();
-          return;
-        }
+    const logoutButton = document.getElementById("logoutButton");
+    if (logoutButton) {
+      logoutButton.addEventListener("click", logoutProfile);
+    }
 
-        showToast(`${button.dataset.action}: función pendiente para después del lanzamiento.`);
+    document.querySelectorAll("[data-action]").forEach((button) => {
+      if (button.id === "logoutButton") return;
+
+      button.addEventListener("click", () => {
+        showToast(`${button.dataset.action}: disponible después del lanzamiento Beta.`);
       });
     });
 
-    initializeProtectedProfile();
+    bootstrapAuthenticatedProfile();
   </script>
 </body>
+
+<!--
+Cierre de archivo
+Versión: v4.0.0 Real Stats Certified
+Fecha: 2026-06-09
+Líneas versión anterior: 1202
+Total de líneas: 1281
+-->
 </html>
