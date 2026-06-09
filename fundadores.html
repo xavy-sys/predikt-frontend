@@ -3,629 +3,115 @@
 <head>
   <!--
     Nombre del archivo: fundadores.html
-    Fecha: 2026-06-07
-    Versión: v1.0.0 Founders Management
+    Fecha: 2026-06-09
+    Versión: v2.0.0 💎 Founders Real Data Console
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla administrativa para gestión del Programa Fundadores PREDIKT™.
-      Permite monitorear fundadores registrados, lugares disponibles, avance de meta,
-      estado de pago, beneficio vitalicio y evidencia. Versión mobile-first con datos
-      demo/fallback preparada para integración futura con Mercado Pago, Supabase
-      Analytics y protección por rol administrador.
-    Líneas versión anterior: 0
-    Líneas versión nueva: 756
+      Pantalla administrativa real para gestión del Programa Fundadores PREDIKT™.
+      Sustituye datos demo por lectura directa de Supabase usando window.prediktSupabase
+      desde assets/js/supabase.js y Guardia Admin mediante assets/js/admin-guard.js.
+      Conecta con founders.v_founder_program_summary y founders.founder_members.
+      Muestra KPIs reales, fundadores reales, suspendidos, manuales, Mercado Pago,
+      recaudación, estado vitalicio y avance del programa.
+      Prepara acciones de gobernanza: suspender, reactivar, revocar y banear.
+      Mantiene evidencia, no borra registros y conserva enfoque mobile-first.
+    Líneas versión anterior: 756
+    Líneas versión nueva: 1016
   -->
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>PREDIKT™ | Fundadores</title>
-  <meta name="description" content="Administración del Programa Fundadores PREDIKT™." />
+  <meta name="description" content="Administración real del Programa Fundadores PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+  <link rel="icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/predikt-logo.png" />
+
+  <script>
+    document.documentElement.classList.add("admin-guard-pending");
+  </script>
 
   <style>
-    :root {
-      --bg-main: #061826;
-      --bg-deep: #020b13;
-      --bg-card: #0f2740;
-      --gold: #f5b942;
-      --gold-soft: #ffe28a;
-      --green: #48f29a;
-      --blue: #5dade2;
-      --red: #ff5a5f;
-      --orange: #ff9f43;
-      --text-main: #ffffff;
-      --text-soft: #c9d7e6;
-      --text-muted: #7f95aa;
-      --border: rgba(255, 255, 255, 0.11);
-      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-      --radius-xl: 30px;
-      --radius-lg: 24px;
-      --radius-md: 18px;
-      --footer-height: 82px;
-      --app-max: 1180px;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; background: var(--bg-main); }
-
-    body {
-      min-height: 100vh;
-      color: var(--text-main);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.42;
-      background:
-        radial-gradient(circle at top left, rgba(245, 185, 66, 0.14), transparent 26%),
-        radial-gradient(circle at top right, rgba(72, 242, 154, 0.11), transparent 23%),
-        linear-gradient(145deg, #061826 0%, #04111d 50%, #020b13 100%);
-      overflow-x: hidden;
-      padding-bottom: calc(var(--footer-height) + 18px);
-    }
-
-    a { color: inherit; text-decoration: none; }
-    button, input { font: inherit; }
-    button { border: 0; cursor: pointer; }
-
-    .app-shell {
-      width: min(100%, var(--app-max));
-      margin: 0 auto;
-      padding: 18px 14px 0;
-    }
-
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin: -18px -14px 14px;
-      padding: 15px 14px 12px;
-      background:
-        linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88)),
-        rgba(6, 24, 38, 0.9);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      min-width: 0;
-    }
-
-    .brand-logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      object-fit: contain;
-      background: rgba(255, 255, 255, 0.04);
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
-    }
-
-    .brand-text { display: grid; gap: 1px; min-width: 0; }
-    .brand-name { font-size: 0.95rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
-    .brand-sub { color: var(--text-muted); font-size: 0.64rem; font-weight: 820; white-space: nowrap; }
-
-    .header-actions { display: inline-flex; align-items: center; gap: 8px; }
-
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      border-radius: 15px;
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.065);
-      border: 1px solid rgba(255, 255, 255, 0.095);
-      font-size: 1rem;
-    }
-
-    .admin-pill {
-      min-height: 38px;
-      padding: 0 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      font-size: 0.72rem;
-      font-weight: 980;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      box-shadow: 0 10px 24px rgba(245, 185, 66, 0.25);
-      white-space: nowrap;
-    }
-
-    .hero-card {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(245, 185, 66, 0.30);
-      border-radius: var(--radius-xl);
-      background:
-        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.20), transparent 34%),
-        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(7, 30, 50, 0.98));
-      padding: 16px;
-      box-shadow: var(--shadow);
-      margin-bottom: 12px;
-    }
-
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      right: -20px;
-      top: -26px;
-      width: 132px;
-      height: 132px;
-      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
-      opacity: 0.08;
-      transform: rotate(12deg);
-      pointer-events: none;
-    }
-
-    .hero-kicker {
-      color: var(--gold);
-      font-size: 0.70rem;
-      font-weight: 980;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .hero-title {
-      position: relative;
-      z-index: 1;
-      font-size: clamp(1.35rem, 5.2vw, 2.15rem);
-      font-weight: 980;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      margin-bottom: 8px;
-    }
-
-    .hero-copy {
-      position: relative;
-      z-index: 1;
-      color: var(--text-soft);
-      max-width: 760px;
-      font-size: 0.82rem;
-      font-weight: 760;
-    }
-
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .kpi-card {
-      position: relative;
-      overflow: hidden;
-      min-height: 124px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      background: rgba(15, 39, 64, 0.86);
-      padding: 16px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.21);
-      display: grid;
-      align-content: space-between;
-    }
-
-    .kpi-card::after {
-      content: attr(data-icon);
-      position: absolute;
-      right: 15px;
-      top: 10px;
-      font-size: 2rem;
-      opacity: 0.20;
-    }
-
-    .kpi-label {
-      color: var(--text-soft);
-      font-size: 0.72rem;
-      font-weight: 940;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-    }
-
-    .kpi-value {
-      font-size: clamp(2.2rem, 10vw, 4rem);
-      font-weight: 980;
-      line-height: 0.92;
-      letter-spacing: -0.06em;
-      margin: 9px 0 6px;
-    }
-
-    .blue { color: var(--blue); }
-    .green { color: var(--green); }
-    .gold { color: var(--gold); }
-    .orange { color: var(--orange); }
-
-    .kpi-sub {
-      color: var(--text-muted);
-      font-size: 0.66rem;
-      font-weight: 820;
-    }
-
-    .program-card {
-      border: 1px solid rgba(245, 185, 66, 0.30);
-      border-radius: var(--radius-xl);
-      background:
-        radial-gradient(circle at 12% 10%, rgba(245, 185, 66, 0.18), transparent 30%),
-        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(64, 48, 18, 0.72));
-      padding: 16px;
-      box-shadow: var(--shadow);
-      margin-bottom: 12px;
-    }
-
-    .program-title {
-      font-size: 1.05rem;
-      font-weight: 980;
-      margin-bottom: 6px;
-    }
-
-    .program-copy {
-      color: var(--text-soft);
-      font-size: 0.78rem;
-      font-weight: 760;
-      margin-bottom: 12px;
-    }
-
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      color: var(--gold);
-      font-size: 0.76rem;
-      font-weight: 980;
-      margin-bottom: 8px;
-    }
-
-    .founder-progress {
-      width: 100%;
-      height: 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .founder-progress-bar {
-      height: 100%;
-      width: 1%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
-    }
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .search-box {
-      width: 100%;
-      min-height: 46px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 999px;
-      background: rgba(15, 39, 64, 0.86);
-      color: var(--text-main);
-      padding: 0 16px;
-      outline: none;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
-    }
-
-    .search-box::placeholder { color: var(--text-muted); }
-
-    .filter-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .filter-chip {
-      min-height: 42px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 0.68rem;
-      font-weight: 920;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .filter-chip.active {
-      color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      border-color: rgba(245, 185, 66, 0.32);
-    }
-
-    .founders-panel {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      background: rgba(15, 39, 64, 0.82);
-      padding: 14px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
-      margin-bottom: 12px;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 0 2px 10px;
-    }
-
-    .section-title {
-      font-size: 0.78rem;
-      font-weight: 980;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .section-link {
-      color: var(--gold);
-      font-size: 0.7rem;
-      font-weight: 950;
-    }
-
-    .founder-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .founder-row {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 11px;
-      align-items: center;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.055);
-      border: 1px solid rgba(255, 255, 255, 0.085);
-      padding: 11px;
-    }
-
-    .avatar {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      font-size: 0.86rem;
-      font-weight: 980;
-    }
-
-    .founder-main {
-      min-width: 0;
-      display: grid;
-      gap: 8px;
-    }
-
-    .founder-topline {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .founder-name {
-      font-size: 0.9rem;
-      font-weight: 960;
-      line-height: 1.1;
-    }
-
-    .founder-email {
-      color: var(--text-muted);
-      font-size: 0.64rem;
-      font-weight: 760;
-      margin-top: 2px;
-      overflow-wrap: anywhere;
-    }
-
-    .status-pill {
-      min-height: 28px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 9px;
-      border-radius: 999px;
-      font-size: 0.58rem;
-      font-weight: 980;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-
-    .status-confirmed {
-      color: #061826;
-      background: linear-gradient(135deg, var(--green), #8cffc4);
-    }
-
-    .status-pending {
-      color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-    }
-
-    .status-cancelled {
-      color: #ffffff;
-      background: rgba(255, 90, 95, 0.72);
-      border: 1px solid rgba(255, 90, 95, 0.24);
-    }
-
-    .founder-metrics {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-    }
-
-    .metric {
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.055);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 8px 6px;
-      text-align: center;
-    }
-
-    .metric strong {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 980;
-      color: var(--gold);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .metric span {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.54rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    .founder-actions {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-    }
-
-    .action-btn {
-      min-height: 36px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 0.64rem;
-      font-weight: 920;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    .action-btn.primary {
-      color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      border-color: rgba(245, 185, 66, 0.32);
-    }
-
-    .admin-note {
-      margin-top: 12px;
-      border: 1px dashed rgba(245, 185, 66, 0.28);
-      border-radius: var(--radius-lg);
-      background: rgba(245, 185, 66, 0.08);
-      padding: 12px;
-      color: var(--text-soft);
-      font-size: 0.70rem;
-      font-weight: 790;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: calc(var(--footer-height) + 18px);
-      transform: translateX(-50%) translateY(20px);
-      z-index: 60;
-      width: min(calc(100% - 28px), 560px);
-      border: 1px solid rgba(72, 242, 154, 0.34);
-      border-radius: 18px;
-      background: rgba(7, 28, 46, 0.98);
-      color: var(--text-main);
-      padding: 13px 15px;
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      font-size: 0.83rem;
-      font-weight: 830;
-      text-align: center;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .app-footer {
-      position: fixed;
-      left: 50%;
-      bottom: 0;
-      z-index: 40;
-      width: min(100%, 560px);
-      transform: translateX(-50%);
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
-      padding: 9px 10px 11px;
-      border: 1px solid rgba(255, 255, 255, 0.11);
-      border-bottom: 0;
-      border-radius: 24px 24px 0 0;
-      background: rgba(4, 17, 29, 0.97);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.34);
-    }
-
-    .footer-item {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      padding: 7px 4px;
-      color: var(--text-muted);
-      font-size: 0.58rem;
-      font-weight: 880;
-      gap: 3px;
-    }
-
-    .footer-item span { font-size: 1rem; line-height: 1; }
-
-    .footer-item.active {
-      color: var(--gold);
-      background: rgba(245, 185, 66, 0.12);
-      border: 1px solid rgba(245, 185, 66, 0.22);
-    }
-
-    @media (min-width: 640px) {
-      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
-      .toolbar { grid-template-columns: 1.4fr 1fr; align-items: center; }
-    }
-
-    @media (min-width: 900px) {
-      .app-shell { padding: 22px 18px 0; }
-      .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; }
-      .founder-row { grid-template-columns: auto 1fr 270px; }
-      .founder-actions { align-self: stretch; align-content: center; }
-    }
-
-    @media (max-width: 520px) {
-      .filter-row,
-      .founder-metrics,
-      .founder-actions { grid-template-columns: 1fr; }
-
-      .founder-topline { flex-direction: column; }
-      .status-pill { width: fit-content; }
-    }
+    html.admin-guard-pending { visibility: hidden; opacity: 0; }
+    :root { --bg-main:#061826; --bg-deep:#020b13; --bg-card:#0f2740; --gold:#f5b942; --gold-soft:#ffe28a; --green:#48f29a; --blue:#5dade2; --red:#ff5a5f; --orange:#ff9f43; --purple:#b982ff; --text-main:#ffffff; --text-soft:#c9d7e6; --text-muted:#7f95aa; --border:rgba(255,255,255,.11); --shadow:0 18px 45px rgba(0,0,0,.35); --radius-xl:30px; --radius-lg:24px; --radius-md:18px; --footer-height:82px; --app-max:1180px; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; background:var(--bg-main); }
+    body { min-height:100vh; color:var(--text-main); font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.42; background:radial-gradient(circle at top left,rgba(245,185,66,.14),transparent 26%),radial-gradient(circle at top right,rgba(72,242,154,.11),transparent 23%),linear-gradient(145deg,#061826 0%,#04111d 50%,#020b13 100%); overflow-x:hidden; padding-bottom:calc(var(--footer-height) + 18px); }
+    a { color:inherit; text-decoration:none; } button,input { font:inherit; } button { border:0; cursor:pointer; }
+    .app-shell { width:min(100%,var(--app-max)); margin:0 auto; padding:18px 14px 0; }
+    .app-header { position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:-18px -14px 14px; padding:15px 14px 12px; background:linear-gradient(180deg,rgba(6,24,38,.98),rgba(6,24,38,.88)),rgba(6,24,38,.9); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,.08); }
+    .brand { display:inline-flex; align-items:center; gap:9px; min-width:0; }
+    .brand-logo { width:34px; height:34px; border-radius:12px; object-fit:contain; background:rgba(255,255,255,.04); box-shadow:0 10px 22px rgba(0,0,0,.22); }
+    .brand-text { display:grid; gap:1px; min-width:0; } .brand-name { font-size:.95rem; font-weight:980; letter-spacing:.08em; line-height:1; } .brand-sub { color:var(--text-muted); font-size:.64rem; font-weight:820; white-space:nowrap; }
+    .header-actions { display:inline-flex; align-items:center; gap:8px; }
+    .icon-btn { width:38px; height:38px; display:grid; place-items:center; border-radius:15px; color:var(--text-main); background:rgba(255,255,255,.065); border:1px solid rgba(255,255,255,.095); font-size:1rem; }
+    .admin-pill { min-height:38px; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold-soft)); font-size:.72rem; font-weight:980; letter-spacing:.04em; text-transform:uppercase; box-shadow:0 10px 24px rgba(245,185,66,.25); white-space:nowrap; }
+    .hero-card,.program-card,.founders-panel { border-radius:var(--radius-xl); box-shadow:var(--shadow); margin-bottom:12px; }
+    .hero-card { position:relative; overflow:hidden; border:1px solid rgba(245,185,66,.30); background:radial-gradient(circle at 100% 0%,rgba(245,185,66,.20),transparent 34%),linear-gradient(145deg,rgba(15,39,64,.98),rgba(7,30,50,.98)); padding:16px; }
+    .hero-card::after { content:""; position:absolute; right:-20px; top:-26px; width:132px; height:132px; background:url("assets/predikt-logo.png") center / contain no-repeat; opacity:.08; transform:rotate(12deg); pointer-events:none; }
+    .hero-kicker { color:var(--gold); font-size:.70rem; font-weight:980; letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
+    .hero-title { position:relative; z-index:1; font-size:clamp(1.35rem,5.2vw,2.15rem); font-weight:980; line-height:1; letter-spacing:-.04em; margin-bottom:8px; }
+    .hero-copy { position:relative; z-index:1; color:var(--text-soft); max-width:760px; font-size:.82rem; font-weight:760; }
+    .kpi-grid { display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:12px; }
+    .kpi-card { position:relative; overflow:hidden; min-height:124px; border-radius:var(--radius-lg); border:1px solid var(--border); background:rgba(15,39,64,.86); padding:16px; box-shadow:0 12px 32px rgba(0,0,0,.21); display:grid; align-content:space-between; }
+    .kpi-card::after { content:attr(data-icon); position:absolute; right:15px; top:10px; font-size:2rem; opacity:.20; }
+    .kpi-label { color:var(--text-soft); font-size:.72rem; font-weight:940; letter-spacing:.07em; text-transform:uppercase; }
+    .kpi-value { font-size:clamp(1.85rem,9vw,3.6rem); font-weight:980; line-height:.92; letter-spacing:-.06em; margin:9px 0 6px; }
+    .blue{color:var(--blue)} .green{color:var(--green)} .gold{color:var(--gold)} .orange{color:var(--orange)} .red{color:var(--red)} .purple{color:var(--purple)}
+    .kpi-sub { color:var(--text-muted); font-size:.66rem; font-weight:820; }
+    .program-card { border:1px solid rgba(245,185,66,.30); background:radial-gradient(circle at 12% 10%,rgba(245,185,66,.18),transparent 30%),linear-gradient(145deg,rgba(15,39,64,.98),rgba(64,48,18,.72)); padding:16px; }
+    .program-closed { border-color:rgba(255,90,95,.36); background:radial-gradient(circle at 12% 10%,rgba(255,90,95,.16),transparent 30%),linear-gradient(145deg,rgba(15,39,64,.98),rgba(70,18,28,.72)); }
+    .program-title { font-size:1.05rem; font-weight:980; margin-bottom:6px; }
+    .program-copy { color:var(--text-soft); font-size:.78rem; font-weight:760; margin-bottom:12px; }
+    .progress-meta { display:flex; justify-content:space-between; gap:10px; color:var(--gold); font-size:.76rem; font-weight:980; margin-bottom:8px; flex-wrap:wrap; }
+    .founder-progress { width:100%; height:14px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden; border:1px solid rgba(255,255,255,.08); }
+    .founder-progress-bar { height:100%; width:0%; border-radius:inherit; background:linear-gradient(90deg,var(--gold),var(--gold-soft)); }
+    .toolbar { display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:12px; }
+    .search-box { width:100%; min-height:46px; border:1px solid rgba(255,255,255,.12); border-radius:999px; background:rgba(15,39,64,.86); color:var(--text-main); padding:0 16px; outline:none; box-shadow:0 10px 28px rgba(0,0,0,.16); }
+    .search-box::placeholder { color:var(--text-muted); }
+    .filter-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .filter-chip { min-height:42px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; color:var(--text-main); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); font-size:.62rem; font-weight:920; text-transform:uppercase; letter-spacing:.04em; padding:0 8px; }
+    .filter-chip.active { color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold-soft)); border-color:rgba(245,185,66,.32); }
+    .founders-panel { border:1px solid var(--border); background:rgba(15,39,64,.82); padding:14px; }
+    .section-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 2px 10px; flex-wrap:wrap; }
+    .section-title { font-size:.78rem; font-weight:980; letter-spacing:.08em; text-transform:uppercase; }
+    .section-actions { display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .section-link { color:var(--gold); font-size:.7rem; font-weight:950; }
+    .founder-list { display:grid; gap:8px; }
+    .founder-row { display:grid; grid-template-columns:auto 1fr; gap:11px; align-items:center; border-radius:var(--radius-md); background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.085); padding:11px; }
+    .avatar { width:42px; height:42px; display:grid; place-items:center; border-radius:50%; color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold-soft)); font-size:.86rem; font-weight:980; }
+    .founder-main { min-width:0; display:grid; gap:8px; }
+    .founder-topline { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+    .founder-name { font-size:.9rem; font-weight:960; line-height:1.1; }
+    .founder-email { color:var(--text-muted); font-size:.64rem; font-weight:760; margin-top:2px; overflow-wrap:anywhere; }
+    .status-pill { min-height:28px; display:inline-flex; align-items:center; justify-content:center; padding:0 9px; border-radius:999px; font-size:.56rem; font-weight:980; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+    .status-active { color:#061826; background:linear-gradient(135deg,var(--green),#8cffc4); }
+    .status-review { color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold-soft)); }
+    .status-suspended { color:#061826; background:linear-gradient(135deg,var(--orange),#ffd59b); }
+    .status-revoked,.status-banned,.status-cancelled { color:#fff; background:rgba(255,90,95,.72); border:1px solid rgba(255,90,95,.24); }
+    .founder-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+    .metric { border-radius:14px; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.08); padding:8px 6px; text-align:center; min-width:0; }
+    .metric strong { display:block; font-size:.78rem; font-weight:980; color:var(--gold); line-height:1.05; margin-bottom:4px; overflow-wrap:anywhere; }
+    .metric span { display:block; color:var(--text-muted); font-size:.54rem; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
+    .founder-actions { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
+    .action-btn { min-height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; color:var(--text-main); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); font-size:.58rem; font-weight:920; text-transform:uppercase; letter-spacing:.03em; padding:0 8px; }
+    .action-btn.primary { color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold-soft)); border-color:rgba(245,185,66,.32); }
+    .action-btn.danger { color:#fff; background:rgba(255,90,95,.22); border-color:rgba(255,90,95,.32); }
+    .action-btn.safe { color:#061826; background:linear-gradient(135deg,var(--green),#8cffc4); border-color:rgba(72,242,154,.32); }
+    .admin-note { margin-top:12px; border:1px dashed rgba(245,185,66,.28); border-radius:var(--radius-lg); background:rgba(245,185,66,.08); padding:12px; color:var(--text-soft); font-size:.70rem; font-weight:790; }
+    .toast { position:fixed; left:50%; bottom:calc(var(--footer-height) + 18px); transform:translateX(-50%) translateY(20px); z-index:60; width:min(calc(100% - 28px),560px); border:1px solid rgba(72,242,154,.34); border-radius:18px; background:rgba(7,28,46,.98); color:var(--text-main); padding:13px 15px; box-shadow:0 14px 36px rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .2s ease,transform .2s ease; font-size:.83rem; font-weight:830; text-align:center; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .app-footer { position:fixed; left:50%; bottom:0; z-index:40; width:min(100%,560px); transform:translateX(-50%); display:grid; grid-template-columns:repeat(5,1fr); gap:4px; padding:9px 10px 11px; border:1px solid rgba(255,255,255,.11); border-bottom:0; border-radius:24px 24px 0 0; background:rgba(4,17,29,.97); backdrop-filter:blur(18px); box-shadow:0 -12px 34px rgba(0,0,0,.34); }
+    .footer-item { min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:16px; padding:7px 4px; color:var(--text-muted); font-size:.58rem; font-weight:880; gap:3px; }
+    .footer-item span { font-size:1rem; line-height:1; }
+    .footer-item.active { color:var(--gold); background:rgba(245,185,66,.12); border:1px solid rgba(245,185,66,.22); }
+    @media (min-width:640px) { .kpi-grid{grid-template-columns:repeat(3,1fr)} .toolbar{grid-template-columns:1.2fr 1fr;align-items:center} }
+    @media (min-width:900px) { .app-shell{padding:22px 18px 0} .app-header{margin-left:0;margin-right:0;border-radius:0 0 22px 22px} .kpi-grid{grid-template-columns:repeat(7,1fr)} .founder-row{grid-template-columns:auto 1fr 290px} .founder-actions{align-self:stretch;align-content:center} }
+    @media (max-width:620px) { .filter-row,.founder-metrics,.founder-actions{grid-template-columns:1fr} .founder-topline{flex-direction:column} .status-pill{width:fit-content} }
   </style>
 </head>
 
@@ -633,304 +119,94 @@
   <main class="app-shell">
     <header class="app-header" aria-label="Encabezado PREDIKT Fundadores">
       <a class="brand" href="dashboard-admin.html" aria-label="Volver al Centro de Lanzamiento">
-        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
-        <span class="brand-text">
-          <strong class="brand-name">PREDIKT™</strong>
-          <small class="brand-sub">💎 Fundadores</small>
-        </span>
+        <img class="brand-logo" src="assets/predikt-logo.png" alt="PREDIKT™" />
+        <span class="brand-text"><strong class="brand-name">PREDIKT™</strong><small class="brand-sub">💎 Fundadores</small></span>
       </a>
-
-      <div class="header-actions">
-        <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar fundadores">↻</button>
-        <a class="admin-pill" href="dashboard-admin.html">Centro</a>
-      </div>
+      <div class="header-actions"><button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar fundadores">↻</button><a class="admin-pill" href="dashboard-admin.html">Centro</a></div>
     </header>
 
     <section class="hero-card" aria-label="Administración de fundadores">
-      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores</p>
-      <h1 class="hero-title">Fundadores PREDIKT™</h1>
-      <p class="hero-copy">
-        Controla los primeros 100 lugares, confirma pagos, conserva evidencia y protege el acceso gratuito de por vida.
-      </p>
+      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores</p><h1 class="hero-title">Fundadores PREDIKT™</h1>
+      <p class="hero-copy">Controla los primeros 100 lugares, confirma pagos, conserva evidencia y protege el acceso gratuito de por vida.</p>
     </section>
 
     <section class="kpi-grid" aria-label="KPIs de fundadores">
-      <article class="kpi-card" data-icon="💎">
-        <p class="kpi-label">Fundadores</p>
-        <p class="kpi-value gold" id="foundersRegistered">1</p>
-        <p class="kpi-sub">Registrados confirmados.</p>
-      </article>
-
-      <article class="kpi-card" data-icon="🎯">
-        <p class="kpi-label">Meta</p>
-        <p class="kpi-value blue" id="foundersGoal">100</p>
-        <p class="kpi-sub">Cupo máximo fundador.</p>
-      </article>
-
-      <article class="kpi-card" data-icon="📈">
-        <p class="kpi-label">Avance</p>
-        <p class="kpi-value green" id="foundersProgress">1%</p>
-        <p class="kpi-sub">Progreso del programa.</p>
-      </article>
-
-      <article class="kpi-card" data-icon="🪑">
-        <p class="kpi-label">Disponibles</p>
-        <p class="kpi-value orange" id="foundersAvailable">99</p>
-        <p class="kpi-sub">Lugares restantes.</p>
-      </article>
+      <article class="kpi-card" data-icon="💎"><p class="kpi-label">Fundadores</p><p class="kpi-value gold" id="foundersRegistered">0</p><p class="kpi-sub">Registrados totales.</p></article>
+      <article class="kpi-card" data-icon="🪑"><p class="kpi-label">Disponibles</p><p class="kpi-value orange" id="foundersAvailable">100</p><p class="kpi-sub">Lugares restantes.</p></article>
+      <article class="kpi-card" data-icon="📈"><p class="kpi-label">Avance</p><p class="kpi-value green" id="foundersProgress">0%</p><p class="kpi-sub">Progreso fundador.</p></article>
+      <article class="kpi-card" data-icon="💰"><p class="kpi-label">Recaudado</p><p class="kpi-value gold" id="foundersRevenue">$0</p><p class="kpi-sub">MXN registrados.</p></article>
+      <article class="kpi-card" data-icon="⚠"><p class="kpi-label">Suspendidos</p><p class="kpi-value red" id="foundersSuspended">0</p><p class="kpi-sub">Gobernanza activa.</p></article>
+      <article class="kpi-card" data-icon="💵"><p class="kpi-label">Manuales</p><p class="kpi-value blue" id="foundersManual">0</p><p class="kpi-sub">Efectivo / SPEI.</p></article>
+      <article class="kpi-card" data-icon="🏦"><p class="kpi-label">Mercado Pago</p><p class="kpi-value purple" id="foundersMercadoPago">0</p><p class="kpi-sub">Pagos automáticos.</p></article>
     </section>
 
-    <section class="program-card" aria-label="Programa Fundadores">
-      <h2 class="program-title">💎 Programa Fundadores</h2>
-      <p class="program-copy">
-        Los primeros 100 fundadores obtienen acceso gratuito de por vida a PREDIKT™. Esta vista queda lista para integrarse con Mercado Pago y evidencia manual.
-      </p>
-      <div class="progress-meta">
-        <span id="progressText">1 / 100</span>
-        <span>$50 MXN · Donación única</span>
-      </div>
-      <div class="founder-progress" aria-label="Avance del programa">
-        <div class="founder-progress-bar" id="foundersProgressBar"></div>
-      </div>
+    <section class="program-card" id="programCard" aria-label="Programa Fundadores">
+      <h2 class="program-title" id="programTitle">💎 Programa Fundadores</h2><p class="program-copy" id="programCopy">Los primeros 100 fundadores obtienen acceso gratuito de por vida a PREDIKT™.</p>
+      <div class="progress-meta"><span id="progressText">0 / 100</span><span id="programAmount">$50 MXN · Donación única</span></div>
+      <div class="founder-progress" aria-label="Avance del programa"><div class="founder-progress-bar" id="foundersProgressBar"></div></div>
     </section>
 
     <section class="toolbar" aria-label="Búsqueda y filtros">
-      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar fundador por alias, nombre, correo o pago..." />
-      <div class="filter-row">
-        <button class="filter-chip active" type="button" data-filter="all">Todos</button>
-        <button class="filter-chip" type="button" data-filter="confirmed">Confirmados</button>
-        <button class="filter-chip" type="button" data-filter="pending">Pendientes</button>
-      </div>
+      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por número, nombre, correo, método, estado o referencia..." />
+      <div class="filter-row"><button class="filter-chip active" type="button" data-filter="all">Todos</button><button class="filter-chip" type="button" data-filter="active">Activos</button><button class="filter-chip" type="button" data-filter="manual">Manual</button><button class="filter-chip" type="button" data-filter="risk">Riesgo</button></div>
     </section>
 
     <section class="founders-panel" aria-label="Listado de fundadores">
-      <div class="section-head">
-        <h2 class="section-title">Listado Fundadores</h2>
-        <a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a>
-      </div>
-
+      <div class="section-head"><h2 class="section-title">Listado Fundadores</h2><div class="section-actions"><a class="admin-pill" href="fundador-nuevo.html" id="newFounderBtn">➕ Registrar</a><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div></div>
       <div class="founder-list" id="founderList"></div>
     </section>
 
-    <p class="admin-note">
-      Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta pagos reales, Mercado Pago, evidencia y protección por rol administrador.
-    </p>
+    <p class="admin-note">Vista administrativa no pública. Conectada a Supabase real. No elimina fundadores; aplica gobernanza por estado para conservar evidencia, pagos, numeración y trazabilidad.</p>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite">Fundadores actualizados.</div>
 
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/admin-guard.js"></script>
+
   <script>
-    const founderGoal = 100;
-
-    const demoFounders = [
-      {
-        alias: "ElTigre",
-        name: "Carlos Rivera",
-        email: "eltigre@predikt.demo",
-        registered: "06 Jun",
-        payment: "$50 MXN",
-        status: "confirmed",
-        method: "Mercado Pago",
-        benefit: "Vitalicio"
-      },
-      {
-        alias: "Javier",
-        name: "Javier",
-        email: "javier@predikt.demo",
-        registered: "07 Jun",
-        payment: "Pendiente",
-        status: "pending",
-        method: "Manual",
-        benefit: "Reservado"
-      },
-      {
-        alias: "Pey",
-        name: "Pey",
-        email: "pey@predikt.demo",
-        registered: "07 Jun",
-        payment: "Pendiente",
-        status: "pending",
-        method: "Manual",
-        benefit: "Reservado"
-      }
-    ];
-
+    const REST_BASE = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
+    const REST_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+    const founderState = { summary:{ founder_limit:100, founders_registered:0, founder_slots_remaining:100, total_amount_registered_mxn:0, manual_founders:0, mercado_pago_founders:0, is_active:true }, rows:[] };
     const founderList = document.getElementById("founderList");
     const searchInput = document.getElementById("searchInput");
     const filterButtons = document.querySelectorAll("[data-filter]");
     const refreshBtn = document.getElementById("refreshBtn");
     const toast = document.getElementById("toast");
     let activeFilter = "all";
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add("show");
-      window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
-    }
-
-    function statusLabel(status) {
-      if (status === "confirmed") return { label: "🟢 Confirmado", className: "status-confirmed" };
-      if (status === "pending") return { label: "🟡 Pendiente", className: "status-pending" };
-      return { label: "🔴 Cancelado", className: "status-cancelled" };
-    }
-
-    function initials(alias) {
-      return String(alias || "F").slice(0, 2).toUpperCase();
-    }
-
-    function founderMatches(founder, query) {
-      const q = query.trim().toLowerCase();
-      if (!q) return true;
-
-      return [
-        founder.alias,
-        founder.name,
-        founder.email,
-        founder.payment,
-        founder.method,
-        founder.benefit
-      ].some((value) => String(value || "").toLowerCase().includes(q));
-    }
-
-    function filterMatches(founder) {
-      if (activeFilter === "all") return true;
-      return founder.status === activeFilter;
-    }
-
-    function renderFounders() {
-      const query = searchInput.value || "";
-      const rows = demoFounders.filter((founder) => founderMatches(founder, query) && filterMatches(founder));
-
-      if (!rows.length) {
-        founderList.innerHTML = `
-          <div class="founder-row">
-            <div class="avatar">--</div>
-            <div class="founder-main">
-              <p class="founder-name">Sin resultados</p>
-              <p class="founder-email">Ajusta búsqueda o filtros.</p>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      founderList.innerHTML = rows.map((founder) => {
-        const status = statusLabel(founder.status);
-
-        return `
-          <article class="founder-row">
-            <div class="avatar">${initials(founder.alias)}</div>
-
-            <div class="founder-main">
-              <div class="founder-topline">
-                <div>
-                  <p class="founder-name">${founder.alias}</p>
-                  <p class="founder-email">${founder.name} · ${founder.email}</p>
-                </div>
-                <span class="status-pill ${status.className}">${status.label}</span>
-              </div>
-
-              <div class="founder-metrics">
-                <div class="metric">
-                  <strong>${founder.registered}</strong>
-                  <span>Registro</span>
-                </div>
-                <div class="metric">
-                  <strong>${founder.payment}</strong>
-                  <span>Pago</span>
-                </div>
-                <div class="metric">
-                  <strong>${founder.method}</strong>
-                  <span>Método</span>
-                </div>
-                <div class="metric">
-                  <strong>${founder.benefit}</strong>
-                  <span>Beneficio</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="founder-actions">
-              <button class="action-btn primary" type="button" data-action="view" data-founder="${founder.alias}">👁 Ver</button>
-              <button class="action-btn" type="button" data-action="confirm" data-founder="${founder.alias}">💎 Confirmar</button>
-              <button class="action-btn" type="button" data-action="evidence" data-founder="${founder.alias}">📄 Evidencia</button>
-            </div>
-          </article>
-        `;
-      }).join("");
-
-      document.querySelectorAll("[data-action]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const founder = button.dataset.founder;
-          const action = button.dataset.action;
-
-          if (action === "view") showToast(`Vista de ${founder} preparada para detalle futuro.`);
-          if (action === "confirm") showToast(`Confirmación de ${founder} requiere conexión Supabase futura.`);
-          if (action === "evidence") showToast(`Evidencia de ${founder} preparada para módulo futuro.`);
-        });
-      });
-    }
-
-    function renderKpis() {
-      const confirmed = demoFounders.filter((founder) => founder.status === "confirmed").length;
-      const available = Math.max(founderGoal - confirmed, 0);
-      const progress = founderGoal > 0 ? Math.round((confirmed / founderGoal) * 100) : 0;
-
-      document.getElementById("foundersRegistered").textContent = confirmed;
-      document.getElementById("foundersGoal").textContent = founderGoal;
-      document.getElementById("foundersProgress").textContent = `${progress}%`;
-      document.getElementById("foundersAvailable").textContent = available;
-      document.getElementById("progressText").textContent = `${confirmed} / ${founderGoal}`;
-      document.getElementById("foundersProgressBar").style.width = `${progress}%`;
-    }
-
-    searchInput.addEventListener("input", renderFounders);
-
-    filterButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        filterButtons.forEach((item) => item.classList.remove("active"));
-        button.classList.add("active");
-        activeFilter = button.dataset.filter;
-        renderFounders();
-      });
-    });
-
-    refreshBtn.addEventListener("click", () => {
-      renderKpis();
-      renderFounders();
-      showToast("Fundadores actualizados.");
-    });
-
-    renderKpis();
-    renderFounders();
+    function showToast(message){ toast.textContent=message; toast.classList.add("show"); window.clearTimeout(showToast.timer); showToast.timer=window.setTimeout(()=>toast.classList.remove("show"),2600); }
+    function headers(profile){ return { "apikey":REST_KEY, "Authorization":`Bearer ${REST_KEY}`, "Accept":"application/json", "Content-Type":"application/json", "Accept-Profile":profile }; }
+    async function fetchJson(path,profile){ const response=await fetch(`${REST_BASE}/${path}`,{method:"GET",headers:headers(profile)}); if(!response.ok){throw new Error(`${path} status ${response.status}`)} return response.json(); }
+    async function patchJson(path,profile,body){ const response=await fetch(`${REST_BASE}/${path}`,{method:"PATCH",headers:{...headers(profile),"Prefer":"return=representation"},body:JSON.stringify(body)}); if(!response.ok){throw new Error(`${path} status ${response.status}`)} return response.json(); }
+    function formatNumber(value){ return Number(value||0).toLocaleString("es-MX"); }
+    function formatCurrency(value){ return `$${Number(value||0).toLocaleString("es-MX",{minimumFractionDigits:0,maximumFractionDigits:0})}`; }
+    function formatDate(value){ if(!value)return "Sin fecha"; const date=new Date(value); if(Number.isNaN(date.getTime()))return "Sin fecha"; return date.toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}); }
+    function cleanText(value){ return String(value||"").trim(); }
+    function initials(name){ const value=cleanText(name||"FD"); const parts=value.split(/\s+/).filter(Boolean); if(parts.length>=2)return `${parts[0][0]}${parts[1][0]}`.toUpperCase(); return value.slice(0,2).toUpperCase(); }
+    function statusInfo(status){ const n=cleanText(status); if(n==="active_lifetime")return{label:"🟢 Vitalicio",className:"status-active"}; if(n==="registered")return{label:"🟡 Registrado",className:"status-review"}; if(n==="under_review")return{label:"🟡 Revisión",className:"status-review"}; if(n==="suspended")return{label:"🟠 Suspendido",className:"status-suspended"}; if(n==="revoked")return{label:"🔴 Revocado",className:"status-revoked"}; if(n==="banned")return{label:"⛔ Baneado",className:"status-banned"}; if(n==="cancelled"||n==="duplicated")return{label:"🔴 Inactivo",className:"status-cancelled"}; return{label:n||"Sin estado",className:"status-review"}; }
+    function paymentMethodLabel(method){ const v=cleanText(method); const d={manual_cash:"Efectivo",manual_transfer:"Transferencia",manual_spei:"SPEI",mercado_pago:"Mercado Pago",mercado_pago_checkout:"Mercado Pago",card:"Tarjeta"}; return d[v]||v||"Manual"; }
+    function founderMatches(founder,query){ const q=query.trim().toLowerCase(); if(!q)return true; return [founder.founder_number,founder.founder_code,founder.full_name,founder.email,founder.phone,founder.payment_provider,founder.payment_method,founder.amount_mxn,founder.status,founder.internal_reference,founder.external_payment_reference,founder.observations].some(value=>String(value||"").toLowerCase().includes(q)); }
+    function filterMatches(founder){ if(activeFilter==="all")return true; if(activeFilter==="active")return founder.status==="active_lifetime"; if(activeFilter==="manual")return founder.payment_provider==="manual"; if(activeFilter==="risk")return ["suspended","revoked","banned","cancelled","duplicated","under_review"].includes(founder.status); return true; }
+    function computeLocalStatusCounts(rows){ return { suspended:rows.filter(row=>row.status==="suspended").length, manual:rows.filter(row=>row.payment_provider==="manual").length, mercadoPago:rows.filter(row=>row.payment_provider==="mercado_pago").length }; }
+    function renderKpis(){ const summary=founderState.summary||{}; const rows=Array.isArray(founderState.rows)?founderState.rows:[]; const localCounts=computeLocalStatusCounts(rows); const registered=Number(summary.founders_registered||rows.length||0); const goal=Number(summary.founder_limit||100); const available=Number(summary.founder_slots_remaining!==undefined&&summary.founder_slots_remaining!==null?summary.founder_slots_remaining:Math.max(goal-registered,0)); const revenue=Number(summary.total_amount_registered_mxn||rows.reduce((sum,row)=>sum+Number(row.amount_mxn||0),0)); const manual=Number(summary.manual_founders!==undefined&&summary.manual_founders!==null?summary.manual_founders:localCounts.manual); const mercadoPago=Number(summary.mercado_pago_founders!==undefined&&summary.mercado_pago_founders!==null?summary.mercado_pago_founders:localCounts.mercadoPago); const progress=goal>0?Math.min(Math.round((registered/goal)*100),100):0; const full=registered>=goal||available<=0||summary.is_active===false; document.getElementById("foundersRegistered").textContent=formatNumber(registered); document.getElementById("foundersAvailable").textContent=formatNumber(Math.max(available,0)); document.getElementById("foundersProgress").textContent=`${progress}%`; document.getElementById("foundersRevenue").textContent=formatCurrency(revenue); document.getElementById("foundersSuspended").textContent=formatNumber(localCounts.suspended); document.getElementById("foundersManual").textContent=formatNumber(manual); document.getElementById("foundersMercadoPago").textContent=formatNumber(mercadoPago); document.getElementById("progressText").textContent=`${formatNumber(registered)} / ${formatNumber(goal)}`; document.getElementById("foundersProgressBar").style.width=`${progress}%`; const card=document.getElementById("programCard"); const btn=document.getElementById("newFounderBtn"); if(full){ card.classList.add("program-closed"); document.getElementById("programTitle").textContent="⚽ Programa de Fundadores Completo"; document.getElementById("programCopy").textContent="Los 100 lugares fundadores ya fueron asignados. Las donaciones futuras deberán registrarse como apoyo normal sin beneficio fundador vitalicio."; btn.style.display="none"; } else { card.classList.remove("program-closed"); document.getElementById("programTitle").textContent="💎 Programa Fundadores"; document.getElementById("programCopy").textContent="Los primeros 100 fundadores obtienen acceso gratuito de por vida a PREDIKT™."; btn.style.display="inline-flex"; } }
+    function renderFounders(){ const query=searchInput.value||""; const rows=founderState.rows.filter(founder=>founderMatches(founder,query)&&filterMatches(founder)).sort((a,b)=>Number(a.founder_number||0)-Number(b.founder_number||0)); if(!rows.length){ founderList.innerHTML=`<div class="founder-row"><div class="avatar">--</div><div class="founder-main"><p class="founder-name">Sin resultados</p><p class="founder-email">Ajusta búsqueda o filtros.</p></div></div>`; return; } founderList.innerHTML=rows.map(founder=>{ const status=statusInfo(founder.status); const isActive=founder.status==="active_lifetime"; const isSuspended=founder.status==="suspended"; const safeId=founder.id; return `<article class="founder-row"><div class="avatar">${initials(founder.full_name)}</div><div class="founder-main"><div class="founder-topline"><div><p class="founder-name">#${founder.founder_number||"--"} · ${founder.full_name||"Fundador"}</p><p class="founder-email">${founder.founder_code||"Sin código"} · ${founder.email||"Sin correo"}</p></div><span class="status-pill ${status.className}">${status.label}</span></div><div class="founder-metrics"><div class="metric"><strong>${formatCurrency(founder.amount_mxn)}</strong><span>Importe</span></div><div class="metric"><strong>${paymentMethodLabel(founder.payment_method)}</strong><span>Método</span></div><div class="metric"><strong>${founder.lifetime_access?"Sí":"No"}</strong><span>Vitalicio</span></div><div class="metric"><strong>${formatDate(founder.payment_received_at||founder.created_at)}</strong><span>Registro</span></div></div></div><div class="founder-actions"><button class="action-btn primary" type="button" data-action="view" data-id="${safeId}">👁 Ver</button>${isActive?`<button class="action-btn" type="button" data-action="suspend" data-id="${safeId}">⏸ Suspender</button>`:""}${isSuspended?`<button class="action-btn safe" type="button" data-action="reactivate" data-id="${safeId}">▶ Reactivar</button>`:""}${!["revoked","banned"].includes(founder.status)?`<button class="action-btn danger" type="button" data-action="revoke" data-id="${safeId}">🚫 Revocar</button>`:""}${founder.status!=="banned"?`<button class="action-btn danger" type="button" data-action="ban" data-id="${safeId}">🔨 Banear</button>`:""}</div></article>`; }).join(""); document.querySelectorAll("[data-action]").forEach(button=>button.addEventListener("click",handleFounderAction)); }
+    function getFounderById(id){ return founderState.rows.find(row=>row.id===id); }
+    async function updateFounderStatus(founder,nextStatus){ const nextLifetimeAccess=nextStatus==="active_lifetime"; await patchJson(`founder_members?id=eq.${encodeURIComponent(founder.id)}`,"founders",{status:nextStatus,lifetime_access:nextLifetimeAccess,updated_at:new Date().toISOString()}); showToast(`Fundador #${founder.founder_number} actualizado a ${nextStatus}.`); await refreshFounders(); }
+    async function handleFounderAction(event){ const button=event.currentTarget; const action=button.dataset.action; const founder=getFounderById(button.dataset.id); if(!founder){showToast("No se encontró el fundador seleccionado.");return;} if(action==="view"){ window.alert([`Fundador #${founder.founder_number}`,founder.full_name,founder.email||"Sin correo",`Estado: ${founder.status}`,`Método: ${paymentMethodLabel(founder.payment_method)}`,`Referencia: ${founder.internal_reference||founder.external_payment_reference||"Sin referencia"}`,`Observaciones: ${founder.observations||"Sin observaciones"}`].join("\n")); return; } const map={suspend:{status:"suspended",message:"Suspenderá temporalmente el beneficio vitalicio."},reactivate:{status:"active_lifetime",message:"Reactivará el beneficio vitalicio."},revoke:{status:"revoked",message:"Revocará el beneficio fundador. La evidencia permanecerá."},ban:{status:"banned",message:"Expulsará permanentemente al fundador. La evidencia permanecerá."}}; const next=map[action]; if(!next){showToast("Acción no disponible.");return;} if(!window.confirm(`${next.message}\n\n¿Confirmas aplicar esta acción a #${founder.founder_number} ${founder.full_name}?`))return; try{ await updateFounderStatus(founder,next.status); }catch(error){ console.error("PREDIKT founders governance error:",error); showToast("No se pudo actualizar el fundador. Revisa permisos/RLS."); } }
+    async function loadSummary(){ const rows=await fetchJson("v_founder_program_summary?select=*&limit=1","founders"); const summary=Array.isArray(rows)&&rows.length?rows[0]:null; if(!summary)return; founderState.summary={ founder_limit:Number(summary.founder_limit||100), founders_registered:Number(summary.founders_registered||0), founder_slots_remaining:Number(summary.founder_slots_remaining||0), total_amount_registered_mxn:Number(summary.total_amount_registered_mxn||0), manual_founders:Number(summary.manual_founders||0), mercado_pago_founders:Number(summary.mercado_pago_founders||0), is_active:summary.is_active!==false }; }
+    async function loadFounderRows(){ const rows=await fetchJson("founder_members?select=*&order=founder_number.asc","founders"); founderState.rows=Array.isArray(rows)?rows:[]; }
+    async function refreshFounders(){ try{ await Promise.all([loadSummary(),loadFounderRows()]); renderKpis(); renderFounders(); showToast("Fundadores actualizados."); }catch(error){ console.error("PREDIKT founders data unavailable:",error); showToast("No se pudieron cargar fundadores reales."); } }
+    async function waitForSupabase(){ if(window.PREDIKT_SUPABASE_INIT_PROMISE){ await window.PREDIKT_SUPABASE_INIT_PROMISE; } return Boolean(window.prediktSupabase); }
+    async function initializeFoundersConsole(){ if(!window.PrediktAdminGuard||!window.PrediktAdminGuard.requireAdminAccess){ document.body.innerHTML=`<main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#061826;color:#fff;font-family:Arial,sans-serif;padding:24px;text-align:center;"><section style="max-width:420px;border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:28px;background:rgba(255,255,255,.06);"><img src="assets/predikt-logo.png" alt="PREDIKT™" style="width:86px;height:auto;margin-bottom:16px;" /><h1 style="font-size:22px;margin:0 0 10px;">PREDIKT™</h1><p style="font-size:16px;line-height:1.5;margin:0;color:#d7e3f5;">No se pudo cargar la Guardia Admin.</p></section></main>`; document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; return; } const isAuthorized=await window.PrediktAdminGuard.requireAdminAccess(); if(!isAuthorized)return; await waitForSupabase(); document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; refreshBtn.addEventListener("click",refreshFounders); searchInput.addEventListener("input",renderFounders); filterButtons.forEach(button=>button.addEventListener("click",()=>{ filterButtons.forEach(item=>item.classList.remove("active")); button.classList.add("active"); activeFilter=button.dataset.filter; renderFounders(); })); renderKpis(); await refreshFounders(); }
+    document.addEventListener("DOMContentLoaded",initializeFoundersConsole);
   </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
-    <a class="footer-item" href="index.html">
-      <span>🏠</span>
-      Inicio
-    </a>
-
-    <a class="footer-item" href="mi-quiniela.html">
-      <span>⚽</span>
-      Quiniela
-    </a>
-
-    <a class="footer-item" href="pronostico.html">
-      <span>🎯</span>
-      Pronósticos
-    </a>
-
-    <a class="footer-item" href="ranking.html">
-      <span>🏆</span>
-      Ranking
-    </a>
-
-    <a class="footer-item active" href="perfil.html" aria-current="page">
-      <span>👤</span>
-      Perfil
-    </a>
+    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item active" href="perfil.html" aria-current="page"><span>👤</span>Perfil</a>
   </nav>
 </body>
 </html>
