@@ -2,24 +2,29 @@
 ===============================================================================
 Archivo: assets/js/admin-guard.js
 Proyecto: PREDIKT™
-Versión: 2.0.0 SUPABASE AUTH PRODUCTION GUARD
+Versión: 2.0.1 RPC ADMIN GUARD PRODUCTION
 Fecha: 2026-06-09
 Elaborado por: JVSys
 Descripción:
   Guardia Admin de producción para pantallas administrativas de PREDIKT™.
 
-  Esta versión elimina completamente la sesión local temporal WAR MODE:
-    - predikt_admin_beta_session
-    - predikt_admin_last_page
-    - war_mode_local_pin
-    - master_admin local
+  Esta versión corrige el problema detectado en v2.0.0:
+    - Supabase REST no expone directamente el schema core desde el frontend.
+    - El error PGRST106 impedía consultar core.admin_users con .schema("core").
+
+  Solución v2.0.1:
+    - El frontend NO consulta core.admin_users directamente.
+    - El frontend llama una función RPC segura en schema public:
+        public.predikt_current_admin_access()
+    - La función SQL usa SECURITY DEFINER y valida auth.uid() contra core.admin_users.
 
   Valida acceso administrativo mediante:
     1. Supabase Auth real
     2. Sesión activa del usuario autenticado
-    3. Tabla core.admin_users
-    4. role = SUPER_ADMIN o ADMIN
-    5. is_active = true
+    3. RPC pública segura
+    4. core.admin_users interno
+    5. role = SUPER_ADMIN o ADMIN
+    6. is_active = true
 
   Bloquea:
     - usuarios no autenticados
@@ -37,8 +42,8 @@ Descripción:
     - ranking-admin.html
     - pantallas administrativas futuras que invoquen PrediktAdminGuard.requireAdminAccess()
 
-Líneas versión anterior: 158
-Líneas versión nueva: 294
+Líneas versión anterior: 294
+Líneas versión nueva: 316
 ===============================================================================
 */
 
@@ -51,8 +56,7 @@ Líneas versión nueva: 294
     loginPage: "admin-login.html",
     homePage: "index.html",
     allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-    adminSchema: "core",
-    adminTable: "admin_users",
+    adminAccessRpc: "predikt_current_admin_access",
     legacySessionKeys: [
       "predikt_admin_beta_session",
       "predikt_admin_last_page"
@@ -91,6 +95,15 @@ Líneas versión nueva: 294
 
   function getCurrentPageName() {
     return window.location.pathname.split("/").pop() || "dashboard-admin.html";
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function buildBlockedScreen(title, message, actionLabel, actionHref) {
@@ -136,7 +149,7 @@ Líneas versión nueva: 294
           <p style="font-size:15px;line-height:1.55;margin:0 0 22px;color:#d7e3f5;">
             ${escapeHtml(message)}
           </p>
-          <a href="${actionHref}" style="
+          <a href="${escapeHtml(actionHref)}" style="
             display:inline-flex;
             align-items:center;
             justify-content:center;
@@ -155,15 +168,6 @@ Líneas versión nueva: 294
       </main>
     `;
     showPage();
-  }
-
-  function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
   }
 
   function getSupabaseClient() {
@@ -206,45 +210,45 @@ Líneas versión nueva: 294
     return data.user;
   }
 
-  async function fetchAdminRecord(authUserId) {
+  async function fetchAdminRecordViaRpc() {
     const client = getSupabaseClient();
 
-    if (!client || !authUserId) {
+    if (!client) {
       return null;
     }
 
-    const { data, error } = await client
-      .schema(CONFIG.adminSchema)
-      .from(CONFIG.adminTable)
-      .select("auth_user_id, role, is_active, created_at")
-      .eq("auth_user_id", authUserId)
-      .eq("is_active", true)
-      .in("role", CONFIG.allowedRoles)
-      .maybeSingle();
+    const { data, error } = await client.rpc(CONFIG.adminAccessRpc);
 
     if (error) {
       STATE.lastError = error.message;
-      console.error("PREDIKT Admin Guard: error consultando core.admin_users.", error);
+      console.error("PREDIKT Admin Guard: error consultando RPC admin.", error);
       return null;
     }
 
-    if (!data) {
+    const record = Array.isArray(data) ? data[0] : data;
+
+    if (!record) {
       STATE.lastError = "Usuario autenticado sin autorización administrativa activa.";
       return null;
     }
 
-    const role = normalizeRole(data.role);
+    const role = normalizeRole(record.role);
 
     if (!CONFIG.allowedRoles.includes(role)) {
       STATE.lastError = `Rol no autorizado: ${role || "SIN_ROL"}`;
       return null;
     }
 
+    if (record.is_active !== true) {
+      STATE.lastError = "Administrador inactivo.";
+      return null;
+    }
+
     STATE.currentAdmin = {
-      authUserId: data.auth_user_id,
+      authUserId: record.auth_user_id,
       role,
-      isActive: data.is_active === true,
-      createdAt: data.created_at
+      isActive: record.is_active === true,
+      createdAt: record.created_at || null
     };
 
     return STATE.currentAdmin;
@@ -283,7 +287,7 @@ Líneas versión nueva: 294
       return false;
     }
 
-    const admin = await fetchAdminRecord(user.id);
+    const admin = await fetchAdminRecordViaRpc();
 
     if (!admin) {
       await redirectUnauthorized("Tu sesión existe, pero no está registrada como SUPER_ADMIN o ADMIN activo.");
@@ -294,7 +298,7 @@ Líneas versión nueva: 294
       id: user.id,
       email: user.email || "",
       role: admin.role,
-      mode: "supabase_auth_production",
+      mode: "supabase_auth_rpc_production",
       isActive: admin.isActive,
       page: getCurrentPageName()
     };
@@ -331,7 +335,8 @@ Líneas versión nueva: 294
       currentUser: STATE.currentUser,
       currentAdmin: STATE.currentAdmin,
       lastError: STATE.lastError,
-      allowedRoles: CONFIG.allowedRoles.slice()
+      allowedRoles: CONFIG.allowedRoles.slice(),
+      mode: "supabase_auth_rpc_production"
     };
   }
 
