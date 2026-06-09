@@ -3,18 +3,18 @@
 <head>
   <!--
     Nombre del archivo: pronostico.html
-    Fecha: 2026-06-08
-    Versión: v1.1.0 Global Auth Guard Certified
+    Fecha: 2026-06-09
+    Versión: v1.2.0 Supabase Prediction Insert Certified
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Primera pantalla real de captura de pronósticos para PREDIKT™.
       Pantalla mobile-first tipo aplicación deportiva social.
-      Usa datos simulados inspirados en análisis de probabilidad deportiva mostrados en video:
-      favorito esperado, porcentaje de referencia, nivel de riesgo, marcador sugerido,
-      captura de marcador, avance de pronósticos y guardado simulado local.
-    Líneas versión anterior: 1474
-    Líneas versión nueva: 1546
+      Conecta el primer pronóstico real MVP contra Supabase usando predictions.predictions.
+      Mantiene Auth Guard, sesión real, recuperación de pronósticos guardados y fallback seguro
+      para partidos aún no conectados a event_id real.
+    Líneas versión anterior: 1546
+    Líneas versión nueva: 1654
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -137,6 +137,28 @@
       border-radius: 999px;
       color: var(--gold);
       background: rgba(245, 185, 66, 0.09);
+      font-size: 0.72rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .top-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+
+    .logout-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       font-size: 0.72rem;
       font-weight: 950;
       white-space: nowrap;
@@ -841,9 +863,14 @@
         font-size: 1.05rem;
       }
 
-      .level-pill {
+      .level-pill,
+      .logout-pill {
         padding: 7px 10px;
         font-size: 0.67rem;
+      }
+
+      .top-actions {
+        gap: 6px;
       }
 
       .hero-card {
@@ -981,7 +1008,10 @@
         <span class="hello" data-auth-hello>Validando sesión...</span>
       </a>
 
-      <span class="level-pill">📺 Futbolero</span>
+      <div class="top-actions">
+        <span class="level-pill">📺 Futbolero</span>
+        <button class="logout-pill" type="button" data-global-logout>🚪 Salir</button>
+      </div>
     </header>
 
     <section class="hero-card" aria-label="Resumen de pronósticos">
@@ -1012,7 +1042,7 @@
           <a class="section-link" href="mi-quiniela.html">Mi Quiniela</a>
         </div>
 
-        <article class="match-card" data-match-id="mex-ger">
+        <article class="match-card" data-match-id="mex-rsa" data-event-id="5852afae-b00c-4567-b374-a41c80fdbaf1" data-group-id="11111111-1111-1111-1111-111111111111">
           <div class="match-top">
             <div class="match-meta">
               <span>Mañana · 19:00</span>
@@ -1029,23 +1059,23 @@
               <span class="vs-badge">VS</span>
 
               <div class="team team-away">
-                <span class="flag" aria-hidden="true">🇩🇪</span>
-                <span class="team-code">DE</span>
-                <strong class="team-name">Alemania</strong>
+                <span class="flag" aria-hidden="true">🇿🇦</span>
+                <span class="team-code">RSA</span>
+                <strong class="team-name">Sudáfrica</strong>
               </div>
             </div>
 
             <div class="intelligence-card">
               <div class="intel-box">
                 <p class="intel-label">Favorito esperado</p>
-                <p class="intel-value">Alemania</p>
-                <p class="intel-sub">Mayor referencia</p>
+                <p class="intel-value">México</p>
+                <p class="intel-sub">Local y sede inicial</p>
               </div>
 
               <div class="intel-box">
                 <p class="intel-label">Referencia video</p>
-                <p class="intel-value">4.90%</p>
-                <p class="intel-sub">vs México 1.65%</p>
+                <p class="intel-value">Partido 1</p>
+                <p class="intel-sub">México vs Sudáfrica</p>
               </div>
 
               <div class="intel-box">
@@ -1062,7 +1092,7 @@
                 <p class="suggested-label">Pronóstico sugerido</p>
                 <p class="suggested-text">Cercano a lo esperado por probabilidad y fuerza relativa.</p>
               </div>
-              <strong class="suggested-main">México 1 - 2 Alemania</strong>
+              <strong class="suggested-main">México 2 - 1 Sudáfrica</strong>
             </div>
 
             <div class="score-controls">
@@ -1080,18 +1110,18 @@
 
               <div class="score-row">
                 <div class="score-team">
-                  <p class="score-team-name">🇩🇪 Alemania</p>
+                  <p class="score-team-name">🇿🇦 Alemania</p>
                   <p class="score-team-help">Goles pronosticados</p>
                 </div>
                 <div class="stepper">
-                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a Alemania">−</button>
-                  <span class="score-number" data-score="away">2</span>
-                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a Alemania">+</button>
+                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a Sudáfrica">−</button>
+                  <span class="score-number" data-score="away">1</span>
+                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a Sudáfrica">+</button>
                 </div>
               </div>
             </div>
 
-            <p class="live-preview" data-preview>Tu pronóstico: México 1 - 2 Alemania</p>
+            <p class="live-preview" data-preview>Tu pronóstico: México 2 - 1 Sudáfrica</p>
             <button class="save-btn" data-save>Guardar pronóstico</button>
           </div>
         </article>
@@ -1369,6 +1399,8 @@
         Si no existe sesión, redirige a login.html.
         Si existe sesión, muestra saludo real del usuario autenticado.
     */
+    let authenticatedUser = null;
+
     (async function initializeProtectedPage() {
       function safeText(value) {
         return String(value || "").trim();
@@ -1410,9 +1442,11 @@
         if (!session) return;
 
         const user = session.user || await window.PrediktAuth.getCurrentUser();
+        authenticatedUser = user;
         renderAuthenticatedUser(user);
+        await loadExistingPredictions();
       } catch (error) {
-        console.error(`PREDIKT™ ${page_tag} Auth Guard error:`, error);
+        console.error("PREDIKT™ pronostico.html Auth Guard error:", error);
         window.location.href = "login.html";
       }
     })();
@@ -1428,10 +1462,12 @@
         guardado simulado por partido, barra de progreso y mensaje de confirmación.
     */
 
+    const PREDIKT_DEFAULT_GROUP_ID = "11111111-1111-1111-1111-111111111111";
+
     const matchLabels = {
-      "mex-ger": {
+      "mex-rsa": {
         home: "México",
-        away: "Alemania"
+        away: "Sudáfrica"
       },
       "bra-esp": {
         home: "Brasil",
@@ -1450,14 +1486,37 @@
     const rewardNote = document.getElementById("rewardNote");
     const toast = document.getElementById("toast");
 
+    function getSupabaseClient() {
+      if (!window.PREDIKT_SUPABASE_READY || !window.prediktSupabase) {
+        throw new Error("Supabase no está disponible en esta sesión.");
+      }
+
+      return window.prediktSupabase;
+    }
+
     function clampScore(value) {
       return Math.max(0, Math.min(9, value));
     }
 
+    function getCardScores(card) {
+      return {
+        homeScore: Number(card.querySelector('[data-score="home"]').textContent),
+        awayScore: Number(card.querySelector('[data-score="away"]').textContent)
+      };
+    }
+
+    function getPredictedWinner(card, homeScore, awayScore) {
+      const matchId = card.dataset.matchId;
+      const labels = matchLabels[matchId] || { home: "LOCAL", away: "VISITA" };
+
+      if (homeScore > awayScore) return labels.home;
+      if (awayScore > homeScore) return labels.away;
+      return "EMPATE";
+    }
+
     function updatePreview(card) {
       const matchId = card.dataset.matchId;
-      const homeScore = card.querySelector('[data-score="home"]').textContent;
-      const awayScore = card.querySelector('[data-score="away"]').textContent;
+      const { homeScore, awayScore } = getCardScores(card);
       const preview = card.querySelector("[data-preview]");
       const labels = matchLabels[matchId];
 
@@ -1490,11 +1549,154 @@
       window.clearTimeout(showToast.timer);
       showToast.timer = window.setTimeout(() => {
         toast.classList.remove("show");
-      }, 2300);
+      }, 2600);
     }
 
+    function markCardAsSaved(card) {
+      const matchId = card.dataset.matchId;
+      const saveButton = card.querySelector("[data-save]");
+
+      savedMatches.add(matchId);
+      saveButton.classList.add("saved");
+      saveButton.textContent = "Pronóstico guardado";
+      updateProgress();
+    }
+
+    function markCardAsUnsaved(card) {
+      const matchId = card.dataset.matchId;
+      const saveButton = card.querySelector("[data-save]");
+
+      savedMatches.delete(matchId);
+      saveButton.classList.remove("saved");
+      saveButton.textContent = "Guardar pronóstico";
+      updateProgress();
+    }
+
+    async function loadExistingPredictions() {
+      if (!authenticatedUser) return;
+
+      try {
+        const client = getSupabaseClient();
+        const eventIds = Array.from(document.querySelectorAll(".match-card"))
+          .map((card) => card.dataset.eventId)
+          .filter(Boolean);
+
+        if (eventIds.length === 0) return;
+
+        const { data, error } = await client
+          .schema("predictions")
+          .from("predictions")
+          .select("event_id,predicted_home_score,predicted_away_score")
+          .eq("user_id", authenticatedUser.id)
+          .in("event_id", eventIds);
+
+        if (error) throw error;
+
+        (data || []).forEach((prediction) => {
+          const card = document.querySelector(`.match-card[data-event-id="${prediction.event_id}"]`);
+          if (!card) return;
+
+          card.querySelector('[data-score="home"]').textContent = String(prediction.predicted_home_score ?? 0);
+          card.querySelector('[data-score="away"]').textContent = String(prediction.predicted_away_score ?? 0);
+          updatePreview(card);
+          markCardAsSaved(card);
+        });
+      } catch (error) {
+        console.error("PREDIKT™ loadExistingPredictions error:", error);
+        showToast("No se pudieron recuperar tus pronósticos guardados.");
+      }
+    }
+
+    async function savePredictionToSupabase(card) {
+      if (!authenticatedUser) {
+        showToast("Sesión no disponible. Vuelve a iniciar sesión.");
+        return;
+      }
+
+      const client = getSupabaseClient();
+      const eventId = card.dataset.eventId;
+      const groupId = card.dataset.groupId || PREDIKT_DEFAULT_GROUP_ID;
+      const matchId = card.dataset.matchId;
+      const labels = matchLabels[matchId];
+      const saveButton = card.querySelector("[data-save]");
+      const { homeScore, awayScore } = getCardScores(card);
+
+      if (!eventId) {
+        showToast("Este partido aún no tiene event_id real. Conectaremos los demás al cargar calendario real.");
+        return;
+      }
+
+      const payload = {
+        group_id: groupId,
+        event_id: eventId,
+        user_id: authenticatedUser.id,
+        predicted_home_score: homeScore,
+        predicted_away_score: awayScore,
+        predicted_winner: getPredictedWinner(card, homeScore, awayScore),
+        submitted_at: new Date().toISOString()
+      };
+
+      saveButton.disabled = true;
+      saveButton.textContent = "Guardando...";
+
+      try {
+        const { data: existingRows, error: selectError } = await client
+          .schema("predictions")
+          .from("predictions")
+          .select("id")
+          .eq("group_id", groupId)
+          .eq("event_id", eventId)
+          .eq("user_id", authenticatedUser.id)
+          .limit(1);
+
+        if (selectError) throw selectError;
+
+        const existingId = existingRows && existingRows.length > 0 ? existingRows[0].id : null;
+        let writeError = null;
+
+        if (existingId) {
+          const { error } = await client
+            .schema("predictions")
+            .from("predictions")
+            .update({
+              predicted_home_score: payload.predicted_home_score,
+              predicted_away_score: payload.predicted_away_score,
+              predicted_winner: payload.predicted_winner,
+              submitted_at: payload.submitted_at
+            })
+            .eq("id", existingId);
+          writeError = error;
+        } else {
+          const { error } = await client
+            .schema("predictions")
+            .from("predictions")
+            .insert(payload);
+          writeError = error;
+        }
+
+        if (writeError) throw writeError;
+
+        markCardAsSaved(card);
+        showToast(`${labels.home} ${homeScore} - ${awayScore} ${labels.away}. Guardado en Supabase.`);
+      } catch (error) {
+        console.error("PREDIKT™ savePredictionToSupabase error:", error);
+        saveButton.classList.remove("saved");
+        saveButton.textContent = "Guardar pronóstico";
+        showToast(`No se pudo guardar en Supabase: ${error.message || "revisa RLS/permisos"}.`);
+      } finally {
+        saveButton.disabled = false;
+      }
+    }
+
+    document.querySelectorAll("[data-global-logout]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        showToast("Cerrando sesión...");
+        await window.PrediktAuth.logoutUser();
+      });
+    });
+
     document.querySelectorAll(".match-card").forEach((card) => {
-      card.addEventListener("click", (event) => {
+      card.addEventListener("click", async (event) => {
         const button = event.target.closest("[data-action]");
         const saveButton = event.target.closest("[data-save]");
 
@@ -1506,15 +1708,19 @@
           const nextScore = action === "plus" ? currentScore + 1 : currentScore - 1;
 
           scoreElement.textContent = String(clampScore(nextScore));
-
-          const matchId = card.dataset.matchId;
-          savedMatches.delete(matchId);
-          const cardSaveButton = card.querySelector("[data-save]");
-          cardSaveButton.classList.remove("saved");
-          cardSaveButton.textContent = "Guardar pronóstico";
-
+          markCardAsUnsaved(card);
           updatePreview(card);
-          updateProgress();
+        }
+
+        if (saveButton) {
+          await savePredictionToSupabase(card);
+        }
+      });
+
+      updatePreview(card);
+    });
+
+    updateProgress();
         }
 
         if (saveButton) {
@@ -1540,7 +1746,7 @@
 
 <!--
 Cierre de archivo
-Versión: v1.1.0 Global Auth Guard Certified
-Fecha: 2026-06-08
+Versión: v1.2.0 Supabase Prediction Insert Certified
+Fecha: 2026-06-09
 Elaborado por: JVSys™
 -->
