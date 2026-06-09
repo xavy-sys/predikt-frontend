@@ -3,9 +3,9 @@
 <head>
   <!--
     Nombre del archivo: ranking.html
-    Fecha: 2026-06-06
-    Versión: v1.1
-    Fabricante: JVSys
+    Fecha: 2026-06-08
+    Versión: v1.2.0 Global Auth Guard Certified
+    Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla Ranking General para PREDIKT™.
@@ -13,8 +13,8 @@
       Incluye podio visual, posición personal destacada, top 20 participantes,
       movimiento de posiciones, diferencia contra líder, reconocimientos,
       motor viral, navegación a rankings de selecciones y navegación inferior de aplicación.
-    Líneas versión anterior: 1379
-    Líneas versión nueva: 1446
+    Líneas versión anterior: 1444
+    Líneas versión nueva: 1513
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,13 +23,13 @@
 
   <meta
     name="description"
-    content="Ranking PREDIKT™ - Consulta quién lidera la quiniela, tu posición, puntos y movimientos."
+    content="Ranking PREDIKT™ - Consulta quién lidera la quiniela con sesión protegida."
   />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" type="image/png" href="assets/predikt-logo.png" />
-  <link rel="shortcut icon" type="image/png" href="assets/predikt-logo.png" />
-  <link rel="apple-touch-icon" href="assets/predikt-logo.png" />
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
 
   <style>
     :root {
@@ -975,7 +975,7 @@
     <header class="top-bar" aria-label="Encabezado de PREDIKT">
       <a href="index.html" class="brand-block" aria-label="Ir a inicio">
         <strong class="brand-name">PREDIKT™</strong>
-        <span class="hello">Hola Javier 👋</span>
+        <span class="hello" data-auth-hello>Validando sesión...</span>
       </a>
 
       <span class="level-pill">📺 Futbolero</span>
@@ -1015,7 +1015,7 @@
 
               <div class="podium-place third">
                 <div class="medal">🥉</div>
-                <strong class="podium-name">Javier</strong>
+                <strong class="podium-name">Tú</strong>
                 <span class="podium-points">124 pts</span>
                 <div class="podium-base">#3</div>
               </div>
@@ -1030,7 +1030,7 @@
             <div class="me-rank">#3</div>
 
             <div>
-              <h2 class="me-title">Javier · 124 puntos</h2>
+              <h2 class="me-title">Tú · 124 puntos</h2>
               <p class="me-copy">
                 Estás a 16 puntos del líder. Subiste 2 lugares en la última jornada.
               </p>
@@ -1078,7 +1078,7 @@
             <div class="rank-row me">
               <span class="rank-num">#3</span>
               <div class="rank-person">
-                <p class="rank-name">Javier</p>
+                <p class="rank-name">Tú</p>
                 <p class="rank-meta"><span class="move-up">↑ Subió 2</span><span>⚡ Enrachado</span></p>
               </div>
               <div class="rank-score">
@@ -1312,7 +1312,7 @@
               <div class="achievement-icon">⚡</div>
               <div>
                 <p class="achievement-name">Enrachado</p>
-                <p class="achievement-user">Javier · 5 activos</p>
+                <p class="achievement-user">Tú · 5 activos</p>
               </div>
               <span class="achievement-tag">Racha</span>
             </div>
@@ -1343,7 +1343,7 @@
           <div class="pressure-card">
             <h3 class="pressure-title">Puedes alcanzarlo.</h3>
             <p class="pressure-copy">
-              Javier está a 16 puntos. Dos buenos pronósticos pueden meterte de lleno por el liderato.
+              Estás a 16 puntos. Dos buenos pronósticos pueden meterte de lleno por el liderato.
             </p>
           </div>
 
@@ -1370,7 +1370,7 @@
 
             <div class="gap-item">
               <div class="gap-top">
-                <span>Javier</span>
+                <span>Tú</span>
                 <span>124 pts</span>
               </div>
               <div class="gap-track">
@@ -1440,6 +1440,74 @@
       Perfil
     </a>
   </nav>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    /*
+      Nombre del bloque: PREDIKT™ Global Auth Guard Runtime
+      Fecha: 2026-06-08
+      Elaborado por: JVSys™
+      Descripción:
+        Protege esta pantalla con sesión real de Supabase Auth.
+        Si no existe sesión, redirige a login.html.
+        Si existe sesión, muestra saludo real del usuario autenticado.
+    */
+    (async function initializeProtectedPage() {
+      function safeText(value) {
+        return String(value || "").trim();
+      }
+
+      function getDisplayName(user) {
+        const metadata = user && user.user_metadata ? user.user_metadata : {};
+        const candidates = [
+          metadata.alias,
+          metadata.full_name,
+          metadata.name,
+          metadata.display_name
+        ];
+
+        for (const candidate of candidates) {
+          const value = safeText(candidate);
+          if (value) return value.split(" ")[0];
+        }
+
+        const email = safeText(user && user.email);
+        if (email && email.includes("@")) return email.split("@")[0];
+        return "Participante";
+      }
+
+      function renderAuthenticatedUser(user) {
+        const displayName = getDisplayName(user);
+        document.querySelectorAll("[data-auth-hello]").forEach((element) => {
+          element.textContent = `Hola ${displayName} 👋`;
+        });
+      }
+
+      try {
+        if (!window.PrediktAuth) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const session = await window.PrediktAuth.requireAuth();
+        if (!session) return;
+
+        const user = session.user || await window.PrediktAuth.getCurrentUser();
+        renderAuthenticatedUser(user);
+      } catch (error) {
+        console.error(`PREDIKT™ ${page_tag} Auth Guard error:`, error);
+        window.location.href = "login.html";
+      }
+    })();
+  </script>
+
 </body>
 </html>
 
+<!--
+Cierre de archivo
+Versión: v1.2.0 Global Auth Guard Certified
+Fecha: 2026-06-08
+Elaborado por: JVSys™
+-->
