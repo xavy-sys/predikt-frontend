@@ -3,9 +3,9 @@
 <head>
   <!--
     Nombre del archivo: pronostico.html
-    Fecha: 2026-06-04
-    Versión: v1.0
-    Fabricante: JVSys
+    Fecha: 2026-06-08
+    Versión: v1.1.0 Global Auth Guard Certified
+    Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Primera pantalla real de captura de pronósticos para PREDIKT™.
@@ -13,8 +13,8 @@
       Usa datos simulados inspirados en análisis de probabilidad deportiva mostrados en video:
       favorito esperado, porcentaje de referencia, nivel de riesgo, marcador sugerido,
       captura de marcador, avance de pronósticos y guardado simulado local.
-    Líneas versión anterior: 0
-    Líneas versión nueva: 1002
+    Líneas versión anterior: 1474
+    Líneas versión nueva: 1546
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,11 +23,13 @@
 
   <meta
     name="description"
-    content="PREDIKT™ Pronósticos - Captura tus marcadores, revisa favoritos esperados y compite con tus amigos."
+    content="PREDIKT™ Pronósticos - Captura tus marcadores con sesión protegida y compite con tus amigos."
   />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" href="assets/logos/predikt-icon.png" />
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
 
   <style>
     :root {
@@ -976,7 +978,7 @@
     <header class="top-bar" aria-label="Encabezado de PREDIKT">
       <a href="index.html" class="brand-block" aria-label="Ir a inicio">
         <strong class="brand-name">PREDIKT™</strong>
-        <span class="hello">Hola Javier 👋</span>
+        <span class="hello" data-auth-hello>Validando sesión...</span>
       </a>
 
       <span class="level-pill">📺 Futbolero</span>
@@ -1299,7 +1301,7 @@
             </div>
 
             <div class="ranking-row me">
-              <span>#3 Javier</span>
+              <span>#3 Tú</span>
               <span class="ranking-points">124 pts</span>
             </div>
 
@@ -1353,11 +1355,74 @@
     </a>
   </nav>
 
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    /*
+      Nombre del bloque: PREDIKT™ Global Auth Guard Runtime
+      Fecha: 2026-06-08
+      Elaborado por: JVSys™
+      Descripción:
+        Protege esta pantalla con sesión real de Supabase Auth.
+        Si no existe sesión, redirige a login.html.
+        Si existe sesión, muestra saludo real del usuario autenticado.
+    */
+    (async function initializeProtectedPage() {
+      function safeText(value) {
+        return String(value || "").trim();
+      }
+
+      function getDisplayName(user) {
+        const metadata = user && user.user_metadata ? user.user_metadata : {};
+        const candidates = [
+          metadata.alias,
+          metadata.full_name,
+          metadata.name,
+          metadata.display_name
+        ];
+
+        for (const candidate of candidates) {
+          const value = safeText(candidate);
+          if (value) return value.split(" ")[0];
+        }
+
+        const email = safeText(user && user.email);
+        if (email && email.includes("@")) return email.split("@")[0];
+        return "Participante";
+      }
+
+      function renderAuthenticatedUser(user) {
+        const displayName = getDisplayName(user);
+        document.querySelectorAll("[data-auth-hello]").forEach((element) => {
+          element.textContent = `Hola ${displayName} 👋`;
+        });
+      }
+
+      try {
+        if (!window.PrediktAuth) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const session = await window.PrediktAuth.requireAuth();
+        if (!session) return;
+
+        const user = session.user || await window.PrediktAuth.getCurrentUser();
+        renderAuthenticatedUser(user);
+      } catch (error) {
+        console.error(`PREDIKT™ ${page_tag} Auth Guard error:`, error);
+        window.location.href = "login.html";
+      }
+    })();
+  </script>
+
   <script>
     /*
       Nombre del bloque: Pronósticos Local Runtime
-      Fecha: 2026-06-04
-      Fabricante: JVSys
+      Fecha: 2026-06-08
+      Fabricante: JVSys™
       Descripción:
         Controla marcadores con botones + / -, vista previa en vivo,
         guardado simulado por partido, barra de progreso y mensaje de confirmación.
@@ -1473,3 +1538,9 @@
 </body>
 </html>
 
+<!--
+Cierre de archivo
+Versión: v1.1.0 Global Auth Guard Certified
+Fecha: 2026-06-08
+Elaborado por: JVSys™
+-->
