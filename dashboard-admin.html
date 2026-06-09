@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: dashboard-admin.html
     Fecha: 2026-06-09
-    Versión: v2.0.0 🔐 Admin Guard + Datos Reales Certificados
+    Versión: v2.1.0 🔐 KPIs Reales desde Vistas Certificadas
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -17,7 +17,10 @@
       oficial PREDIKT™ con favicon/logo oficial.
       Conecta el Centro de Lanzamiento con vistas reales certificadas de Supabase:
       founders.v_founder_program_summary, rankings.v_global_rankings y
-      predictions.v_event_prediction_summary / predictions.predictions.
+      predictions.v_event_prediction_summary y rankings.v_global_rankings.
+      Elimina lectura directa a predictions.predictions desde el frontend porque RLS
+      puede devolver cero registros al usar llave publishable sin JWT de usuario.
+      Los KPIs superiores ahora se calculan desde vistas agregadas certificadas.
       Elimina dependencias inexistentes a vistas analytics Beta antiguas:
       v_launch_readiness_metrics, v_launch_top_participants y
       v_launch_popular_matches.
@@ -26,8 +29,8 @@
       Retira temporalmente el botón CAMPAÑA del Centro de Lanzamiento para
       mantener enfoque operativo del MVP. Campaña queda pendiente por redefinir
       como WAR ROOM PREDIKT™ posterior al lanzamiento.
-    Líneas versión anterior: 1246
-    Líneas versión nueva: 1296
+    Líneas versión anterior: 1296
+    Líneas versión nueva: 1306
   -->
 
   <meta charset="UTF-8" />
@@ -1146,6 +1149,8 @@
 
     async function loadAnalyticsFromSupabase() {
       const nextState = mergeState(dashboardState, {});
+      let rankingRows = [];
+      let eventRows = [];
 
       try {
         const rows = await fetchJson("v_founder_program_summary?select=founder_limit,founders_registered,founder_slots_remaining,total_amount_registered_mxn,is_active&limit=1", "founders");
@@ -1162,31 +1167,27 @@
       }
 
       try {
-        const rows = await fetchJson("predictions?select=id,user_id,submitted_at", "predictions");
-        const safeRows = Array.isArray(rows) ? rows : [];
-        const counters = getDateWindowCounters(safeRows, "submitted_at");
-        const uniqueUsers = new Set(safeRows.map((row) => row.user_id).filter(Boolean));
+        const rows = await fetchJson("v_global_rankings?select=user_id,total_points,total_predictions,total_correct,accuracy_percentage,global_rank&order=global_rank.asc&limit=100", "rankings");
+        rankingRows = Array.isArray(rows) ? rows : [];
 
-        nextState.predictions = {
-          today: counters.today,
-          week: counters.week,
-          total: safeRows.length
-        };
+        const rankedUsers = new Set(rankingRows.map((row) => row.user_id).filter(Boolean));
+        const totalPredictionsFromRanking = rankingRows.reduce((sum, row) => {
+          return sum + Number(row.total_predictions || 0);
+        }, 0);
 
         nextState.users = {
           today: 0,
           week: 0,
-          total: uniqueUsers.size
+          total: rankedUsers.size
         };
-      } catch (error) {
-        console.warn("PREDIKT predictions table unavailable. Using fallback.", error);
-      }
 
-      try {
-        const rows = await fetchJson("v_global_rankings?select=user_id,total_points,total_predictions,total_correct,accuracy_percentage,global_rank&order=global_rank.asc&limit=3", "rankings");
-        const safeRows = Array.isArray(rows) ? rows : [];
+        nextState.predictions = {
+          today: 0,
+          week: 0,
+          total: totalPredictionsFromRanking
+        };
 
-        nextState.leaderboard = safeRows.map((row, index) => ({
+        nextState.leaderboard = rankingRows.slice(0, 3).map((row, index) => ({
           name: row.user_id === "8f46f09f-78e1-4720-afbe-a781fd04956d" ? "Javier" : `Usuario #${row.global_rank || index + 1}`,
           detail: `${formatNumber(row.total_correct || 0)} aciertos · ${Number(row.accuracy_percentage || 0).toFixed(0)}% precisión`,
           score: row.total_points || 0
@@ -1196,10 +1197,19 @@
       }
 
       try {
-        const rows = await fetchJson("v_event_prediction_summary?select=event_id,total_predictions&order=total_predictions.desc&limit=3", "predictions");
-        const safeRows = Array.isArray(rows) ? rows : [];
+        const rows = await fetchJson("v_event_prediction_summary?select=event_id,total_predictions&order=total_predictions.desc&limit=100", "predictions");
+        eventRows = Array.isArray(rows) ? rows : [];
 
-        nextState.popularMatches = safeRows.map((row, index) => ({
+        const totalPredictionsFromEvents = eventRows.reduce((sum, row) => {
+          return sum + Number(row.total_predictions || 0);
+        }, 0);
+
+        nextState.predictions = {
+          ...nextState.predictions,
+          total: Math.max(Number(nextState.predictions.total || 0), totalPredictionsFromEvents)
+        };
+
+        nextState.popularMatches = eventRows.slice(0, 3).map((row, index) => ({
           match: `Evento ${shortId(row.event_id) || index + 1}`,
           detail: "Pronósticos registrados",
           count: row.total_predictions || 0
