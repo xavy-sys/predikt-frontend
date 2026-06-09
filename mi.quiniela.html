@@ -3,27 +3,29 @@
 <head>
   <!--
     Nombre del archivo: mi-quiniela.html
-    Fecha: 2026-06-04
-    Versión: v1.0
-    Fabricante: JVSys
+    Fecha: 2026-06-08
+    Versión: v1.1.0 Global Auth Guard Certified
+    Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Primera pantalla real de usuario para PREDIKT™.
       Pantalla mobile-first tipo aplicación deportiva social.
       Usa datos simulados para mostrar resumen personal, quiniela activa,
       próximos partidos, reconocimientos, ranking rápido y motor viral.
-    Líneas versión anterior: 0
-    Líneas versión nueva: 965
+    Líneas versión anterior: 965
+    Líneas versión nueva: 1036
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>PREDIKT™ | Mi Quiniela</title>
 
-  <meta name="description" content="Mi Quiniela PREDIKT™ - Consulta tu posición, puntos, próximos partidos y ranking de participantes." />
+  <meta name="description" content="Mi Quiniela PREDIKT™ - Consulta tu quiniela con sesión protegida." />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" href="assets/logos/predikt-icon.png" />
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
 
   <style>
     :root {
@@ -692,7 +694,7 @@
     <header class="topbar" aria-label="Encabezado de Mi Quiniela">
       <div class="brand-block">
         <div class="brand">PREDIKT™</div>
-        <div class="hello">Hola Javier 👋</div>
+        <div class="hello" data-auth-hello>Validando sesión...</div>
       </div>
 
       <div class="level-pill" aria-label="Nivel actual del participante">
@@ -900,7 +902,7 @@
 
               <div class="ranking-row me">
                 <div class="rank-number">#3</div>
-                <div class="rank-name">Javier</div>
+                <div class="rank-name">Tú</div>
                 <div class="rank-points">124 pts</div>
               </div>
 
@@ -961,5 +963,74 @@
       </a>
     </nav>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    /*
+      Nombre del bloque: PREDIKT™ Global Auth Guard Runtime
+      Fecha: 2026-06-08
+      Elaborado por: JVSys™
+      Descripción:
+        Protege esta pantalla con sesión real de Supabase Auth.
+        Si no existe sesión, redirige a login.html.
+        Si existe sesión, muestra saludo real del usuario autenticado.
+    */
+    (async function initializeProtectedPage() {
+      function safeText(value) {
+        return String(value || "").trim();
+      }
+
+      function getDisplayName(user) {
+        const metadata = user && user.user_metadata ? user.user_metadata : {};
+        const candidates = [
+          metadata.alias,
+          metadata.full_name,
+          metadata.name,
+          metadata.display_name
+        ];
+
+        for (const candidate of candidates) {
+          const value = safeText(candidate);
+          if (value) return value.split(" ")[0];
+        }
+
+        const email = safeText(user && user.email);
+        if (email && email.includes("@")) return email.split("@")[0];
+        return "Participante";
+      }
+
+      function renderAuthenticatedUser(user) {
+        const displayName = getDisplayName(user);
+        document.querySelectorAll("[data-auth-hello]").forEach((element) => {
+          element.textContent = `Hola ${displayName} 👋`;
+        });
+      }
+
+      try {
+        if (!window.PrediktAuth) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const session = await window.PrediktAuth.requireAuth();
+        if (!session) return;
+
+        const user = session.user || await window.PrediktAuth.getCurrentUser();
+        renderAuthenticatedUser(user);
+      } catch (error) {
+        console.error(`PREDIKT™ ${page_tag} Auth Guard error:`, error);
+        window.location.href = "login.html";
+      }
+    })();
+  </script>
+
 </body>
 </html>
+
+<!--
+Cierre de archivo
+Versión: v1.1.0 Global Auth Guard Certified
+Fecha: 2026-06-08
+Elaborado por: JVSys™
+-->
