@@ -1,12 +1,15 @@
 /*
 Archivo: assets/js/auth.js
 Proyecto: PREDIKT™
-Versión: v1.0.0
+Versión: v1.1.0 Global Auth Guard Certified
 Fecha: 2026-06-08
 Elaborado por: JVSys™
-Descripción: Motor frontend de autenticación PREDIKT™ con registro, login, logout, sesión persistente y protección de páginas.
-Líneas versión anterior: 0 — archivo nuevo
-Líneas versión nueva: 231
+Descripción:
+  Motor frontend de autenticación PREDIKT™ con registro, login, logout real,
+  sesión persistente, protección global de páginas, helpers de usuario real,
+  avatar automático e integración segura para páginas protegidas MVP.
+Líneas versión anterior: 231
+Líneas versión nueva: 342
 */
 
 (function () {
@@ -16,7 +19,14 @@ Líneas versión nueva: 231
     loginPage: 'login.html',
     registerPage: 'registro.html',
     profilePage: 'perfil.html',
-    homePage: 'index.html'
+    homePage: 'index.html',
+    protectedPages: [
+      'perfil.html',
+      'mi-quiniela.html',
+      'pronostico.html',
+      'ranking.html',
+      'fundadores.html'
+    ]
   };
 
   function getClient() {
@@ -50,9 +60,53 @@ Líneas versión nueva: 231
   }
 
   function normalizeRedirect(path) {
-    if (!path) return AUTH.profilePage;
-    if (path.includes('http://') || path.includes('https://')) return AUTH.profilePage;
-    return path;
+    const safePath = cleanText(path);
+    if (!safePath) return AUTH.profilePage;
+    if (safePath.includes('http://') || safePath.includes('https://')) return AUTH.profilePage;
+    if (safePath.includes('//')) return AUTH.profilePage;
+    return safePath.replace(/^\/+/, '');
+  }
+
+  function getCurrentPageName() {
+    return window.location.pathname.split('/').pop() || AUTH.homePage;
+  }
+
+  function buildLoginRedirectUrl() {
+    const currentPage = getCurrentPageName();
+    const currentSearch = window.location.search || '';
+    const currentHash = window.location.hash || '';
+    const redirectTarget = currentPage + currentSearch + currentHash;
+    return AUTH.loginPage + '?redirect=' + encodeURIComponent(redirectTarget);
+  }
+
+  function getUserDisplayName(user) {
+    if (!user) return 'Participante';
+
+    const metadata = user.user_metadata || {};
+    const candidates = [
+      metadata.alias,
+      metadata.full_name,
+      metadata.name,
+      metadata.display_name,
+      user.email ? user.email.split('@')[0] : ''
+    ];
+
+    const value = candidates.map(cleanText).find(Boolean);
+    return value || 'Participante';
+  }
+
+  function getUserInitials(user) {
+    const displayName = getUserDisplayName(user);
+    const parts = displayName
+      .replace(/[^a-zA-ZÀ-ÿ0-9\s._-]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    return displayName.slice(0, 2).toUpperCase();
   }
 
   async function getCurrentSession() {
@@ -167,11 +221,11 @@ Líneas versión nueva: 231
       });
     }
 
-    showAuthMessage('Cuenta creada. Si Supabase solicita confirmación, revisa tu correo. Si no, entraremos directo a tu perfil.', 'success');
+    showAuthMessage('Cuenta creada. Entraremos directo a tu perfil.', 'success');
 
-    setTimeout(function () {
+    window.setTimeout(function () {
       window.location.href = AUTH.profilePage;
-    }, 1200);
+    }, 900);
   }
 
   async function loginUser(event) {
@@ -209,46 +263,80 @@ Líneas versión nueva: 231
 
   async function logoutUser() {
     const client = getClient();
-    if (!client) return;
+    if (!client) {
+      window.location.href = AUTH.loginPage;
+      return;
+    }
 
-    await client.auth.signOut();
-    window.location.href = AUTH.loginPage;
+    const { error } = await client.auth.signOut();
+    if (error) {
+      console.error('PREDIKT™ Auth signOut error:', error);
+    }
+
+    try {
+      window.localStorage.removeItem('predikt_user_name');
+      window.localStorage.removeItem('predikt_user_email');
+    } catch (storageError) {
+      console.warn('PREDIKT™ Auth localStorage cleanup warning:', storageError);
+    }
+
+    window.location.replace(AUTH.loginPage);
   }
 
   async function requireAuth() {
     const session = await getCurrentSession();
+
     if (!session) {
-      const currentPage = window.location.pathname.split('/').pop() || AUTH.homePage;
-      window.location.href = AUTH.loginPage + '?redirect=' + encodeURIComponent(currentPage);
+      window.location.replace(buildLoginRedirectUrl());
       return null;
     }
+
     return session;
+  }
+
+  async function protectCurrentPage() {
+    const currentPage = getCurrentPageName();
+    if (!AUTH.protectedPages.includes(currentPage)) return null;
+    return requireAuth();
   }
 
   async function redirectIfAuthenticated(targetPage) {
     const session = await getCurrentSession();
     if (session) {
-      window.location.href = targetPage || AUTH.profilePage;
+      window.location.replace(targetPage || AUTH.profilePage);
     }
   }
 
+  function onAuthStateChange(callback) {
+    const client = getClient();
+    if (!client || !client.auth || typeof client.auth.onAuthStateChange !== 'function') {
+      return null;
+    }
+
+    return client.auth.onAuthStateChange(callback);
+  }
+
   window.PrediktAuth = {
+    AUTH: AUTH,
     registerUser: registerUser,
     loginUser: loginUser,
     logoutUser: logoutUser,
     requireAuth: requireAuth,
+    protectCurrentPage: protectCurrentPage,
     redirectIfAuthenticated: redirectIfAuthenticated,
     getCurrentSession: getCurrentSession,
     getCurrentUser: getCurrentUser,
+    getUserDisplayName: getUserDisplayName,
+    getUserInitials: getUserInitials,
     createOrUpdateUserProfile: createOrUpdateUserProfile,
-    showAuthMessage: showAuthMessage
+    showAuthMessage: showAuthMessage,
+    onAuthStateChange: onAuthStateChange
   };
 })();
 
 /*
 Cierre de archivo
-Versión: v1.0.0
+Versión: v1.1.0 Global Auth Guard Certified
 Fecha: 2026-06-08
-Total de líneas: 231
+Total de líneas: 342
 */
-
