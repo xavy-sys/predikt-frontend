@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-09
-    Versión: v2.0.0 Real Supabase Prediction Engine
+    Versión: v2.1.0 RPC Prediction Engine Certified
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -1500,12 +1500,15 @@
 
         if (eventIds.length === 0) return;
 
-        const { data, error } = await client
-          .schema("predictions")
-          .from("predictions")
-          .select("event_id,predicted_home_score,predicted_away_score")
-          .eq("user_id", authenticatedUser.id)
-          .in("event_id", eventIds);
+        /*
+          RPC pública segura:
+          Evita leer directamente predictions.predictions desde REST.
+          Requiere migración SQL:
+          public.predikt_get_my_predictions(uuid[])
+        */
+        const { data, error } = await client.rpc("predikt_get_my_predictions", {
+          p_event_ids: eventIds
+        });
 
         if (error) throw error;
 
@@ -1519,8 +1522,11 @@
           markCardAsSaved(card);
         });
       } catch (error) {
-        console.error("PREDIKT™ loadExistingPredictions error:", error);
-        showToast("No se pudieron recuperar tus pronósticos guardados.");
+        console.error("PREDIKT™ loadExistingPredictions RPC error:", error);
+        /*
+          No bloquea la pantalla:
+          Si aún no existe la función RPC o no hay pronósticos, el usuario puede seguir capturando.
+        */
       }
     }
 
@@ -1557,49 +1563,33 @@
       saveButton.textContent = "Guardando...";
 
       try {
-        const { data: existingRows, error: selectError } = await client
-          .schema("predictions")
-          .from("predictions")
-          .select("id")
-          .eq("group_id", groupId)
-          .eq("event_id", eventId)
-          .eq("user_id", authenticatedUser.id)
-          .limit(1);
+        /*
+          RPC pública segura:
+          Evita INSERT/UPDATE directo contra predictions.predictions desde REST.
+          Requiere migración SQL:
+          public.predikt_submit_prediction(...)
+        */
+        const { data, error } = await client.rpc("predikt_submit_prediction", {
+          p_group_id: payload.group_id,
+          p_event_id: payload.event_id,
+          p_predicted_home_score: payload.predicted_home_score,
+          p_predicted_away_score: payload.predicted_away_score,
+          p_predicted_winner: payload.predicted_winner
+        });
 
-        if (selectError) throw selectError;
+        if (error) throw error;
 
-        const existingId = existingRows && existingRows.length > 0 ? existingRows[0].id : null;
-        let writeError = null;
-
-        if (existingId) {
-          const { error } = await client
-            .schema("predictions")
-            .from("predictions")
-            .update({
-              predicted_home_score: payload.predicted_home_score,
-              predicted_away_score: payload.predicted_away_score,
-              predicted_winner: payload.predicted_winner,
-              submitted_at: payload.submitted_at
-            })
-            .eq("id", existingId);
-          writeError = error;
-        } else {
-          const { error } = await client
-            .schema("predictions")
-            .from("predictions")
-            .insert(payload);
-          writeError = error;
+        if (!data || data.ok !== true) {
+          throw new Error((data && data.error) || "La función RPC no confirmó el guardado.");
         }
-
-        if (writeError) throw writeError;
 
         markCardAsSaved(card);
         showToast(`${labels.home} ${homeScore} - ${awayScore} ${labels.away}. Guardado real en Supabase.`);
       } catch (error) {
-        console.error("PREDIKT™ savePredictionToSupabase error:", error);
+        console.error("PREDIKT™ savePredictionToSupabase RPC error:", error);
         saveButton.classList.remove("saved");
         saveButton.textContent = "Guardar pronóstico";
-        showToast(`No se pudo guardar: ${error.message || "revisa RLS/permisos"}.`);
+        showToast(`No se pudo guardar: ${error.message || "revisa función RPC/permisos"}.`);
       } finally {
         saveButton.disabled = false;
       }
@@ -1662,7 +1652,7 @@
 
 <!--
 Cierre de archivo
-Versión: v2.0.0 Real Supabase Prediction Engine
+Versión: v2.1.0 RPC Prediction Engine Certified
 Fecha: 2026-06-09
 Elaborado por: JVSys™
 Total de líneas: 1608
