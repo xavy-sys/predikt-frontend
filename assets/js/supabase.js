@@ -30,7 +30,7 @@ Líneas versión nueva: 65
 
     if (
       !PREDIKT_SUPABASE_ANON_KEY ||
-      PREDIKT_SUPABASE_ANON_KEY === 'PEGAR_AQUI_TU_SUPABASE_ANON_PUBLIC_KEY'
+      PREDIKT_SUPABASE_ANON_KEY === 'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ'
     ) {
       console.error('PREDIKT™ Auth: falta configurar la anon public key de Supabase.');
       return false;
