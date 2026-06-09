@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: dashboard-admin.html
     Fecha: 2026-06-09
-    Versión: v1.0.4 🔐 Admin Guard RPC + Logo Path Fix
+    Versión: v2.0.0 🔐 Admin Guard + Datos Reales Certificados
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -15,13 +15,19 @@
       Bloquea visualización inicial para evitar exposición por URL directa,
       valida sesión activa antes de ejecutar el dashboard y conserva branding
       oficial PREDIKT™ con favicon/logo oficial.
-      Mantiene KPIs, acciones rápidas, datos fallback y conexión REST existente.
-      Corrige la ruta oficial real del logo en el repositorio: assets/predikt-logo.png.
+      Conecta el Centro de Lanzamiento con vistas reales certificadas de Supabase:
+      founders.v_founder_program_summary, rankings.v_global_rankings y
+      predictions.v_event_prediction_summary / predictions.predictions.
+      Elimina dependencias inexistentes a vistas analytics Beta antiguas:
+      v_launch_readiness_metrics, v_launch_top_participants y
+      v_launch_popular_matches.
+      Mantiene fallback humano solo si alguna vista productiva no responde.
+      Conserva la ruta oficial real del logo en el repositorio: assets/predikt-logo.png.
       Retira temporalmente el botón CAMPAÑA del Centro de Lanzamiento para
       mantener enfoque operativo del MVP. Campaña queda pendiente por redefinir
       como WAR ROOM PREDIKT™ posterior al lanzamiento.
-    Líneas versión anterior: 1241
-    Líneas versión nueva: 1246
+    Líneas versión anterior: 1246
+    Líneas versión nueva: 1296
   -->
 
   <meta charset="UTF-8" />
@@ -890,7 +896,7 @@
     </section>
 
     <p class="admin-note">
-      Vista administrativa no pública. Esta versión valida UX/UI con datos fallback. Guardia Admin activa mediante Supabase Auth + RPC. Las vistas analíticas aún pueden operar con fallback si no están expuestas por API.
+      Vista administrativa no pública. Guardia Admin activa mediante Supabase Auth + RPC. Esta versión consume datos reales certificados de Fundadores, Ranking y Pronósticos.
     </p>
   </main>
 
@@ -1113,60 +1119,104 @@
       return response.json();
     }
 
+    function getDateWindowCounters(rows, dateFieldName) {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const weekStart = now.getTime() - (7 * 24 * 60 * 60 * 1000);
+
+      return rows.reduce((accumulator, row) => {
+        const rawDate = row ? row[dateFieldName] : null;
+        const eventTime = rawDate ? new Date(rawDate).getTime() : 0;
+
+        if (eventTime >= todayStart) {
+          accumulator.today += 1;
+        }
+
+        if (eventTime >= weekStart) {
+          accumulator.week += 1;
+        }
+
+        return accumulator;
+      }, { today: 0, week: 0 });
+    }
+
+    function shortId(value) {
+      return String(value || "").slice(0, 8);
+    }
+
     async function loadAnalyticsFromSupabase() {
-      const nextState = { ...dashboardState };
+      const nextState = mergeState(dashboardState, {});
 
       try {
-        const rows = await fetchJson("v_launch_readiness_metrics?select=*", "analytics");
-        const metrics = Array.isArray(rows) && rows.length ? rows[0] : null;
+        const rows = await fetchJson("v_founder_program_summary?select=founder_limit,founders_registered,founder_slots_remaining,total_amount_registered_mxn,is_active&limit=1", "founders");
+        const summary = Array.isArray(rows) && rows.length ? rows[0] : null;
 
-        if (metrics) {
-          nextState.users = {
-            today: metrics.users_today || 0,
-            week: metrics.users_week || 0,
-            total: metrics.users_total || 0
-          };
-
-          nextState.predictions = {
-            today: metrics.predictions_today || 0,
-            week: metrics.predictions_week || 0,
-            total: metrics.predictions_total || 0
-          };
-
+        if (summary) {
           nextState.founders = {
-            registered: metrics.founders_registered || 0,
-            goal: metrics.founders_goal || 100
-          };
-
-          nextState.activity = {
-            status: metrics.activity_status || "Preparando",
-            copy: metrics.activity_copy || "Esperando tráfico real."
+            registered: Number(summary.founders_registered || 0),
+            goal: Number(summary.founder_limit || 100)
           };
         }
       } catch (error) {
-        console.warn("PREDIKT analytics metrics unavailable. Using fallback.", error);
+        console.warn("PREDIKT founders summary unavailable. Using fallback.", error);
       }
 
       try {
-        const rows = await fetchJson("v_launch_top_participants?select=display_name,score,detail&order=score.desc&limit=3", "analytics");
-        nextState.leaderboard = rows.map((row) => ({
-          name: row.display_name,
-          detail: row.detail || "Participante activo",
-          score: row.score || 0
-        }));
+        const rows = await fetchJson("predictions?select=id,user_id,submitted_at", "predictions");
+        const safeRows = Array.isArray(rows) ? rows : [];
+        const counters = getDateWindowCounters(safeRows, "submitted_at");
+        const uniqueUsers = new Set(safeRows.map((row) => row.user_id).filter(Boolean));
+
+        nextState.predictions = {
+          today: counters.today,
+          week: counters.week,
+          total: safeRows.length
+        };
+
+        nextState.users = {
+          today: 0,
+          week: 0,
+          total: uniqueUsers.size
+        };
       } catch (error) {
-        console.warn("PREDIKT top participants unavailable. Using fallback.", error);
+        console.warn("PREDIKT predictions table unavailable. Using fallback.", error);
       }
 
       try {
-        const rows = await fetchJson("v_launch_popular_matches?select=match_name,prediction_count,detail&order=prediction_count.desc&limit=3", "analytics");
-        nextState.popularMatches = rows.map((row) => ({
-          match: row.match_name,
-          detail: row.detail || "Pronósticos registrados",
-          count: row.prediction_count || 0
+        const rows = await fetchJson("v_global_rankings?select=user_id,total_points,total_predictions,total_correct,accuracy_percentage,global_rank&order=global_rank.asc&limit=3", "rankings");
+        const safeRows = Array.isArray(rows) ? rows : [];
+
+        nextState.leaderboard = safeRows.map((row, index) => ({
+          name: row.user_id === "8f46f09f-78e1-4720-afbe-a781fd04956d" ? "Javier" : `Usuario #${row.global_rank || index + 1}`,
+          detail: `${formatNumber(row.total_correct || 0)} aciertos · ${Number(row.accuracy_percentage || 0).toFixed(0)}% precisión`,
+          score: row.total_points || 0
         }));
       } catch (error) {
-        console.warn("PREDIKT popular matches unavailable. Using fallback.", error);
+        console.warn("PREDIKT global rankings unavailable. Using fallback.", error);
+      }
+
+      try {
+        const rows = await fetchJson("v_event_prediction_summary?select=event_id,total_predictions&order=total_predictions.desc&limit=3", "predictions");
+        const safeRows = Array.isArray(rows) ? rows : [];
+
+        nextState.popularMatches = safeRows.map((row, index) => ({
+          match: `Evento ${shortId(row.event_id) || index + 1}`,
+          detail: "Pronósticos registrados",
+          count: row.total_predictions || 0
+        }));
+      } catch (error) {
+        console.warn("PREDIKT event prediction summary unavailable. Using fallback.", error);
+      }
+
+      const totalUsers = Number(nextState.users.total || 0);
+      const totalPredictions = Number(nextState.predictions.total || 0);
+      const totalFounders = Number(nextState.founders.registered || 0);
+
+      if (totalPredictions > 0 || totalUsers > 0 || totalFounders > 0) {
+        nextState.activity = {
+          status: "Activo",
+          copy: "Datos reales conectados a Supabase."
+        };
       }
 
       return nextState;
