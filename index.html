@@ -4,11 +4,11 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v5.3.2 Auto Guardado + Siguiente Partido MVP
+    Versión: v6.0.0 PREDIKT Intelligence First™
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Home principal rediseñada como app deportiva mobile-first.
+      Home principal rediseñada como app deportiva mobile-first e Intelligence First™.
       Sustituye la percepción de landing/web por experiencia tipo dashboard PWA.
       Prioriza: acción inmediata del usuario, próximo pronóstico pendiente,
       ranking personal, programa Fundadores e invitación a crear grupos.
@@ -26,6 +26,8 @@
       humana al guardar.
       Elimina el botón GUARDAR PRONÓSTICO. Ahora tocar una opción guarda
       automáticamente el pronóstico y muestra acción SIGUIENTE PARTIDO.
+      v6.0.0 elimina métricas ficticias de usuario nuevo y agrega la tarjeta
+      Recomendación PREDIKT™ antes de elegir pronóstico.
     Líneas versión anterior: 1250
     Líneas versión nueva: 1482
   -->
@@ -37,7 +39,7 @@
 
   <meta
     name="description"
-    content="PREDIKT™ es una app deportiva para pronosticar marcadores, competir con tus amigos y seguir rankings."
+    content="PREDIKT™ analiza partidos, sugiere pronósticos y te permite competir con tus amigos."
   />
   <meta name="theme-color" content="#061826" />
 
@@ -712,6 +714,94 @@
 
 
 
+
+    .predikt-intelligence-card {
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(72, 242, 154, 0.18), transparent 30%),
+        linear-gradient(145deg, rgba(9, 43, 64, 0.98), rgba(15, 39, 64, 0.98));
+      border: 1px solid rgba(72, 242, 154, 0.26);
+      padding: 14px;
+      margin: 0 0 12px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+    }
+
+    .predikt-intelligence-kicker {
+      color: var(--green);
+      font-size: 0.66rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .predikt-intelligence-title {
+      font-size: 1.05rem;
+      font-weight: 980;
+      line-height: 1.08;
+      margin-bottom: 8px;
+    }
+
+    .predikt-intelligence-copy {
+      color: var(--text-soft);
+      font-size: 0.74rem;
+      font-weight: 760;
+      margin-bottom: 11px;
+    }
+
+    .predikt-recommendation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .predikt-recommendation-box {
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      padding: 10px;
+      min-height: 68px;
+    }
+
+    .predikt-recommendation-value {
+      color: var(--gold);
+      font-size: 1.05rem;
+      font-weight: 980;
+      line-height: 1.05;
+      margin-bottom: 4px;
+    }
+
+    .predikt-recommendation-label {
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 920;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .predikt-reasons {
+      display: grid;
+      gap: 6px;
+      margin: 9px 0 0;
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 800;
+      list-style: none;
+    }
+
+    .predikt-reasons li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .predikt-reasons li::before {
+      content: "✓";
+      color: var(--green);
+      font-weight: 980;
+    }
+
     .prediction-progress-card {
       border-radius: 18px;
       background: rgba(255, 255, 255, 0.055);
@@ -979,47 +1069,14 @@
         <a class="login-btn" href="perfil.html">Entrar</a>
       </div>
     </header>
-
-    <section class="welcome-card" aria-label="Resumen principal">
-      <p class="hello">Hola, Javier 👋</p>
-      <h1 class="welcome-title">Tu próximo pronóstico te espera.</h1>
+    <section class="welcome-card" aria-label="PREDIKT Intelligence">
+      <p class="hello">🤖 PREDIKT™ Intelligence</p>
+      <h1 class="welcome-title">PREDIKT te ayuda a pronosticar.</h1>
       <p class="welcome-copy">
-        Entra, elige tu pronóstico y sigue compitiendo con tus cuates. Cada partido cuenta.
+        No es solo una quiniela: PREDIKT analiza el partido, calcula probabilidades y te muestra una recomendación antes de elegir.
       </p>
-
-      <div class="quick-stats" aria-label="Resumen rápido">
-        <div class="stat-card">
-          <p class="stat-value">#12</p>
-          <p class="stat-label">Tu posición</p>
-        </div>
-
-        <div class="stat-card">
-          <p class="stat-value">74</p>
-          <p class="stat-label">Puntos</p>
-        </div>
-
-        <div class="stat-card">
-          <p class="stat-value">5</p>
-          <p class="stat-label">Torneos</p>
-        </div>
-      </div>
     </section>
-
-    <section class="status-grid" aria-label="Estado de usuario">
-      <article class="status-card">
-        <p class="status-kicker">Racha actual</p>
-        <p class="status-main green">+2</p>
-        <p class="status-copy">Subiste lugares en la última jornada.</p>
-      </article>
-
-      <article class="status-card">
-        <p class="status-kicker">Meta cercana</p>
-        <p class="status-main gold">8 pts</p>
-        <p class="status-copy">Te separan del Top 10.</p>
-      </article>
-    </section>
-
-    <section class="section" aria-label="Tu próximo pronóstico">
+<section class="section" aria-label="Tu próximo pronóstico">
       <div class="section-head">
         <h2 class="section-title">Tu próximo pronóstico</h2>
         <a class="section-link" href="pronostico.html">Ver todos</a>
@@ -1061,6 +1118,32 @@
         </div>
 
         <p class="match-time" id="upcomingMatchTime">Próximo partido · Horario local del usuario</p>
+
+
+        <div class="predikt-intelligence-card" aria-label="Recomendación PREDIKT">
+          <p class="predikt-intelligence-kicker">🎯 Recomendación PREDIKT™</p>
+          <h4 class="predikt-intelligence-title" id="prediktRecommendationTitle">PREDIKT está analizando este partido.</h4>
+          <p class="predikt-intelligence-copy" id="prediktRecommendationCopy">
+            Usa la lectura inteligente como apoyo. Tu pronóstico final lo decides tú.
+          </p>
+
+          <div class="predikt-recommendation-grid">
+            <div class="predikt-recommendation-box">
+              <p class="predikt-recommendation-value" id="prediktSuggestedWinner">--</p>
+              <p class="predikt-recommendation-label">Sugerencia</p>
+            </div>
+            <div class="predikt-recommendation-box">
+              <p class="predikt-recommendation-value" id="prediktConfidence">--%</p>
+              <p class="predikt-recommendation-label">Confianza</p>
+            </div>
+          </div>
+
+          <ul class="predikt-reasons" aria-label="Factores considerados">
+            <li>Forma reciente y tendencia competitiva.</li>
+            <li>Fortaleza ofensiva y defensiva estimada.</li>
+            <li>Contexto del grupo, sede y calendario.</li>
+          </ul>
+        </div>
 
         <div class="prediction-progress-card" aria-label="Avance de pronósticos">
           <div class="prediction-progress-top">
@@ -1208,32 +1291,6 @@
     let selectedPrediction = "";
     let currentCompletedPredictions = Number(window.localStorage.getItem("predikt_predictions_completed") || 0);
 
-    const fallbackMatches = [
-      {
-        event_name: "México vs Sudáfrica",
-        phase_name: "Fase de Grupos",
-        group_name: "Grupo A",
-        matchday: 1,
-        starts_at: "2026-06-11T13:00:00-06:00"
-      },
-      {
-        event_name: "Brasil vs España",
-        phase_name: "Fase de Grupos",
-        group_name: "Grupo B",
-        matchday: 1,
-        starts_at: "2026-06-12T16:00:00-06:00"
-      },
-      {
-        event_name: "Argentina vs Alemania",
-        phase_name: "Fase de Grupos",
-        group_name: "Grupo C",
-        matchday: 1,
-        starts_at: "2026-06-13T13:00:00-06:00"
-      }
-    ];
-
-    let fallbackMatchIndex = Number(window.localStorage.getItem("predikt_current_match_index") || 0);
-
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
@@ -1283,7 +1340,7 @@
     }
 
     function splitMatchName(name) {
-      const safeName = name || "México vs Sudáfrica";
+      const safeName = name || "Partido por confirmar";
       const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
 
       if (parts.length >= 2) {
@@ -1294,8 +1351,8 @@
       }
 
       return {
-        home: "México",
-        away: "Sudáfrica"
+        home: "Local",
+        away: "Visitante"
       };
     }
 
@@ -1325,6 +1382,57 @@
         minute: "2-digit"
       });
     }
+
+
+    function normalizeProbability(value) {
+      const numeric = Number(value ?? 0);
+      if (!Number.isFinite(numeric)) return 0;
+      return numeric <= 1 ? numeric * 100 : numeric;
+    }
+
+    function renderPrediktRecommendation(eventRow, teams) {
+      const homeProbability = normalizeProbability(eventRow.live_probability_home ?? eventRow.pre_probability_home ?? eventRow.probability_home);
+      const drawProbability = normalizeProbability(eventRow.live_probability_draw ?? eventRow.pre_probability_draw ?? eventRow.probability_draw);
+      const awayProbability = normalizeProbability(eventRow.live_probability_away ?? eventRow.pre_probability_away ?? eventRow.probability_away);
+
+      let winner = teams.home;
+      let confidence = homeProbability;
+
+      if (drawProbability > confidence) {
+        winner = "Empate";
+        confidence = drawProbability;
+      }
+
+      if (awayProbability > confidence) {
+        winner = teams.away;
+        confidence = awayProbability;
+      }
+
+      const safeConfidence = Math.max(0, Math.min(confidence, 100));
+      const title = document.getElementById("prediktRecommendationTitle");
+      const copy = document.getElementById("prediktRecommendationCopy");
+      const suggestedWinner = document.getElementById("prediktSuggestedWinner");
+      const confidenceLabel = document.getElementById("prediktConfidence");
+
+      if (title) {
+        title.textContent = `PREDIKT recomienda: ${winner}`;
+      }
+
+      if (copy) {
+        copy.textContent = eventRow.live_ai_explanation
+          || eventRow.ai_explanation
+          || "PREDIKT compara probabilidades, contexto del partido y lectura competitiva para ayudarte a decidir.";
+      }
+
+      if (suggestedWinner) {
+        suggestedWinner.textContent = winner || "--";
+      }
+
+      if (confidenceLabel) {
+        confidenceLabel.textContent = safeConfidence > 0 ? `${safeConfidence.toFixed(0)}%` : "--%";
+      }
+    }
+
 
     function renderUpcomingEvent(eventRow) {
       if (!eventRow) return;
@@ -1358,12 +1466,13 @@
       document.getElementById("awayPredictionChoice").dataset.prediction = teams.away;
 
       document.getElementById("matchDetailLink").href = detailHref;
+      renderPrediktRecommendation(eventRow, teams);
     }
 
     async function loadUpcomingEvent() {
       try {
         const response = await fetch(
-          `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=event_id,event_code,event_name,event_stage,starts_at,event_status,home_participant_id,away_participant_id,phase_name,phase_short_name,group_code,group_name,matchday,display_label,event_metadata&order=starts_at.asc&limit=1`,
+          `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=event_id,event_code,event_name,event_stage,starts_at,event_status,home_participant_id,away_participant_id,phase_name,phase_short_name,group_code,group_name,matchday,display_label,event_metadata,pre_probability_home,pre_probability_draw,pre_probability_away,live_probability_home,live_probability_draw,live_probability_away,live_confidence_score,live_ai_explanation&order=starts_at.asc&limit=1`,
           {
             method: "GET",
             headers: sportsHeaders()
@@ -1378,7 +1487,7 @@
         const eventRow = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
         renderUpcomingEvent(eventRow);
       } catch (error) {
-        console.warn("PREDIKT upcoming event unavailable. Using visual fallback.", error);
+        console.warn("PREDIKT upcoming event unavailable. Keeping neutral screen.", error);
       }
     }
 
@@ -1409,19 +1518,10 @@
       }
     }
 
-    function loadFallbackMatchByIndex(index) {
-      const safeIndex = Math.max(0, Math.min(index, fallbackMatches.length - 1));
-      renderUpcomingEvent(fallbackMatches[safeIndex]);
+    function goToNextMatch() {
+      window.location.href = "pronostico.html";
     }
 
-    function goToNextMatch() {
-      fallbackMatchIndex += 1;
-
-      if (fallbackMatchIndex >= fallbackMatches.length) {
-        fallbackMatchIndex = fallbackMatches.length - 1;
-        showToast("Por ahora ya no hay más partidos demo en esta vista. Abre Pronósticos para ver el calendario completo.");
-        return;
-      }
 
       window.localStorage.setItem("predikt_current_match_index", String(fallbackMatchIndex));
       selectedPrediction = "";
