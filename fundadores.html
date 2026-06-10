@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: fundadores.html
     Fecha: 2026-06-09
-    Versión: v2.0.3 💎 DIRECT BUTTON HANDLERS
+    Versión: v2.0.4 💎 DATA LOADER FIX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -14,16 +14,16 @@
       Conecta con founders.v_founder_program_summary y founders.founder_members.
       Muestra KPIs reales, fundadores reales, suspendidos, manuales, Mercado Pago,
       recaudación, estado vitalicio y avance del programa.
-      Corrige botones con handlers directos independientes de carga Supabase; agrega marca visual v2.0.3 para validar despliegue.
+      Corrige carga del listado con Supabase JS autenticado primero y REST como respaldo; mantiene botones directos y marca visual v2.0.4.
       Mantiene evidencia, no borra registros y conserva enfoque mobile-first.
-    Líneas versión anterior: 212
-    Líneas versión nueva: 260
+    Líneas versión anterior: 260
+    Líneas versión nueva: 317
   -->
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>PREDIKT™ | Fundadores v2.0.3</title>
+  <title>PREDIKT™ | Fundadores v2.0.4</title>
   <meta name="description" content="Administración real del Programa Fundadores PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
@@ -103,6 +103,9 @@
     .action-btn.danger { color:#fff; background:rgba(255,90,95,.22); border-color:rgba(255,90,95,.32); }
     .action-btn.safe { color:#061826; background:linear-gradient(135deg,var(--green),#8cffc4); border-color:rgba(72,242,154,.32); }
     .version-badge { display:inline-flex; margin-left:8px; padding:4px 8px; border-radius:999px; background:rgba(72,242,154,.16); color:var(--green); border:1px solid rgba(72,242,154,.32); font-size:.58rem; font-weight:980; letter-spacing:.05em; }
+    .data-status { margin:0 0 10px; color:var(--text-muted); font-size:.66rem; font-weight:820; }
+    .data-status.ok { color:var(--green); }
+    .data-status.error { color:var(--red); }
     .admin-note { margin-top:12px; border:1px dashed rgba(245,185,66,.28); border-radius:var(--radius-lg); background:rgba(245,185,66,.08); padding:12px; color:var(--text-soft); font-size:.70rem; font-weight:790; }
     .toast { position:fixed; left:50%; bottom:calc(var(--footer-height) + 18px); transform:translateX(-50%) translateY(20px); z-index:60; width:min(calc(100% - 28px),560px); border:1px solid rgba(72,242,154,.34); border-radius:18px; background:rgba(7,28,46,.98); color:var(--text-main); padding:13px 15px; box-shadow:0 14px 36px rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .2s ease,transform .2s ease; font-size:.83rem; font-weight:830; text-align:center; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
@@ -127,7 +130,7 @@
     </header>
 
     <section class="hero-card" aria-label="Administración de fundadores">
-      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores <span class="version-badge">v2.0.3</span></p><h1 class="hero-title">Fundadores PREDIKT™</h1>
+      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores <span class="version-badge">v2.0.4</span></p><h1 class="hero-title">Fundadores PREDIKT™</h1>
       <p class="hero-copy">Controla los primeros 100 lugares, confirma pagos, conserva evidencia y protege el acceso gratuito de por vida.</p>
     </section>
 
@@ -154,7 +157,7 @@
 
     <section class="founders-panel" aria-label="Listado de fundadores">
       <div class="section-head"><h2 class="section-title">Listado Fundadores</h2><div class="section-actions"><button class="admin-pill" type="button" id="newFounderBtn" onclick="openFounderRegistrationNotice()">➕ Registrar</button><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div></div>
-      <div class="founder-list" id="founderList"></div>
+      <p class="data-status" id="dataStatus">Cargando listado...</p><div class="founder-list" id="founderList"></div>
     </section>
 
     <p class="admin-note">Vista administrativa no pública. Conectada a Supabase real. No elimina fundadores; aplica gobernanza por estado para conservar evidencia, pagos, numeración y trazabilidad.</p>
@@ -174,6 +177,7 @@
     const filterButtons = document.querySelectorAll("[data-filter]");
     const refreshBtn = document.getElementById("refreshBtn");
     const toast = document.getElementById("toast");
+    const dataStatus = document.getElementById("dataStatus");
     let activeFilter = "all";
     function showToast(message){
       toast.textContent=message;
@@ -186,7 +190,7 @@
       window.alert([
         "Registro manual de Fundador PREDIKT™",
         "",
-        "Botón operativo en v2.0.3.",
+        "Botón operativo en v2.0.4.",
         "La pantalla de alta manual todavía no está certificada.",
         "",
         "Siguiente paso:",
@@ -200,6 +204,17 @@
       if(clickedButton){ clickedButton.classList.add("active"); }
       renderFounders();
       showToast("Filtro aplicado: " + activeFilter);
+    }
+
+    function setDataStatus(message, type){
+      if(!dataStatus){ return; }
+      dataStatus.textContent = message || "";
+      dataStatus.classList.remove("ok", "error");
+      if(type){ dataStatus.classList.add(type); }
+    }
+
+    function getSupabaseDataClient(){
+      return window.prediktSupabase || (window.PrediktAdminGuard && window.PrediktAdminGuard.getSupabaseClient ? window.PrediktAdminGuard.getSupabaseClient() : null);
     }
     async function getSessionToken(){
       try{
@@ -242,8 +257,50 @@
     async function updateFounderStatus(founder,nextStatus){ const nextLifetimeAccess=nextStatus==="active_lifetime"; await patchJson(`founder_members?id=eq.${encodeURIComponent(founder.id)}`,"founders",{status:nextStatus,lifetime_access:nextLifetimeAccess,updated_at:new Date().toISOString()}); showToast(`Fundador #${founder.founder_number} actualizado a ${nextStatus}.`); await refreshFounders(); }
     async function handleFounderAction(event){ const button=event.currentTarget; const action=button.dataset.action; const founder=getFounderById(button.dataset.id); if(!founder){showToast("No se encontró el fundador seleccionado.");return;} if(action==="view"){ window.alert([`Fundador #${founder.founder_number}`,founder.full_name,founder.email||"Sin correo",`Estado: ${founder.status}`,`Método: ${paymentMethodLabel(founder.payment_method)}`,`Referencia: ${founder.internal_reference||founder.external_payment_reference||"Sin referencia"}`,`Observaciones: ${founder.observations||"Sin observaciones"}`].join("\n")); return; } const map={suspend:{status:"suspended",message:"Suspenderá temporalmente el beneficio vitalicio."},reactivate:{status:"active_lifetime",message:"Reactivará el beneficio vitalicio."},revoke:{status:"revoked",message:"Revocará el beneficio fundador. La evidencia permanecerá."},ban:{status:"banned",message:"Expulsará permanentemente al fundador. La evidencia permanecerá."}}; const next=map[action]; if(!next){showToast("Acción no disponible.");return;} if(!window.confirm(`${next.message}\n\n¿Confirmas aplicar esta acción a #${founder.founder_number} ${founder.full_name}?`))return; try{ await updateFounderStatus(founder,next.status); }catch(error){ console.error("PREDIKT founders governance error:",error); showToast("No se pudo actualizar el fundador. Revisa permisos/RLS."); } }
     async function loadSummary(){ const rows=await fetchJson("v_founder_program_summary?select=*&limit=1","founders"); const summary=Array.isArray(rows)&&rows.length?rows[0]:null; if(!summary)return; founderState.summary={ founder_limit:Number(summary.founder_limit||100), founders_registered:Number(summary.founders_registered||0), founder_slots_remaining:Number(summary.founder_slots_remaining||0), total_amount_registered_mxn:Number(summary.total_amount_registered_mxn||0), manual_founders:Number(summary.manual_founders||0), mercado_pago_founders:Number(summary.mercado_pago_founders||0), is_active:summary.is_active!==false }; }
-    async function loadFounderRows(){ const rows=await fetchJson("founder_members?select=*&order=founder_number.asc","founders"); founderState.rows=Array.isArray(rows)?rows:[]; }
-    async function refreshFounders(){ try{ await Promise.all([loadSummary(),loadFounderRows()]); renderKpis(); renderFounders(); showToast("Fundadores actualizados."); }catch(error){ console.error("PREDIKT founders data unavailable:",error); renderKpis(); renderFounders(); showToast("No se pudieron cargar fundadores reales. Revisa permisos/RLS."); } }
+    async function loadFounderRows(){
+      const columns = [
+        "id",
+        "founder_number",
+        "founder_code",
+        "full_name",
+        "email",
+        "phone",
+        "payment_provider",
+        "payment_method",
+        "amount_mxn",
+        "status",
+        "lifetime_access",
+        "payment_received_at",
+        "created_at",
+        "updated_at",
+        "internal_reference",
+        "external_payment_reference",
+        "observations"
+      ].join(",");
+
+      const client = getSupabaseDataClient();
+
+      if(client && typeof client.schema === "function"){
+        const result = await client
+          .schema("founders")
+          .from("founder_members")
+          .select(columns)
+          .order("founder_number", { ascending: true });
+
+        if(!result.error && Array.isArray(result.data)){
+          founderState.rows = result.data;
+          setDataStatus(`Listado cargado: ${result.data.length} registros.`, "ok");
+          return;
+        }
+
+        console.warn("PREDIKT Fundadores: Supabase JS no pudo leer founder_members.", result.error);
+      }
+
+      const rows = await fetchJson(`founder_members?select=${encodeURIComponent(columns)}&order=founder_number.asc`, "founders");
+      founderState.rows = Array.isArray(rows) ? rows : [];
+      setDataStatus(`Listado cargado por REST: ${founderState.rows.length} registros.`, founderState.rows.length ? "ok" : "error");
+    }
+    async function refreshFounders(){ try{ await loadSummary(); await loadFounderRows(); renderKpis(); renderFounders(); showToast("Fundadores actualizados."); }catch(error){ console.error("PREDIKT founders data unavailable:",error); setDataStatus("No se pudo leer founders.founder_members desde navegador. Revisa RLS/API de lectura.", "error"); renderKpis(); renderFounders(); showToast("No se pudieron cargar fundadores reales. Revisa permisos/RLS."); } }
     async function waitForSupabase(){ if(window.PREDIKT_SUPABASE_INIT_PROMISE){ await window.PREDIKT_SUPABASE_INIT_PROMISE; } return Boolean(window.prediktSupabase); }
     async function initializeFoundersConsole(){ if(!window.PrediktAdminGuard||!window.PrediktAdminGuard.requireAdminAccess){ document.body.innerHTML=`<main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#061826;color:#fff;font-family:Arial,sans-serif;padding:24px;text-align:center;"><section style="max-width:420px;border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:28px;background:rgba(255,255,255,.06);"><img src="assets/logos/predikt-logo.png" alt="PREDIKT™" style="width:86px;height:auto;margin-bottom:16px;" /><h1 style="font-size:22px;margin:0 0 10px;">PREDIKT™</h1><p style="font-size:16px;line-height:1.5;margin:0;color:#d7e3f5;">No se pudo cargar la Guardia Admin.</p></section></main>`; document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; return; } const isAuthorized=await window.PrediktAdminGuard.requireAdminAccess(); if(!isAuthorized)return; await waitForSupabase(); document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; refreshBtn.addEventListener("click",refreshFounders); const newFounderBtn=document.getElementById("newFounderBtn"); if(newFounderBtn){ newFounderBtn.addEventListener("click",openFounderRegistrationNotice); } searchInput.addEventListener("input",renderFounders); filterButtons.forEach(button=>button.addEventListener("click",()=>applyFounderFilter(button.dataset.filter, button))); renderKpis(); await refreshFounders(); }
     document.addEventListener("DOMContentLoaded",initializeFoundersConsole);
