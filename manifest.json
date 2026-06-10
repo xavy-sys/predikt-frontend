@@ -1,1 +1,27 @@
+{
+  "name": "PREDIKT™",
+  "short_name": "PREDIKT",
+  "description": "Predice, compite y gana con tus pronósticos deportivos.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "es-MX",
 
+  "icons": [
+    {
+      "src": "/assets/icons/predikt-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icons/predikt-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
