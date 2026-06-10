@@ -1,15 +1,15 @@
 <!DOCTYPE html><html lang="es-MX"><head><!--
 Nombre del archivo: ranking-predikt.html
 Fecha: 2026-06-06
-Versión: v2.0.0 Real Teams Only
+Versión: v2.1.0 REAL TEAMS NO FAKE PROBABILITY
 Fabricante: JVSys
 Proyecto: PREDIKT™
-Descripción: Pantalla informativa mobile-first para Ranking PREDIKT™ de probabilidad estimada de ser campeón usando P1, P2, P3... Pn. Incluye etiqueta visual, porcentaje, explicación humana y tendencia. Conectada a Supabase para mostrar únicamente selecciones reales cargadas en sports.participants. Sin selecciones demo. Norma branding: favicon/icono de ventana usa logo oficial PREDIKT™.
+Descripción: Pantalla informativa mobile-first para Ranking PREDIKT™ de probabilidad estimada de ser campeón usando P1, P2, P3... Pn. Incluye etiqueta visual, estado de calibración, explicación humana y sin probabilidades inventadas. Conectada a Supabase para mostrar únicamente selecciones reales cargadas en sports.participants. Sin selecciones demo. Norma branding: favicon/icono de ventana usa logo oficial PREDIKT™.
 Líneas versión anterior: 0
 Líneas versión nueva: 32
 --><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>PREDIKT™ | Ranking PREDIKT</title><meta name="description" content="Ranking PREDIKT™ de probabilidad estimada de ser campeón."/><meta name="theme-color" content="#061826"/><link rel="icon" type="image/png" href="assets/logos/predikt-logo.png"/><link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png"/><link rel="apple-touch-icon" href="assets/logos/predikt-logo.png"/><style>
 :root{--bg:#061826;--card:#0f2740;--card2:#132f4c;--gold:#f5b942;--gold2:#ffe28a;--text:#fff;--soft:#c9d7e6;--muted:#7f95aa;--green:#2ecc71;--blue:#5dade2;--yellow:#f5c542;--orange:#ff9f43;--red:#ff5a5f;--border:rgba(255,255,255,.11);--footer:82px}*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;background:radial-gradient(circle at top left,rgba(245,185,66,.14),transparent 28%),radial-gradient(circle at top right,rgba(93,173,226,.12),transparent 24%),linear-gradient(135deg,#061826 0%,#061826 43%,#020b13 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45;overflow-x:hidden;padding-bottom:calc(var(--footer) + 22px)}a{color:inherit;text-decoration:none}.shell{width:min(100%,1180px);margin:0 auto;padding:24px 18px 0}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:flex;flex-direction:column;gap:2px}.brand strong{letter-spacing:.09em;font-size:1.25rem;font-weight:950}.brand span{color:var(--soft);font-size:.78rem;font-weight:750}.pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 12px;border:1px solid rgba(245,185,66,.35);border-radius:999px;color:var(--gold);background:rgba(245,185,66,.09);font-size:.72rem;font-weight:950;white-space:nowrap}.hero{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:28px;background:radial-gradient(circle at 80% 22%,rgba(245,185,66,.20),transparent 30%),linear-gradient(135deg,rgba(15,39,64,.98),rgba(8,31,52,.96));padding:28px;box-shadow:0 18px 45px rgba(0,0,0,.35);margin-bottom:18px}.hero:after{content:attr(data-watermark);position:absolute;right:24px;top:18px;font-size:6rem;opacity:.08;transform:rotate(8deg);pointer-events:none}.eyebrow{color:var(--gold);font-size:.74rem;font-weight:950;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.hero h1{max-width:820px;font-size:clamp(1.7rem,5.7vw,3.35rem);font-weight:980;line-height:.98;letter-spacing:-.045em;margin-bottom:12px}.hero p{max-width:720px;color:var(--soft);font-size:.96rem;font-weight:680}.toolbar{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:14px}.search{width:100%;min-height:48px;border:1px solid rgba(255,255,255,.12);outline:none;border-radius:999px;background:rgba(255,255,255,.055);color:var(--text);padding:0 15px;font-size:.9rem;font-weight:800}.switch{min-height:48px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;color:#061826;background:linear-gradient(135deg,var(--gold),var(--gold2));padding:0 16px;font-size:.76rem;font-weight:980;text-transform:uppercase;white-space:nowrap}.list{display:grid;gap:11px}.card{display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:center;border:1px solid var(--border);border-radius:20px;background:linear-gradient(145deg,rgba(15,39,64,.98),rgba(7,30,50,.98));box-shadow:0 12px 30px rgba(0,0,0,.20);padding:14px}.pos{min-width:52px;min-height:42px;display:grid;place-items:center;border-radius:15px;color:var(--gold);background:rgba(245,185,66,.10);border:1px solid rgba(245,185,66,.28);font-size:.9rem;font-weight:980}.name{display:flex;align-items:center;gap:9px;font-size:1rem;font-weight:980;line-height:1.1;margin-bottom:4px}.flag{font-size:1.45rem}.meta{color:var(--soft);font-size:.74rem;font-weight:760}.metric{text-align:right;min-width:92px}.metric strong{color:var(--gold);font-size:1rem;font-weight:980}.metric span{display:block;color:var(--muted);font-size:.66rem;font-weight:850;text-transform:uppercase;letter-spacing:.05em}.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.tag{display:inline-flex;align-items:center;gap:5px;min-height:25px;padding:0 9px;border-radius:999px;font-size:.66rem;font-weight:950;letter-spacing:.03em;text-transform:uppercase;border:1px solid rgba(255,255,255,.10)}.green{color:var(--green);background:rgba(46,204,113,.11);border-color:rgba(46,204,113,.24)}.blue{color:var(--blue);background:rgba(93,173,226,.11);border-color:rgba(93,173,226,.24)}.yellow{color:var(--yellow);background:rgba(245,197,66,.11);border-color:rgba(245,197,66,.24)}.orange{color:var(--orange);background:rgba(255,159,67,.11);border-color:rgba(255,159,67,.24)}.red{color:var(--red);background:rgba(255,90,95,.11);border-color:rgba(255,90,95,.24)}.gold{color:var(--gold);background:rgba(245,185,66,.11);border-color:rgba(245,185,66,.24)}.info{border:1px solid var(--border);border-radius:28px;background:rgba(15,39,64,.82);padding:16px;margin-top:18px;color:var(--soft);font-size:.82rem;font-weight:720}.info strong{color:var(--gold)}.footer{position:fixed;left:50%;bottom:0;z-index:30;width:min(100%,780px);transform:translateX(-50%);display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:9px 10px 11px;border:1px solid rgba(255,255,255,.11);border-bottom:0;border-radius:24px 24px 0 0;background:rgba(4,17,29,.96);backdrop-filter:blur(18px);box-shadow:0 -12px 34px rgba(0,0,0,.34)}.foot{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;padding:7px 4px;color:var(--muted);font-size:.67rem;font-weight:880;gap:3px}.foot span{font-size:1.05rem;line-height:1}.foot.active{color:var(--gold);background:rgba(245,185,66,.12);border:1px solid rgba(245,185,66,.22)}@media(max-width:640px){body{padding-bottom:calc(var(--footer) + 16px)}.shell{padding:18px 14px 0}.top{align-items:center;margin-bottom:14px}.brand strong{font-size:1.05rem}.pill{padding:7px 10px;font-size:.67rem}.hero{padding:18px;border-radius:24px}.hero:after{right:10px;top:22px;font-size:4.8rem}.hero p{font-size:.84rem;max-width:310px}.toolbar{grid-template-columns:1fr}.switch{width:100%}.card{grid-template-columns:auto 1fr}.metric{grid-column:1/-1;text-align:left;display:flex;align-items:baseline;gap:8px;min-width:0}.footer{width:100%;border-radius:22px 22px 0 0}.foot{font-size:.58rem}.foot span{font-size:1rem}}
-</style></head><body><main class="shell"><header class="top"><a href="index.html" class="brand"><strong>PREDIKT™</strong><span>Rankings de selecciones</span></a><span class="pill">🎯 PREDIKT™</span></header><section class="hero" data-watermark="🎯"><p class="eyebrow">Ranking PREDIKT™</p><h1>Probabilidad estimada de ser campeón.</h1><p>Cada porcentaje se acompaña de una etiqueta visual y una explicación humana para entenderlo rápido.</p></section><section class="toolbar"><input id="searchInput" class="search" type="search" placeholder="Buscar selección o etiqueta..." autocomplete="off"/><a class="switch" href="ranking-oficial.html">Ver Ranking Oficial</a></section><section class="list" id="rankingList"></section><section class="info"><strong>Claridad PREDIKT™:</strong> el porcentaje no significa certeza. Significa posibilidad estimada dentro del modelo actual. La etiqueta visual ayuda a interpretarlo sin ser experto en estadística.</section></main><nav class="footer" aria-label="Navegación principal"><a class="foot" href="index.html"><span>🏠</span>Inicio</a><a class="foot" href="mi-quiniela.html"><span>⚽</span>Quiniela</a><a class="foot" href="pronostico.html"><span>🎯</span>Pronósticos</a><a class="foot active" href="ranking.html" aria-current="page"><span>🏆</span>Ranking</a><a class="foot" href="perfil.html"><span>👤</span>Perfil</a></nav><script>
+</style></head><body><main class="shell"><header class="top"><a href="index.html" class="brand"><strong>PREDIKT™</strong><span>Rankings de selecciones</span></a><span class="pill">🎯 PREDIKT™</span></header><section class="hero" data-watermark="🎯"><p class="eyebrow">Ranking PREDIKT™</p><h1>Ranking PREDIKT™ en calibración.</h1><p>Las selecciones reales ya están cargadas. Las probabilidades se mostrarán solo cuando el modelo esté calibrado con datos certificados.</p></section><section class="toolbar"><input id="searchInput" class="search" type="search" placeholder="Buscar selección o etiqueta..." autocomplete="off"/><a class="switch" href="ranking-oficial.html">Ver Ranking Oficial</a></section><section class="list" id="rankingList"></section><section class="info"><strong>Claridad PREDIKT™:</strong> no se muestran probabilidades inventadas. El modelo PREDIKT™ publicará porcentajes cuando la calibración esté certificada.</section></main><nav class="footer" aria-label="Navegación principal"><a class="foot" href="index.html"><span>🏠</span>Inicio</a><a class="foot" href="mi-quiniela.html"><span>⚽</span>Quiniela</a><a class="foot" href="pronostico.html"><span>🎯</span>Pronósticos</a><a class="foot active" href="ranking.html" aria-current="page"><span>🏆</span>Ranking</a><a class="foot" href="perfil.html"><span>👤</span>Perfil</a></nav><script>
 const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
 const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
 
@@ -41,25 +41,17 @@ function buildRanking(rows) {
     .filter(row => row && row.name && String(row.participant_type || "").toLowerCase() !== "club")
     .sort((a, b) => String(a.name).localeCompare(String(b.name), "es-MX"));
 
-  return realTeams.map((team, index) => {
-    const baseProbability = Math.max(0.25, 6 - (index * 0.11));
-    const probability = Math.max(0.25, Math.min(baseProbability, 12));
-    const tag = index < 6 ? "🔵 Candidato" : index < 18 ? "🟡 Puede Sorprender" : "⚪ En observación";
-    const tagClass = index < 6 ? "blue" : index < 18 ? "yellow" : "gold";
-
-    return {
-      position: index + 1,
-      flag: normalizeFlag(team.code || team.country_code),
-      team: team.name,
-      code: team.code || team.country_code || "",
-      probability,
-      tag,
-      tagClass,
-      trend: "＝ En revisión",
-      trendClass: "blue",
-      explanation: "Selección real cargada en PREDIKT™. Probabilidad estimada pendiente de calibración final del modelo."
-    };
-  });
+  return realTeams.map((team, index) => ({
+    position: index + 1,
+    flag: normalizeFlag(team.code || team.country_code),
+    team: team.name,
+    code: team.code || team.country_code || "",
+    tag: "⚙️ En calibración",
+    tagClass: "blue",
+    trend: "＝ Pendiente",
+    trendClass: "gold",
+    explanation: "Selección real cargada en PREDIKT™. Probabilidad pendiente de calibración certificada."
+  }));
 }
 
 function render(items) {
@@ -80,8 +72,8 @@ function render(items) {
         </div>
       </div>
       <div class="metric">
-        <strong>${i.probability.toFixed(2)}%</strong>
-        <span>Ser campeón</span>
+        <strong>--</strong>
+        <span>Probabilidad pendiente</span>
       </div>
     </article>
   `).join("");
