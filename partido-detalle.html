@@ -1238,12 +1238,19 @@
 
     <section class="section" aria-label="Momentum PREDIKT">
       <div class="section-head">
-        <h2 class="section-title">Momentum PREDIKT™</h2>
+        <h2 class="section-title">🎯 Pronóstico Inteligente PREDIKT™</h2>
         <a class="section-link" href="ranking-predikt.html">Ver ranking</a>
       </div>
 
       <div class="card">
-        <div class="probability-grid">
+        
+        <div class="explain-card" style="margin-bottom:12px;">
+          <p class="explain-title">Recomendación PREDIKT™</p>
+          <p class="ai-copy" id="prediktRecommendation">Analizando partido...</p>
+          <span class="explain-confidence" id="prediktConfidenceBadge">Confianza --</span>
+        </div>
+
+<div class="probability-grid">
           <div class="prob-card">
             <p class="prob-value" id="homeProbability">--%</p>
             <p class="prob-label" id="homeProbabilityLabel">Local</p>
@@ -1844,6 +1851,35 @@
       document.getElementById("confidenceLabel").textContent = `Confianza ${formatPercent(match.live_confidence_score)}`;
     }
 
+    
+    function renderPrediktRecommendation() {
+      const match = state.match;
+
+      const home = Number(match.live_probability_home ?? match.pre_probability_home ?? 0);
+      const draw = Number(match.live_probability_draw ?? match.pre_probability_draw ?? 0);
+      const away = Number(match.live_probability_away ?? match.pre_probability_away ?? 0);
+
+      let winner = match.home_name;
+      let probability = home;
+
+      if (draw > probability) {
+        winner = "Empate";
+        probability = draw;
+      }
+
+      if (away > probability) {
+        winner = match.away_name;
+        probability = away;
+      }
+
+      document.getElementById("prediktRecommendation").textContent =
+        `PREDIKT™ recomienda: ${winner}`;
+
+      document.getElementById("prediktConfidenceBadge").textContent =
+        `Confianza ${probability.toFixed(0)}%`;
+    }
+
+
     function renderAIExplanation() {
       const explanation = state.match.live_ai_explanation || "Generando explicación inteligente...";
       document.getElementById("aiExplanation").textContent = explanation;
@@ -2136,6 +2172,7 @@
       renderMatch();
       renderMomentum();
       renderAIExplanation();
+      renderPrediktRecommendation();
       renderMvp();
     }
 
