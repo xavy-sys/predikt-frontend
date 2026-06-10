@@ -3,16 +3,14 @@
 <head>
   <!--
     Nombre del archivo: ranking.html
-    Fecha: 2026-06-08
-    Versión: v1.2.0 Global Auth Guard Certified
+    Fecha: 2026-06-10
+    Versión: v1.3.0 ZERO MOCK RANKING
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla Ranking General para PREDIKT™.
       Pantalla mobile-first tipo aplicación deportiva social.
-      Incluye podio visual, posición personal destacada, top 20 participantes,
-      movimiento de posiciones, diferencia contra líder, reconocimientos,
-      motor viral, navegación a rankings de selecciones y navegación inferior de aplicación.
+      Elimina datos demo de podio, participantes, puntos, reconocimientos y distancia al líder. Muestra únicamente estados reales y navegación a rankings de selecciones.
     Líneas versión anterior: 1444
     Líneas versión nueva: 1513
   -->
@@ -23,7 +21,7 @@
 
   <meta
     name="description"
-    content="Ranking PREDIKT™ - Consulta quién lidera la quiniela con sesión protegida."
+    content="Ranking PREDIKT™ - Consulta la clasificación cuando existan participantes reales."
   />
   <meta name="theme-color" content="#061826" />
 
@@ -631,6 +629,42 @@
 
 
 
+
+    .empty-ranking-state {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      gap: 10px;
+      min-height: 220px;
+      padding: 24px 16px;
+    }
+
+    .empty-icon {
+      width: 62px;
+      height: 62px;
+      display: grid;
+      place-items: center;
+      border-radius: 22px;
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.24);
+      font-size: 1.8rem;
+    }
+
+    .empty-title {
+      font-size: 1.18rem;
+      font-weight: 980;
+      line-height: 1.1;
+    }
+
+    .empty-copy {
+      max-width: 420px;
+      color: var(--text-soft);
+      font-size: 0.84rem;
+      font-weight: 720;
+      line-height: 1.4;
+    }
+
+
     .selection-rankings-card {
       position: relative;
       overflow: hidden;
@@ -982,10 +1016,10 @@
     </header>
 
     <section class="hero-card" aria-label="Ranking general">
-      <p class="eyebrow">Ranking General · Los Cuates</p>
-      <h1 class="hero-title">Estás cerca del liderato.</h1>
+      <p class="eyebrow">Ranking General</p>
+      <h1 class="hero-title">La clasificación empieza con tus pronósticos.</h1>
       <p class="hero-copy">
-        Pey sigue arriba, pero estás a 16 puntos. Un marcador exacto puede cambiar toda la quiniela.
+        Cuando existan participantes y puntos reales, aquí aparecerá el podio, tu posición y la tabla general.
       </p>
     </section>
 
@@ -994,31 +1028,17 @@
         <section class="section" aria-label="Podio">
           <div class="section-header">
             <h2 class="section-title">Podio actual</h2>
-            <a class="section-link" href="pronostico.html">Pronosticar</a>
+            <a class="section-link" href="index.html">Pronosticar</a>
           </div>
 
           <div class="podium-card">
-            <div class="podium">
-              <div class="podium-place second">
-                <div class="medal">🥈</div>
-                <strong class="podium-name">ElTigre</strong>
-                <span class="podium-points">132 pts</span>
-                <div class="podium-base">#2</div>
-              </div>
-
-              <div class="podium-place first">
-                <div class="medal">🥇</div>
-                <strong class="podium-name">Pey</strong>
-                <span class="podium-points">140 pts</span>
-                <div class="podium-base">Líder</div>
-              </div>
-
-              <div class="podium-place third">
-                <div class="medal">🥉</div>
-                <strong class="podium-name">Tú</strong>
-                <span class="podium-points">124 pts</span>
-                <div class="podium-base">#3</div>
-              </div>
+            <div class="empty-ranking-state">
+              <div class="empty-icon">🏆</div>
+              <h2 class="empty-title">Aún no hay podio.</h2>
+              <p class="empty-copy">
+                El podio se mostrará cuando haya puntos reales calculados por PREDIKT™.
+              </p>
+              <a class="app-btn primary" href="index.html">Hacer mi pronóstico</a>
             </div>
           </div>
         </section>
@@ -1027,267 +1047,39 @@
           <p class="me-label">Tu posición</p>
 
           <div class="me-grid">
-            <div class="me-rank">#3</div>
+            <div class="me-rank">--</div>
 
             <div>
-              <h2 class="me-title">Tú · 124 puntos</h2>
-              <p class="me-copy">
-                Estás a 16 puntos del líder. Subiste 2 lugares en la última jornada.
+              <h2 class="me-title" id="myRankingTitle">Participa para aparecer en el ranking</h2>
+              <p class="me-copy" id="myRankingCopy">
+                Guarda tu primer marcador. Cuando se califiquen los resultados, aparecerán tus puntos y posición.
               </p>
-              <span class="movement-pill">↑ Subiste 2 lugares</span>
+              <span class="movement-pill">Ranking pendiente</span>
             </div>
           </div>
 
           <div class="cta-row">
-            <a class="app-btn primary" href="pronostico.html">Volver a pronosticar</a>
+            <a class="app-btn primary" href="index.html">Pronosticar partido</a>
             <a class="app-btn secondary" href="mi-quiniela.html">Mi Quiniela</a>
           </div>
         </section>
 
-        <section class="ranking-card" aria-label="Top 20">
+        <section class="ranking-card" aria-label="Top participantes">
           <div class="section-header">
-            <h2 class="section-title">Top 20 participantes</h2>
-            <a class="section-link" href="crear-quiniela.html">Invitar</a>
+            <h2 class="section-title">Participantes</h2>
+            <a class="section-link" href="mi-quiniela.html">Mi Quiniela</a>
           </div>
 
-          <div class="ranking-list">
+          <div class="ranking-list" id="rankingList">
             <div class="rank-row">
-              <span class="rank-num">#1</span>
+              <span class="rank-num">--</span>
               <div class="rank-person">
-                <p class="rank-name">Pey</p>
-                <p class="rank-meta"><span class="move-same">= Se mantiene</span><span>🔥 Rey de la Jornada</span></p>
+                <p class="rank-name">Todavía no hay clasificación.</p>
+                <p class="rank-meta"><span>Los puntos aparecerán cuando existan resultados reales calificados.</span></p>
               </div>
               <div class="rank-score">
-                <p class="points">140 pts</p>
-                <p class="behind">líder</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#2</span>
-              <div class="rank-person">
-                <p class="rank-name">ElTigre</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 8 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">132 pts</p>
-                <p class="behind">-8</p>
-              </div>
-            </div>
-
-            <div class="rank-row me">
-              <span class="rank-num">#3</span>
-              <div class="rank-person">
-                <p class="rank-name">Tú</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 2</span><span>⚡ Enrachado</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">124 pts</p>
-                <p class="behind">-16</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#4</span>
-              <div class="rank-person">
-                <p class="rank-name">Andrea</p>
-                <p class="rank-meta"><span class="move-down">↓ Bajó 1</span><span>🎯 Golpe Maestro</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">119 pts</p>
-                <p class="behind">-21</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#5</span>
-              <div class="rank-person">
-                <p class="rank-name">Carlos</p>
-                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 29 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">111 pts</p>
-                <p class="behind">-29</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#6</span>
-              <div class="rank-person">
-                <p class="rank-name">LaComadre</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 3</span><span>Buen cierre</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">108 pts</p>
-                <p class="behind">-32</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#7</span>
-              <div class="rank-person">
-                <p class="rank-name">MemoGol</p>
-                <p class="rank-meta"><span class="move-down">↓ Bajó 2</span><span>A 35 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">105 pts</p>
-                <p class="behind">-35</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#8</span>
-              <div class="rank-person">
-                <p class="rank-name">Tania</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 39 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">101 pts</p>
-                <p class="behind">-39</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#9</span>
-              <div class="rank-person">
-                <p class="rank-name">Rafa</p>
-                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 43 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">97 pts</p>
-                <p class="behind">-43</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#10</span>
-              <div class="rank-person">
-                <p class="rank-name">Pau</p>
-                <p class="rank-meta"><span class="move-down">↓ Bajó 1</span><span>A 47 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">93 pts</p>
-                <p class="behind">-47</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#11</span>
-              <div class="rank-person">
-                <p class="rank-name">Charly</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 2</span><span>A 51 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">89 pts</p>
-                <p class="behind">-51</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#12</span>
-              <div class="rank-person">
-                <p class="rank-name">Gaby</p>
-                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 55 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">85 pts</p>
-                <p class="behind">-55</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#13</span>
-              <div class="rank-person">
-                <p class="rank-name">Fer</p>
-                <p class="rank-meta"><span class="move-down">↓ Bajó 3</span><span>A 58 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">82 pts</p>
-                <p class="behind">-58</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#14</span>
-              <div class="rank-person">
-                <p class="rank-name">Lu</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 63 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">77 pts</p>
-                <p class="behind">-63</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#15</span>
-              <div class="rank-person">
-                <p class="rank-name">Beto</p>
-                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 67 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">73 pts</p>
-                <p class="behind">-67</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#16</span>
-              <div class="rank-person">
-                <p class="rank-name">Sofi</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 2</span><span>A 71 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">69 pts</p>
-                <p class="behind">-71</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#17</span>
-              <div class="rank-person">
-                <p class="rank-name">Nico</p>
-                <p class="rank-meta"><span class="move-down">↓ Bajó 1</span><span>A 75 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">65 pts</p>
-                <p class="behind">-75</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#18</span>
-              <div class="rank-person">
-                <p class="rank-name">Majo</p>
-                <p class="rank-meta"><span class="move-same">= Igual</span><span>A 81 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">59 pts</p>
-                <p class="behind">-81</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#19</span>
-              <div class="rank-person">
-                <p class="rank-name">Toño</p>
-                <p class="rank-meta"><span class="move-up">↑ Subió 1</span><span>A 86 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">54 pts</p>
-                <p class="behind">-86</p>
-              </div>
-            </div>
-
-            <div class="rank-row">
-              <span class="rank-num">#20</span>
-              <div class="rank-person">
-                <p class="rank-name">Dany</p>
-                <p class="rank-meta"><span class="move-down">↓ Bajó 2</span><span>A 91 pts</span></p>
-              </div>
-              <div class="rank-score">
-                <p class="points">49 pts</p>
-                <p class="behind">-91</p>
+                <p class="points">--</p>
+                <p class="behind">pts</p>
               </div>
             </div>
           </div>
@@ -1300,39 +1092,12 @@
 
           <div class="achievement-list">
             <div class="achievement-row">
-              <div class="achievement-icon">🔥</div>
+              <div class="achievement-icon">🎖️</div>
               <div>
-                <p class="achievement-name">Rey de la Jornada</p>
-                <p class="achievement-user">Pey · 28 pts hoy</p>
+                <p class="achievement-name">Tus logros aparecerán aquí</p>
+                <p class="achievement-user">Gana puntos y obtén reconocimientos durante la competencia.</p>
               </div>
-              <span class="achievement-tag">Líder</span>
-            </div>
-
-            <div class="achievement-row">
-              <div class="achievement-icon">⚡</div>
-              <div>
-                <p class="achievement-name">Enrachado</p>
-                <p class="achievement-user">Tú · 5 activos</p>
-              </div>
-              <span class="achievement-tag">Racha</span>
-            </div>
-
-            <div class="achievement-row">
-              <div class="achievement-icon">🎯</div>
-              <div>
-                <p class="achievement-name">Golpe Maestro</p>
-                <p class="achievement-user">Andrea · marcador exacto</p>
-              </div>
-              <span class="achievement-tag">Exacto</span>
-            </div>
-
-            <div class="achievement-row">
-              <div class="achievement-icon">😱</div>
-              <div>
-                <p class="achievement-name">El Inesperado</p>
-                <p class="achievement-user">Carlos · sorpresa del día</p>
-              </div>
-              <span class="achievement-tag">Sorpresa</span>
+              <span class="achievement-tag">Pendiente</span>
             </div>
           </div>
         </section>
@@ -1341,57 +1106,14 @@
           <h2 class="side-card-title">Distancia al líder</h2>
 
           <div class="pressure-card">
-            <h3 class="pressure-title">Puedes alcanzarlo.</h3>
+            <h3 class="pressure-title">Sin líder todavía.</h3>
             <p class="pressure-copy">
-              Estás a 16 puntos. Dos buenos pronósticos pueden meterte de lleno por el liderato.
+              La distancia al líder se calculará cuando existan participantes con puntos reales.
             </p>
-          </div>
-
-          <div class="gap-bars">
-            <div class="gap-item">
-              <div class="gap-top">
-                <span>Pey</span>
-                <span>140 pts</span>
-              </div>
-              <div class="gap-track">
-                <div class="gap-fill" style="width: 100%;"></div>
-              </div>
-            </div>
-
-            <div class="gap-item">
-              <div class="gap-top">
-                <span>ElTigre</span>
-                <span>132 pts</span>
-              </div>
-              <div class="gap-track">
-                <div class="gap-fill" style="width: 94%;"></div>
-              </div>
-            </div>
-
-            <div class="gap-item">
-              <div class="gap-top">
-                <span>Tú</span>
-                <span>124 pts</span>
-              </div>
-              <div class="gap-track">
-                <div class="gap-fill" style="width: 88%;"></div>
-              </div>
-            </div>
-
-            <div class="gap-item">
-              <div class="gap-top">
-                <span>Andrea</span>
-                <span>119 pts</span>
-              </div>
-              <div class="gap-track">
-                <div class="gap-fill" style="width: 85%;"></div>
-              </div>
-            </div>
           </div>
         </section>
       </aside>
     </div>
-
 
     <section class="selection-rankings-card" aria-label="Rankings de selecciones">
       <h2 class="selection-rankings-title">🌎 Rankings de Selecciones</h2>
@@ -1403,16 +1125,7 @@
         <a class="app-btn primary" href="ranking-predikt.html">Ranking PREDIKT™</a>
       </div>
     </section>
-
-    <section class="viral-card" aria-label="Crear quiniela">
-      <p class="viral-kicker">Motor viral</p>
-      <h2 class="viral-title">¿Crees que puedes ser campeón?</h2>
-      <p class="viral-copy">
-        Crea tu propia quiniela, invita a tus amigos y demuestra quién realmente le atina al marcador.
-      </p>
-      <a class="viral-btn" href="crear-quiniela.html">Crear Quiniela</a>
-    </section>
-  </main>
+</main>
 
   <nav class="app-footer" aria-label="Navegación principal">
     <a class="footer-item" href="index.html">
@@ -1446,12 +1159,12 @@
   <script>
     /*
       Nombre del bloque: PREDIKT™ Global Auth Guard Runtime
-      Fecha: 2026-06-08
+      Fecha: 2026-06-10
+      Versión: v1.3.0 ZERO MOCK RANKING
       Elaborado por: JVSys™
       Descripción:
         Protege esta pantalla con sesión real de Supabase Auth.
-        Si no existe sesión, redirige a login.html.
-        Si existe sesión, muestra saludo real del usuario autenticado.
+        No muestra ranking ficticio. Solo estados reales.
     */
     (async function initializeProtectedPage() {
       function safeText(value) {
@@ -1477,11 +1190,35 @@
         return "Participante";
       }
 
+      function safeParseJson(value) {
+        try {
+          return value ? JSON.parse(value) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function getLocalPredictionCount() {
+        const single = safeParseJson(window.localStorage.getItem("predikt_last_score_prediction"));
+        const history = safeParseJson(window.localStorage.getItem("predikt_score_predictions_history"));
+        if (Array.isArray(history) && history.length) return history.length;
+        return single ? 1 : 0;
+      }
+
       function renderAuthenticatedUser(user) {
         const displayName = getDisplayName(user);
         document.querySelectorAll("[data-auth-hello]").forEach((element) => {
           element.textContent = `Hola ${displayName} 👋`;
         });
+
+        const predictionCount = getLocalPredictionCount();
+        const title = document.getElementById("myRankingTitle");
+        const copy = document.getElementById("myRankingCopy");
+
+        if (predictionCount > 0 && title && copy) {
+          title.textContent = "Tus pronósticos ya están registrados";
+          copy.textContent = `Tienes ${predictionCount} pronóstico${predictionCount === 1 ? "" : "s"} guardado${predictionCount === 1 ? "" : "s"}. El ranking se activará cuando haya resultados calificados.`;
+        }
       }
 
       try {
@@ -1496,7 +1233,7 @@
         const user = session.user || await window.PrediktAuth.getCurrentUser();
         renderAuthenticatedUser(user);
       } catch (error) {
-        console.error(`PREDIKT™ ${page_tag} Auth Guard error:`, error);
+        console.error("PREDIKT™ Ranking Auth Guard error:", error);
         window.location.href = "login.html";
       }
     })();
@@ -1507,7 +1244,7 @@
 
 <!--
 Cierre de archivo
-Versión: v1.2.0 Global Auth Guard Certified
-Fecha: 2026-06-08
+Versión: v1.3.0 ZERO MOCK RANKING
+Fecha: 2026-06-10
 Elaborado por: JVSys™
 -->
