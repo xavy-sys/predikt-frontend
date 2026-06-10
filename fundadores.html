@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: fundadores.html
     Fecha: 2026-06-09
-    Versión: v2.0.1 💎 Founders Button Actions Fix
+    Versión: v2.0.3 💎 DIRECT BUTTON HANDLERS
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -14,16 +14,16 @@
       Conecta con founders.v_founder_program_summary y founders.founder_members.
       Muestra KPIs reales, fundadores reales, suspendidos, manuales, Mercado Pago,
       recaudación, estado vitalicio y avance del programa.
-      Corrige botones de filtros, Centro, Registrar y acciones administrativas.
+      Corrige botones con handlers directos independientes de carga Supabase; agrega marca visual v2.0.3 para validar despliegue.
       Mantiene evidencia, no borra registros y conserva enfoque mobile-first.
-    Líneas versión anterior: 1016
-    Líneas versión nueva: 212
+    Líneas versión anterior: 212
+    Líneas versión nueva: 260
   -->
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>PREDIKT™ | Fundadores</title>
+  <title>PREDIKT™ | Fundadores v2.0.3</title>
   <meta name="description" content="Administración real del Programa Fundadores PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
@@ -102,6 +102,7 @@
     .action-btn.primary { color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold-soft)); border-color:rgba(245,185,66,.32); }
     .action-btn.danger { color:#fff; background:rgba(255,90,95,.22); border-color:rgba(255,90,95,.32); }
     .action-btn.safe { color:#061826; background:linear-gradient(135deg,var(--green),#8cffc4); border-color:rgba(72,242,154,.32); }
+    .version-badge { display:inline-flex; margin-left:8px; padding:4px 8px; border-radius:999px; background:rgba(72,242,154,.16); color:var(--green); border:1px solid rgba(72,242,154,.32); font-size:.58rem; font-weight:980; letter-spacing:.05em; }
     .admin-note { margin-top:12px; border:1px dashed rgba(245,185,66,.28); border-radius:var(--radius-lg); background:rgba(245,185,66,.08); padding:12px; color:var(--text-soft); font-size:.70rem; font-weight:790; }
     .toast { position:fixed; left:50%; bottom:calc(var(--footer-height) + 18px); transform:translateX(-50%) translateY(20px); z-index:60; width:min(calc(100% - 28px),560px); border:1px solid rgba(72,242,154,.34); border-radius:18px; background:rgba(7,28,46,.98); color:var(--text-main); padding:13px 15px; box-shadow:0 14px 36px rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .2s ease,transform .2s ease; font-size:.83rem; font-weight:830; text-align:center; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
@@ -126,7 +127,7 @@
     </header>
 
     <section class="hero-card" aria-label="Administración de fundadores">
-      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores</p><h1 class="hero-title">Fundadores PREDIKT™</h1>
+      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores <span class="version-badge">v2.0.3</span></p><h1 class="hero-title">Fundadores PREDIKT™</h1>
       <p class="hero-copy">Controla los primeros 100 lugares, confirma pagos, conserva evidencia y protege el acceso gratuito de por vida.</p>
     </section>
 
@@ -148,11 +149,11 @@
 
     <section class="toolbar" aria-label="Búsqueda y filtros">
       <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por número, nombre, correo, método, estado o referencia..." />
-      <div class="filter-row"><button class="filter-chip active" type="button" data-filter="all">Todos</button><button class="filter-chip" type="button" data-filter="active">Activos</button><button class="filter-chip" type="button" data-filter="manual">Manual</button><button class="filter-chip" type="button" data-filter="risk">Riesgo</button></div>
+      <div class="filter-row"><button class="filter-chip active" type="button" data-filter="all" onclick="applyFounderFilter('all', this)">Todos</button><button class="filter-chip" type="button" data-filter="active" onclick="applyFounderFilter('active', this)">Activos</button><button class="filter-chip" type="button" data-filter="manual" onclick="applyFounderFilter('manual', this)">Manual</button><button class="filter-chip" type="button" data-filter="risk" onclick="applyFounderFilter('risk', this)">Riesgo</button></div>
     </section>
 
     <section class="founders-panel" aria-label="Listado de fundadores">
-      <div class="section-head"><h2 class="section-title">Listado Fundadores</h2><div class="section-actions"><button class="admin-pill" type="button" id="newFounderBtn">➕ Registrar</button><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div></div>
+      <div class="section-head"><h2 class="section-title">Listado Fundadores</h2><div class="section-actions"><button class="admin-pill" type="button" id="newFounderBtn" onclick="openFounderRegistrationNotice()">➕ Registrar</button><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div></div>
       <div class="founder-list" id="founderList"></div>
     </section>
 
@@ -174,10 +175,57 @@
     const refreshBtn = document.getElementById("refreshBtn");
     const toast = document.getElementById("toast");
     let activeFilter = "all";
-    function showToast(message){ toast.textContent=message; toast.classList.add("show"); window.clearTimeout(showToast.timer); showToast.timer=window.setTimeout(()=>toast.classList.remove("show"),2600); }
-    function headers(profile){ return { "apikey":REST_KEY, "Authorization":`Bearer ${REST_KEY}`, "Accept":"application/json", "Content-Type":"application/json", "Accept-Profile":profile }; }
-    async function fetchJson(path,profile){ const response=await fetch(`${REST_BASE}/${path}`,{method:"GET",headers:headers(profile)}); if(!response.ok){throw new Error(`${path} status ${response.status}`)} return response.json(); }
-    async function patchJson(path,profile,body){ const response=await fetch(`${REST_BASE}/${path}`,{method:"PATCH",headers:{...headers(profile),"Prefer":"return=representation"},body:JSON.stringify(body)}); if(!response.ok){throw new Error(`${path} status ${response.status}`)} return response.json(); }
+    function showToast(message){
+      toast.textContent=message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer=window.setTimeout(()=>toast.classList.remove("show"),2600);
+    }
+
+    function openFounderRegistrationNotice(){
+      window.alert([
+        "Registro manual de Fundador PREDIKT™",
+        "",
+        "Botón operativo en v2.0.3.",
+        "La pantalla de alta manual todavía no está certificada.",
+        "",
+        "Siguiente paso:",
+        "crear fundador-nuevo.html o integrar formulario aquí."
+      ].join("\n"));
+    }
+
+    function applyFounderFilter(filterValue, clickedButton){
+      activeFilter = filterValue || "all";
+      filterButtons.forEach(item => item.classList.remove("active"));
+      if(clickedButton){ clickedButton.classList.add("active"); }
+      renderFounders();
+      showToast("Filtro aplicado: " + activeFilter);
+    }
+    async function getSessionToken(){
+      try{
+        if(window.PREDIKT_SUPABASE_INIT_PROMISE){ await window.PREDIKT_SUPABASE_INIT_PROMISE; }
+        const client = window.prediktSupabase || (window.PrediktAdminGuard && window.PrediktAdminGuard.getSupabaseClient ? window.PrediktAdminGuard.getSupabaseClient() : null);
+        if(!client || !client.auth){ return ""; }
+        const { data } = await client.auth.getSession();
+        return data && data.session && data.session.access_token ? data.session.access_token : "";
+      }catch(error){
+        console.warn("PREDIKT Fundadores: no se pudo obtener sesión Supabase.", error);
+        return "";
+      }
+    }
+    async function headers(profile){
+      const token = await getSessionToken();
+      return {
+        "apikey": REST_KEY,
+        "Authorization": `Bearer ${token || REST_KEY}`,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Accept-Profile": profile,
+        "Content-Profile": profile
+      };
+    }
+    async function fetchJson(path,profile){ const requestHeaders=await headers(profile); const response=await fetch(`${REST_BASE}/${path}`,{method:"GET",headers:requestHeaders}); if(!response.ok){throw new Error(`${path} status ${response.status}`)} return response.json(); }
+    async function patchJson(path,profile,body){ const requestHeaders=await headers(profile); const response=await fetch(`${REST_BASE}/${path}`,{method:"PATCH",headers:{...requestHeaders,"Prefer":"return=representation"},body:JSON.stringify(body)}); if(!response.ok){throw new Error(`${path} status ${response.status}`)} return response.json(); }
     function formatNumber(value){ return Number(value||0).toLocaleString("es-MX"); }
     function formatCurrency(value){ return `$${Number(value||0).toLocaleString("es-MX",{minimumFractionDigits:0,maximumFractionDigits:0})}`; }
     function formatDate(value){ if(!value)return "Sin fecha"; const date=new Date(value); if(Number.isNaN(date.getTime()))return "Sin fecha"; return date.toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}); }
@@ -189,15 +237,15 @@
     function filterMatches(founder){ if(activeFilter==="all")return true; if(activeFilter==="active")return founder.status==="active_lifetime"; if(activeFilter==="manual")return founder.payment_provider==="manual"; if(activeFilter==="risk")return ["suspended","revoked","banned","cancelled","duplicated","under_review"].includes(founder.status); return true; }
     function computeLocalStatusCounts(rows){ return { suspended:rows.filter(row=>row.status==="suspended").length, manual:rows.filter(row=>row.payment_provider==="manual").length, mercadoPago:rows.filter(row=>row.payment_provider==="mercado_pago").length }; }
     function renderKpis(){ const summary=founderState.summary||{}; const rows=Array.isArray(founderState.rows)?founderState.rows:[]; const localCounts=computeLocalStatusCounts(rows); const registered=Number(summary.founders_registered||rows.length||0); const goal=Number(summary.founder_limit||100); const available=Number(summary.founder_slots_remaining!==undefined&&summary.founder_slots_remaining!==null?summary.founder_slots_remaining:Math.max(goal-registered,0)); const revenue=Number(summary.total_amount_registered_mxn||rows.reduce((sum,row)=>sum+Number(row.amount_mxn||0),0)); const manual=Number(summary.manual_founders!==undefined&&summary.manual_founders!==null?summary.manual_founders:localCounts.manual); const mercadoPago=Number(summary.mercado_pago_founders!==undefined&&summary.mercado_pago_founders!==null?summary.mercado_pago_founders:localCounts.mercadoPago); const progress=goal>0?Math.min(Math.round((registered/goal)*100),100):0; const full=registered>=goal||available<=0||summary.is_active===false; document.getElementById("foundersRegistered").textContent=formatNumber(registered); document.getElementById("foundersAvailable").textContent=formatNumber(Math.max(available,0)); document.getElementById("foundersProgress").textContent=`${progress}%`; document.getElementById("foundersRevenue").textContent=formatCurrency(revenue); document.getElementById("foundersSuspended").textContent=formatNumber(localCounts.suspended); document.getElementById("foundersManual").textContent=formatNumber(manual); document.getElementById("foundersMercadoPago").textContent=formatNumber(mercadoPago); document.getElementById("progressText").textContent=`${formatNumber(registered)} / ${formatNumber(goal)}`; document.getElementById("foundersProgressBar").style.width=`${progress}%`; const card=document.getElementById("programCard"); const btn=document.getElementById("newFounderBtn"); if(full){ card.classList.add("program-closed"); document.getElementById("programTitle").textContent="⚽ Programa de Fundadores Completo"; document.getElementById("programCopy").textContent="Los 100 lugares fundadores ya fueron asignados. Las donaciones futuras deberán registrarse como apoyo normal sin beneficio fundador vitalicio."; btn.style.display="none"; } else { card.classList.remove("program-closed"); document.getElementById("programTitle").textContent="💎 Programa Fundadores"; document.getElementById("programCopy").textContent="Los primeros 100 fundadores obtienen acceso gratuito de por vida a PREDIKT™."; btn.style.display="inline-flex"; } }
-    function renderFounders(){ const query=searchInput.value||""; const rows=founderState.rows.filter(founder=>founderMatches(founder,query)&&filterMatches(founder)).sort((a,b)=>Number(a.founder_number||0)-Number(b.founder_number||0)); if(!rows.length){ founderList.innerHTML=`<div class="founder-row"><div class="avatar">--</div><div class="founder-main"><p class="founder-name">Sin resultados</p><p class="founder-email">Ajusta búsqueda o filtros.</p></div></div>`; return; } founderList.innerHTML=rows.map(founder=>{ const status=statusInfo(founder.status); const isActive=founder.status==="active_lifetime"; const isSuspended=founder.status==="suspended"; const safeId=founder.id; return `<article class="founder-row"><div class="avatar">${initials(founder.full_name)}</div><div class="founder-main"><div class="founder-topline"><div><p class="founder-name">#${founder.founder_number||"--"} · ${founder.full_name||"Fundador"}</p><p class="founder-email">${founder.founder_code||"Sin código"} · ${founder.email||"Sin correo"}</p></div><span class="status-pill ${status.className}">${status.label}</span></div><div class="founder-metrics"><div class="metric"><strong>${formatCurrency(founder.amount_mxn)}</strong><span>Importe</span></div><div class="metric"><strong>${paymentMethodLabel(founder.payment_method)}</strong><span>Método</span></div><div class="metric"><strong>${founder.lifetime_access?"Sí":"No"}</strong><span>Vitalicio</span></div><div class="metric"><strong>${formatDate(founder.payment_received_at||founder.created_at)}</strong><span>Registro</span></div></div></div><div class="founder-actions"><button class="action-btn primary" type="button" data-action="view" data-id="${safeId}">👁 Ver</button>${isActive?`<button class="action-btn" type="button" data-action="suspend" data-id="${safeId}">⏸ Suspender</button>`:""}${isSuspended?`<button class="action-btn safe" type="button" data-action="reactivate" data-id="${safeId}">▶ Reactivar</button>`:""}${!["revoked","banned"].includes(founder.status)?`<button class="action-btn danger" type="button" data-action="revoke" data-id="${safeId}">🚫 Revocar</button>`:""}${founder.status!=="banned"?`<button class="action-btn danger" type="button" data-action="ban" data-id="${safeId}">🔨 Banear</button>`:""}</div></article>`; }).join(""); document.querySelectorAll("[data-action]").forEach(button=>button.addEventListener("click",handleFounderAction)); }
+    function renderFounders(){ const query=searchInput.value||""; const rows=founderState.rows.filter(founder=>founderMatches(founder,query)&&filterMatches(founder)).sort((a,b)=>Number(a.founder_number||0)-Number(b.founder_number||0)); if(!rows.length){ founderList.innerHTML=`<div class="founder-row"><div class="avatar">--</div><div class="founder-main"><p class="founder-name">Sin resultados en este filtro</p><p class="founder-email">Filtro actual: ${activeFilter}. Ajusta búsqueda o selecciona Todos.</p></div></div>`; return; } founderList.innerHTML=rows.map(founder=>{ const status=statusInfo(founder.status); const isActive=founder.status==="active_lifetime"; const isSuspended=founder.status==="suspended"; const safeId=founder.id; return `<article class="founder-row"><div class="avatar">${initials(founder.full_name)}</div><div class="founder-main"><div class="founder-topline"><div><p class="founder-name">#${founder.founder_number||"--"} · ${founder.full_name||"Fundador"}</p><p class="founder-email">${founder.founder_code||"Sin código"} · ${founder.email||"Sin correo"}</p></div><span class="status-pill ${status.className}">${status.label}</span></div><div class="founder-metrics"><div class="metric"><strong>${formatCurrency(founder.amount_mxn)}</strong><span>Importe</span></div><div class="metric"><strong>${paymentMethodLabel(founder.payment_method)}</strong><span>Método</span></div><div class="metric"><strong>${founder.lifetime_access?"Sí":"No"}</strong><span>Vitalicio</span></div><div class="metric"><strong>${formatDate(founder.payment_received_at||founder.created_at)}</strong><span>Registro</span></div></div></div><div class="founder-actions"><button class="action-btn primary" type="button" data-action="view" data-id="${safeId}">👁 Ver</button>${isActive?`<button class="action-btn" type="button" data-action="suspend" data-id="${safeId}">⏸ Suspender</button>`:""}${isSuspended?`<button class="action-btn safe" type="button" data-action="reactivate" data-id="${safeId}">▶ Reactivar</button>`:""}${!["revoked","banned"].includes(founder.status)?`<button class="action-btn danger" type="button" data-action="revoke" data-id="${safeId}">🚫 Revocar</button>`:""}${founder.status!=="banned"?`<button class="action-btn danger" type="button" data-action="ban" data-id="${safeId}">🔨 Banear</button>`:""}</div></article>`; }).join(""); document.querySelectorAll("[data-action]").forEach(button=>button.addEventListener("click",handleFounderAction)); }
     function getFounderById(id){ return founderState.rows.find(row=>row.id===id); }
     async function updateFounderStatus(founder,nextStatus){ const nextLifetimeAccess=nextStatus==="active_lifetime"; await patchJson(`founder_members?id=eq.${encodeURIComponent(founder.id)}`,"founders",{status:nextStatus,lifetime_access:nextLifetimeAccess,updated_at:new Date().toISOString()}); showToast(`Fundador #${founder.founder_number} actualizado a ${nextStatus}.`); await refreshFounders(); }
     async function handleFounderAction(event){ const button=event.currentTarget; const action=button.dataset.action; const founder=getFounderById(button.dataset.id); if(!founder){showToast("No se encontró el fundador seleccionado.");return;} if(action==="view"){ window.alert([`Fundador #${founder.founder_number}`,founder.full_name,founder.email||"Sin correo",`Estado: ${founder.status}`,`Método: ${paymentMethodLabel(founder.payment_method)}`,`Referencia: ${founder.internal_reference||founder.external_payment_reference||"Sin referencia"}`,`Observaciones: ${founder.observations||"Sin observaciones"}`].join("\n")); return; } const map={suspend:{status:"suspended",message:"Suspenderá temporalmente el beneficio vitalicio."},reactivate:{status:"active_lifetime",message:"Reactivará el beneficio vitalicio."},revoke:{status:"revoked",message:"Revocará el beneficio fundador. La evidencia permanecerá."},ban:{status:"banned",message:"Expulsará permanentemente al fundador. La evidencia permanecerá."}}; const next=map[action]; if(!next){showToast("Acción no disponible.");return;} if(!window.confirm(`${next.message}\n\n¿Confirmas aplicar esta acción a #${founder.founder_number} ${founder.full_name}?`))return; try{ await updateFounderStatus(founder,next.status); }catch(error){ console.error("PREDIKT founders governance error:",error); showToast("No se pudo actualizar el fundador. Revisa permisos/RLS."); } }
     async function loadSummary(){ const rows=await fetchJson("v_founder_program_summary?select=*&limit=1","founders"); const summary=Array.isArray(rows)&&rows.length?rows[0]:null; if(!summary)return; founderState.summary={ founder_limit:Number(summary.founder_limit||100), founders_registered:Number(summary.founders_registered||0), founder_slots_remaining:Number(summary.founder_slots_remaining||0), total_amount_registered_mxn:Number(summary.total_amount_registered_mxn||0), manual_founders:Number(summary.manual_founders||0), mercado_pago_founders:Number(summary.mercado_pago_founders||0), is_active:summary.is_active!==false }; }
     async function loadFounderRows(){ const rows=await fetchJson("founder_members?select=*&order=founder_number.asc","founders"); founderState.rows=Array.isArray(rows)?rows:[]; }
-    async function refreshFounders(){ try{ await Promise.all([loadSummary(),loadFounderRows()]); renderKpis(); renderFounders(); showToast("Fundadores actualizados."); }catch(error){ console.error("PREDIKT founders data unavailable:",error); showToast("No se pudieron cargar fundadores reales."); } }
+    async function refreshFounders(){ try{ await Promise.all([loadSummary(),loadFounderRows()]); renderKpis(); renderFounders(); showToast("Fundadores actualizados."); }catch(error){ console.error("PREDIKT founders data unavailable:",error); renderKpis(); renderFounders(); showToast("No se pudieron cargar fundadores reales. Revisa permisos/RLS."); } }
     async function waitForSupabase(){ if(window.PREDIKT_SUPABASE_INIT_PROMISE){ await window.PREDIKT_SUPABASE_INIT_PROMISE; } return Boolean(window.prediktSupabase); }
-    async function initializeFoundersConsole(){ if(!window.PrediktAdminGuard||!window.PrediktAdminGuard.requireAdminAccess){ document.body.innerHTML=`<main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#061826;color:#fff;font-family:Arial,sans-serif;padding:24px;text-align:center;"><section style="max-width:420px;border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:28px;background:rgba(255,255,255,.06);"><img src="assets/logos/predikt-logo.png" alt="PREDIKT™" style="width:86px;height:auto;margin-bottom:16px;" /><h1 style="font-size:22px;margin:0 0 10px;">PREDIKT™</h1><p style="font-size:16px;line-height:1.5;margin:0;color:#d7e3f5;">No se pudo cargar la Guardia Admin.</p></section></main>`; document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; return; } const isAuthorized=await window.PrediktAdminGuard.requireAdminAccess(); if(!isAuthorized)return; await waitForSupabase(); document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; refreshBtn.addEventListener("click",refreshFounders); const newFounderBtn=document.getElementById("newFounderBtn"); if(newFounderBtn){ newFounderBtn.addEventListener("click",openFounderRegistrationNotice); } searchInput.addEventListener("input",renderFounders); filterButtons.forEach(button=>button.addEventListener("click",()=>{ filterButtons.forEach(item=>item.classList.remove("active")); button.classList.add("active"); activeFilter=button.dataset.filter; renderFounders(); const label=button.textContent.trim()||"Filtro"; showToast(`Filtro aplicado: ${label}`); })); renderKpis(); await refreshFounders(); }
+    async function initializeFoundersConsole(){ if(!window.PrediktAdminGuard||!window.PrediktAdminGuard.requireAdminAccess){ document.body.innerHTML=`<main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#061826;color:#fff;font-family:Arial,sans-serif;padding:24px;text-align:center;"><section style="max-width:420px;border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:28px;background:rgba(255,255,255,.06);"><img src="assets/logos/predikt-logo.png" alt="PREDIKT™" style="width:86px;height:auto;margin-bottom:16px;" /><h1 style="font-size:22px;margin:0 0 10px;">PREDIKT™</h1><p style="font-size:16px;line-height:1.5;margin:0;color:#d7e3f5;">No se pudo cargar la Guardia Admin.</p></section></main>`; document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; return; } const isAuthorized=await window.PrediktAdminGuard.requireAdminAccess(); if(!isAuthorized)return; await waitForSupabase(); document.documentElement.classList.remove("admin-guard-pending"); document.documentElement.style.visibility="visible"; document.documentElement.style.opacity="1"; refreshBtn.addEventListener("click",refreshFounders); const newFounderBtn=document.getElementById("newFounderBtn"); if(newFounderBtn){ newFounderBtn.addEventListener("click",openFounderRegistrationNotice); } searchInput.addEventListener("input",renderFounders); filterButtons.forEach(button=>button.addEventListener("click",()=>applyFounderFilter(button.dataset.filter, button))); renderKpis(); await refreshFounders(); }
     document.addEventListener("DOMContentLoaded",initializeFoundersConsole);
   </script>
 
