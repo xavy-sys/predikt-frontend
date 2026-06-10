@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: dashboard-admin.html
     Fecha: 2026-06-09
-    Versión: v2.1.0 🔐 KPIs Reales desde Vistas Certificadas
+    Versión: v2.2.0 🔐 LOGOUT ENTERPRISE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -729,6 +729,7 @@
       <div class="header-actions">
         <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar dashboard">↻</button>
         <span class="admin-pill">Admin</span>
+        <button class="admin-pill" id="logoutBtn" type="button" style="cursor:pointer;">Salir</button>
       </div>
     </header>
 
@@ -969,6 +970,27 @@
 
     const toast = document.getElementById("toast");
     const refreshBtn = document.getElementById("refreshBtn");
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    async function performLogout() {
+      try {
+        if (window.prediktSupabase) {
+          await window.prediktSupabase.auth.signOut();
+        } else if (window.supabase && typeof window.supabase.createClient === "function") {
+          // Admin guard normalmente inicializa el cliente global.
+        }
+      } catch (error) {
+        console.error("Logout error", error);
+      }
+
+      try { localStorage.clear(); } catch(e) {}
+      try { sessionStorage.clear(); } catch(e) {}
+
+      window.location.href = "admin-login.html";
+    }
+
+
 
     function showToast(message) {
       toast.textContent = message;
@@ -1269,6 +1291,7 @@
 
       document.documentElement.classList.remove("admin-guard-pending");
       refreshBtn.addEventListener("click", refreshDashboard);
+      if (logoutBtn) logoutBtn.addEventListener("click", performLogout);
       renderDashboard(dashboardState);
       await refreshDashboard();
     }
