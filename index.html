@@ -2,11 +2,9 @@
 <html lang="es-MX">
 <head>
   <!--
-    ZERO MOCK RULE: Home conserva flujo de predicción; no usar ranking, puntos ni usuarios ficticios.
-
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v6.0.4 PLAY_NOW_FIX
+    Versión: v6.0.5 FLOW PRESERVED ZERO MOCK
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -28,8 +26,9 @@
       humana al guardar.
       Elimina el botón GUARDAR PRONÓSTICO. Ahora tocar una opción guarda
       automáticamente el pronóstico y muestra acción SIGUIENTE PARTIDO.
-      v6.0.0 elimina métricas ficticias de usuario nuevo y agrega la tarjeta
-      Recomendación PREDIKT™ antes de elegir pronóstico.
+      v6.0.5 conserva el flujo principal de predicción inmediata y elimina
+      únicamente datos ficticios: ranking demo, puntos demo, nombres demo,
+      fundadores hardcodeado y bloques sociales no certificados.
     Líneas versión anterior: 1250
     Líneas versión nueva: 1482
   -->
@@ -1073,9 +1072,9 @@
     </header>
     <section class="welcome-card" aria-label="PREDIKT Intelligence">
       <p class="hello">🤖 PREDIKT™ Intelligence</p>
-      <h1 class="welcome-title">Haz tu predicción del próximo partido.</h1>
+      <h1 class="welcome-title">PREDIKT te ayuda a pronosticar.</h1>
       <p class="welcome-copy">
-        PREDIKT™ te muestra una recomendación inteligente, pero la decisión final es tuya. Elige ganador y participa.
+        No es solo una quiniela: PREDIKT analiza el partido, calcula probabilidades y te muestra una recomendación antes de elegir.
       </p>
     </section>
 <section class="section" aria-label="Tu próximo pronóstico">
@@ -1083,22 +1082,129 @@
         <h2 class="section-title">Tu próximo pronóstico</h2>
         <a class="section-link" href="pronostico.html">Ver todos</a>
       </div>
-</section>
 
-    <section class="section" aria-label="Invita amigos">
-      <article class="invite-card">
-        <h2 class="founder-title">👥 Compite con tus cuates</h2>
-        <p class="founder-copy">
-          Muy pronto podrás crear grupos privados. Por ahora revisa tu quiniela y ranking.
-        </p>
-        <div class="dual-actions">
-          <a class="secondary-action" href="mi-quiniela.html">Mi grupo</a>
-          <a class="soft-action" href="mi-quiniela.html">Mi quiniela</a>
+      <article class="match-card">
+        <div class="match-top">
+          <span class="pill green">Te falta este partido</span>
+          <span class="pill gold">2026</span>
         </div>
+
+        <h3 class="match-title" id="upcomingMatchName">México vs Sudáfrica</h3>
+
+        <div class="match-context-row" aria-label="Contexto del partido">
+          <span class="context-chip green" id="upcomingStage">Fase de Grupos</span>
+          <span class="context-chip gold" id="upcomingGroup">Grupo A</span>
+          <span class="context-chip" id="upcomingSeason">Jornada 1</span>
+        </div>
+
+        <div class="detail-action-row">
+          <a class="analysis-link" id="matchDetailLink" href="partido-detalle.html">🎯 Ver análisis PREDIKT™</a>
+          <p class="tap-hint">Probabilidades, explicación inteligente y contexto del partido.</p>
+        </div>
+
+        <div class="teams">
+          <div class="team-box">
+            <div class="team-flag" id="homeTeamCode">MX</div>
+            <strong class="team-name" id="homeTeamName">México</strong>
+            <span class="team-code" id="homeTeamSmallCode">MX</span>
+          </div>
+
+          <div class="versus">VS</div>
+
+          <div class="team-box">
+            <div class="team-flag" id="awayTeamCode">ZA</div>
+            <strong class="team-name" id="awayTeamName">Sudáfrica</strong>
+            <span class="team-code" id="awayTeamSmallCode">ZA</span>
+          </div>
+        </div>
+
+        <p class="match-time" id="upcomingMatchTime">Próximo partido · Horario local del usuario</p>
+
+
+        <div class="predikt-intelligence-card" aria-label="Recomendación PREDIKT">
+          <p class="predikt-intelligence-kicker">🎯 Recomendación PREDIKT™</p>
+          <h4 class="predikt-intelligence-title" id="prediktRecommendationTitle">PREDIKT recomienda: México</h4>
+          <p class="predikt-intelligence-copy" id="prediktRecommendationCopy">
+            México aparece con ligera ventaja en la lectura inicial. Empate sigue como alternativa competitiva.
+          </p>
+
+          <div class="predikt-recommendation-grid">
+            <div class="predikt-recommendation-box">
+              <p class="predikt-recommendation-value" id="prediktSuggestedWinner">México</p>
+              <p class="predikt-recommendation-label">Sugerencia</p>
+            </div>
+            <div class="predikt-recommendation-box">
+              <p class="predikt-recommendation-value" id="prediktConfidence">42%</p>
+              <p class="predikt-recommendation-label">Confianza</p>
+            </div>
+          </div>
+
+          <ul class="predikt-reasons" aria-label="Factores considerados">
+            <li>Forma reciente y tendencia competitiva.</li>
+            <li>Fortaleza ofensiva y defensiva estimada.</li>
+            <li>Contexto del grupo, sede y calendario.</li>
+          </ul>
+        </div>
+
+        <div class="prediction-progress-card" aria-label="Avance de pronósticos">
+          <div class="prediction-progress-top">
+            <span class="prediction-progress-title">Tus pronósticos Mundial 2026</span>
+            <strong class="prediction-progress-value" id="predictionProgressValue">1 / 72</strong>
+          </div>
+          <div class="prediction-progress-track" aria-hidden="true">
+            <div class="prediction-progress-bar" id="predictionProgressBar"></div>
+          </div>
+          <p class="prediction-progress-copy" id="predictionProgressCopy">Te faltan 71 partidos por pronosticar.</p>
+        </div>
+
+        <div class="prediction-question">
+          <p class="prediction-question-title">🏆 ¿Quién ganará este partido?</p>
+          <p class="prediction-question-copy">Selecciona el resultado que crees ocurrirá.</p>
+        </div>
+
+        <div class="prediction-actions" aria-label="Selecciona quién ganará este partido">
+          <button class="prediction-choice" type="button" data-prediction="México" data-kind="home" id="homePredictionChoice">🏆 Gana México</button>
+          <button class="prediction-choice" type="button" data-prediction="Empate" data-kind="draw">🤝 Empate</button>
+          <button class="prediction-choice" type="button" data-prediction="Sudáfrica" data-kind="away" id="awayPredictionChoice">🏆 Gana Sudáfrica</button>
+        </div>
+
+        <button class="next-match-action" id="nextMatchBtn" type="button">Ver calendario ▶</button>
+        <p class="prediction-note" id="predictionDeadlineNote">⏰ Puedes modificar tu elección hasta el inicio del partido.</p>
       </article>
     </section>
 
-  </main>
+    <section class="section" aria-label="Acciones reales">
+      <div class="section-head">
+        <h2 class="section-title">Acciones reales</h2>
+      </div>
+
+      <div class="mini-grid">
+        <a class="mini-card" href="mi-quiniela.html">
+          <div class="mini-icon">⚽</div>
+          <h3 class="mini-title">Mi Quiniela</h3>
+          <p class="mini-copy">Consulta tu actividad real. Sin datos demo.</p>
+        </a>
+
+        <a class="mini-card" href="ranking.html">
+          <div class="mini-icon">🏆</div>
+          <h3 class="mini-title">Ranking</h3>
+          <p class="mini-copy">Se activará con participantes reales.</p>
+        </a>
+
+        <a class="mini-card" href="ranking-predikt.html">
+          <div class="mini-icon">📊</div>
+          <h3 class="mini-title">Ranking PREDIKT™</h3>
+          <p class="mini-copy">Selecciones reales cargadas en PREDIKT™.</p>
+        </a>
+
+        <a class="mini-card" href="fundadores.html">
+          <div class="mini-icon">💎</div>
+          <h3 class="mini-title">Fundadores</h3>
+          <p class="mini-copy">Consulta el programa fundador en tiempo real.</p>
+        </a>
+      </div>
+    </section>
+</main>
 
 
   <div class="toast" id="toast" role="status" aria-live="polite">Pronóstico guardado.</div>
