@@ -4,14 +4,14 @@
   <!--
     Nombre del archivo: mi-quiniela.html
     Fecha: 2026-06-10
-    Versión: v2.0.0 ZERO MOCK DATA EDITION
+    Versión: v2.1.0 PLAYER EXPERIENCE EDITION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla real de usuario para PREDIKT™ sin datos ficticios.
       Elimina ranking simulado, puntos inventados, reconocimientos ficticios,
       quinielas demo y partidos hardcodeados.
-      Muestra estados vacíos profesionales hasta que existan datos reales.
+      Muestra estados humanos orientados al jugador y prepara historial de pronósticos reales.
       Próximos partidos se cargan exclusivamente desde Supabase sports.v_event_match_intelligence.
       Mantiene UX mobile-first y navegación PWA.
     Líneas versión anterior: 965
@@ -562,9 +562,9 @@
 
     <section class="hero-status" aria-label="Estado de quiniela">
       <div class="hero-kicker">Mi Quiniela™</div>
-      <h1 class="hero-title" id="heroTitle">Empieza tu quiniela sin datos inventados.</h1>
+      <h1 class="hero-title" id="heroTitle">⚽ Tu temporada comienza aquí</h1>
       <p class="hero-copy" id="heroCopy">
-        Cuando tengas pronósticos, puntos o grupos reales, aparecerán aquí. Por ahora te mostramos solo información real de PREDIKT™.
+        Realiza tus pronósticos, compite con tus amigos y demuestra quién realmente sabe de fútbol.
       </p>
     </section>
 
@@ -572,25 +572,25 @@
       <article class="stat-card">
         <div class="stat-label">🏆 Posición</div>
         <div class="stat-value" id="statPosition">--</div>
-        <div class="stat-note">Sin ranking real todavía</div>
+        <div class="stat-note">Aparecerá al competir</div>
       </article>
 
       <article class="stat-card">
         <div class="stat-label">⭐ Puntos</div>
         <div class="stat-value" id="statPoints">0</div>
-        <div class="stat-note">Se actualizarán al jugar</div>
+        <div class="stat-note">Acumulados en competencia</div>
       </article>
 
       <article class="stat-card">
         <div class="stat-label">🎯 Pronósticos</div>
         <div class="stat-value" id="statPredictions">0</div>
-        <div class="stat-note">Guardados por el usuario</div>
+        <div class="stat-note">Tus predicciones</div>
       </article>
 
       <article class="stat-card">
         <div class="stat-label">👥 Grupo</div>
         <div class="stat-value" id="statGroup">--</div>
-        <div class="stat-note">Sin grupo activo</div>
+        <div class="stat-note">Disponible próximamente</div>
       </article>
     </section>
 
@@ -603,28 +603,29 @@
 
           <article class="main-card empty-card" id="quinielaStatus">
             <div class="empty-icon">🏆</div>
-            <h2 class="empty-title">Aún no perteneces a una quiniela.</h2>
+            <h2 class="empty-title">Haz tu primer pronóstico</h2>
             <p class="empty-copy">
-              Crea una quiniela o únete a una cuando tengas una invitación. No mostraremos grupos, líderes ni puntos ficticios.
+              Cuando guardes tus predicciones, aquí aparecerá tu actividad.
             </p>
             <div class="dual-actions">
-              <a class="btn btn-primary" href="index.html">Pronosticar primer partido</a>
+              <a class="btn btn-primary" href="index.html">Pronosticar partido</a>
               <a class="btn btn-secondary" href="perfil.html">Ver perfil</a>
             </div>
           </article>
         </section>
 
-        <section class="section" aria-label="Próximos partidos reales">
+        <section class="section" aria-label="Mis pronósticos">
           <div class="section-header">
-            <h2 class="section-title">Próximos Partidos</h2>
-            <a class="section-link" href="pronostico.html">Ver todos</a>
+            <h2 class="section-title">Mis Pronósticos</h2>
+            <a class="section-link" href="index.html">Pronosticar</a>
           </div>
 
-          <div class="matches-list" id="matchesList">
+          <div class="matches-list" id="predictionsList">
             <article class="main-card empty-card">
-              <div class="empty-icon">⏳</div>
-              <h2 class="empty-title">Cargando partidos reales...</h2>
-              <p class="empty-copy">PREDIKT™ está consultando el calendario certificado.</p>
+              <div class="empty-icon">⚽</div>
+              <h2 class="empty-title">Todavía no has realizado pronósticos.</h2>
+              <p class="empty-copy">Haz tu primer marcador desde Inicio y vuelve aquí para consultar tu actividad.</p>
+              <a class="btn btn-primary" href="index.html">Hacer mi pronóstico</a>
             </article>
           </div>
         </section>
@@ -638,9 +639,9 @@
 
           <article class="main-card empty-card">
             <div class="empty-icon">🎖️</div>
-            <h2 class="empty-title">Sin reconocimientos todavía.</h2>
+            <h2 class="empty-title">Tus logros aparecerán aquí</h2>
             <p class="empty-copy">
-              Los reconocimientos aparecerán cuando existan resultados reales y actividad verificable.
+              Gana puntos y obtén reconocimientos durante la competencia.
             </p>
           </article>
         </section>
@@ -655,22 +656,16 @@
             <div class="ranking-list" id="rankingList">
               <article class="empty-card" style="padding:12px;">
                 <div class="empty-icon">📊</div>
-                <h2 class="empty-title">Aún no hay ranking real.</h2>
+                <h2 class="empty-title">Ranking disponible próximamente</h2>
                 <p class="empty-copy">
-                  Sé de los primeros en pronosticar. El ranking se mostrará cuando haya participantes reales.
+                  Comienza a pronosticar para aparecer en la clasificación.
                 </p>
               </article>
             </div>
             <a class="btn btn-secondary" href="ranking.html">Ver Ranking</a>
           </article>
         </section>
-
-        <section class="section" aria-label="Aviso de transparencia">
-          <article class="note-card">
-            <strong>Transparencia PREDIKT™:</strong> esta pantalla ya no usa datos demo. Si algo aparece aquí, debe venir de datos reales o de un estado vacío profesional.
-          </article>
-        </section>
-      </div>
+</div>
     </div>
 
     <nav class="app-footer-nav" aria-label="Navegación principal de la aplicación">
@@ -702,52 +697,41 @@
   </main>
 
   <script>
-    const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
-    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+    const predictionsList = document.getElementById("predictionsList");
+    const statPredictions = document.getElementById("statPredictions");
 
-    const matchesList = document.getElementById("matchesList");
-
-    function sportsHeaders() {
-      return {
-        "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
-        "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
-        "Accept": "application/json",
-        "Accept-Profile": "sports"
-      };
+    function safeParseJson(value) {
+      try {
+        return value ? JSON.parse(value) : null;
+      } catch {
+        return null;
+      }
     }
 
-    function splitMatchName(name) {
-      const safeName = name || "Partido por confirmar";
-      const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
+    function getSavedPredictions() {
+      const single = safeParseJson(window.localStorage.getItem("predikt_last_score_prediction"));
+      const history = safeParseJson(window.localStorage.getItem("predikt_score_predictions_history"));
 
-      if (parts.length >= 2) {
-        return {
-          home: parts[0].trim(),
-          away: parts[1].trim()
-        };
+      const predictions = [];
+
+      if (Array.isArray(history)) {
+        predictions.push(...history);
       }
 
-      return {
-        home: "Local",
-        away: "Visitante"
-      };
+      if (single && !predictions.some((item) => item.saved_at === single.saved_at)) {
+        predictions.unshift(single);
+      }
+
+      return predictions.filter(Boolean);
     }
 
-    function inferCode(name, fallback) {
-      if (!name) return fallback;
-      const clean = String(name).trim();
-      if (clean.length <= 3) return clean.toUpperCase();
-      return clean.slice(0, 2).toUpperCase();
-    }
-
-    function formatMatchDate(value) {
-      if (!value) return "Fecha por confirmar";
+    function formatSavedAt(value) {
+      if (!value) return "Guardado recientemente";
 
       const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return "Fecha por confirmar";
+      if (Number.isNaN(date.getTime())) return "Guardado recientemente";
 
       return date.toLocaleString("es-MX", {
-        weekday: "short",
         day: "2-digit",
         month: "short",
         hour: "2-digit",
@@ -755,78 +739,65 @@
       });
     }
 
-    function renderEmptyMatches(message = "No hay partidos disponibles para mostrar en este momento.") {
-      matchesList.innerHTML = `
+    function renderEmptyPredictions() {
+      predictionsList.innerHTML = `
         <article class="main-card empty-card">
           <div class="empty-icon">⚽</div>
-          <h2 class="empty-title">Sin partidos visibles.</h2>
-          <p class="empty-copy">${message}</p>
-          <a class="btn btn-secondary" href="pronostico.html">Abrir pronósticos</a>
+          <h2 class="empty-title">Todavía no has realizado pronósticos.</h2>
+          <p class="empty-copy">Haz tu primer marcador desde Inicio y vuelve aquí para consultar tu actividad.</p>
+          <a class="btn btn-primary" href="index.html">Hacer mi pronóstico</a>
         </article>
       `;
     }
 
-    function renderMatches(rows) {
-      if (!Array.isArray(rows) || rows.length === 0) {
-        renderEmptyMatches();
+    function renderPredictions() {
+      const predictions = getSavedPredictions();
+
+      if (statPredictions) {
+        statPredictions.textContent = String(predictions.length);
+      }
+
+      if (!predictions.length) {
+        renderEmptyPredictions();
         return;
       }
 
-      matchesList.innerHTML = rows.map((row) => {
-        const teams = splitMatchName(row.event_name || row.name);
-        const homeCode = inferCode(teams.home, "LO");
-        const awayCode = inferCode(teams.away, "VI");
-        const eventId = row.event_id || row.id || "";
-        const detailHref = eventId ? `partido-detalle.html?id=${eventId}` : "partido-detalle.html";
+      predictionsList.innerHTML = predictions.map((prediction) => {
+        const homeName = prediction.home_name || "Local";
+        const awayName = prediction.away_name || "Visitante";
+        const homeScore = Number(prediction.home_score ?? 0);
+        const awayScore = Number(prediction.away_score ?? 0);
+        const interpreted = prediction.interpreted_result || `${homeName} ${homeScore} - ${awayScore} ${awayName}`;
 
         return `
           <article class="match-card">
             <div class="match-row">
               <div class="team">
-                <span class="team-code">${homeCode}</span>
-                <span class="team-name">${teams.home}</span>
+                <span class="team-code">${homeName.slice(0,2).toUpperCase()}</span>
+                <span class="team-name">${homeName}</span>
               </div>
 
-              <div class="vs">VS</div>
+              <div class="vs">${homeScore}-${awayScore}</div>
 
               <div class="team right">
-                <span class="team-code">${awayCode}</span>
-                <span class="team-name">${teams.away}</span>
+                <span class="team-code">${awayName.slice(0,2).toUpperCase()}</span>
+                <span class="team-name">${awayName}</span>
               </div>
             </div>
 
             <div class="match-footer">
-              <div class="match-time">${formatMatchDate(row.starts_at)}</div>
-              <a class="small-action" href="${detailHref}">Pronosticar</a>
+              <div class="match-time">
+                <strong>Mi pronóstico:</strong> ${interpreted}<br />
+                <span>Estado: Pendiente · ${formatSavedAt(prediction.saved_at)}</span>
+              </div>
+              <a class="small-action" href="index.html">Editar</a>
             </div>
           </article>
         `;
       }).join("");
     }
 
-    async function loadRealMatches() {
-      try {
-        const response = await fetch(
-          `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=event_id,event_name,name,starts_at,phase_name,group_name,matchday&order=starts_at.asc&limit=3`,
-          {
-            method: "GET",
-            headers: sportsHeaders()
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`v_event_match_intelligence status ${response.status}`);
-        }
-
-        const rows = await response.json();
-        renderMatches(rows);
-      } catch (error) {
-        console.warn("PREDIKT real matches unavailable:", error);
-        renderEmptyMatches("No se pudo consultar el calendario en este momento. No se muestran partidos ficticios.");
-      }
-    }
-
-    loadRealMatches();
+    renderPredictions();
   </script>
 </body>
 </html>
