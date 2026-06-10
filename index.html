@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-06
-    Versión: v6.0.5 FLOW PRESERVED ZERO MOCK
+    Versión: v7.0.0 PREDICTION FIRST ARCHITECTURE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -26,9 +26,8 @@
       humana al guardar.
       Elimina el botón GUARDAR PRONÓSTICO. Ahora tocar una opción guarda
       automáticamente el pronóstico y muestra acción SIGUIENTE PARTIDO.
-      v6.0.5 conserva el flujo principal de predicción inmediata y elimina
-      únicamente datos ficticios: ranking demo, puntos demo, nombres demo,
-      fundadores hardcodeado y bloques sociales no certificados.
+      v6.0.0 elimina métricas ficticias de usuario nuevo y agrega la tarjeta
+      Recomendación PREDIKT™ antes de elegir pronóstico.
     Líneas versión anterior: 1250
     Líneas versión nueva: 1482
   -->
@@ -803,6 +802,121 @@
       font-weight: 980;
     }
 
+
+    .score-prediction-card {
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.12), transparent 30%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(8, 31, 52, 0.98));
+      border: 1px solid rgba(245, 185, 66, 0.22);
+      padding: 14px;
+      margin: 0 0 12px;
+    }
+
+    .score-title {
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .score-team-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .score-team-row:first-of-type { border-top: 0; padding-top: 0; }
+
+    .score-team-name {
+      font-size: 0.92rem;
+      font-weight: 960;
+      color: var(--text-main);
+    }
+
+    .score-team-hint {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.60rem;
+      font-weight: 820;
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .score-control {
+      display: inline-grid;
+      grid-template-columns: 34px 48px 34px;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .score-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 980;
+    }
+
+    .score-input {
+      width: 48px;
+      height: 40px;
+      border-radius: 14px;
+      border: 1px solid rgba(245, 185, 66, 0.32);
+      background: rgba(255,255,255,0.08);
+      color: var(--gold);
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 980;
+      outline: none;
+      appearance: textfield;
+    }
+
+    .score-input::-webkit-outer-spin-button,
+    .score-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .prediction-interpretation {
+      border-radius: 18px;
+      background: rgba(72, 242, 154, 0.09);
+      border: 1px solid rgba(72, 242, 154, 0.18);
+      color: var(--text-soft);
+      padding: 11px;
+      margin-top: 12px;
+      font-size: 0.76rem;
+      font-weight: 820;
+      text-align: center;
+    }
+
+    .save-score-action {
+      min-height: 48px;
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      font-size: 0.80rem;
+      font-weight: 980;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 14px 30px rgba(72, 242, 154, 0.24);
+      margin-top: 12px;
+    }
+
+
     .prediction-progress-card {
       border-radius: 18px;
       background: rgba(255, 255, 255, 0.055);
@@ -1072,9 +1186,9 @@
     </header>
     <section class="welcome-card" aria-label="PREDIKT Intelligence">
       <p class="hello">🤖 PREDIKT™ Intelligence</p>
-      <h1 class="welcome-title">PREDIKT te ayuda a pronosticar.</h1>
+      <h1 class="welcome-title">Adivina el marcador del próximo partido.</h1>
       <p class="welcome-copy">
-        No es solo una quiniela: PREDIKT analiza el partido, calcula probabilidades y te muestra una recomendación antes de elegir.
+        PREDIKT™ te sugiere un marcador inteligente. Tú decides el tuyo y compites por acertar.
       </p>
     </section>
 <section class="section" aria-label="Tu próximo pronóstico">
@@ -1157,52 +1271,45 @@
           <p class="prediction-progress-copy" id="predictionProgressCopy">Te faltan 71 partidos por pronosticar.</p>
         </div>
 
-        <div class="prediction-question">
-          <p class="prediction-question-title">🏆 ¿Quién ganará este partido?</p>
-          <p class="prediction-question-copy">Selecciona el resultado que crees ocurrirá.</p>
-        </div>
+        <div class="score-prediction-card" aria-label="Captura tu marcador">
+          <p class="score-title">⚽ Tu marcador</p>
 
-        <div class="prediction-actions" aria-label="Selecciona quién ganará este partido">
-          <button class="prediction-choice" type="button" data-prediction="México" data-kind="home" id="homePredictionChoice">🏆 Gana México</button>
-          <button class="prediction-choice" type="button" data-prediction="Empate" data-kind="draw">🤝 Empate</button>
-          <button class="prediction-choice" type="button" data-prediction="Sudáfrica" data-kind="away" id="awayPredictionChoice">🏆 Gana Sudáfrica</button>
-        </div>
+          <div class="score-team-row">
+            <div>
+              <strong class="score-team-name" id="scoreHomeName">México</strong>
+              <span class="score-team-hint">Local</span>
+            </div>
+            <div class="score-control">
+              <button class="score-btn" type="button" data-score-target="home" data-score-delta="-1">−</button>
+              <input class="score-input" id="homeScoreInput" type="number" min="0" max="20" value="2" inputmode="numeric" />
+              <button class="score-btn" type="button" data-score-target="home" data-score-delta="1">+</button>
+            </div>
+          </div>
 
-        <button class="next-match-action" id="nextMatchBtn" type="button">Ver calendario ▶</button>
-        <p class="prediction-note" id="predictionDeadlineNote">⏰ Puedes modificar tu elección hasta el inicio del partido.</p>
+          <div class="score-team-row">
+            <div>
+              <strong class="score-team-name" id="scoreAwayName">Sudáfrica</strong>
+              <span class="score-team-hint">Visitante</span>
+            </div>
+            <div class="score-control">
+              <button class="score-btn" type="button" data-score-target="away" data-score-delta="-1">−</button>
+              <input class="score-input" id="awayScoreInput" type="number" min="0" max="20" value="1" inputmode="numeric" />
+              <button class="score-btn" type="button" data-score-target="away" data-score-delta="1">+</button>
+            </div>
+          </div>
+
+          <div class="prediction-interpretation" id="predictionInterpretation">
+            Tu elección: México gana 2-1.
+          </div>
+
+          <button class="save-score-action" id="saveScorePredictionBtn" type="button">
+            ⚽ Guardar pronóstico
+          </button>
+
+          <button class="next-match-action" id="nextMatchBtn" type="button">Ver calendario ▶</button>
+          <p class="prediction-note" id="predictionDeadlineNote">⏰ Puedes modificar tu elección hasta el inicio del partido.</p>
+        </div>
       </article>
-    </section>
-
-    <section class="section" aria-label="Acciones reales">
-      <div class="section-head">
-        <h2 class="section-title">Acciones reales</h2>
-      </div>
-
-      <div class="mini-grid">
-        <a class="mini-card" href="mi-quiniela.html">
-          <div class="mini-icon">⚽</div>
-          <h3 class="mini-title">Mi Quiniela</h3>
-          <p class="mini-copy">Consulta tu actividad real. Sin datos demo.</p>
-        </a>
-
-        <a class="mini-card" href="ranking.html">
-          <div class="mini-icon">🏆</div>
-          <h3 class="mini-title">Ranking</h3>
-          <p class="mini-copy">Se activará con participantes reales.</p>
-        </a>
-
-        <a class="mini-card" href="ranking-predikt.html">
-          <div class="mini-icon">📊</div>
-          <h3 class="mini-title">Ranking PREDIKT™</h3>
-          <p class="mini-copy">Selecciones reales cargadas en PREDIKT™.</p>
-        </a>
-
-        <a class="mini-card" href="fundadores.html">
-          <div class="mini-icon">💎</div>
-          <h3 class="mini-title">Fundadores</h3>
-          <p class="mini-copy">Consulta el programa fundador en tiempo real.</p>
-        </a>
-      </div>
     </section>
 </main>
 
@@ -1214,10 +1321,8 @@
     const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
 
     const toast = document.getElementById("toast");
-    const predictionButtons = document.querySelectorAll("[data-prediction]");
-    const nextMatchBtn = document.getElementById("nextMatchBtn");
-    let selectedPrediction = "";
-    let currentCompletedPredictions = Number(window.localStorage.getItem("predikt_predictions_completed") || 0);
+        const nextMatchBtn = document.getElementById("nextMatchBtn");
+        let currentCompletedPredictions = Number(window.localStorage.getItem("predikt_predictions_completed") || 0);
 
     function showToast(message) {
       toast.textContent = message;
@@ -1252,11 +1357,41 @@
       }
     }
 
-    function getWinnerMessage(selection) {
-      if (!selection) return "";
-      if (selection === "Empate") return "Empate";
-      return `${selection} ganador`;
+    function getScoreWinnerMessage(homeName, awayName, homeScore, awayScore) {
+      if (homeScore > awayScore) return `${homeName} gana ${homeScore}-${awayScore}`;
+      if (awayScore > homeScore) return `${awayName} gana ${awayScore}-${homeScore}`;
+      return `Empate ${homeScore}-${awayScore}`;
     }
+
+    function clampScore(value) {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric) || numeric < 0) return 0;
+      return Math.min(Math.floor(numeric), 20);
+    }
+
+    function getScoreState() {
+      const homeScoreInput = document.getElementById("homeScoreInput");
+      const awayScoreInput = document.getElementById("awayScoreInput");
+      const homeScore = clampScore(homeScoreInput?.value);
+      const awayScore = clampScore(awayScoreInput?.value);
+
+      if (homeScoreInput) homeScoreInput.value = String(homeScore);
+      if (awayScoreInput) awayScoreInput.value = String(awayScore);
+
+      const homeName = document.getElementById("scoreHomeName")?.textContent || "Local";
+      const awayName = document.getElementById("scoreAwayName")?.textContent || "Visitante";
+
+      return { homeName, awayName, homeScore, awayScore };
+    }
+
+    function updateScoreInterpretation() {
+      const { homeName, awayName, homeScore, awayScore } = getScoreState();
+      const interpretation = document.getElementById("predictionInterpretation");
+      if (interpretation) {
+        interpretation.textContent = `Tu elección: ${getScoreWinnerMessage(homeName, awayName, homeScore, awayScore)}.`;
+      }
+    }
+
 
     function sportsHeaders() {
       return {
@@ -1414,15 +1549,17 @@
       document.getElementById("awayTeamName").textContent = teams.away;
       document.getElementById("awayTeamCode").textContent = awayCode;
       document.getElementById("awayTeamSmallCode").textContent = awayCode;
-
-      document.getElementById("homePredictionChoice").textContent = `🏆 Gana ${teams.home}`;
       document.getElementById("homePredictionChoice").dataset.prediction = teams.home;
-
-      document.getElementById("awayPredictionChoice").textContent = `🏆 Gana ${teams.away}`;
       document.getElementById("awayPredictionChoice").dataset.prediction = teams.away;
+
+      const scoreHomeName = document.getElementById("scoreHomeName");
+      const scoreAwayName = document.getElementById("scoreAwayName");
+      if (scoreHomeName) scoreHomeName.textContent = teams.home;
+      if (scoreAwayName) scoreAwayName.textContent = teams.away;
 
       document.getElementById("matchDetailLink").href = detailHref;
       renderPrediktRecommendation(eventRow, teams);
+      updateScoreInterpretation();
     }
 
     async function loadUpcomingEvent() {
@@ -1459,16 +1596,22 @@
     }
 
 
-    function autoSavePrediction(selection) {
-      if (!selection) {
-        showToast("Elige quién ganará este partido.");
-        return;
-      }
+    function saveScorePrediction() {
+      const { homeName, awayName, homeScore, awayScore } = getScoreState();
 
       currentCompletedPredictions = Math.max(currentCompletedPredictions, 0) + 1;
       if (currentCompletedPredictions > 72) currentCompletedPredictions = 72;
 
-      window.localStorage.setItem("predikt_last_prediction", selection);
+      const predictionPayload = {
+        home_name: homeName,
+        away_name: awayName,
+        home_score: homeScore,
+        away_score: awayScore,
+        interpreted_result: getScoreWinnerMessage(homeName, awayName, homeScore, awayScore),
+        saved_at: new Date().toISOString()
+      };
+
+      window.localStorage.setItem("predikt_last_score_prediction", JSON.stringify(predictionPayload));
       window.localStorage.setItem("predikt_predictions_completed", String(currentCompletedPredictions));
 
       updatePredictionProgress(currentCompletedPredictions, 72);
@@ -1478,27 +1621,15 @@
         ? `${currentCompletedPredictions} de 72 partidos completados. Te faltan ${pending}.`
         : "🏆 ¡Quiniela completa! Has pronosticado todos los partidos disponibles.";
 
-      showToast(`✅ Pronóstico guardado. Elegiste: ${getWinnerMessage(selection)}. ${progressMessage}`);
+      showToast(`✅ Pronóstico guardado: ${predictionPayload.interpreted_result}. ${progressMessage}`);
 
       if (nextMatchBtn && pending > 0) {
         nextMatchBtn.classList.add("show");
       }
     }
+
     function goToNextMatch() {
       window.location.href = "pronostico.html";
-    }
-
-
-      window.localStorage.setItem("predikt_current_match_index", String(fallbackMatchIndex));
-      selectedPrediction = "";
-      predictionButtons.forEach((item) => item.classList.remove("selected"));
-
-      if (nextMatchBtn) {
-        nextMatchBtn.classList.remove("show");
-      }
-
-      loadFallbackMatchByIndex(fallbackMatchIndex);
-      showToast("Siguiente partido listo para pronosticar.");
     }
 
     loadUpcomingEvent();
@@ -1512,15 +1643,33 @@
       { home: "México", away: "Sudáfrica" }
     );
     updatePredictionProgress(currentCompletedPredictions, 72);
+    });
 
-    predictionButtons.forEach((button) => {
+    document.querySelectorAll("[data-score-target]").forEach((button) => {
       button.addEventListener("click", () => {
-        predictionButtons.forEach((item) => item.classList.remove("selected"));
-        button.classList.add("selected");
-        selectedPrediction = button.dataset.prediction;
-        autoSavePrediction(selectedPrediction);
+        const target = button.dataset.scoreTarget;
+        const delta = Number(button.dataset.scoreDelta || 0);
+        const input = document.getElementById(target === "home" ? "homeScoreInput" : "awayScoreInput");
+        if (!input) return;
+        input.value = String(clampScore(Number(input.value || 0) + delta));
+        updateScoreInterpretation();
       });
     });
+
+    ["homeScoreInput", "awayScoreInput"].forEach((id) => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener("input", updateScoreInterpretation);
+        input.addEventListener("blur", updateScoreInterpretation);
+      }
+    });
+
+    const saveScorePredictionBtn = document.getElementById("saveScorePredictionBtn");
+    if (saveScorePredictionBtn) {
+      saveScorePredictionBtn.addEventListener("click", saveScorePrediction);
+    }
+
+    updateScoreInterpretation();
 
     if (nextMatchBtn) {
       nextMatchBtn.addEventListener("click", goToNextMatch);
