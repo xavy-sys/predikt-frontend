@@ -3,16 +3,16 @@
 <head>
   <!--
     Nombre del archivo: pronostico.html
-    Fecha: 2026-06-09
-    Versión: v2.1.0 RPC Prediction Engine Certified
+    Fecha: 2026-06-10
+    Versión: v3.0.0 REAL NEXT MATCH ONLY
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Primera pantalla real de captura de pronósticos para PREDIKT™.
       Pantalla mobile-first tipo aplicación deportiva social.
       Conecta la captura de pronósticos con Supabase usando predictions.predictions.
-      Integra Auth Guard real, user_id desde Supabase Auth, event_id real para México vs Sudáfrica,
-      group_id CUATES2026, recuperación de pronósticos guardados y fallback seguro para partidos no conectados.
+      Integra Auth Guard real, lee el próximo partido desde sports.v_predikt_home_next_match,
+      usa group_id CUATES2026, recupera pronóstico guardado y elimina partidos/ranking demo.
     Líneas versión anterior: 1546
     Líneas versión nueva: 1608
   -->
@@ -733,6 +733,17 @@
       box-shadow: 0 14px 30px rgba(245, 185, 66, 0.27);
     }
 
+    .empty-side-state {
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      padding: 14px;
+      color: var(--text-soft);
+      font-size: 0.82rem;
+      font-weight: 760;
+      line-height: 1.35;
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -985,73 +996,73 @@
     </header>
 
     <section class="hero-card" aria-label="Resumen de pronósticos">
-      <p class="eyebrow">Pronósticos · Mundial 2026</p>
-      <h1 class="hero-title">Pon tus marcadores antes que tus cuates.</h1>
+      <p class="eyebrow">Pronóstico · Próximo partido</p>
+      <h1 class="hero-title">Haz tu pronóstico del próximo partido.</h1>
       <p class="hero-copy">
-        Usa la referencia inteligente de PREDIKT™, ajusta tu marcador y compite por subir al ranking.
+        PREDIKT™ carga el siguiente partido real, te da una lectura inteligente y guarda tu marcador.
       </p>
     </section>
 
     <section class="progress-panel" aria-label="Avance de pronósticos">
       <div class="progress-top">
         <h2 class="progress-title">Pronósticos completados</h2>
-        <span class="progress-count" id="progressText">0 de 3</span>
+        <span class="progress-count" id="progressText">0 de 1</span>
       </div>
       <div class="progress-bar" aria-hidden="true">
         <div class="progress-fill" id="progressFill"></div>
       </div>
       <p class="reward-note" id="rewardNote">
-        🔥 Pronostica los 3 partidos de hoy y desbloquea el reconocimiento: ⚡ Enrachado.
+        ⚽ Guarda tu marcador antes del inicio del partido.
       </p>
     </section>
 
     <div class="layout-grid">
       <section class="main-column">
         <div class="section-header">
-          <h2 class="section-title">Partidos para pronosticar</h2>
+          <h2 class="section-title">Próximo partido para pronosticar</h2>
           <a class="section-link" href="mi-quiniela.html">Mi Quiniela</a>
         </div>
 
-        <article class="match-card" data-match-id="mex-rsa" data-event-id="5852afae-b00c-4567-b374-a41c80fdbaf1" data-group-id="11111111-1111-1111-1111-111111111111">
+        <article class="match-card" id="nextMatchCard" data-match-id="next-match" data-event-id="" data-group-id="11111111-1111-1111-1111-111111111111">
           <div class="match-top">
             <div class="match-meta">
-              <span>Mañana · 19:00</span>
-              <span class="risk-pill risk-medium">Riesgo medio</span>
+              <span id="matchDateLabel">Cargando horario...</span>
+              <span class="risk-pill risk-medium" id="matchStatusLabel">Cargando</span>
             </div>
 
             <div class="teams-row">
               <div class="team">
-                <span class="flag" aria-hidden="true">🇲🇽</span>
-                <span class="team-code">MX</span>
-                <strong class="team-name">México</strong>
+                <span class="flag" aria-hidden="true" id="homeFlag">⚽</span>
+                <span class="team-code" id="homeCode">--</span>
+                <strong class="team-name" id="homeTeamName">Local</strong>
               </div>
 
               <span class="vs-badge">VS</span>
 
               <div class="team team-away">
-                <span class="flag" aria-hidden="true">🇿🇦</span>
-                <span class="team-code">RSA</span>
-                <strong class="team-name">Sudáfrica</strong>
+                <span class="flag" aria-hidden="true" id="awayFlag">⚽</span>
+                <span class="team-code" id="awayCode">--</span>
+                <strong class="team-name" id="awayTeamName">Visitante</strong>
               </div>
             </div>
 
             <div class="intelligence-card">
               <div class="intel-box">
-                <p class="intel-label">Favorito esperado</p>
-                <p class="intel-value">México</p>
-                <p class="intel-sub">Local y sede inicial</p>
+                <p class="intel-label">Partido real</p>
+                <p class="intel-value" id="eventNameLabel">Cargando...</p>
+                <p class="intel-sub">Desde calendario PREDIKT™</p>
               </div>
 
               <div class="intel-box">
-                <p class="intel-label">Referencia video</p>
-                <p class="intel-value">Apertura</p>
-                <p class="intel-sub">Primer partido conectado</p>
+                <p class="intel-label">Estado</p>
+                <p class="intel-value" id="eventStatusLabel">--</p>
+                <p class="intel-sub">Disponible para pronóstico</p>
               </div>
 
               <div class="intel-box">
                 <p class="intel-label">Lectura PREDIKT™</p>
-                <p class="intel-value">Inicio clave</p>
-                <p class="intel-sub">México necesita imponer ritmo</p>
+                <p class="intel-value" id="prediktReadLabel">En análisis</p>
+                <p class="intel-sub" id="prediktReadSub">Usa esto como referencia, tú decides.</p>
               </div>
             </div>
           </div>
@@ -1060,210 +1071,41 @@
             <div class="suggested-score">
               <div class="suggested-copy">
                 <p class="suggested-label">Pronóstico sugerido</p>
-                <p class="suggested-text">Cercano a lo esperado por probabilidad y fuerza relativa.</p>
+                <p class="suggested-text" id="suggestedText">PREDIKT™ está preparando la referencia del partido.</p>
               </div>
-              <strong class="suggested-main">México 2 - 1 Sudáfrica</strong>
+              <strong class="suggested-main" id="suggestedScoreLabel">--</strong>
             </div>
 
             <div class="score-controls">
               <div class="score-row">
                 <div class="score-team">
-                  <p class="score-team-name">🇲🇽 México</p>
+                  <p class="score-team-name" id="homeScoreTeamName">Local</p>
                   <p class="score-team-help">Goles pronosticados</p>
                 </div>
                 <div class="stepper">
-                  <button class="step-btn" data-action="minus" data-team="home" aria-label="Restar gol a México">−</button>
-                  <span class="score-number" data-score="home">1</span>
-                  <button class="step-btn" data-action="plus" data-team="home" aria-label="Sumar gol a México">+</button>
+                  <button class="step-btn" data-action="minus" data-team="home" aria-label="Restar gol al local">−</button>
+                  <span class="score-number" data-score="home">0</span>
+                  <button class="step-btn" data-action="plus" data-team="home" aria-label="Sumar gol al local">+</button>
                 </div>
               </div>
 
               <div class="score-row">
                 <div class="score-team">
-                  <p class="score-team-name">🇿🇦 Sudáfrica</p>
+                  <p class="score-team-name" id="awayScoreTeamName">Visitante</p>
                   <p class="score-team-help">Goles pronosticados</p>
                 </div>
                 <div class="stepper">
-                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a Sudáfrica">−</button>
-                  <span class="score-number" data-score="away">1</span>
-                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a Sudáfrica">+</button>
+                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol al visitante">−</button>
+                  <span class="score-number" data-score="away">0</span>
+                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol al visitante">+</button>
                 </div>
               </div>
             </div>
 
-            <p class="live-preview" data-preview>Tu pronóstico: México 2 - 1 Sudáfrica</p>
-            <button class="save-btn" data-save>Guardar pronóstico</button>
+            <p class="live-preview" data-preview>Tu pronóstico: --</p>
+            <button class="save-btn" data-save disabled>Cargando partido...</button>
           </div>
         </article>
-
-        <article class="match-card" data-match-id="bra-esp">
-          <div class="match-top">
-            <div class="match-meta">
-              <span>Viernes · 16:00</span>
-              <span class="risk-pill risk-high">Riesgo alto</span>
-            </div>
-
-            <div class="teams-row">
-              <div class="team">
-                <span class="flag" aria-hidden="true">🇧🇷</span>
-                <span class="team-code">BR</span>
-                <strong class="team-name">Brasil</strong>
-              </div>
-
-              <span class="vs-badge">VS</span>
-
-              <div class="team team-away">
-                <span class="flag" aria-hidden="true">🇪🇸</span>
-                <span class="team-code">ES</span>
-                <strong class="team-name">España</strong>
-              </div>
-            </div>
-
-            <div class="intelligence-card">
-              <div class="intel-box">
-                <p class="intel-label">Favorito esperado</p>
-                <p class="intel-value">España</p>
-                <p class="intel-sub">Mayor referencia</p>
-              </div>
-
-              <div class="intel-box">
-                <p class="intel-label">Referencia video</p>
-                <p class="intel-value">12.01%</p>
-                <p class="intel-sub">vs Brasil 5.55%</p>
-              </div>
-
-              <div class="intel-box">
-                <p class="intel-label">Lectura PREDIKT™</p>
-                <p class="intel-value">Alta exigencia</p>
-                <p class="intel-sub">Ambos pueden marcar</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="prediction-area">
-            <div class="suggested-score">
-              <div class="suggested-copy">
-                <p class="suggested-label">Pronóstico sugerido</p>
-                <p class="suggested-text">España aparece mejor posicionada, pero Brasil mantiene peligro ofensivo.</p>
-              </div>
-              <strong class="suggested-main">Brasil 1 - 2 España</strong>
-            </div>
-
-            <div class="score-controls">
-              <div class="score-row">
-                <div class="score-team">
-                  <p class="score-team-name">🇧🇷 Brasil</p>
-                  <p class="score-team-help">Goles pronosticados</p>
-                </div>
-                <div class="stepper">
-                  <button class="step-btn" data-action="minus" data-team="home" aria-label="Restar gol a Brasil">−</button>
-                  <span class="score-number" data-score="home">1</span>
-                  <button class="step-btn" data-action="plus" data-team="home" aria-label="Sumar gol a Brasil">+</button>
-                </div>
-              </div>
-
-              <div class="score-row">
-                <div class="score-team">
-                  <p class="score-team-name">🇪🇸 España</p>
-                  <p class="score-team-help">Goles pronosticados</p>
-                </div>
-                <div class="stepper">
-                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a España">−</button>
-                  <span class="score-number" data-score="away">2</span>
-                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a España">+</button>
-                </div>
-              </div>
-            </div>
-
-            <p class="live-preview" data-preview>Tu pronóstico: Brasil 1 - 2 España</p>
-            <button class="save-btn" data-save>Guardar pronóstico</button>
-          </div>
-        </article>
-
-        <article class="match-card" data-match-id="arg-fra">
-          <div class="match-top">
-            <div class="match-meta">
-              <span>Sábado · 13:00</span>
-              <span class="risk-pill risk-high">Riesgo alto</span>
-            </div>
-
-            <div class="teams-row">
-              <div class="team">
-                <span class="flag" aria-hidden="true">🇦🇷</span>
-                <span class="team-code">AR</span>
-                <strong class="team-name">Argentina</strong>
-              </div>
-
-              <span class="vs-badge">VS</span>
-
-              <div class="team team-away">
-                <span class="flag" aria-hidden="true">🇫🇷</span>
-                <span class="team-code">FR</span>
-                <strong class="team-name">Francia</strong>
-              </div>
-            </div>
-
-            <div class="intelligence-card">
-              <div class="intel-box">
-                <p class="intel-label">Favorito esperado</p>
-                <p class="intel-value">Argentina</p>
-                <p class="intel-sub">Mayor avance esperado</p>
-              </div>
-
-              <div class="intel-box">
-                <p class="intel-label">Referencia video</p>
-                <p class="intel-value">Alta</p>
-                <p class="intel-sub">Fuerte expectativa</p>
-              </div>
-
-              <div class="intel-box">
-                <p class="intel-label">Lectura PREDIKT™</p>
-                <p class="intel-value">Partidazo</p>
-                <p class="intel-sub">Marcador probable cerrado</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="prediction-area">
-            <div class="suggested-score">
-              <div class="suggested-copy">
-                <p class="suggested-label">Pronóstico sugerido</p>
-                <p class="suggested-text">Argentina luce fuerte, pero Francia reduce cualquier margen de confianza.</p>
-              </div>
-              <strong class="suggested-main">Argentina 2 - 1 Francia</strong>
-            </div>
-
-            <div class="score-controls">
-              <div class="score-row">
-                <div class="score-team">
-                  <p class="score-team-name">🇦🇷 Argentina</p>
-                  <p class="score-team-help">Goles pronosticados</p>
-                </div>
-                <div class="stepper">
-                  <button class="step-btn" data-action="minus" data-team="home" aria-label="Restar gol a Argentina">−</button>
-                  <span class="score-number" data-score="home">2</span>
-                  <button class="step-btn" data-action="plus" data-team="home" aria-label="Sumar gol a Argentina">+</button>
-                </div>
-              </div>
-
-              <div class="score-row">
-                <div class="score-team">
-                  <p class="score-team-name">🇫🇷 Francia</p>
-                  <p class="score-team-help">Goles pronosticados</p>
-                </div>
-                <div class="stepper">
-                  <button class="step-btn" data-action="minus" data-team="away" aria-label="Restar gol a Francia">−</button>
-                  <span class="score-number" data-score="away">1</span>
-                  <button class="step-btn" data-action="plus" data-team="away" aria-label="Sumar gol a Francia">+</button>
-                </div>
-              </div>
-            </div>
-
-            <p class="live-preview" data-preview>Tu pronóstico: Argentina 2 - 1 Francia</p>
-            <button class="save-btn" data-save>Guardar pronóstico</button>
-          </div>
-        </article>
-      </section>
 
       <aside class="side-column">
         <section class="side-card" aria-label="Coach PREDIKT">
@@ -1272,57 +1114,28 @@
           <div class="coach-box">
             <div class="coach-icon">🎯</div>
             <div>
-              <h3 class="coach-title">No copies a ciegas.</h3>
+              <h3 class="coach-title">El marcador exacto manda.</h3>
               <p class="coach-text">
-                El marcador sugerido es una referencia. Tu ventaja está en detectar cuándo arriesgar.
+                Acertar ganador ayuda, pero acertar marcador exacto será la diferencia en el ranking.
               </p>
             </div>
           </div>
 
           <div class="tips-list">
-            <p class="tip-item"><span class="tip-dot">•</span><span>Un favorito fuerte no siempre gana por goleada.</span></p>
-            <p class="tip-item"><span class="tip-dot">•</span><span>Los partidos de riesgo alto pueden decidir el ranking.</span></p>
-            <p class="tip-item"><span class="tip-dot">•</span><span>Un marcador exacto vale más que solo acertar ganador.</span></p>
+            <p class="tip-item"><span class="tip-dot">•</span><span>Usa la lectura de PREDIKT™ como apoyo, no como obligación.</span></p>
+            <p class="tip-item"><span class="tip-dot">•</span><span>Puedes ajustar tu marcador antes del inicio del partido.</span></p>
+            <p class="tip-item"><span class="tip-dot">•</span><span>Tu pronóstico se guarda con tu sesión real.</span></p>
           </div>
         </section>
 
-        <section class="side-card" aria-label="Ranking rápido">
-          <h2 class="side-card-title">Ranking rápido</h2>
-
-          <div class="ranking-mini">
-            <div class="ranking-row">
-              <span>#1 Pey</span>
-              <span class="ranking-points">140 pts</span>
-            </div>
-
-            <div class="ranking-row">
-              <span>#2 ElTigre</span>
-              <span class="ranking-points">132 pts</span>
-            </div>
-
-            <div class="ranking-row me">
-              <span>#3 Tú</span>
-              <span class="ranking-points">124 pts</span>
-            </div>
-
-            <div class="ranking-row">
-              <span>#4 Andrea</span>
-              <span class="ranking-points">119 pts</span>
-            </div>
+        <section class="side-card" aria-label="Ranking">
+          <h2 class="side-card-title">Ranking</h2>
+          <div class="empty-side-state">
+            El ranking se mostrará cuando existan participantes y puntos reales calificados.
           </div>
         </section>
       </aside>
-    </div>
-
-    <section class="viral-card" aria-label="Crear quiniela">
-      <p class="viral-kicker">Motor viral</p>
-      <h2 class="viral-title">¿Quién de tus amigos le atina al marcador?</h2>
-      <p class="viral-copy">
-        Crea tu quiniela, invita a tus cuates y descubre quién realmente sabe de fútbol.
-      </p>
-      <a class="viral-btn" href="crear-quiniela.html">Crear Quiniela</a>
-    </section>
-  </main>
+</main>
 
   <div class="toast" id="toast" role="status" aria-live="polite">
     Pronóstico guardado. Vas construyendo tu camino al ranking.
@@ -1362,29 +1175,38 @@
 
   <script>
     /*
-      Nombre del bloque: PREDIKT™ Real Prediction Runtime
-      Fecha: 2026-06-09
+      Nombre del bloque: PREDIKT™ Real Next Match Prediction Runtime
+      Fecha: 2026-06-10
       Elaborado por: JVSys™
       Descripción:
-        Protege la pantalla con Supabase Auth, muestra saludo real,
-        guarda pronósticos reales en predictions.predictions y recupera pronósticos existentes.
+        Protege la pantalla con Supabase Auth.
+        Lee el próximo partido real desde sports.v_predikt_home_next_match.
+        Recupera y guarda pronósticos con RPC reales.
+        No usa partidos ni rankings ficticios.
     */
 
     const PREDIKT_DEFAULT_GROUP_ID = "11111111-1111-1111-1111-111111111111";
 
-    const matchLabels = {
-      "mex-rsa": { home: "México", away: "Sudáfrica" },
-      "bra-esp": { home: "Brasil", away: "España" },
-      "arg-fra": { home: "Argentina", away: "Francia" }
-    };
+    let authenticatedUser = null;
+    let currentMatch = null;
 
     const savedMatches = new Set();
-    let authenticatedUser = null;
-
     const progressFill = document.getElementById("progressFill");
     const progressText = document.getElementById("progressText");
     const rewardNote = document.getElementById("rewardNote");
     const toast = document.getElementById("toast");
+    const nextMatchCard = document.getElementById("nextMatchCard");
+
+    const countryFlags = {
+      MX: "🇲🇽",
+      ZA: "🇿🇦",
+      MEX: "🇲🇽",
+      RSA: "🇿🇦",
+      US: "🇺🇸",
+      USA: "🇺🇸",
+      CA: "🇨🇦",
+      CAN: "🇨🇦"
+    };
 
     function safeText(value) {
       return String(value || "").trim();
@@ -1419,7 +1241,29 @@
     }
 
     function clampScore(value) {
-      return Math.max(0, Math.min(9, value));
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) return 0;
+      return Math.max(0, Math.min(20, numeric));
+    }
+
+    function normalizeFlag(countryOrCode) {
+      return countryFlags[String(countryOrCode || "").toUpperCase()] || "⚽";
+    }
+
+    function formatDateLabel(value) {
+      if (!value) return "Horario por confirmar";
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Horario por confirmar";
+
+      return date.toLocaleString("es-MX", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "America/Mexico_City"
+      });
     }
 
     function getCardScores(card) {
@@ -1429,36 +1273,39 @@
       };
     }
 
-    function getPredictedWinner(card, homeScore, awayScore) {
-      const labels = matchLabels[card.dataset.matchId] || { home: "LOCAL", away: "VISITA" };
+    function getCurrentLabels() {
+      return {
+        home: currentMatch?.home_team || "Local",
+        away: currentMatch?.away_team || "Visitante"
+      };
+    }
+
+    function getPredictedWinner(homeScore, awayScore) {
+      const labels = getCurrentLabels();
       if (homeScore > awayScore) return labels.home;
       if (awayScore > homeScore) return labels.away;
       return "EMPATE";
     }
 
     function updatePreview(card) {
-      const labels = matchLabels[card.dataset.matchId] || { home: "Local", away: "Visitante" };
+      const labels = getCurrentLabels();
       const { homeScore, awayScore } = getCardScores(card);
       const preview = card.querySelector("[data-preview]");
       preview.textContent = `Tu pronóstico: ${labels.home} ${homeScore} - ${awayScore} ${labels.away}`;
     }
 
     function updateProgress() {
-      const total = document.querySelectorAll(".match-card").length;
+      const total = currentMatch ? 1 : 0;
       const completed = savedMatches.size;
       const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
 
       progressFill.style.width = `${percent}%`;
-      progressText.textContent = `${completed} de ${total}`;
+      progressText.textContent = `${completed} de ${total || 1}`;
 
-      if (completed === total) {
-        rewardNote.textContent = "⚡ ¡Enrachado desbloqueado! Ya pronosticaste todos los partidos de hoy.";
-      } else if (completed === 2) {
-        rewardNote.textContent = "🔥 Te falta 1 partido para desbloquear: ⚡ Enrachado.";
-      } else if (completed === 1) {
-        rewardNote.textContent = "🔥 Bien. Te faltan 2 partidos para completar la jornada.";
+      if (completed >= total && total > 0) {
+        rewardNote.textContent = "✅ Pronóstico guardado. Puedes editarlo antes del inicio del partido.";
       } else {
-        rewardNote.textContent = "🔥 Pronostica los 3 partidos de hoy y desbloquea el reconocimiento: ⚡ Enrachado.";
+        rewardNote.textContent = "⚽ Guarda tu marcador antes del inicio del partido.";
       }
     }
 
@@ -1472,61 +1319,114 @@
     }
 
     function markCardAsSaved(card) {
-      const matchId = card.dataset.matchId;
+      const eventId = card.dataset.eventId;
       const saveButton = card.querySelector("[data-save]");
-      savedMatches.add(matchId);
+      if (eventId) savedMatches.add(eventId);
       saveButton.classList.add("saved");
       saveButton.textContent = "Pronóstico guardado";
       updateProgress();
     }
 
     function markCardAsUnsaved(card) {
-      const matchId = card.dataset.matchId;
+      const eventId = card.dataset.eventId;
       const saveButton = card.querySelector("[data-save]");
-      savedMatches.delete(matchId);
+      if (eventId) savedMatches.delete(eventId);
       saveButton.classList.remove("saved");
       saveButton.textContent = "Guardar pronóstico";
       updateProgress();
     }
 
+    function renderMatch(match) {
+      currentMatch = match;
+
+      const card = nextMatchCard;
+      card.dataset.eventId = match.event_id;
+      card.dataset.groupId = PREDIKT_DEFAULT_GROUP_ID;
+
+      document.getElementById("matchDateLabel").textContent = formatDateLabel(match.starts_at);
+      document.getElementById("matchStatusLabel").textContent = match.event_status || "SCHEDULED";
+      document.getElementById("eventStatusLabel").textContent = match.event_status || "SCHEDULED";
+      document.getElementById("eventNameLabel").textContent = match.event_name || `${match.home_team} vs ${match.away_team}`;
+
+      document.getElementById("homeFlag").textContent = normalizeFlag(match.home_country || match.home_code);
+      document.getElementById("homeCode").textContent = match.home_code || "--";
+      document.getElementById("homeTeamName").textContent = match.home_team || "Local";
+      document.getElementById("homeScoreTeamName").textContent = `${normalizeFlag(match.home_country || match.home_code)} ${match.home_team || "Local"}`;
+
+      document.getElementById("awayFlag").textContent = normalizeFlag(match.away_country || match.away_code);
+      document.getElementById("awayCode").textContent = match.away_code || "--";
+      document.getElementById("awayTeamName").textContent = match.away_team || "Visitante";
+      document.getElementById("awayScoreTeamName").textContent = `${normalizeFlag(match.away_country || match.away_code)} ${match.away_team || "Visitante"}`;
+
+      document.getElementById("suggestedScoreLabel").textContent = `${match.home_team || "Local"} 2 - 1 ${match.away_team || "Visitante"}`;
+      document.getElementById("suggestedText").textContent = "Referencia inicial PREDIKT™. Ajusta tu marcador según tu criterio.";
+      document.getElementById("prediktReadLabel").textContent = "Partido abierto";
+      document.getElementById("prediktReadSub").textContent = "Marcador exacto recomendado como apoyo.";
+
+      const saveButton = card.querySelector("[data-save]");
+      saveButton.disabled = false;
+      saveButton.textContent = "Guardar pronóstico";
+
+      updatePreview(card);
+      updateProgress();
+    }
+
+    function renderNoMatch() {
+      nextMatchCard.innerHTML = `
+        <div class="prediction-area">
+          <div class="suggested-score">
+            <div class="suggested-copy">
+              <p class="suggested-label">Calendario</p>
+              <p class="suggested-text">No hay partido próximo disponible para pronosticar.</p>
+            </div>
+            <strong class="suggested-main">--</strong>
+          </div>
+        </div>
+      `;
+      progressText.textContent = "0 de 0";
+      rewardNote.textContent = "Cuando haya partido disponible, podrás guardar tu marcador.";
+    }
+
+    async function loadNextMatch() {
+      const client = getSupabaseClient();
+
+      const { data, error } = await client
+        .schema("sports")
+        .from("v_predikt_home_next_match")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) {
+        renderNoMatch();
+        return null;
+      }
+
+      renderMatch(data);
+      return data;
+    }
+
     async function loadExistingPredictions() {
-      if (!authenticatedUser) return;
+      if (!authenticatedUser || !currentMatch?.event_id) return;
 
       try {
         const client = getSupabaseClient();
-        const eventIds = Array.from(document.querySelectorAll(".match-card"))
-          .map((card) => card.dataset.eventId)
-          .filter(Boolean);
-
-        if (eventIds.length === 0) return;
-
-        /*
-          RPC pública segura:
-          Evita leer directamente predictions.predictions desde REST.
-          Requiere migración SQL:
-          public.predikt_get_my_predictions(uuid[])
-        */
         const { data, error } = await client.rpc("predikt_get_my_predictions", {
-          p_event_ids: eventIds
+          p_event_ids: [currentMatch.event_id]
         });
 
         if (error) throw error;
 
-        (data || []).forEach((prediction) => {
-          const card = document.querySelector(`.match-card[data-event-id="${prediction.event_id}"]`);
-          if (!card) return;
+        const prediction = Array.isArray(data) ? data[0] : null;
+        if (!prediction) return;
 
-          card.querySelector('[data-score="home"]').textContent = String(prediction.predicted_home_score ?? 0);
-          card.querySelector('[data-score="away"]').textContent = String(prediction.predicted_away_score ?? 0);
-          updatePreview(card);
-          markCardAsSaved(card);
-        });
+        nextMatchCard.querySelector('[data-score="home"]').textContent = String(prediction.predicted_home_score ?? 0);
+        nextMatchCard.querySelector('[data-score="away"]').textContent = String(prediction.predicted_away_score ?? 0);
+        updatePreview(nextMatchCard);
+        markCardAsSaved(nextMatchCard);
       } catch (error) {
         console.error("PREDIKT™ loadExistingPredictions RPC error:", error);
-        /*
-          No bloquea la pantalla:
-          Si aún no existe la función RPC o no hay pronósticos, el usuario puede seguir capturando.
-        */
       }
     }
 
@@ -1536,45 +1436,26 @@
         return;
       }
 
-      const eventId = card.dataset.eventId;
-      const groupId = card.dataset.groupId || PREDIKT_DEFAULT_GROUP_ID;
-
-      if (!eventId) {
-        showToast("Este partido aún no está conectado al calendario real. Usa México vs Sudáfrica para la primera prueba.");
+      if (!currentMatch?.event_id) {
+        showToast("No hay partido conectado para guardar.");
         return;
       }
 
       const client = getSupabaseClient();
-      const labels = matchLabels[card.dataset.matchId] || { home: "Local", away: "Visitante" };
+      const labels = getCurrentLabels();
       const saveButton = card.querySelector("[data-save]");
       const { homeScore, awayScore } = getCardScores(card);
-
-      const payload = {
-        group_id: groupId,
-        event_id: eventId,
-        user_id: authenticatedUser.id,
-        predicted_home_score: homeScore,
-        predicted_away_score: awayScore,
-        predicted_winner: getPredictedWinner(card, homeScore, awayScore),
-        submitted_at: new Date().toISOString()
-      };
 
       saveButton.disabled = true;
       saveButton.textContent = "Guardando...";
 
       try {
-        /*
-          RPC pública segura:
-          Evita INSERT/UPDATE directo contra predictions.predictions desde REST.
-          Requiere migración SQL:
-          public.predikt_submit_prediction(...)
-        */
         const { data, error } = await client.rpc("predikt_submit_prediction", {
-          p_group_id: payload.group_id,
-          p_event_id: payload.event_id,
-          p_predicted_home_score: payload.predicted_home_score,
-          p_predicted_away_score: payload.predicted_away_score,
-          p_predicted_winner: payload.predicted_winner
+          p_group_id: PREDIKT_DEFAULT_GROUP_ID,
+          p_event_id: currentMatch.event_id,
+          p_predicted_home_score: homeScore,
+          p_predicted_away_score: awayScore,
+          p_predicted_winner: getPredictedWinner(homeScore, awayScore)
         });
 
         if (error) throw error;
@@ -1612,36 +1493,33 @@
         }
 
         renderAuthenticatedUser(authenticatedUser);
-        await loadExistingPredictions();
+        const match = await loadNextMatch();
+        if (match) await loadExistingPredictions();
       } catch (error) {
         console.error("PREDIKT™ pronostico.html initialization error:", error);
-        window.location.href = "login.html";
+        showToast("No se pudo cargar el partido. Revisa conexión Supabase.");
       }
     }
 
-    document.querySelectorAll(".match-card").forEach((card) => {
-      card.addEventListener("click", async (event) => {
-        const button = event.target.closest("[data-action]");
-        const saveButton = event.target.closest("[data-save]");
+    nextMatchCard.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-action]");
+      const saveButton = event.target.closest("[data-save]");
 
-        if (button) {
-          const team = button.dataset.team;
-          const action = button.dataset.action;
-          const scoreElement = card.querySelector(`[data-score="${team}"]`);
-          const currentScore = Number(scoreElement.textContent);
-          const nextScore = action === "plus" ? currentScore + 1 : currentScore - 1;
+      if (button) {
+        const team = button.dataset.team;
+        const action = button.dataset.action;
+        const scoreElement = nextMatchCard.querySelector(`[data-score="${team}"]`);
+        const currentScore = Number(scoreElement.textContent);
+        const nextScore = action === "plus" ? currentScore + 1 : currentScore - 1;
 
-          scoreElement.textContent = String(clampScore(nextScore));
-          markCardAsUnsaved(card);
-          updatePreview(card);
-        }
+        scoreElement.textContent = String(clampScore(nextScore));
+        markCardAsUnsaved(nextMatchCard);
+        updatePreview(nextMatchCard);
+      }
 
-        if (saveButton) {
-          await savePredictionToSupabase(card);
-        }
-      });
-
-      updatePreview(card);
+      if (saveButton) {
+        await savePredictionToSupabase(nextMatchCard);
+      }
     });
 
     updateProgress();
@@ -1652,8 +1530,8 @@
 
 <!--
 Cierre de archivo
-Versión: v2.1.0 RPC Prediction Engine Certified
-Fecha: 2026-06-09
+Versión: v3.0.0 REAL NEXT MATCH ONLY
+Fecha: 2026-06-10
 Elaborado por: JVSys™
-Total de líneas: 1608
+Total de líneas: v3.0.0
 -->
