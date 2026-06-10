@@ -4,14 +4,13 @@
   <!--
     Nombre del archivo: ranking-admin.html
     Fecha: 2026-06-07
-    Versión: v1.0.1 Rankings Management + Admin Guard
+    Versión: v1.0.2 ZERO MOCK ADMIN
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla administrativa para monitoreo del ranking PREDIKT™ durante Beta Pública.
       Permite revisar líder general, movimientos, aciertos, usuarios en ascenso,
-      usuarios en riesgo y proyección de jornada. Versión mobile-first con datos
-      demo/fallback, preparada para conexión posterior con Supabase Ranking Engine,
+      usuarios en riesgo y proyección de jornada. Versión mobile-first con estados reales sin datos demo, preparada para conexión posterior con Supabase Ranking Engine,
       Event Scoring Engine y protección por rol administrador.
     Líneas versión anterior: 0
     Líneas versión nueva: 712
@@ -594,26 +593,26 @@
     <section class="kpi-grid" aria-label="KPIs de ranking">
       <article class="kpi-card" data-icon="🏆">
         <p class="kpi-label">Líder General</p>
-        <p class="kpi-value gold">98</p>
-        <p class="kpi-sub">💎 ElTigre · 1er lugar</p>
+        <p class="kpi-value gold">--</p>
+        <p class="kpi-sub">Sin líder real todavía.</p>
       </article>
 
       <article class="kpi-card" data-icon="📈">
         <p class="kpi-label">Mayor Subida</p>
-        <p class="kpi-value green">+7</p>
-        <p class="kpi-sub">GolMaster subió posiciones.</p>
+        <p class="kpi-value green">--</p>
+        <p class="kpi-sub">Sin movimientos reales todavía.</p>
       </article>
 
       <article class="kpi-card" data-icon="🎯">
         <p class="kpi-label">Mejor Acierto</p>
-        <p class="kpi-value blue">83%</p>
-        <p class="kpi-sub">Precisión máxima individual.</p>
+        <p class="kpi-value blue">--</p>
+        <p class="kpi-sub">Sin aciertos calificados todavía.</p>
       </article>
 
       <article class="kpi-card" data-icon="🔥">
         <p class="kpi-label">Racha Activa</p>
-        <p class="kpi-value orange">4</p>
-        <p class="kpi-sub">Pronósticos correctos seguidos.</p>
+        <p class="kpi-value orange">--</p>
+        <p class="kpi-sub">Sin rachas reales todavía.</p>
       </article>
     </section>
 
@@ -622,24 +621,24 @@
         <div class="section-head">
           <h2 class="section-title">🥇 Líder</h2>
         </div>
-        <p class="row-title">💎 ElTigre</p>
-        <p class="kpi-sub">98 pts · Racha perfecta.</p>
+        <p class="row-title">Sin líder real</p>
+        <p class="kpi-sub">Aparecerá cuando existan puntos reales.</p>
       </article>
 
       <article class="panel-card">
         <div class="section-head">
           <h2 class="section-title">🚀 En ascenso</h2>
         </div>
-        <p class="row-title">GolMaster</p>
-        <p class="kpi-sub">+7 posiciones esta jornada.</p>
+        <p class="row-title">Sin movimientos reales</p>
+        <p class="kpi-sub">Aparecerán después de la primera jornada.</p>
       </article>
 
       <article class="panel-card">
         <div class="section-head">
           <h2 class="section-title">⚠️ En riesgo</h2>
         </div>
-        <p class="row-title">FutboleroMX</p>
-        <p class="kpi-sub">Sin pronósticos recientes.</p>
+        <p class="row-title">Sin alertas reales</p>
+        <p class="kpi-sub">Aparecerán cuando haya actividad verificable.</p>
       </article>
     </section>
 
@@ -682,7 +681,7 @@
     </section>
 
     <p class="admin-note">
-      Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta Ranking Engine, Event Scoring Engine y protección por rol administrador.
+      Vista administrativa no pública. Sin datos demo. Los indicadores aparecerán cuando existan estadísticas reales del Ranking Engine.
     </p>
   </main>
 
@@ -692,25 +691,11 @@
   <script src="assets/js/admin-guard.js"></script>
 
   <script>
-    const movements = [
-      { title: "GolMaster", detail: "Subió 7 posiciones", score: "+7" },
-      { title: "Pey", detail: "Subió 3 posiciones", score: "+3" },
-      { title: "LaQuiniela", detail: "Nueva entrada al ranking", score: "NEW" }
-    ];
+    const movements = [];
 
-    const accuracy = [
-      { title: "💎 ElTigre", detail: "83% de acierto acumulado", score: "83%" },
-      { title: "Javier", detail: "76% de acierto acumulado", score: "76%" },
-      { title: "Pey", detail: "72% de acierto acumulado", score: "72%" }
-    ];
+    const accuracy = [];
 
-    const ranking = [
-      { rank: 1, name: "💎 ElTigre", detail: "Racha perfecta", points: 98, change: "+2", type: "up", accuracy: "83%", picks: 12 },
-      { rank: 2, name: "Pey", detail: "Subiendo rápido", points: 92, change: "+3", type: "up", accuracy: "72%", picks: 10 },
-      { rank: 3, name: "Javier", detail: "Consistente", points: 89, change: "0", type: "stable", accuracy: "76%", picks: 9 },
-      { rank: 4, name: "GolMaster", detail: "Mayor subida", points: 41, change: "+7", type: "up", accuracy: "55%", picks: 4 },
-      { rank: 5, name: "FutboleroMX", detail: "Sin actividad reciente", points: 0, change: "-2", type: "risk", accuracy: "0%", picks: 0 }
-    ];
+    const ranking = [];
 
     const searchInput = document.getElementById("searchInput");
     const filterButtons = document.querySelectorAll("[data-filter]");
@@ -727,6 +712,21 @@
 
     function renderSimpleRows(listId, rows) {
       const list = document.getElementById(listId);
+
+      if (!rows.length) {
+        list.innerHTML = `
+          <div class="data-row">
+            <span class="badge">--</span>
+            <div>
+              <p class="row-title">Sin datos reales todavía</p>
+              <p class="row-sub">Se mostrará cuando el Ranking Engine tenga actividad verificable.</p>
+            </div>
+            <strong class="row-score">--</strong>
+          </div>
+        `;
+        return;
+      }
+
       list.innerHTML = rows.map((row, index) => `
         <div class="data-row">
           <span class="badge">${index + 1}</span>
@@ -772,8 +772,8 @@
           <div class="ranking-row">
             <span class="badge">--</span>
             <div>
-              <p class="row-title">Sin resultados</p>
-              <p class="row-sub">Ajusta búsqueda o filtros.</p>
+              <p class="row-title">Sin ranking real todavía</p>
+              <p class="row-sub">Aparecerá cuando existan participantes y puntos calificados.</p>
             </div>
             <strong class="row-score">0</strong>
           </div>
