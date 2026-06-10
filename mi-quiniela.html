@@ -3,27 +3,31 @@
 <head>
   <!--
     Nombre del archivo: mi-quiniela.html
-    Fecha: 2026-06-04
-    Versión: v1.0
-    Fabricante: JVSys
+    Fecha: 2026-06-10
+    Versión: v2.0.0 ZERO MOCK DATA EDITION
+    Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Primera pantalla real de usuario para PREDIKT™.
-      Pantalla mobile-first tipo aplicación deportiva social.
-      Usa datos simulados para mostrar resumen personal, quiniela activa,
-      próximos partidos, reconocimientos, ranking rápido y motor viral.
-    Líneas versión anterior: 0
-    Líneas versión nueva: 965
+      Pantalla real de usuario para PREDIKT™ sin datos ficticios.
+      Elimina ranking simulado, puntos inventados, reconocimientos ficticios,
+      quinielas demo y partidos hardcodeados.
+      Muestra estados vacíos profesionales hasta que existan datos reales.
+      Próximos partidos se cargan exclusivamente desde Supabase sports.v_event_match_intelligence.
+      Mantiene UX mobile-first y navegación PWA.
+    Líneas versión anterior: 965
+    Líneas versión nueva: 900 aprox.
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>PREDIKT™ | Mi Quiniela</title>
 
-  <meta name="description" content="Mi Quiniela PREDIKT™ - Consulta tu posición, puntos, próximos partidos y ranking de participantes." />
+  <meta name="description" content="Mi Quiniela PREDIKT™ - Consulta tu quiniela, pronósticos reales y próximos partidos." />
   <meta name="theme-color" content="#061826" />
 
-  <link rel="icon" href="assets/logos/predikt-icon.png" />
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
 
   <style>
     :root {
@@ -48,15 +52,9 @@
       --max-width: 520px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       min-height: 100vh;
@@ -69,14 +67,8 @@
       padding-bottom: 92px;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button {
-      font-family: inherit;
-    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; border: 0; cursor: pointer; }
 
     .app-shell {
       width: 100%;
@@ -93,23 +85,30 @@
       margin-bottom: 20px;
     }
 
-    .brand-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .brand-block { display: flex; flex-direction: column; gap: 4px; }
 
     .brand {
-      font-size: 1.35rem;
-      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 1.1rem;
+      font-weight: 950;
       letter-spacing: 0.08em;
       color: var(--white);
     }
 
+    .brand img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+    }
+
     .hello {
-      font-size: 0.98rem;
+      font-size: 0.88rem;
       color: var(--text-soft);
-      font-weight: 700;
+      font-weight: 750;
     }
 
     .level-pill {
@@ -122,7 +121,7 @@
       background: var(--gold-soft);
       border: 1px solid rgba(245, 185, 66, 0.38);
       color: var(--gold);
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 900;
       white-space: nowrap;
       box-shadow: 0 8px 22px rgba(245, 185, 66, 0.08);
@@ -166,61 +165,17 @@
       line-height: 1.12;
       font-weight: 950;
       margin-bottom: 8px;
-      max-width: 330px;
+      max-width: 340px;
     }
 
     .hero-copy {
       color: var(--text-soft);
       font-size: 0.96rem;
       line-height: 1.45;
-      max-width: 340px;
+      max-width: 350px;
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin: 18px 0 22px;
-    }
-
-    .stat-card {
-      min-height: 112px;
-      padding: 16px;
-      border-radius: var(--radius-lg);
-      background:
-        linear-gradient(155deg, rgba(18, 48, 77, 0.98), rgba(10, 31, 52, 0.98));
-      border: 1px solid var(--border);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
-    }
-
-    .stat-label {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--text-soft);
-      font-size: 0.82rem;
-      font-weight: 850;
-      margin-bottom: 10px;
-    }
-
-    .stat-value {
-      font-size: 2.1rem;
-      line-height: 1;
-      font-weight: 950;
-      color: var(--white);
-      letter-spacing: -0.04em;
-    }
-
-    .stat-note {
-      margin-top: 8px;
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      font-weight: 700;
-    }
-
-    .section {
-      margin-top: 24px;
-    }
+    .section { margin-top: 24px; }
 
     .section-header {
       display: flex;
@@ -254,90 +209,77 @@
       overflow: hidden;
     }
 
-    .quiniela-card {
-      position: relative;
+    .empty-card {
+      text-align: center;
+      padding: 24px 18px;
     }
 
-    .quiniela-card::after {
-      content: "PREDIKT";
-      position: absolute;
-      right: -25px;
-      bottom: 18px;
-      color: rgba(255, 255, 255, 0.035);
-      font-size: 3.2rem;
+    .empty-icon {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 13px;
+      border-radius: 20px;
+      background: rgba(245, 185, 66, 0.12);
+      border: 1px solid rgba(245, 185, 66, 0.24);
+      font-size: 1.7rem;
+    }
+
+    .empty-title {
+      font-size: 1.15rem;
       font-weight: 950;
-      letter-spacing: -0.08em;
-      transform: rotate(-8deg);
-      pointer-events: none;
+      margin-bottom: 7px;
     }
 
-    .quiniela-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 18px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .quiniela-name {
-      font-size: 1.5rem;
-      font-weight: 950;
-      margin-bottom: 6px;
-    }
-
-    .quiniela-meta {
+    .empty-copy {
       color: var(--text-soft);
-      font-size: 0.9rem;
-      font-weight: 700;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-weight: 720;
+      margin-bottom: 14px;
     }
 
-    .leader-badge {
-      min-width: 96px;
-      text-align: right;
-    }
-
-    .leader-label {
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      font-weight: 850;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .leader-name {
-      color: var(--gold);
-      font-size: 1.1rem;
-      font-weight: 950;
-    }
-
-    .quiniela-progress {
+    .stats-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
+      gap: 12px;
+      margin: 18px 0 22px;
     }
 
-    .mini-box {
-      padding: 13px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.045);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+    .stat-card {
+      min-height: 104px;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(155deg, rgba(18, 48, 77, 0.98), rgba(10, 31, 52, 0.98));
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
     }
 
-    .mini-label {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 800;
-      margin-bottom: 5px;
+    .stat-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 850;
+      margin-bottom: 10px;
     }
 
-    .mini-value {
-      color: var(--white);
-      font-size: 1.35rem;
+    .stat-value {
+      font-size: 1.8rem;
+      line-height: 1;
       font-weight: 950;
+      color: var(--white);
+      letter-spacing: -0.04em;
+    }
+
+    .stat-note {
+      margin-top: 8px;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 700;
     }
 
     .btn {
@@ -348,19 +290,17 @@
       min-height: 48px;
       border: 0;
       border-radius: 999px;
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 950;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      transition: transform 0.18s ease, opacity 0.18s ease;
       position: relative;
       z-index: 1;
     }
 
-    .btn:active {
-      transform: scale(0.98);
-    }
+    .btn:active { transform: scale(0.98); }
 
     .btn-primary {
       color: #081523;
@@ -372,6 +312,12 @@
       color: var(--white);
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .dual-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
     }
 
     .matches-list {
@@ -408,10 +354,19 @@
       text-align: right;
     }
 
-    .flag {
-      font-size: 1.65rem;
-      line-height: 1;
+    .team-code {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 0.9rem;
+      font-weight: 950;
     }
+
+    .team.right .team-code { margin-left: auto; }
 
     .team-name {
       font-size: 0.92rem;
@@ -461,46 +416,6 @@
       white-space: nowrap;
     }
 
-    .badges-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .badge-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px;
-      border-radius: var(--radius-lg);
-      background: rgba(255, 255, 255, 0.055);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .badge-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      background: rgba(245, 185, 66, 0.14);
-      font-size: 1.3rem;
-    }
-
-    .badge-title {
-      font-size: 0.93rem;
-      font-weight: 950;
-      color: var(--white);
-      margin-bottom: 4px;
-    }
-
-    .badge-copy {
-      color: var(--text-soft);
-      font-size: 0.78rem;
-      font-weight: 700;
-    }
-
     .ranking-list {
       display: flex;
       flex-direction: column;
@@ -517,11 +432,6 @@
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.045);
       border: 1px solid rgba(255, 255, 255, 0.055);
-    }
-
-    .ranking-row.me {
-      background: rgba(245, 185, 66, 0.12);
-      border-color: rgba(245, 185, 66, 0.32);
     }
 
     .rank-number {
@@ -541,57 +451,18 @@
       font-weight: 850;
     }
 
-    .viral-card {
-      position: relative;
-      overflow: hidden;
-      padding: 24px 20px;
-      border-radius: 32px;
-      background:
-        radial-gradient(circle at top right, rgba(245, 185, 66, 0.30), transparent 38%),
-        linear-gradient(145deg, #12304d, #081b2e);
-      border: 1px solid rgba(245, 185, 66, 0.24);
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.36);
-      text-align: center;
-    }
-
-    .viral-card::before {
-      content: "🏆";
-      position: absolute;
-      left: -16px;
-      top: -20px;
-      font-size: 7rem;
-      opacity: 0.08;
-      transform: rotate(-18deg);
-    }
-
-    .viral-kicker {
-      color: var(--gold);
-      font-size: 0.78rem;
-      font-weight: 950;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .viral-title {
-      font-size: 1.55rem;
-      line-height: 1.08;
-      font-weight: 950;
-      margin-bottom: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .viral-copy {
+    .note-card {
+      border-radius: var(--radius-lg);
+      background: rgba(77, 183, 255, 0.08);
+      border: 1px solid rgba(77, 183, 255, 0.17);
+      padding: 15px;
       color: var(--text-soft);
-      font-size: 0.94rem;
-      line-height: 1.42;
-      margin-bottom: 18px;
-      position: relative;
-      z-index: 1;
+      font-size: 0.82rem;
+      font-weight: 740;
+      line-height: 1.45;
     }
+
+    .note-card strong { color: var(--gold); }
 
     .app-footer-nav {
       position: fixed;
@@ -636,30 +507,20 @@
     }
 
     @media (min-width: 760px) {
-      body {
-        padding-bottom: 36px;
-      }
+      body { padding-bottom: 36px; }
 
       .app-shell {
         max-width: 1060px;
         padding: 30px 24px 40px;
       }
 
-      .topbar {
-        margin-bottom: 24px;
-      }
+      .topbar { margin-bottom: 24px; }
 
-      .hero-status {
-        padding: 28px;
-      }
+      .hero-status { padding: 28px; }
 
-      .hero-title {
-        font-size: 2rem;
-      }
+      .hero-title { font-size: 2rem; }
 
-      .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
 
       .desktop-grid {
         display: grid;
@@ -668,12 +529,8 @@
         align-items: start;
       }
 
-      .badges-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .viral-title {
-        font-size: 2rem;
+      .dual-actions {
+        grid-template-columns: 1fr 1fr;
       }
 
       .app-footer-nav {
@@ -691,46 +548,49 @@
   <main class="app-shell">
     <header class="topbar" aria-label="Encabezado de Mi Quiniela">
       <div class="brand-block">
-        <div class="brand">PREDIKT™</div>
-        <div class="hello">Hola Javier 👋</div>
+        <a class="brand" href="index.html" aria-label="Ir a inicio">
+          <img src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+          <span>PREDIKT™</span>
+        </a>
+        <div class="hello" id="userGreeting">Mi Quiniela</div>
       </div>
 
-      <div class="level-pill" aria-label="Nivel actual del participante">
-        📺 Futbolero
-      </div>
+      <a class="level-pill" href="perfil.html" aria-label="Ir a perfil">
+        👤 Perfil
+      </a>
     </header>
 
-    <section class="hero-status" aria-label="Estado personal del participante">
+    <section class="hero-status" aria-label="Estado de quiniela">
       <div class="hero-kicker">Mi Quiniela™</div>
-      <h1 class="hero-title">Vas en zona de pelea.</h1>
-      <p class="hero-copy">
-        Estás en el lugar #3. Pey va arriba, pero todavía hay partidos por pronosticar.
+      <h1 class="hero-title" id="heroTitle">Empieza tu quiniela sin datos inventados.</h1>
+      <p class="hero-copy" id="heroCopy">
+        Cuando tengas pronósticos, puntos o grupos reales, aparecerán aquí. Por ahora te mostramos solo información real de PREDIKT™.
       </p>
     </section>
 
-    <section class="stats-grid" aria-label="Resumen personal">
+    <section class="stats-grid" aria-label="Resumen real">
       <article class="stat-card">
         <div class="stat-label">🏆 Posición</div>
-        <div class="stat-value">#3</div>
-        <div class="stat-note">de 18 participantes</div>
+        <div class="stat-value" id="statPosition">--</div>
+        <div class="stat-note">Sin ranking real todavía</div>
       </article>
 
       <article class="stat-card">
         <div class="stat-label">⭐ Puntos</div>
-        <div class="stat-value">124</div>
-        <div class="stat-note">a 16 del líder</div>
+        <div class="stat-value" id="statPoints">0</div>
+        <div class="stat-note">Se actualizarán al jugar</div>
       </article>
 
       <article class="stat-card">
-        <div class="stat-label">🎯 Aciertos</div>
-        <div class="stat-value">72%</div>
-        <div class="stat-note">buen ritmo</div>
+        <div class="stat-label">🎯 Pronósticos</div>
+        <div class="stat-value" id="statPredictions">0</div>
+        <div class="stat-note">Guardados por el usuario</div>
       </article>
 
       <article class="stat-card">
-        <div class="stat-label">🔥 Racha</div>
-        <div class="stat-value">5</div>
-        <div class="stat-note">pronósticos activos</div>
+        <div class="stat-label">👥 Grupo</div>
+        <div class="stat-value" id="statGroup">--</div>
+        <div class="stat-note">Sin grupo activo</div>
       </article>
     </section>
 
@@ -741,198 +601,77 @@
             <h2 class="section-title">Mi Quiniela</h2>
           </div>
 
-          <article class="main-card quiniela-card">
-            <div class="quiniela-top">
-              <div>
-                <div class="quiniela-name">🏆 Los Cuates</div>
-                <div class="quiniela-meta">18 Participantes</div>
-              </div>
-
-              <div class="leader-badge">
-                <div class="leader-label">Líder</div>
-                <div class="leader-name">Pey</div>
-              </div>
+          <article class="main-card empty-card" id="quinielaStatus">
+            <div class="empty-icon">🏆</div>
+            <h2 class="empty-title">Aún no perteneces a una quiniela.</h2>
+            <p class="empty-copy">
+              Crea una quiniela o únete a una cuando tengas una invitación. No mostraremos grupos, líderes ni puntos ficticios.
+            </p>
+            <div class="dual-actions">
+              <a class="btn btn-primary" href="index.html">Pronosticar primer partido</a>
+              <a class="btn btn-secondary" href="perfil.html">Ver perfil</a>
             </div>
-
-            <div class="quiniela-progress">
-              <div class="mini-box">
-                <div class="mini-label">Tu posición</div>
-                <div class="mini-value">#3</div>
-              </div>
-
-              <div class="mini-box">
-                <div class="mini-label">Tus puntos</div>
-                <div class="mini-value">124</div>
-              </div>
-            </div>
-
-            <a class="btn btn-secondary" href="quiniela.html">Ver Quiniela</a>
           </article>
         </section>
 
-        <section class="section" aria-label="Próximos partidos">
+        <section class="section" aria-label="Próximos partidos reales">
           <div class="section-header">
             <h2 class="section-title">Próximos Partidos</h2>
             <a class="section-link" href="pronostico.html">Ver todos</a>
           </div>
 
-          <div class="matches-list">
-            <article class="match-card">
-              <div class="match-row">
-                <div class="team">
-                  <span class="flag">🇲🇽</span>
-                  <span class="team-name">México</span>
-                </div>
-
-                <div class="vs">VS</div>
-
-                <div class="team right">
-                  <span class="flag">🇩🇪</span>
-                  <span class="team-name">Alemania</span>
-                </div>
-              </div>
-
-              <div class="match-footer">
-                <div class="match-time">Mañana · 19:00</div>
-                <a class="small-action" href="pronostico.html">Pronosticar</a>
-              </div>
-            </article>
-
-            <article class="match-card">
-              <div class="match-row">
-                <div class="team">
-                  <span class="flag">🇧🇷</span>
-                  <span class="team-name">Brasil</span>
-                </div>
-
-                <div class="vs">VS</div>
-
-                <div class="team right">
-                  <span class="flag">🇪🇸</span>
-                  <span class="team-name">España</span>
-                </div>
-              </div>
-
-              <div class="match-footer">
-                <div class="match-time">Viernes · 16:00</div>
-                <a class="small-action" href="pronostico.html">Pronosticar</a>
-              </div>
-            </article>
-
-            <article class="match-card">
-              <div class="match-row">
-                <div class="team">
-                  <span class="flag">🇦🇷</span>
-                  <span class="team-name">Argentina</span>
-                </div>
-
-                <div class="vs">VS</div>
-
-                <div class="team right">
-                  <span class="flag">🇫🇷</span>
-                  <span class="team-name">Francia</span>
-                </div>
-              </div>
-
-              <div class="match-footer">
-                <div class="match-time">Sábado · 13:00</div>
-                <a class="small-action" href="pronostico.html">Pronosticar</a>
-              </div>
+          <div class="matches-list" id="matchesList">
+            <article class="main-card empty-card">
+              <div class="empty-icon">⏳</div>
+              <h2 class="empty-title">Cargando partidos reales...</h2>
+              <p class="empty-copy">PREDIKT™ está consultando el calendario certificado.</p>
             </article>
           </div>
         </section>
       </div>
 
       <div>
-        <section class="section" aria-label="Reconocimientos">
+        <section class="section" aria-label="Reconocimientos reales">
           <div class="section-header">
             <h2 class="section-title">Reconocimientos</h2>
           </div>
 
-          <div class="main-card">
-            <div class="badges-grid">
-              <article class="badge-card">
-                <div class="badge-icon">🔥</div>
-                <div>
-                  <div class="badge-title">Rey de la Jornada</div>
-                  <div class="badge-copy">Ganaste la última jornada.</div>
-                </div>
-              </article>
-
-              <article class="badge-card">
-                <div class="badge-icon">⚡</div>
-                <div>
-                  <div class="badge-title">Enrachado</div>
-                  <div class="badge-copy">Cinco pronósticos activos.</div>
-                </div>
-              </article>
-
-              <article class="badge-card">
-                <div class="badge-icon">🎯</div>
-                <div>
-                  <div class="badge-title">Golpe Maestro</div>
-                  <div class="badge-copy">Le atinaste al marcador clave.</div>
-                </div>
-              </article>
-            </div>
-          </div>
+          <article class="main-card empty-card">
+            <div class="empty-icon">🎖️</div>
+            <h2 class="empty-title">Sin reconocimientos todavía.</h2>
+            <p class="empty-copy">
+              Los reconocimientos aparecerán cuando existan resultados reales y actividad verificable.
+            </p>
+          </article>
         </section>
 
-        <section class="section" aria-label="Ranking rápido">
+        <section class="section" aria-label="Ranking rápido real">
           <div class="section-header">
             <h2 class="section-title">Ranking Rápido</h2>
             <a class="section-link" href="ranking.html">Completo</a>
           </div>
 
-          <article class="main-card">
-            <div class="ranking-list">
-              <div class="ranking-row">
-                <div class="rank-number">#1</div>
-                <div class="rank-name">Pey</div>
-                <div class="rank-points">140 pts</div>
-              </div>
-
-              <div class="ranking-row">
-                <div class="rank-number">#2</div>
-                <div class="rank-name">ElTigre</div>
-                <div class="rank-points">132 pts</div>
-              </div>
-
-              <div class="ranking-row me">
-                <div class="rank-number">#3</div>
-                <div class="rank-name">Javier</div>
-                <div class="rank-points">124 pts</div>
-              </div>
-
-              <div class="ranking-row">
-                <div class="rank-number">#4</div>
-                <div class="rank-name">Andrea</div>
-                <div class="rank-points">119 pts</div>
-              </div>
-
-              <div class="ranking-row">
-                <div class="rank-number">#5</div>
-                <div class="rank-name">Carlos</div>
-                <div class="rank-points">111 pts</div>
-              </div>
+          <article class="main-card" id="rankingCard">
+            <div class="ranking-list" id="rankingList">
+              <article class="empty-card" style="padding:12px;">
+                <div class="empty-icon">📊</div>
+                <h2 class="empty-title">Aún no hay ranking real.</h2>
+                <p class="empty-copy">
+                  Sé de los primeros en pronosticar. El ranking se mostrará cuando haya participantes reales.
+                </p>
+              </article>
             </div>
-
             <a class="btn btn-secondary" href="ranking.html">Ver Ranking</a>
+          </article>
+        </section>
+
+        <section class="section" aria-label="Aviso de transparencia">
+          <article class="note-card">
+            <strong>Transparencia PREDIKT™:</strong> esta pantalla ya no usa datos demo. Si algo aparece aquí, debe venir de datos reales o de un estado vacío profesional.
           </article>
         </section>
       </div>
     </div>
-
-    <section class="section" aria-label="Crear nueva quiniela">
-      <article class="viral-card">
-        <div class="viral-kicker">Motor Viral</div>
-        <h2 class="viral-title">¿Tus amigos dicen que saben de fútbol?</h2>
-        <p class="viral-copy">
-          Invítalos y descubre quién realmente le atina al marcador.
-        </p>
-        <a class="btn btn-primary" href="crear-quiniela.html">Crear Quiniela</a>
-      </article>
-    </section>
 
     <nav class="app-footer-nav" aria-label="Navegación principal de la aplicación">
       <a class="nav-item" href="index.html">
@@ -940,7 +679,7 @@
         <span>Inicio</span>
       </a>
 
-      <a class="nav-item active" href="mi-quiniela.html">
+      <a class="nav-item active" href="mi-quiniela.html" aria-current="page">
         <span class="nav-icon">🏆</span>
         <span>Quiniela</span>
       </a>
@@ -961,5 +700,133 @@
       </a>
     </nav>
   </main>
+
+  <script>
+    const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
+    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+
+    const matchesList = document.getElementById("matchesList");
+
+    function sportsHeaders() {
+      return {
+        "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
+        "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        "Accept": "application/json",
+        "Accept-Profile": "sports"
+      };
+    }
+
+    function splitMatchName(name) {
+      const safeName = name || "Partido por confirmar";
+      const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
+
+      if (parts.length >= 2) {
+        return {
+          home: parts[0].trim(),
+          away: parts[1].trim()
+        };
+      }
+
+      return {
+        home: "Local",
+        away: "Visitante"
+      };
+    }
+
+    function inferCode(name, fallback) {
+      if (!name) return fallback;
+      const clean = String(name).trim();
+      if (clean.length <= 3) return clean.toUpperCase();
+      return clean.slice(0, 2).toUpperCase();
+    }
+
+    function formatMatchDate(value) {
+      if (!value) return "Fecha por confirmar";
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Fecha por confirmar";
+
+      return date.toLocaleString("es-MX", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function renderEmptyMatches(message = "No hay partidos disponibles para mostrar en este momento.") {
+      matchesList.innerHTML = `
+        <article class="main-card empty-card">
+          <div class="empty-icon">⚽</div>
+          <h2 class="empty-title">Sin partidos visibles.</h2>
+          <p class="empty-copy">${message}</p>
+          <a class="btn btn-secondary" href="pronostico.html">Abrir pronósticos</a>
+        </article>
+      `;
+    }
+
+    function renderMatches(rows) {
+      if (!Array.isArray(rows) || rows.length === 0) {
+        renderEmptyMatches();
+        return;
+      }
+
+      matchesList.innerHTML = rows.map((row) => {
+        const teams = splitMatchName(row.event_name || row.name);
+        const homeCode = inferCode(teams.home, "LO");
+        const awayCode = inferCode(teams.away, "VI");
+        const eventId = row.event_id || row.id || "";
+        const detailHref = eventId ? `partido-detalle.html?id=${eventId}` : "partido-detalle.html";
+
+        return `
+          <article class="match-card">
+            <div class="match-row">
+              <div class="team">
+                <span class="team-code">${homeCode}</span>
+                <span class="team-name">${teams.home}</span>
+              </div>
+
+              <div class="vs">VS</div>
+
+              <div class="team right">
+                <span class="team-code">${awayCode}</span>
+                <span class="team-name">${teams.away}</span>
+              </div>
+            </div>
+
+            <div class="match-footer">
+              <div class="match-time">${formatMatchDate(row.starts_at)}</div>
+              <a class="small-action" href="${detailHref}">Pronosticar</a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function loadRealMatches() {
+      try {
+        const response = await fetch(
+          `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=event_id,event_name,name,starts_at,phase_name,group_name,matchday&order=starts_at.asc&limit=3`,
+          {
+            method: "GET",
+            headers: sportsHeaders()
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`v_event_match_intelligence status ${response.status}`);
+        }
+
+        const rows = await response.json();
+        renderMatches(rows);
+      } catch (error) {
+        console.warn("PREDIKT real matches unavailable:", error);
+        renderEmptyMatches("No se pudo consultar el calendario en este momento. No se muestran partidos ficticios.");
+      }
+    }
+
+    loadRealMatches();
+  </script>
 </body>
 </html>
