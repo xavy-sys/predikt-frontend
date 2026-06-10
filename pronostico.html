@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-10
-    Versión: v3.0.0 REAL NEXT MATCH ONLY
+    Versión: v3.1.0 COMPACT CONFIRMATION UX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -12,7 +12,7 @@
       Pantalla mobile-first tipo aplicación deportiva social.
       Conecta la captura de pronósticos con Supabase usando predictions.predictions.
       Integra Auth Guard real, lee el próximo partido desde sports.v_predikt_home_next_match,
-      usa group_id CUATES2026, recupera pronóstico guardado y elimina partidos/ranking demo.
+      usa group_id CUATES2026, recupera pronóstico guardado, elimina partidos/ranking demo y reemplaza la barra larga por confirmación compacta.
     Líneas versión anterior: 1546
     Líneas versión nueva: 1608
   -->
@@ -190,61 +190,7 @@
       font-size: 0.96rem;
       font-weight: 650;
     }
-
-    .progress-panel {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: rgba(15, 39, 64, 0.78);
-      padding: 16px;
-      margin-bottom: 18px;
-    }
-
-    .progress-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .progress-title {
-      font-size: 0.9rem;
-      font-weight: 950;
-      letter-spacing: 0.02em;
-    }
-
-    .progress-count {
-      color: var(--gold);
-      font-size: 0.8rem;
-      font-weight: 950;
-      white-space: nowrap;
-    }
-
-    .progress-bar {
-      height: 12px;
-      overflow: hidden;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
-      box-shadow: 0 0 22px rgba(245, 185, 66, 0.45);
-      transition: width 0.35s ease;
-    }
-
-    .reward-note {
-      margin-top: 12px;
-      color: var(--text-soft);
-      font-size: 0.84rem;
-      font-weight: 750;
-    }
-
-    .layout-grid {
+.layout-grid {
       display: grid;
       grid-template-columns: 1.08fr 0.92fr;
       gap: 18px;
@@ -733,6 +679,31 @@
       box-shadow: 0 14px 30px rgba(245, 185, 66, 0.27);
     }
 
+
+    .compact-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 36px;
+      margin: 0 0 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 820;
+      text-align: center;
+    }
+
+    .compact-status.saved {
+      color: #dfffee;
+      background: rgba(46, 204, 113, 0.14);
+      border-color: rgba(46, 204, 113, 0.30);
+    }
+
+
     .empty-side-state {
       border-radius: var(--radius-md);
       background: rgba(255, 255, 255, 0.045);
@@ -872,20 +843,7 @@
         font-size: 0.84rem;
         max-width: 280px;
       }
-
-      .progress-panel {
-        padding: 14px;
-      }
-
-      .progress-title {
-        font-size: 0.82rem;
-      }
-
-      .progress-count {
-        font-size: 0.74rem;
-      }
-
-      .section-title {
+.section-title {
         font-size: 0.82rem;
       }
 
@@ -1002,25 +960,15 @@
         PREDIKT™ carga el siguiente partido real, te da una lectura inteligente y guarda tu marcador.
       </p>
     </section>
-
-    <section class="progress-panel" aria-label="Avance de pronósticos">
-      <div class="progress-top">
-        <h2 class="progress-title">Pronósticos completados</h2>
-        <span class="progress-count" id="progressText">0 de 1</span>
-      </div>
-      <div class="progress-bar" aria-hidden="true">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <p class="reward-note" id="rewardNote">
-        ⚽ Guarda tu marcador antes del inicio del partido.
-      </p>
-    </section>
-
-    <div class="layout-grid">
+<div class="layout-grid">
       <section class="main-column">
         <div class="section-header">
           <h2 class="section-title">Próximo partido para pronosticar</h2>
           <a class="section-link" href="mi-quiniela.html">Mi Quiniela</a>
+        </div>
+
+        <div class="compact-status" id="compactStatus" aria-live="polite">
+          ⚽ Elige tu marcador y guárdalo antes del inicio.
         </div>
 
         <article class="match-card" id="nextMatchCard" data-match-id="next-match" data-event-id="" data-group-id="11111111-1111-1111-1111-111111111111">
@@ -1191,10 +1139,8 @@
     let currentMatch = null;
 
     const savedMatches = new Set();
-    const progressFill = document.getElementById("progressFill");
-    const progressText = document.getElementById("progressText");
-    const rewardNote = document.getElementById("rewardNote");
     const toast = document.getElementById("toast");
+    const compactStatus = document.getElementById("compactStatus");
     const nextMatchCard = document.getElementById("nextMatchCard");
 
     const countryFlags = {
@@ -1295,19 +1241,19 @@
     }
 
     function updateProgress() {
-      const total = currentMatch ? 1 : 0;
       const completed = savedMatches.size;
-      const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-      progressFill.style.width = `${percent}%`;
-      progressText.textContent = `${completed} de ${total || 1}`;
+      if (!compactStatus) return;
 
-      if (completed >= total && total > 0) {
-        rewardNote.textContent = "✅ Pronóstico guardado. Puedes editarlo antes del inicio del partido.";
+      if (completed > 0) {
+        compactStatus.classList.add("saved");
+        compactStatus.textContent = "✅ Pronóstico guardado. Puedes editarlo antes del inicio.";
       } else {
-        rewardNote.textContent = "⚽ Guarda tu marcador antes del inicio del partido.";
+        compactStatus.classList.remove("saved");
+        compactStatus.textContent = "⚽ Elige tu marcador y guárdalo antes del inicio.";
       }
     }
+
 
     function showToast(message) {
       toast.textContent = message;
@@ -1383,8 +1329,10 @@
           </div>
         </div>
       `;
-      progressText.textContent = "0 de 0";
-      rewardNote.textContent = "Cuando haya partido disponible, podrás guardar tu marcador.";
+      if (compactStatus) {
+        compactStatus.classList.remove("saved");
+        compactStatus.textContent = "Calendario sin partido próximo disponible.";
+      }
     }
 
     async function loadNextMatch() {
@@ -1530,8 +1478,8 @@
 
 <!--
 Cierre de archivo
-Versión: v3.0.0 REAL NEXT MATCH ONLY
+Versión: v3.1.0 COMPACT CONFIRMATION UX
 Fecha: 2026-06-10
 Elaborado por: JVSys™
-Total de líneas: v3.0.0
+Total de líneas: v3.1.0
 -->
