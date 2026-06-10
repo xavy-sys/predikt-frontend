@@ -4,18 +4,18 @@
   <!--
     Nombre del archivo: mi-quiniela.html
     Fecha: 2026-06-10
-    Versión: v2.1.0 PLAYER EXPERIENCE EDITION
+    Versión: v3.0.0 REAL USER PREDICTIONS
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla real de usuario para PREDIKT™ sin datos ficticios.
       Elimina ranking simulado, puntos inventados, reconocimientos ficticios,
       quinielas demo y partidos hardcodeados.
-      Muestra estados humanos orientados al jugador y prepara historial de pronósticos reales.
-      Próximos partidos se cargan exclusivamente desde Supabase sports.v_event_match_intelligence.
+      Muestra pronósticos reales del usuario desde Supabase mediante predikt_get_my_predictions.
+      El próximo partido se carga desde sports.v_predikt_home_next_match y los pronósticos desde RPC real.
       Mantiene UX mobile-first y navegación PWA.
     Líneas versión anterior: 965
-    Líneas versión nueva: 900 aprox.
+    Líneas versión nueva: v3.0.0
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -451,6 +451,29 @@
       font-weight: 850;
     }
 
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 11px;
+      border-radius: 999px;
+      background: rgba(46, 204, 113, 0.13);
+      border: 1px solid rgba(46, 204, 113, 0.28);
+      color: #bfffd8;
+      font-size: 0.72rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status-pill.pending {
+      color: var(--gold);
+      background: rgba(245, 185, 66, 0.12);
+      border-color: rgba(245, 185, 66, 0.28);
+    }
+
+
     .note-card {
       border-radius: var(--radius-lg);
       background: rgba(77, 183, 255, 0.08);
@@ -572,7 +595,7 @@
       <article class="stat-card">
         <div class="stat-label">🏆 Posición</div>
         <div class="stat-value" id="statPosition">--</div>
-        <div class="stat-note">Aparecerá al competir</div>
+        <div class="stat-note">Pendiente de resultados oficiales</div>
       </article>
 
       <article class="stat-card">
@@ -590,7 +613,7 @@
       <article class="stat-card">
         <div class="stat-label">👥 Grupo</div>
         <div class="stat-value" id="statGroup">--</div>
-        <div class="stat-note">Disponible próximamente</div>
+        <div class="stat-note">Grupo de competencia</div>
       </article>
     </section>
 
@@ -603,29 +626,24 @@
 
           <article class="main-card empty-card" id="quinielaStatus">
             <div class="empty-icon">🏆</div>
-            <h2 class="empty-title">Haz tu primer pronóstico</h2>
+            <h2 class="empty-title">Cargando tu quiniela...</h2>
             <p class="empty-copy">
-              Cuando guardes tus predicciones, aquí aparecerá tu actividad.
+              Estamos consultando tus pronósticos reales en PREDIKT™.
             </p>
-            <div class="dual-actions">
-              <a class="btn btn-primary" href="index.html">Pronosticar partido</a>
-              <a class="btn btn-secondary" href="perfil.html">Ver perfil</a>
-            </div>
           </article>
         </section>
 
         <section class="section" aria-label="Mis pronósticos">
           <div class="section-header">
             <h2 class="section-title">Mis Pronósticos</h2>
-            <a class="section-link" href="index.html">Pronosticar</a>
+            <a class="section-link" href="pronostico.html">Pronosticar</a>
           </div>
 
           <div class="matches-list" id="predictionsList">
             <article class="main-card empty-card">
-              <div class="empty-icon">⚽</div>
-              <h2 class="empty-title">Todavía no has realizado pronósticos.</h2>
-              <p class="empty-copy">Haz tu primer marcador desde Inicio y vuelve aquí para consultar tu actividad.</p>
-              <a class="btn btn-primary" href="index.html">Hacer mi pronóstico</a>
+              <div class="empty-icon">⏳</div>
+              <h2 class="empty-title">Cargando pronósticos...</h2>
+              <p class="empty-copy">Estamos consultando tus registros reales.</p>
             </article>
           </div>
         </section>
@@ -696,38 +714,65 @@
     </nav>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+
   <script>
+    /*
+      Nombre del bloque: PREDIKT™ Mi Quiniela Real User Runtime
+      Fecha: 2026-06-10
+      Versión: v3.0.0 REAL USER PREDICTIONS
+      Elaborado por: JVSys™
+      Descripción:
+        Protege sesión con Supabase Auth.
+        Carga el próximo partido real desde sports.v_predikt_home_next_match.
+        Recupera pronósticos reales del usuario mediante predikt_get_my_predictions.
+        Actualiza estadísticas visibles sin datos demo.
+    */
+
+    const PREDIKT_DEFAULT_GROUP_NAME = "Los Cuates";
+
     const predictionsList = document.getElementById("predictionsList");
     const statPredictions = document.getElementById("statPredictions");
+    const statPoints = document.getElementById("statPoints");
+    const statPosition = document.getElementById("statPosition");
+    const statGroup = document.getElementById("statGroup");
+    const quinielaStatus = document.getElementById("quinielaStatus");
+    const userGreeting = document.getElementById("userGreeting");
+    const heroTitle = document.getElementById("heroTitle");
+    const heroCopy = document.getElementById("heroCopy");
 
-    function safeParseJson(value) {
-      try {
-        return value ? JSON.parse(value) : null;
-      } catch {
-        return null;
-      }
+    let authenticatedUser = null;
+    let nextMatch = null;
+
+    function safeText(value) {
+      return String(value || "").trim();
     }
 
-    function getSavedPredictions() {
-      const single = safeParseJson(window.localStorage.getItem("predikt_last_score_prediction"));
-      const history = safeParseJson(window.localStorage.getItem("predikt_score_predictions_history"));
+    function getDisplayName(user) {
+      const metadata = user && user.user_metadata ? user.user_metadata : {};
+      const candidates = [metadata.alias, metadata.full_name, metadata.name, metadata.display_name];
 
-      const predictions = [];
-
-      if (Array.isArray(history)) {
-        predictions.push(...history);
+      for (const candidate of candidates) {
+        const value = safeText(candidate);
+        if (value) return value.split(" ")[0];
       }
 
-      if (single && !predictions.some((item) => item.saved_at === single.saved_at)) {
-        predictions.unshift(single);
-      }
+      const email = safeText(user && user.email);
+      if (email && email.includes("@")) return email.split("@")[0];
+      return "Participante";
+    }
 
-      return predictions.filter(Boolean);
+    function getSupabaseClient() {
+      if (!window.PREDIKT_SUPABASE_READY || !window.prediktSupabase) {
+        throw new Error("Supabase no está disponible.");
+      }
+      return window.prediktSupabase;
     }
 
     function formatSavedAt(value) {
       if (!value) return "Guardado recientemente";
-
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return "Guardado recientemente";
 
@@ -735,7 +780,8 @@
         day: "2-digit",
         month: "short",
         hour: "2-digit",
-        minute: "2-digit"
+        minute: "2-digit",
+        timeZone: "America/Mexico_City"
       });
     }
 
@@ -744,60 +790,166 @@
         <article class="main-card empty-card">
           <div class="empty-icon">⚽</div>
           <h2 class="empty-title">Todavía no has realizado pronósticos.</h2>
-          <p class="empty-copy">Haz tu primer marcador desde Inicio y vuelve aquí para consultar tu actividad.</p>
-          <a class="btn btn-primary" href="index.html">Hacer mi pronóstico</a>
+          <p class="empty-copy">Haz tu primer marcador desde Pronósticos y vuelve aquí para consultar tu actividad.</p>
+          <a class="btn btn-primary" href="pronostico.html">Hacer mi pronóstico</a>
         </article>
       `;
     }
 
-    function renderPredictions() {
-      const predictions = getSavedPredictions();
-
-      if (statPredictions) {
-        statPredictions.textContent = String(predictions.length);
+    function renderActiveQuiniela(count) {
+      if (count > 0) {
+        quinielaStatus.classList.remove("empty-card");
+        quinielaStatus.innerHTML = `
+          <div style="display:grid; gap:12px;">
+            <div>
+              <div class="hero-kicker">Grupo activo</div>
+              <h2 class="empty-title" style="text-align:left;">${PREDIKT_DEFAULT_GROUP_NAME}</h2>
+              <p class="empty-copy" style="text-align:left; margin-bottom:0;">
+                Ya estás participando con ${count} pronóstico${count === 1 ? "" : "s"} registrado${count === 1 ? "" : "s"}.
+              </p>
+            </div>
+            <div class="dual-actions">
+              <a class="btn btn-primary" href="pronostico.html">Editar pronóstico</a>
+              <a class="btn btn-secondary" href="ranking.html">Ver ranking</a>
+            </div>
+          </div>
+        `;
+        return;
       }
 
+      quinielaStatus.classList.add("empty-card");
+      quinielaStatus.innerHTML = `
+        <div class="empty-icon">🏆</div>
+        <h2 class="empty-title">Haz tu primer pronóstico</h2>
+        <p class="empty-copy">Cuando guardes tus predicciones, aquí aparecerá tu actividad.</p>
+        <div class="dual-actions">
+          <a class="btn btn-primary" href="pronostico.html">Pronosticar partido</a>
+          <a class="btn btn-secondary" href="perfil.html">Ver perfil</a>
+        </div>
+      `;
+    }
+
+    function renderPredictions(predictions) {
+      if (statPredictions) statPredictions.textContent = String(predictions.length);
+      if (statPoints) statPoints.textContent = "0";
+      if (statPosition) statPosition.textContent = "--";
+      if (statGroup) statGroup.textContent = predictions.length ? PREDIKT_DEFAULT_GROUP_NAME : "--";
+
+      renderActiveQuiniela(predictions.length);
+
       if (!predictions.length) {
+        heroTitle.textContent = "⚽ Tu temporada comienza aquí";
+        heroCopy.textContent = "Realiza tu primer pronóstico y empieza a competir con tus amigos.";
         renderEmptyPredictions();
         return;
       }
 
+      heroTitle.textContent = "Tu quiniela ya está en juego";
+      heroCopy.textContent = "Consulta tus pronósticos guardados y sigue compitiendo en PREDIKT™.";
+
       predictionsList.innerHTML = predictions.map((prediction) => {
-        const homeName = prediction.home_name || "Local";
-        const awayName = prediction.away_name || "Visitante";
-        const homeScore = Number(prediction.home_score ?? 0);
-        const awayScore = Number(prediction.away_score ?? 0);
-        const interpreted = prediction.interpreted_result || `${homeName} ${homeScore} - ${awayScore} ${awayName}`;
+        const homeName = nextMatch?.home_team || "Local";
+        const awayName = nextMatch?.away_team || "Visitante";
+        const homeCode = nextMatch?.home_code || homeName.slice(0, 2).toUpperCase();
+        const awayCode = nextMatch?.away_code || awayName.slice(0, 2).toUpperCase();
+        const homeScore = Number(prediction.predicted_home_score ?? 0);
+        const awayScore = Number(prediction.predicted_away_score ?? 0);
+        const winner = prediction.predicted_winner || (homeScore === awayScore ? "EMPATE" : homeScore > awayScore ? homeName : awayName);
+        const matchName = nextMatch?.event_name || `${homeName} vs ${awayName}`;
 
         return `
           <article class="match-card">
             <div class="match-row">
               <div class="team">
-                <span class="team-code">${homeName.slice(0,2).toUpperCase()}</span>
+                <span class="team-code">${homeCode}</span>
                 <span class="team-name">${homeName}</span>
               </div>
 
               <div class="vs">${homeScore}-${awayScore}</div>
 
               <div class="team right">
-                <span class="team-code">${awayName.slice(0,2).toUpperCase()}</span>
+                <span class="team-code">${awayCode}</span>
                 <span class="team-name">${awayName}</span>
               </div>
             </div>
 
             <div class="match-footer">
               <div class="match-time">
-                <strong>Mi pronóstico:</strong> ${interpreted}<br />
-                <span>Estado: Pendiente · ${formatSavedAt(prediction.saved_at)}</span>
+                <strong>${matchName}</strong><br />
+                <span>Mi pronóstico: ${homeName} ${homeScore} - ${awayScore} ${awayName}</span><br />
+                <span>Resultado elegido: ${winner}</span><br />
+                <span>Estado: Pendiente · ${formatSavedAt(prediction.submitted_at)}</span>
               </div>
-              <a class="small-action" href="index.html">Editar</a>
+              <a class="small-action" href="pronostico.html">Editar</a>
             </div>
           </article>
         `;
       }).join("");
     }
 
-    renderPredictions();
+    async function loadNextMatch() {
+      const client = getSupabaseClient();
+
+      const { data, error } = await client
+        .schema("sports")
+        .from("v_predikt_home_next_match")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      nextMatch = data || null;
+      return nextMatch;
+    }
+
+    async function loadMyPredictions() {
+      if (!nextMatch?.event_id) return [];
+
+      const client = getSupabaseClient();
+      const { data, error } = await client.rpc("predikt_get_my_predictions", {
+        p_event_ids: [nextMatch.event_id]
+      });
+
+      if (error) throw error;
+      return Array.isArray(data) ? data : [];
+    }
+
+    async function initializeMiQuiniela() {
+      try {
+        if (!window.PrediktAuth) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const session = await window.PrediktAuth.requireAuth();
+        if (!session) return;
+
+        authenticatedUser = session.user || await window.PrediktAuth.getCurrentUser();
+        if (!authenticatedUser) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const displayName = getDisplayName(authenticatedUser);
+        userGreeting.textContent = `Hola ${displayName} 👋`;
+
+        await loadNextMatch();
+        const predictions = await loadMyPredictions();
+        renderPredictions(predictions);
+      } catch (error) {
+        console.error("PREDIKT™ Mi Quiniela error:", error);
+        predictionsList.innerHTML = `
+          <article class="main-card empty-card">
+            <div class="empty-icon">⚠️</div>
+            <h2 class="empty-title">No pudimos cargar tu quiniela</h2>
+            <p class="empty-copy">Revisa conexión Supabase o vuelve a iniciar sesión.</p>
+            <a class="btn btn-primary" href="pronostico.html">Ir a Pronósticos</a>
+          </article>
+        `;
+      }
+    }
+
+    initializeMiQuiniela();
   </script>
 </body>
 </html>
