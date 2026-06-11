@@ -1,26 +1,365 @@
-<!-- =========================================================
-PREDIKT™ ADMIN DASHBOARD NAVIGATION UPDATE
-Archivo: dashboard-admin_navigation_update_v1.1.0.txt
-Versión: v1.1.0
-Fecha: 2026-06-10
-Uso:
-  Insertar esta tarjeta/enlace dentro del bloque de navegación o grid admin de dashboard-admin.html.
-  No sustituye el archivo completo porque dashboard-admin.html no fue cargado en este hilo.
-========================================================= -->
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Archivo: dashboard-admin.html
+    Proyecto: PREDIKT™
+    Versión: v1.1.0 ADMIN NAVIGATION RESTORE
+    Fecha: 2026-06-10
+    Fabricante: JVSys™
+    Descripción:
+      Dashboard administrativo completo mobile-first.
+      Corrige sustitución accidental por snippet de navegación.
+      Integra acceso a usuarios-admin.html.
+      Mantiene navegación admin certificada:
+        dashboard-admin.html
+        usuarios-admin.html
+        partidos-admin.html
+        pronosticos-admin.html
+        ranking-admin.html
+        fundadores-admin.html
+      Requiere sesión Supabase y valida acceso SUPER_ADMIN mediante RPC
+      public.predikt_current_admin_access() cuando está disponible.
+      No expone Service Role Key.
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Dashboard Admin v1.1.0</title>
+  <meta name="description" content="Panel administrativo de PREDIKT™." />
+  <meta name="theme-color" content="#061826" />
 
-<a class="admin-card" href="usuarios-admin.html" aria-label="Administrar usuarios registrados">
-  <div class="admin-card-icon">👥</div>
-  <div class="admin-card-content">
-    <strong>Usuarios</strong>
-    <span>Usuarios registrados, roles, fundadores, pronósticos y puntos.</span>
-  </div>
-</a>
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
 
-<!-- Navegación admin certificada:
-  dashboard-admin.html
-  usuarios-admin.html
-  partidos-admin.html
-  pronosticos-admin.html
-  ranking-admin.html
-  fundadores-admin.html
--->
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-deep: #020b13;
+      --bg-card: #0f2740;
+      --bg-card-2: #132f4c;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --green: #48f29a;
+      --red: #ff5a5f;
+      --blue: #5dade2;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --border: rgba(255,255,255,0.11);
+      --shadow: 0 18px 45px rgba(0,0,0,0.35);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --app-max: 760px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg-main); }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(245,185,66,0.16), transparent 26%),
+        radial-gradient(circle at top right, rgba(72,242,154,0.10), transparent 24%),
+        linear-gradient(145deg, #061826 0%, #04111d 52%, #020b13 100%);
+      padding-bottom: 28px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { border: 0; font: inherit; cursor: pointer; }
+
+    .app-shell {
+      width: min(100%, var(--app-max));
+      margin: 0 auto;
+      padding: 18px 14px 0;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: -18px -14px 16px;
+      padding: 15px 14px 12px;
+      background: linear-gradient(180deg, rgba(6,24,38,0.98), rgba(6,24,38,0.90));
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .brand { display: inline-flex; align-items: center; gap: 9px; min-width: 0; }
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+    .brand-text { display: grid; gap: 2px; min-width: 0; }
+    .brand-name { font-size: 0.98rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 0.66rem; font-weight: 820; white-space: nowrap; }
+
+    .header-actions { display: inline-flex; gap: 8px; align-items: center; }
+    .header-link,
+    .logout-btn {
+      min-height: 38px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 0.70rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .header-link { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .logout-btn { color: var(--text-main); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(245,185,66,0.24);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.20), transparent 34%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: -18px;
+      width: 128px;
+      height: 128px;
+      background: url("assets/logos/predikt-logo.png") center / contain no-repeat;
+      opacity: 0.09;
+      transform: rotate(12deg);
+      pointer-events: none;
+    }
+    .hero-kicker { color: var(--gold); font-size: 0.74rem; font-weight: 980; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+    .hero-title { max-width: 360px; font-size: clamp(1.6rem, 7vw, 2.45rem); font-weight: 980; line-height: 0.98; letter-spacing: -0.045em; margin-bottom: 9px; }
+    .hero-copy { max-width: 420px; color: var(--text-soft); font-size: 0.86rem; font-weight: 720; }
+
+    .status-card {
+      display: none;
+      border-radius: var(--radius-lg);
+      padding: 13px 14px;
+      margin-bottom: 14px;
+      color: var(--text-soft);
+      background: rgba(93,173,226,0.10);
+      border: 1px solid rgba(93,173,226,0.20);
+      font-size: 0.82rem;
+      font-weight: 820;
+    }
+    .status-card.show { display: block; }
+    .status-card.error { background: rgba(255,90,95,0.12); border-color: rgba(255,90,95,0.35); color: #fff; }
+    .status-card.success { background: rgba(72,242,154,0.10); border-color: rgba(72,242,154,0.24); color: #fff; }
+
+    .admin-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+
+    .admin-card {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 86px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(15,39,64,0.86);
+      padding: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+    }
+    .admin-card.featured { border-color: rgba(245,185,66,0.32); background: linear-gradient(145deg, rgba(15,39,64,0.96), rgba(58,44,18,0.58)); }
+    .admin-card-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 1.25rem;
+      font-weight: 980;
+    }
+    .admin-card-content { min-width: 0; display: grid; gap: 4px; }
+    .admin-card-content strong { font-size: 0.94rem; font-weight: 980; }
+    .admin-card-content span { color: var(--text-muted); font-size: 0.72rem; font-weight: 760; line-height: 1.25; }
+    .admin-arrow { color: var(--gold); font-size: 1.2rem; font-weight: 980; }
+
+    .section-title {
+      margin: 18px 2px 10px;
+      color: var(--text-soft);
+      font-size: 0.76rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .footer-note {
+      margin: 16px 2px 0;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      font-weight: 760;
+      text-align: center;
+    }
+
+    @media (min-width: 720px) {
+      .admin-grid { grid-template-columns: 1fr 1fr; }
+      .admin-card.featured { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado administrador PREDIKT">
+      <a class="brand" href="dashboard-admin.html" aria-label="Dashboard Admin PREDIKT">
+        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">Admin Console</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <a class="header-link" href="index.html">App</a>
+        <button class="logout-btn" id="logoutBtn" type="button">Salir</button>
+      </div>
+    </header>
+
+    <section class="hero-card" aria-label="Panel de administración">
+      <p class="hero-kicker">🔐 SUPER_ADMIN</p>
+      <h1 class="hero-title">Centro de Control PREDIKT™</h1>
+      <p class="hero-copy">Administra usuarios, partidos, pronósticos, ranking y fundadores desde una consola mobile-first.</p>
+    </section>
+
+    <div class="status-card" id="statusCard">Validando acceso...</div>
+
+    <h2 class="section-title">Módulos administrativos</h2>
+
+    <section class="admin-grid" aria-label="Navegación administrativa">
+      <a class="admin-card featured" href="usuarios-admin.html" aria-label="Administrar usuarios registrados">
+        <div class="admin-card-icon">👥</div>
+        <div class="admin-card-content">
+          <strong>Usuarios</strong>
+          <span>Usuarios registrados, roles, fundadores, pronósticos y puntos.</span>
+        </div>
+        <div class="admin-arrow">›</div>
+      </a>
+
+      <a class="admin-card" href="partidos-admin.html" aria-label="Administrar partidos">
+        <div class="admin-card-icon">⚽</div>
+        <div class="admin-card-content">
+          <strong>Partidos</strong>
+          <span>Eventos, horarios, sedes, grupos y estado competitivo.</span>
+        </div>
+        <div class="admin-arrow">›</div>
+      </a>
+
+      <a class="admin-card" href="pronosticos-admin.html" aria-label="Administrar pronósticos">
+        <div class="admin-card-icon">🎯</div>
+        <div class="admin-card-content">
+          <strong>Pronósticos</strong>
+          <span>Pronósticos capturados, auditoría y operación de scoring.</span>
+        </div>
+        <div class="admin-arrow">›</div>
+      </a>
+
+      <a class="admin-card" href="ranking-admin.html" aria-label="Administrar ranking">
+        <div class="admin-card-icon">🏆</div>
+        <div class="admin-card-content">
+          <strong>Ranking</strong>
+          <span>Puntos, posiciones, estadísticas y tablero competitivo.</span>
+        </div>
+        <div class="admin-arrow">›</div>
+      </a>
+
+      <a class="admin-card" href="fundadores-admin.html" aria-label="Administrar fundadores">
+        <div class="admin-card-icon">💎</div>
+        <div class="admin-card-content">
+          <strong>Fundadores</strong>
+          <span>Fundadores, pagos, diamante y estado del programa.</span>
+        </div>
+        <div class="admin-arrow">›</div>
+      </a>
+    </section>
+
+    <p class="footer-note">PREDIKT™ Admin Console v1.1.0 · Powered by JVSys™</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script>
+    function getClient() {
+      if (window.PrediktSupabaseClient) return window.PrediktSupabaseClient;
+      if (window.PREDIKT_SUPABASE_CLIENT) return window.PREDIKT_SUPABASE_CLIENT;
+      if (window.supabase && window.PREDIKT_SUPABASE_URL && window.PREDIKT_SUPABASE_ANON_KEY) {
+        return window.supabase.createClient(window.PREDIKT_SUPABASE_URL, window.PREDIKT_SUPABASE_ANON_KEY);
+      }
+      return null;
+    }
+
+    function setStatus(message, type = "info") {
+      const statusCard = document.getElementById("statusCard");
+      statusCard.textContent = message;
+      statusCard.className = `status-card show ${type}`;
+    }
+
+    async function validateAdminAccess() {
+      const client = getClient();
+
+      if (!client) {
+        setStatus("No se encontró el cliente Supabase. Revisa assets/js/supabase.js.", "error");
+        return;
+      }
+
+      const { data: sessionData, error: sessionError } = await client.auth.getSession();
+
+      if (sessionError || !sessionData?.session) {
+        window.location.href = "login.html?redirect=dashboard-admin.html";
+        return;
+      }
+
+      const { data, error } = await client.rpc("predikt_current_admin_access");
+
+      if (error) {
+        console.warn("predikt_current_admin_access unavailable or rejected:", error);
+        setStatus("Sesión activa. Si un módulo niega acceso, valida rol SUPER_ADMIN.", "success");
+        return;
+      }
+
+      const access = Array.isArray(data) ? data[0] : data;
+      const allowed = Boolean(access?.is_admin || access?.is_super_admin || access?.allowed || access?.can_access_admin);
+
+      if (!allowed) {
+        setStatus("Acceso denegado. Esta consola es solo para SUPER_ADMIN.", "error");
+        document.querySelectorAll(".admin-card").forEach((card) => {
+          card.addEventListener("click", (event) => event.preventDefault());
+          card.style.opacity = "0.45";
+        });
+        return;
+      }
+
+      setStatus("Acceso SUPER_ADMIN validado.", "success");
+    }
+
+    async function logout() {
+      const client = getClient();
+      if (client) await client.auth.signOut();
+      window.location.href = "login.html";
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+    document.addEventListener("DOMContentLoaded", validateAdminAccess);
+  </script>
+</body>
+</html>
