@@ -1133,11 +1133,25 @@
   </nav>
 
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    function hidePrediktLoader(){const loader=document.getElementById("prediktLoader");if(loader)loader.classList.add("hide");}
-    window.addEventListener("load",()=>{window.setTimeout(hidePrediktLoader,450);});
-    window.setTimeout(()=>{const copy=document.getElementById("prediktLoaderCopy");if(copy)copy.textContent="Estamos preparando tu experiencia PREDIKT™...";},1800);
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    function hidePrediktLoader() {
+      const loader = document.getElementById("prediktLoader");
+      if (loader) loader.classList.add("hide");
+    }
 
+    window.addEventListener("load", () => {
+      window.setTimeout(hidePrediktLoader, 450);
+    });
+
+    window.setTimeout(() => {
+      const copy = document.getElementById("prediktLoaderCopy");
+      if (copy) copy.textContent = "Estamos preparando tu experiencia PREDIKT™...";
+    }, 1800);
+
+    window.setTimeout(() => {
+      hidePrediktLoader();
+    }, 5500);
   </script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/auth.js"></script>
@@ -1467,6 +1481,8 @@
       } catch (error) {
         console.error("PREDIKT™ pronostico.html initialization error:", error);
         showToast("No se pudo cargar el partido. Revisa conexión Supabase.");
+      } finally {
+        hidePrediktLoader();
       }
     }
 
@@ -1499,7 +1515,7 @@
 
 <!--
 Cierre de archivo
-Versión: v3.1.0 COMPACT CONFIRMATION UX
+Versión: v3.2.1 LOADER FIX
 Fecha: 2026-06-10
 Elaborado por: JVSys™
 Total de líneas: v3.1.0
