@@ -1,15 +1,14 @@
 {
-  "name": "PREDIKT™",
+  "name": "PREDIKT™ · Copa Global 2026™",
   "short_name": "PREDIKT",
-  "description": "Predice, compite y gana con tus pronósticos deportivos.",
-  "start_url": "/",
+  "description": "Predice, compite y gana con tus pronósticos deportivos. Powered by JVSys™.",
+  "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#061826",
+  "theme_color": "#061826",
   "lang": "es-MX",
-
   "icons": [
     {
       "src": "/assets/icons/predikt-icon-192.png",
