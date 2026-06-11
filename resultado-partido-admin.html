@@ -1,1 +1,196 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: resultado-partido-admin.html
+    Fecha: 2026-06-11
+    Versión: v1.0.0 Official Result Capture
+    Fabricante: JVSys™
+    Proyecto: PREDIKT™
+    Descripción:
+      Pantalla operativa para capturar resultado oficial de un partido finalizado.
+      Llama a predictions.predikt_admin_set_official_result y dispara scoring real.
+      No muestra métricas públicas de comunidad.
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Resultado Oficial</title>
+  <meta name="theme-color" content="#061826" />
+  <link rel="icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <style>
+    :root{--bg:#061826;--card:#0f2740;--soft:#12304d;--gold:#f5b942;--text:#fff;--muted:#b9c7d6;--border:rgba(255,255,255,.11);--green:#2ecc71;--red:#ff5a5f;--shadow:0 18px 45px rgba(0,0,0,.35)}
+    *{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top right,rgba(245,185,66,.15),transparent 28%),linear-gradient(180deg,#061826,#020b13);color:var(--text);padding-bottom:94px}.shell{width:min(100%,760px);margin:0 auto;padding:20px 16px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-weight:950;letter-spacing:.08em}.pill{padding:8px 12px;border-radius:999px;background:rgba(245,185,66,.12);border:1px solid rgba(245,185,66,.35);color:var(--gold);font-size:.74rem;font-weight:900}.hero,.card{border:1px solid var(--border);border-radius:26px;background:linear-gradient(145deg,rgba(15,39,64,.98),rgba(8,30,50,.98));box-shadow:var(--shadow)}.hero{padding:22px;margin-bottom:16px}.kicker{color:var(--gold);font-size:.72rem;font-weight:950;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.hero h1{font-size:1.7rem;line-height:1.05;margin-bottom:8px}.copy{color:var(--muted);font-size:.9rem;line-height:1.42}.card{padding:16px;margin-bottom:14px}.field{display:grid;gap:7px;margin-bottom:13px}label{font-size:.75rem;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.06em}select,input{width:100%;min-height:46px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);padding:0 12px;font-weight:850}option{color:#061826}.score{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{width:100%;min-height:50px;border:0;border-radius:999px;background:linear-gradient(135deg,#ffe28a,var(--gold));color:#061826;font-weight:950;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}.btn.secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--border)}.status{padding:13px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-size:.86rem;font-weight:760;line-height:1.4}.status.ok{background:rgba(46,204,113,.12);border-color:rgba(46,204,113,.32);color:#dfffee}.status.err{background:rgba(255,90,95,.12);border-color:rgba(255,90,95,.32);color:#ffd8d9}.footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:9px 10px 11px;background:rgba(4,17,29,.96);border:1px solid var(--border);border-bottom:0;border-radius:22px 22px 0 0}.footer a{color:#7f95aa;text-decoration:none;text-align:center;font-size:.62rem;font-weight:850}.footer span{display:block;font-size:1rem}.footer .active{color:var(--gold);background:rgba(245,185,66,.12);border-radius:14px;padding:6px 2px}@media(max-width:560px){.score{grid-template-columns:1fr}.hero h1{font-size:1.4rem}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <a class="brand" href="dashboard-admin.html" style="color:inherit;text-decoration:none">PREDIKT™</a>
+      <span class="pill">Resultado Oficial</span>
+    </header>
+
+    <section class="hero">
+      <div class="kicker">Operación Post-Partido</div>
+      <h1>Captura el resultado final y califica pronósticos.</h1>
+      <p class="copy">Esta pantalla debe usarse solo cuando el partido ya terminó. Al guardar, PREDIKT™ calcula puntos reales para cada usuario.</p>
+    </section>
+
+    <section class="card">
+      <div class="field">
+        <label for="matchSelect">Partido</label>
+        <select id="matchSelect"><option value="">Cargando partidos...</option></select>
+      </div>
+
+      <div class="score">
+        <div class="field">
+          <label id="homeLabel" for="homeScore">Goles local</label>
+          <input id="homeScore" type="number" min="0" max="30" value="0" />
+        </div>
+        <div class="field">
+          <label id="awayLabel" for="awayScore">Goles visitante</label>
+          <input id="awayScore" type="number" min="0" max="30" value="0" />
+        </div>
+      </div>
+
+      <button class="btn" id="saveResultBtn" type="button">Guardar resultado y calificar</button>
+    </section>
+
+    <section class="card">
+      <div class="kicker">Estado</div>
+      <div class="status" id="statusBox">Esperando captura del resultado oficial.</div>
+    </section>
+
+    <section class="card">
+      <div class="kicker">Validación inmediata</div>
+      <p class="copy">Después de guardar, valida Mi Quiniela y Ranking. No publiques tendencia de comunidad todavía.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+        <a class="btn secondary" href="mi-quiniela.html" style="display:grid;place-items:center;text-decoration:none">Mi Quiniela</a>
+        <a class="btn secondary" href="ranking.html" style="display:grid;place-items:center;text-decoration:none">Ranking</a>
+      </div>
+    </section>
+  </main>
+
+  <nav class="footer">
+    <a href="index.html"><span>🏠</span>Inicio</a>
+    <a href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a href="pronostico.html"><span>🎯</span>Pronóstico</a>
+    <a href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="active" href="resultado-partido-admin.html"><span>✅</span>Resultado</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const matchSelect = document.getElementById('matchSelect');
+    const statusBox = document.getElementById('statusBox');
+    const homeScore = document.getElementById('homeScore');
+    const awayScore = document.getElementById('awayScore');
+    const homeLabel = document.getElementById('homeLabel');
+    const awayLabel = document.getElementById('awayLabel');
+    const saveResultBtn = document.getElementById('saveResultBtn');
+    let matches = [];
+
+    function setStatus(message, type=''){
+      statusBox.className = `status ${type}`.trim();
+      statusBox.textContent = message;
+    }
+
+    function getClient(){
+      if(!window.PREDIKT_SUPABASE_READY || !window.prediktSupabase){
+        throw new Error('Supabase no está disponible.');
+      }
+      return window.prediktSupabase;
+    }
+
+    function fmtDate(value){
+      if(!value) return 'Sin horario';
+      const d = new Date(value);
+      if(Number.isNaN(d.getTime())) return 'Sin horario';
+      return d.toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'America/Mexico_City'});
+    }
+
+    function normalize(row){
+      return {
+        event_id: row.event_id || row.id,
+        event_name: row.event_name || row.name || `${row.home_team || 'Local'} vs ${row.away_team || 'Visitante'}`,
+        starts_at: row.starts_at || row.start_time || row.event_start_at,
+        home_team: row.home_team || row.home_team_name || row.home_name || 'Local',
+        away_team: row.away_team || row.away_team_name || row.away_name || 'Visitante'
+      };
+    }
+
+    function renderMatches(){
+      if(!matches.length){
+        matchSelect.innerHTML = '<option value="">Sin partidos disponibles</option>';
+        return;
+      }
+      matchSelect.innerHTML = matches.map((m,i)=>`<option value="${i}">${m.event_name} · ${fmtDate(m.starts_at)}</option>`).join('');
+      updateLabels();
+    }
+
+    function updateLabels(){
+      const m = matches[Number(matchSelect.value || 0)];
+      if(!m) return;
+      homeLabel.textContent = `Goles ${m.home_team}`;
+      awayLabel.textContent = `Goles ${m.away_team}`;
+    }
+
+    async function loadMatches(){
+      const client = getClient();
+      const { data, error } = await client.schema('sports')
+        .from('v_event_match_intelligence_api')
+        .select('*')
+        .order('starts_at', { ascending: true })
+        .limit(72);
+      if(error) throw error;
+      matches = Array.isArray(data) ? data.map(normalize).filter(m=>m.event_id) : [];
+      renderMatches();
+      setStatus('Selecciona el partido finalizado y captura el marcador oficial.');
+    }
+
+    async function saveResult(){
+      const match = matches[Number(matchSelect.value || 0)];
+      if(!match){ setStatus('Selecciona un partido válido.', 'err'); return; }
+      const h = Number(homeScore.value);
+      const a = Number(awayScore.value);
+      if(!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0){
+        setStatus('Marcador inválido.', 'err'); return;
+      }
+      saveResultBtn.disabled = true;
+      saveResultBtn.textContent = 'Guardando...';
+      try{
+        const client = getClient();
+        const { data, error } = await client.schema('predictions').rpc('predikt_admin_set_official_result', {
+          p_event_id: match.event_id,
+          p_home_score: h,
+          p_away_score: a
+        });
+        if(error) throw error;
+        setStatus(`✅ Resultado guardado: ${match.home_team} ${h} - ${a} ${match.away_team}. Puntos calculados: ${data?.scoring?.scored_predictions ?? 'ver SQL'}.`, 'ok');
+      }catch(err){
+        console.error(err);
+        setStatus(`No se pudo guardar: ${err.message || 'revisa permisos/RPC'}.`, 'err');
+      }finally{
+        saveResultBtn.disabled = false;
+        saveResultBtn.textContent = 'Guardar resultado y calificar';
+      }
+    }
+
+    async function init(){
+      try{
+        if(window.PrediktAuth){ await window.PrediktAuth.requireAuth(); }
+        await loadMatches();
+      }catch(err){
+        console.error(err);
+        setStatus(`Error de inicialización: ${err.message || 'revisa sesión/Supabase'}.`, 'err');
+      }
+    }
+
+    matchSelect.addEventListener('change', updateLabels);
+    saveResultBtn.addEventListener('click', saveResult);
+    init();
+  </script>
+</body>
+</html>
 
