@@ -944,9 +944,7 @@
 
     .match-navigation-panel {
       display: grid;
-      grid-template-columns: 1fr auto;
       gap: 10px;
-      align-items: center;
       margin: 10px 0 12px;
       padding: 11px 12px;
       border-radius: 18px;
@@ -961,13 +959,35 @@
       line-height: 1.25;
     }
 
-    .next-match-btn {
+    .match-picker-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .match-select {
+      width: 100%;
       min-height: 38px;
-      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      padding: 0 12px;
+      font-size: 0.70rem;
+      font-weight: 880;
+      outline: none;
+    }
+
+    .match-select option { color: #061826; }
+
+    .match-nav-btn {
+      min-height: 38px;
+      padding: 0 13px;
       border-radius: 999px;
       color: #061826;
       background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-weight: 980;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -975,7 +995,7 @@
       box-shadow: 0 10px 22px rgba(245, 185, 66, 0.18);
     }
 
-    .next-match-btn:disabled {
+    .match-nav-btn:disabled {
       opacity: 0.55;
       cursor: not-allowed;
       box-shadow: none;
@@ -1020,7 +1040,16 @@
         grid-template-columns: 1fr;
       }
 
-      .next-match-btn {
+      .match-picker-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .match-select {
+        grid-column: 1 / -1;
+        order: -1;
+      }
+
+      .match-nav-btn {
         width: 100%;
       }
     }
@@ -1073,7 +1102,13 @@
 
         <div class="match-navigation-panel" aria-label="Navegación de partidos próximos">
           <p class="match-counter-text" id="matchCounterText">Cargando próximos partidos...</p>
-          <button class="next-match-btn" id="nextMatchButton" type="button" disabled>Siguiente partido</button>
+          <div class="match-picker-row">
+            <button class="match-nav-btn" id="prevMatchButton" type="button" disabled>Anterior</button>
+            <select class="match-select" id="matchSelect" aria-label="Buscar o elegir partido">
+              <option value="">Cargando partidos...</option>
+            </select>
+            <button class="match-nav-btn" id="nextMatchButton" type="button" disabled>Siguiente</button>
+          </div>
         </div>
 
         <article class="match-card" id="nextMatchCard" data-match-id="next-match" data-event-id="" data-group-id="11111111-1111-1111-1111-111111111111">
@@ -1276,6 +1311,8 @@
     const nextMatchCard = document.getElementById("nextMatchCard");
     const matchCounterText = document.getElementById("matchCounterText");
     const nextMatchButton = document.getElementById("nextMatchButton");
+    const prevMatchButton = document.getElementById("prevMatchButton");
+    const matchSelect = document.getElementById("matchSelect");
 
     const countryFlags = {
       MX: "🇲🇽",
@@ -1285,8 +1322,67 @@
       US: "🇺🇸",
       USA: "🇺🇸",
       CA: "🇨🇦",
-      CAN: "🇨🇦"
+      CAN: "🇨🇦",
+      KR: "🇰🇷",
+      KOR: "🇰🇷",
+      CZ: "🇨🇿",
+      CZE: "🇨🇿",
+      CR: "🇨🇿",
+      BRA: "🇧🇷",
+      BR: "🇧🇷",
+      ARG: "🇦🇷",
+      AR: "🇦🇷",
+      FRA: "🇫🇷",
+      FR: "🇫🇷",
+      ESP: "🇪🇸",
+      ES: "🇪🇸",
+      ENG: "🏴",
+      GB: "🇬🇧",
+      JP: "🇯🇵",
+      JPN: "🇯🇵",
+      CRO: "🇭🇷",
+      HR: "🇭🇷",
+      MAR: "🇲🇦",
+      MA: "🇲🇦",
+      POR: "🇵🇹",
+      PT: "🇵🇹",
+      SUI: "🇨🇭",
+      CH: "🇨🇭",
+      NED: "🇳🇱",
+      NL: "🇳🇱",
+      SEN: "🇸🇳",
+      PL: "🇵🇱",
+      POL: "🇵🇱"
     };
+
+    function normalizeTeamName(value) {
+      const raw = safeText(value);
+      const key = raw.toLowerCase();
+      const map = {
+        "chequia": "República Checa",
+        "czechia": "República Checa",
+        "czech republic": "República Checa",
+        "corea": "Corea del Sur",
+        "south korea": "Corea del Sur",
+        "usa": "Estados Unidos",
+        "eeuu": "Estados Unidos",
+        "united states": "Estados Unidos",
+        "países bajos": "Países Bajos",
+        "netherlands": "Países Bajos"
+      };
+      return map[key] || raw;
+    }
+
+    function normalizeMatchName(value, home, away) {
+      const explicit = safeText(value);
+      if (!explicit) return `${home || "Local"} vs ${away || "Visitante"}`;
+      return explicit
+        .replace(/\bChequia\b/gi, "República Checa")
+        .replace(/\bCzechia\b/gi, "República Checa")
+        .replace(/\bCzech Republic\b/gi, "República Checa")
+        .replace(/\bSouth Korea\b/gi, "Corea del Sur")
+        .replace(/\bUnited States\b/gi, "Estados Unidos");
+    }
 
     function safeText(value) {
       return String(value || "").trim();
@@ -1419,13 +1515,17 @@
     function normalizeUpcomingMatch(row) {
       if (!row) return null;
 
+      const homeTeam = normalizeTeamName(row.home_team || row.home_team_name || row.home_name || "Local");
+      const awayTeam = normalizeTeamName(row.away_team || row.away_team_name || row.away_name || "Visitante");
+      const eventName = normalizeMatchName(row.event_name || row.name, homeTeam, awayTeam);
+
       return {
         event_id: row.event_id || row.id || "",
-        event_name: row.event_name || row.name || `${row.home_team_name || row.home_team || "Local"} vs ${row.away_team_name || row.away_team || "Visitante"}`,
+        event_name: eventName,
         event_status: row.event_status || row.status || row.predikt_status_label || "SCHEDULED",
         starts_at: row.starts_at || row.start_time || row.event_start_at || null,
-        home_team: row.home_team || row.home_team_name || row.home_name || "Local",
-        away_team: row.away_team || row.away_team_name || row.away_name || "Visitante",
+        home_team: homeTeam,
+        away_team: awayTeam,
         home_code: row.home_code || row.home_team_code || row.home_country_code || "--",
         away_code: row.away_code || row.away_team_code || row.away_country_code || "--",
         home_country: row.home_country || row.home_flag_code || row.home_country_code || row.home_team_code || "",
@@ -1500,13 +1600,26 @@
 
       if (matchCounterText) {
         matchCounterText.textContent = total > 1
-          ? `Partido ${current} de ${total}. Puedes avanzar al siguiente próximo partido.`
+          ? `Partido ${current} de ${total}. Usa Anterior/Siguiente o elige un partido de la lista.`
           : "Mostrando el próximo partido disponible.";
       }
 
+      if (prevMatchButton) prevMatchButton.disabled = total <= 1;
       if (nextMatchButton) {
         nextMatchButton.disabled = total <= 1;
-        nextMatchButton.textContent = total > 1 ? "Siguiente partido" : "Sin más partidos";
+        nextMatchButton.textContent = total > 1 ? "Siguiente" : "Sin más partidos";
+      }
+
+      if (matchSelect) {
+        const currentValue = String(currentMatchIndex);
+        matchSelect.innerHTML = total
+          ? upcomingMatches.map((match, index) => {
+              const label = `${index + 1}. ${match.home_team} vs ${match.away_team} · ${formatDateLabel(match.starts_at)}`;
+              return `<option value="${index}">${label}</option>`;
+            }).join("")
+          : '<option value="">Sin partidos disponibles</option>';
+        matchSelect.value = currentValue;
+        matchSelect.disabled = total <= 1;
       }
     }
 
@@ -1710,12 +1823,30 @@
     }
 
 
+    if (prevMatchButton) {
+      prevMatchButton.addEventListener("click", async () => {
+        if (!upcomingMatches.length) return;
+        const match = await loadNextMatch(currentMatchIndex - 1);
+        if (match) await loadExistingPredictions();
+        showToast("Mostrando partido anterior.");
+      });
+    }
+
     if (nextMatchButton) {
       nextMatchButton.addEventListener("click", async () => {
         if (!upcomingMatches.length) return;
         const match = await loadNextMatch(currentMatchIndex + 1);
         if (match) await loadExistingPredictions();
         showToast("Mostrando siguiente partido próximo.");
+      });
+    }
+
+    if (matchSelect) {
+      matchSelect.addEventListener("change", async () => {
+        const index = Number(matchSelect.value);
+        if (!Number.isFinite(index)) return;
+        const match = await loadNextMatch(index);
+        if (match) await loadExistingPredictions();
       });
     }
 
