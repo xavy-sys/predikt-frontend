@@ -4,13 +4,14 @@
   <!--
     Nombre del archivo: resultado-partido-admin.html
     Fecha: 2026-06-11
-    Versión: v1.0.0 Official Result Capture
+    Versión: v1.1.0 Official Result Capture Connected
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Pantalla operativa para capturar resultado oficial de un partido finalizado.
       Llama a predictions.predikt_admin_set_official_result y dispara scoring real.
       No muestra métricas públicas de comunidad.
+      v1.1.0 agrega regreso claro al Dashboard Admin y navegación operativa conectada.
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,7 +27,7 @@
   <main class="shell">
     <header class="top">
       <a class="brand" href="dashboard-admin.html" style="color:inherit;text-decoration:none">PREDIKT™</a>
-      <span class="pill">Resultado Oficial</span>
+      <a class="pill" href="dashboard-admin.html" style="text-decoration:none">Dashboard Admin</a>
     </header>
 
     <section class="hero">
@@ -64,8 +65,10 @@
       <div class="kicker">Validación inmediata</div>
       <p class="copy">Después de guardar, valida Mi Quiniela y Ranking. No publiques tendencia de comunidad todavía.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
-        <a class="btn secondary" href="mi-quiniela.html" style="display:grid;place-items:center;text-decoration:none">Mi Quiniela</a>
+        <a class="btn secondary" href="dashboard-admin.html" style="display:grid;place-items:center;text-decoration:none">Dashboard Admin</a>
         <a class="btn secondary" href="ranking.html" style="display:grid;place-items:center;text-decoration:none">Ranking</a>
+        <a class="btn secondary" href="mi-quiniela.html" style="display:grid;place-items:center;text-decoration:none">Mi Quiniela</a>
+        <a class="btn secondary" href="pronosticos-admin.html" style="display:grid;place-items:center;text-decoration:none">Pronósticos Admin</a>
       </div>
     </section>
   </main>
@@ -193,4 +196,3 @@
   </script>
 </body>
 </html>
-
