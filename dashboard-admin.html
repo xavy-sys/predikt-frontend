@@ -4,16 +4,16 @@
   <!--
     Archivo: dashboard-admin.html
     Proyecto: PREDIKT™
-    Versión: v1.1.0 ADMIN NAVIGATION RESTORE
-    Fecha: 2026-06-10
+    Versión: v1.1.1 ADMIN USERS ROUTE FIX
+    Fecha: 2026-06-11
     Fabricante: JVSys™
     Descripción:
       Dashboard administrativo completo mobile-first.
       Corrige sustitución accidental por snippet de navegación.
-      Integra acceso a usuarios-admin.html.
+      Integra acceso a usuarios.html como módulo certificado de usuarios reales.
       Mantiene navegación admin certificada:
         dashboard-admin.html
-        usuarios-admin.html
+        usuarios.html
         partidos-admin.html
         pronosticos-admin.html
         ranking-admin.html
@@ -24,7 +24,7 @@
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PREDIKT™ | Dashboard Admin v1.1.0</title>
+  <title>PREDIKT™ | Dashboard Admin v1.1.1</title>
   <meta name="description" content="Panel administrativo de PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
@@ -247,7 +247,7 @@
     <h2 class="section-title">Módulos administrativos</h2>
 
     <section class="admin-grid" aria-label="Navegación administrativa">
-      <a class="admin-card featured" href="usuarios-admin.html" aria-label="Administrar usuarios registrados">
+      <a class="admin-card featured" href="usuarios.html" aria-label="Administrar usuarios registrados">
         <div class="admin-card-icon">👥</div>
         <div class="admin-card-content">
           <strong>Usuarios</strong>
@@ -293,7 +293,7 @@
       </a>
     </section>
 
-    <p class="footer-note">PREDIKT™ Admin Console v1.1.0 · Powered by JVSys™</p>
+    <p class="footer-note">PREDIKT™ Admin Console v1.1.1 · Powered by JVSys™</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
