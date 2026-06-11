@@ -1,1 +1,254 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Archivo: fundadores-admin.html
+    Proyecto: PREDIKT™
+    Versión: v1.0.0 REAL DATA ONLY
+    Fecha: 2026-06-10
+    Fabricante: JVSys™
+    Descripción:
+      Panel administrativo de Fundadores PREDIKT™.
+      No contiene datos ficticios.
+      Consulta exclusivamente la RPC segura public.predikt_admin_list_founders().
+      No expone Service Role Key.
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Fundadores Admin v1.0.0</title>
+  <meta name="theme-color" content="#061826" />
+  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
+
+  <style>
+    :root {
+      --bg: #061826;
+      --deep: #020b13;
+      --card: #0f2740;
+      --card2: #132f4c;
+      --gold: #f5b942;
+      --gold2: #ffe28a;
+      --green: #48f29a;
+      --red: #ff5a5f;
+      --text: #ffffff;
+      --muted: #9fb2c7;
+      --border: rgba(255,255,255,.12);
+      --max: 760px;
+      --footer: 78px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top right, rgba(72,242,154,.10), transparent 28%), linear-gradient(145deg, var(--bg), var(--deep));
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 16px 12px calc(var(--footer) + 18px);
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    .shell { width: min(100%, var(--max)); margin: 0 auto; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; border-bottom:1px solid var(--border); padding: 8px 0 14px; margin-bottom:14px; }
+    .brand { display:flex; align-items:center; gap:10px; }
+    .brand img { width:34px; height:34px; object-fit:contain; }
+    .brand strong { font-weight:980; letter-spacing:.08em; }
+    .brand small { display:block; color:var(--muted); font-size:.68rem; font-weight:800; }
+    .top-actions { display:flex; gap:8px; }
+    .pill-btn { border:1px solid var(--border); background:rgba(255,255,255,.08); color:#fff; border-radius:999px; padding:10px 14px; font-size:.75rem; font-weight:950; text-transform:uppercase; }
+    .hero { border:1px solid rgba(245,185,66,.32); border-radius:28px; background:radial-gradient(circle at 100% 0%, rgba(245,185,66,.14), transparent 28%), linear-gradient(145deg, rgba(15,39,64,.98), rgba(20,37,44,.96)); padding:18px; box-shadow:0 18px 45px rgba(0,0,0,.30); margin-bottom:14px; }
+    .kicker { color:var(--gold); font-size:.72rem; font-weight:980; letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
+    h1 { font-size:clamp(1.65rem, 5.6vw, 2.45rem); line-height:1; letter-spacing:-.05em; margin-bottom:8px; }
+    .copy { color:#d5e3f2; font-size:.82rem; font-weight:800; }
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px; }
+    .stat { border:1px solid var(--border); background:rgba(255,255,255,.065); border-radius:17px; padding:12px 8px; text-align:center; }
+    .stat strong { display:block; color:var(--gold); font-size:1.2rem; font-weight:980; }
+    .stat span { color:#d9e6f5; font-size:.62rem; font-weight:900; }
+    .nav { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin: 10px 0 12px; }
+    .nav a { min-height:40px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.07); display:grid; place-items:center; font-size:.72rem; font-weight:950; }
+    .nav a.active { color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold2)); }
+    .tools { display:grid; grid-template-columns:1fr auto; gap:8px; margin-bottom:10px; }
+    .search { min-height:45px; border:1px solid var(--border); background:rgba(255,255,255,.07); border-radius:18px; padding:0 14px; color:#fff; outline:none; font-weight:800; }
+    .action { min-height:45px; border:0; border-radius:999px; padding:0 16px; color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold2)); font-weight:980; text-transform:uppercase; cursor:pointer; }
+    .message { display:none; border-radius:16px; padding:12px 14px; margin-bottom:10px; font-size:.78rem; font-weight:850; }
+    .message.show { display:block; }
+    .message.error { background:rgba(255,90,95,.14); border:1px solid rgba(255,90,95,.45); }
+    .message.ok { background:rgba(72,242,154,.12); border:1px solid rgba(72,242,154,.35); }
+    .list { display:grid; gap:10px; }
+    .row { border:1px solid var(--border); border-radius:22px; background:rgba(15,39,64,.86); padding:14px; display:grid; gap:10px; }
+    .row-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .name { font-size:.98rem; font-weight:980; }
+    .email { color:var(--muted); font-size:.7rem; font-weight:800; margin-top:2px; word-break:break-word; }
+    .badge { border-radius:999px; padding:7px 10px; color:#061826; background:linear-gradient(135deg,var(--gold),var(--gold2)); font-size:.68rem; font-weight:980; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+    .cell { border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.055); border-radius:15px; padding:10px; }
+    .cell b { display:block; color:var(--gold); font-size:.82rem; }
+    .cell span { display:block; color:var(--muted); font-size:.6rem; font-weight:900; text-transform:uppercase; margin-top:2px; }
+    .empty { text-align:center; color:var(--muted); border:1px dashed var(--border); border-radius:20px; padding:20px; font-weight:850; }
+    .footer { position:fixed; left:50%; bottom:0; transform:translateX(-50%); width:min(100%, var(--max)); display:grid; grid-template-columns:repeat(5,1fr); gap:4px; padding:8px 10px 10px; border:1px solid var(--border); border-bottom:0; border-radius:24px 24px 0 0; background:rgba(4,17,29,.98); backdrop-filter:blur(16px); }
+    .footer a { color:var(--muted); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 2px; border-radius:14px; font-size:.58rem; font-weight:850; }
+    .footer a.active { color:var(--gold); background:rgba(245,185,66,.12); border:1px solid rgba(245,185,66,.22); }
+    @media (max-width:520px){ .stats{grid-template-columns:repeat(2,1fr)} .nav{grid-template-columns:1fr 1fr} .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="dashboard-admin.html">
+        <img src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <span><strong>PREDIKT™</strong><small>Admin Console</small></span>
+      </a>
+      <div class="top-actions">
+        <a class="pill-btn" href="dashboard-admin.html">Panel</a>
+        <button class="pill-btn" id="logoutBtn" type="button">Salir</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="kicker">💎 Fundadores registrados</p>
+      <h1>Control de fundadores PREDIKT™</h1>
+      <p class="copy">Lista real de fundadores, aportaciones y estado. Sin datos ficticios.</p>
+      <div class="stats">
+        <div class="stat"><strong id="totalFounders">0</strong><span>Fundadores</span></div>
+        <div class="stat"><strong id="activeFounders">0</strong><span>Activos</span></div>
+        <div class="stat"><strong id="totalAmount">$0</strong><span>Aportado</span></div>
+        <div class="stat"><strong id="founderSlots">100</strong><span>Cupo</span></div>
+      </div>
+    </section>
+
+    <nav class="nav" aria-label="Navegación admin">
+      <a href="dashboard-admin.html">Dashboard</a>
+      <a href="usuarios-admin.html">Usuarios</a>
+      <a href="partidos-admin.html">Partidos</a>
+      <a href="pronosticos-admin.html">Pronósticos</a>
+      <a href="ranking-admin.html">Ranking</a>
+      <a class="active" href="fundadores-admin.html">Fundadores</a>
+    </nav>
+
+    <section class="tools">
+      <input id="searchInput" class="search" type="search" placeholder="Buscar fundador, correo, alias o referencia..." />
+      <button id="refreshBtn" class="action" type="button">Actualizar</button>
+    </section>
+
+    <div id="message" class="message"></div>
+    <section id="foundersList" class="list" aria-label="Lista de fundadores"></section>
+  </main>
+
+  <nav class="footer" aria-label="Navegación principal">
+    <a href="index.html"><span>🏠</span>Inicio</a>
+    <a href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="active" href="perfil.html"><span>👤</span>Perfil</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://bhsffngulgvwfzjhiymy.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let allFounders = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function showMessage(text, type = "error") {
+      const el = $("message");
+      el.textContent = text;
+      el.className = `message show ${type}`;
+    }
+
+    function clearMessage() {
+      const el = $("message");
+      el.textContent = "";
+      el.className = "message";
+    }
+
+    function money(value, currency = "MXN") {
+      const amount = Number(value || 0);
+      return amount.toLocaleString("es-MX", { style: "currency", currency: currency || "MXN", maximumFractionDigits: 0 });
+    }
+
+    function dateText(value) {
+      if (!value) return "Sin fecha";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return "Sin fecha";
+      return d.toLocaleString("es-MX", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function renderStats(rows) {
+      const total = rows.length;
+      const active = rows.filter(r => String(r.founder_status || "").toUpperCase() !== "INACTIVO").length;
+      const amount = rows.reduce((sum, r) => sum + Number(r.contribution_amount || 0), 0);
+      $("totalFounders").textContent = total;
+      $("activeFounders").textContent = active;
+      $("totalAmount").textContent = money(amount);
+      $("founderSlots").textContent = Math.max(100 - total, 0);
+    }
+
+    function founderCard(row) {
+      const number = row.founder_number && Number(row.founder_number) > 0 ? `#${row.founder_number}` : "💎";
+      const name = row.alias || row.first_name || "Fundador";
+      return `
+        <article class="row">
+          <div class="row-head">
+            <div>
+              <div class="name">💎 ${name}</div>
+              <div class="email">${row.email || "Sin correo"}</div>
+            </div>
+            <span class="badge">${number}</span>
+          </div>
+          <div class="grid">
+            <div class="cell"><b>${row.founder_status || "Activo"}</b><span>Estado</span></div>
+            <div class="cell"><b>${money(row.contribution_amount, row.currency_code)}</b><span>Aportación</span></div>
+            <div class="cell"><b>${dateText(row.joined_at)}</b><span>Ingreso</span></div>
+            <div class="cell"><b>${row.payment_provider || "Mercado Pago"}</b><span>Proveedor</span></div>
+            <div class="cell"><b>${row.payment_reference || "Sin referencia"}</b><span>Referencia</span></div>
+            <div class="cell"><b>${row.currency_code || "MXN"}</b><span>Moneda</span></div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderFounders() {
+      const query = String($("searchInput").value || "").toLowerCase().trim();
+      const rows = allFounders.filter((r) => {
+        const text = `${r.email || ""} ${r.alias || ""} ${r.first_name || ""} ${r.payment_reference || ""} ${r.founder_status || ""}`.toLowerCase();
+        return !query || text.includes(query);
+      });
+      renderStats(rows);
+      $("foundersList").innerHTML = rows.length ? rows.map(founderCard).join("") : `<div class="empty">No hay fundadores registrados todavía.</div>`;
+    }
+
+    async function ensureSession() {
+      const { data } = await client.auth.getSession();
+      if (!data.session) {
+        window.location.href = "login.html";
+        return null;
+      }
+      return data.session;
+    }
+
+    async function loadFounders() {
+      clearMessage();
+      await ensureSession();
+      const { data, error } = await client.rpc("predikt_admin_list_founders");
+      if (error) {
+        allFounders = [];
+        renderFounders();
+        showMessage(`No se pudieron cargar fundadores: ${error.message}`);
+        return;
+      }
+      allFounders = Array.isArray(data) ? data : [];
+      renderFounders();
+      if (!allFounders.length) showMessage("No hay fundadores registrados todavía.", "ok");
+    }
+
+    $("refreshBtn").addEventListener("click", loadFounders);
+    $("searchInput").addEventListener("input", renderFounders);
+    $("logoutBtn").addEventListener("click", async () => {
+      await client.auth.signOut();
+      window.location.href = "login.html";
+    });
+
+    loadFounders();
+  </script>
+</body>
+</html>
 
