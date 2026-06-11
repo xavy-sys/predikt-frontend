@@ -1101,7 +1101,7 @@
         </div>
 
         <div class="match-navigation-panel" aria-label="Navegación de partidos próximos">
-          <p class="match-counter-text" id="matchCounterText">Cargando próximos partidos...</p>
+          <p class="match-counter-text" id="matchCounterText">Fase de Grupos · Cargando próximos partidos...</p>
           <div class="match-picker-row">
             <button class="match-nav-btn" id="prevMatchButton" type="button" disabled>Anterior</button>
             <select class="match-select" id="matchSelect" aria-label="Buscar o elegir partido">
@@ -1600,8 +1600,8 @@
 
       if (matchCounterText) {
         matchCounterText.textContent = total > 1
-          ? `Partido ${current} de ${total}. Usa Anterior/Siguiente o elige un partido de la lista.`
-          : "Mostrando el próximo partido disponible.";
+          ? `Fase de Grupos · Partido ${current} de ${total}. Usa Anterior/Siguiente o elige un partido de la lista.`
+          : "Fase de Grupos · Mostrando el próximo partido disponible.";
       }
 
       if (prevMatchButton) prevMatchButton.disabled = total <= 1;
