@@ -942,6 +942,90 @@
     }
   
 
+    .match-navigation-panel {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0 12px;
+      padding: 11px 12px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .match-counter-text {
+      color: var(--text-soft);
+      font-size: 0.76rem;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+
+    .next-match-btn {
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.68rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: 0 10px 22px rgba(245, 185, 66, 0.18);
+    }
+
+    .next-match-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .predikt-visible-recommendation {
+      display: grid;
+      gap: 7px;
+      margin: 0 0 12px;
+      padding: 13px;
+      border-radius: 20px;
+      border: 1px solid rgba(72, 242, 154, 0.24);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(72, 242, 154, 0.15), transparent 30%),
+        rgba(72, 242, 154, 0.075);
+    }
+
+    .predikt-visible-kicker {
+      color: var(--green);
+      font-size: 0.66rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .predikt-visible-title {
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 980;
+      line-height: 1.12;
+    }
+
+    .predikt-visible-copy {
+      color: var(--text-soft);
+      font-size: 0.74rem;
+      font-weight: 780;
+      line-height: 1.32;
+    }
+
+    @media (max-width: 640px) {
+      .match-navigation-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .next-match-btn {
+        width: 100%;
+      }
+    }
+
+
     .predikt-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(circle at 50% 15%,rgba(245,185,66,.16),transparent 30%),linear-gradient(145deg,rgba(6,24,38,.98),rgba(2,11,19,.98));color:#fff;transition:opacity .24s ease,visibility .24s ease}.predikt-loader.hide{opacity:0;visibility:hidden;pointer-events:none}.predikt-loader-card{width:min(86vw,320px);display:grid;justify-items:center;gap:10px;text-align:center;border:1px solid rgba(245,185,66,.24);border-radius:28px;padding:24px 18px;background:rgba(15,39,64,.88);box-shadow:0 18px 45px rgba(0,0,0,.35)}.predikt-loader-ball{width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#f5b942,#ffe28a);color:#061826;font-size:1.7rem;animation:prediktSpin 1.05s linear infinite}.predikt-loader-title{font-size:.92rem;font-weight:980;letter-spacing:.08em;text-transform:uppercase}.predikt-loader-copy{color:#c9d7e6;font-size:.78rem;font-weight:760}.powered-jvsys{color:#f5b942;font-size:.62rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}@keyframes prediktSpin{from{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.06)}to{transform:rotate(360deg) scale(1)}}
 
   </style>
@@ -985,6 +1069,11 @@
 
         <div class="compact-status" id="compactStatus" aria-live="polite">
           ⚽ Elige tu marcador y guárdalo antes del inicio.
+        </div>
+
+        <div class="match-navigation-panel" aria-label="Navegación de partidos próximos">
+          <p class="match-counter-text" id="matchCounterText">Cargando próximos partidos...</p>
+          <button class="next-match-btn" id="nextMatchButton" type="button" disabled>Siguiente partido</button>
         </div>
 
         <article class="match-card" id="nextMatchCard" data-match-id="next-match" data-event-id="" data-group-id="11111111-1111-1111-1111-111111111111">
@@ -1032,6 +1121,12 @@
           </div>
 
           <div class="prediction-area">
+            <div class="predikt-visible-recommendation" aria-label="Pronóstico visible PREDIKT">
+              <p class="predikt-visible-kicker">🎯 Pronóstico PREDIKT™</p>
+              <h3 class="predikt-visible-title" id="prediktVisibleTitle">PREDIKT™ está calculando la recomendación.</h3>
+              <p class="predikt-visible-copy" id="prediktVisibleCopy">La referencia aparecerá aquí antes de que ajustes tu marcador.</p>
+            </div>
+
             <div class="suggested-score">
               <div class="suggested-copy">
                 <p class="suggested-label">Pronóstico sugerido</p>
@@ -1317,6 +1412,100 @@
       updateProgress();
     }
 
+    function normalizeUpcomingMatch(row) {
+      if (!row) return null;
+
+      return {
+        event_id: row.event_id || row.id || "",
+        event_name: row.event_name || row.name || `${row.home_team_name || row.home_team || "Local"} vs ${row.away_team_name || row.away_team || "Visitante"}`,
+        event_status: row.event_status || row.status || row.predikt_status_label || "SCHEDULED",
+        starts_at: row.starts_at || row.start_time || row.event_start_at || null,
+        home_team: row.home_team || row.home_team_name || row.home_name || "Local",
+        away_team: row.away_team || row.away_team_name || row.away_name || "Visitante",
+        home_code: row.home_code || row.home_team_code || row.home_country_code || "--",
+        away_code: row.away_code || row.away_team_code || row.away_country_code || "--",
+        home_country: row.home_country || row.home_flag_code || row.home_country_code || row.home_team_code || "",
+        away_country: row.away_country || row.away_flag_code || row.away_country_code || row.away_team_code || "",
+        probability_home: firstNumeric(row.pre_probability_home, row.live_probability_home, row.home_probability, row.home_win_probability),
+        probability_draw: firstNumeric(row.pre_probability_draw, row.live_probability_draw, row.draw_probability),
+        probability_away: firstNumeric(row.pre_probability_away, row.live_probability_away, row.away_probability, row.away_win_probability)
+      };
+    }
+
+    function firstNumeric(...values) {
+      for (const value of values) {
+        if (value === null || value === undefined || value === "") continue;
+        const numeric = Number(value);
+        if (Number.isFinite(numeric)) return numeric;
+      }
+      return null;
+    }
+
+    function buildPrediktRecommendation(match) {
+      const homeP = match.probability_home;
+      const drawP = match.probability_draw;
+      const awayP = match.probability_away;
+      const hasProbabilities = [homeP, drawP, awayP].some((value) => value !== null);
+
+      if (!hasProbabilities) {
+        return {
+          label: "Recomendación pendiente",
+          copy: "Todavía no hay probabilidad publicada para este partido. Puedes capturar tu marcador y ajustarlo antes del inicio.",
+          suggestedHomeScore: 0,
+          suggestedAwayScore: 0,
+          scoreLabel: "Sin marcador sugerido"
+        };
+      }
+
+      const options = [
+        { key: "home", label: match.home_team, probability: homeP ?? 0, suggestedHomeScore: 1, suggestedAwayScore: 0 },
+        { key: "draw", label: "Empate", probability: drawP ?? 0, suggestedHomeScore: 1, suggestedAwayScore: 1 },
+        { key: "away", label: match.away_team, probability: awayP ?? 0, suggestedHomeScore: 0, suggestedAwayScore: 1 }
+      ].sort((a, b) => b.probability - a.probability);
+
+      const top = options[0];
+      const probabilityLabel = top.probability ? `${top.probability.toFixed(2)}%` : "probabilidad publicada";
+
+      return {
+        label: `PREDIKT™ recomienda: ${top.label}`,
+        copy: `Lectura basada en probabilidades reales del backend. Confianza de referencia: ${probabilityLabel}. Tú decides el marcador final.`,
+        suggestedHomeScore: top.suggestedHomeScore,
+        suggestedAwayScore: top.suggestedAwayScore,
+        scoreLabel: `${match.home_team} ${top.suggestedHomeScore} - ${top.suggestedAwayScore} ${match.away_team}`
+      };
+    }
+
+    function resetPredictionState(card, recommendation) {
+      const homeScoreElement = card.querySelector('[data-score="home"]');
+      const awayScoreElement = card.querySelector('[data-score="away"]');
+
+      if (homeScoreElement) homeScoreElement.textContent = String(recommendation.suggestedHomeScore ?? 0);
+      if (awayScoreElement) awayScoreElement.textContent = String(recommendation.suggestedAwayScore ?? 0);
+
+      const saveButton = card.querySelector("[data-save]");
+      if (saveButton) {
+        saveButton.classList.remove("saved");
+        saveButton.disabled = false;
+        saveButton.textContent = "Guardar pronóstico";
+      }
+    }
+
+    function updateMatchNavigation() {
+      const total = upcomingMatches.length;
+      const current = total ? currentMatchIndex + 1 : 0;
+
+      if (matchCounterText) {
+        matchCounterText.textContent = total > 1
+          ? `Partido ${current} de ${total}. Puedes avanzar al siguiente próximo partido.`
+          : "Mostrando el próximo partido disponible.";
+      }
+
+      if (nextMatchButton) {
+        nextMatchButton.disabled = total <= 1;
+        nextMatchButton.textContent = total > 1 ? "Siguiente partido" : "Sin más partidos";
+      }
+    }
+
     function renderMatch(match) {
       currentMatch = match;
 
@@ -1339,17 +1528,18 @@
       document.getElementById("awayTeamName").textContent = match.away_team || "Visitante";
       document.getElementById("awayScoreTeamName").textContent = `${normalizeFlag(match.away_country || match.away_code)} ${match.away_team || "Visitante"}`;
 
-      document.getElementById("suggestedScoreLabel").textContent = `${match.home_team || "Local"} 2 - 1 ${match.away_team || "Visitante"}`;
-      document.getElementById("suggestedText").textContent = "Referencia inicial PREDIKT™. Ajusta tu marcador según tu criterio.";
-      document.getElementById("prediktReadLabel").textContent = "Partido abierto";
-      document.getElementById("prediktReadSub").textContent = "Marcador exacto recomendado como apoyo.";
+      const recommendation = buildPrediktRecommendation(match);
+      document.getElementById("prediktVisibleTitle").textContent = recommendation.label;
+      document.getElementById("prediktVisibleCopy").textContent = recommendation.copy;
+      document.getElementById("suggestedScoreLabel").textContent = recommendation.scoreLabel;
+      document.getElementById("suggestedText").textContent = recommendation.copy;
+      document.getElementById("prediktReadLabel").textContent = recommendation.label.replace("PREDIKT™ recomienda: ", "");
+      document.getElementById("prediktReadSub").textContent = recommendation.scoreLabel;
 
-      const saveButton = card.querySelector("[data-save]");
-      saveButton.disabled = false;
-      saveButton.textContent = "Guardar pronóstico";
-
+      resetPredictionState(card, recommendation);
       updatePreview(card);
       updateProgress();
+      updateMatchNavigation();
     }
 
     function renderNoMatch() {
@@ -1370,8 +1560,25 @@
       }
     }
 
-    async function loadNextMatch() {
+    async function loadUpcomingMatches() {
       const client = getSupabaseClient();
+
+      try {
+        const { data, error } = await client
+          .schema("sports")
+          .from("v_event_match_intelligence_api")
+          .select("*")
+          .gte("starts_at", new Date(Date.now() - 60 * 60 * 1000).toISOString())
+          .order("starts_at", { ascending: true })
+          .limit(72);
+
+        if (error) throw error;
+
+        const rows = Array.isArray(data) ? data.map(normalizeUpcomingMatch).filter(Boolean) : [];
+        if (rows.length > 0) return rows;
+      } catch (error) {
+        console.warn("PREDIKT™ upcoming match list fallback:", error);
+      }
 
       const { data, error } = await client
         .schema("sports")
@@ -1381,13 +1588,25 @@
         .maybeSingle();
 
       if (error) throw error;
-      if (!data) {
+      return data ? [normalizeUpcomingMatch(data)] : [];
+    }
+
+    async function loadNextMatch(index = 0) {
+      if (upcomingMatches.length === 0) {
+        upcomingMatches = await loadUpcomingMatches();
+      }
+
+      if (!upcomingMatches.length) {
         renderNoMatch();
+        updateMatchNavigation();
         return null;
       }
 
-      renderMatch(data);
-      return data;
+      currentMatchIndex = ((index % upcomingMatches.length) + upcomingMatches.length) % upcomingMatches.length;
+      const match = upcomingMatches[currentMatchIndex];
+      savedMatches.clear();
+      renderMatch(match);
+      return match;
     }
 
     async function loadExistingPredictions() {
@@ -1486,6 +1705,16 @@
       }
     }
 
+
+    if (nextMatchButton) {
+      nextMatchButton.addEventListener("click", async () => {
+        if (!upcomingMatches.length) return;
+        const match = await loadNextMatch(currentMatchIndex + 1);
+        if (match) await loadExistingPredictions();
+        showToast("Mostrando siguiente partido próximo.");
+      });
+    }
+
     nextMatchCard.addEventListener("click", async (event) => {
       const button = event.target.closest("[data-action]");
       const saveButton = event.target.closest("[data-save]");
@@ -1515,7 +1744,7 @@
 
 <!--
 Cierre de archivo
-Versión: v3.2.1 LOADER FIX
+Versión: v3.2.2 NEXT MATCH ROTATION + PREDIKT VISIBILITY
 Fecha: 2026-06-10
 Elaborado por: JVSys™
 Total de líneas: v3.1.0
