@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: ranking.html
     Fecha: 2026-06-10
-    Versión: v1.2.0 Global Clean
+    Versión: v1.5.0 Loader Fix
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -1169,11 +1169,23 @@
       Perfil
     </a>
   </nav>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    function hidePrediktLoader(){const loader=document.getElementById("prediktLoader");if(loader)loader.classList.add("hide");}
-    window.addEventListener("load",()=>{window.setTimeout(hidePrediktLoader,450);});
-    window.setTimeout(()=>{const copy=document.getElementById("prediktLoaderCopy");if(copy)copy.textContent="Estamos preparando tu experiencia PREDIKT™...";},1800);
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    function hidePrediktLoader() {
+      const loader = document.getElementById("prediktLoader");
+      if (loader) loader.classList.add("hide");
+    }
 
+    window.addEventListener("load", () => {
+      window.setTimeout(hidePrediktLoader, 450);
+    });
+
+    window.setTimeout(() => {
+      const copy = document.getElementById("prediktLoaderCopy");
+      if (copy) copy.textContent = "Estamos preparando tu experiencia PREDIKT™...";
+    }, 1800);
+
+    window.setTimeout(hidePrediktLoader, 5500);
   </script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/auth.js"></script>
@@ -1181,7 +1193,7 @@
     /*
       Nombre del bloque: PREDIKT™ Global Auth Guard Runtime
       Fecha: 2026-06-10
-      Versión: v1.3.0 ZERO MOCK RANKING
+      Versión: v1.5.0 LOADER FIX + ZERO MOCK RANKING
       Elaborado por: JVSys™
       Descripción:
         Protege esta pantalla con sesión real de Supabase Auth.
@@ -1256,6 +1268,8 @@
       } catch (error) {
         console.error("PREDIKT™ Ranking Auth Guard error:", error);
         window.location.href = "login.html";
+      } finally {
+        hidePrediktLoader();
       }
     })();
   </script>
@@ -1265,7 +1279,7 @@
 
 <!--
 Cierre de archivo
-Versión: v1.3.0 ZERO MOCK RANKING
+Versión: v1.5.0 LOADER FIX + ZERO MOCK RANKING
 Fecha: 2026-06-10
 Elaborado por: JVSys™
 -->
