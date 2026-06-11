@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-10
-    Versión: v3.1.0 COMPACT CONFIRMATION UX
+    Versión: v1.2.0 Global Clean
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -26,10 +26,11 @@
     content="PREDIKT™ Pronósticos - Captura tus marcadores con sesión protegida y compite con tus amigos."
   />
   <meta name="theme-color" content="#061826" />
+  <link rel="manifest" href="/manifest.json" />
 
-  <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="shortcut icon" type="image/png" href="assets/logos/predikt-logo.png" />
-  <link rel="apple-touch-icon" href="assets/logos/predikt-logo.png" />
+  <link rel="icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="shortcut icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="apple-touch-icon" href="/assets/icons/predikt-icon-192.png" />
 
   <style>
     :root {
@@ -939,14 +940,29 @@
         padding: 30px;
       }
     }
+  
+
+    .predikt-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(circle at 50% 15%,rgba(245,185,66,.16),transparent 30%),linear-gradient(145deg,rgba(6,24,38,.98),rgba(2,11,19,.98));color:#fff;transition:opacity .24s ease,visibility .24s ease}.predikt-loader.hide{opacity:0;visibility:hidden;pointer-events:none}.predikt-loader-card{width:min(86vw,320px);display:grid;justify-items:center;gap:10px;text-align:center;border:1px solid rgba(245,185,66,.24);border-radius:28px;padding:24px 18px;background:rgba(15,39,64,.88);box-shadow:0 18px 45px rgba(0,0,0,.35)}.predikt-loader-ball{width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#f5b942,#ffe28a);color:#061826;font-size:1.7rem;animation:prediktSpin 1.05s linear infinite}.predikt-loader-title{font-size:.92rem;font-weight:980;letter-spacing:.08em;text-transform:uppercase}.predikt-loader-copy{color:#c9d7e6;font-size:.78rem;font-weight:760}.powered-jvsys{color:#f5b942;font-size:.62rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}@keyframes prediktSpin{from{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.06)}to{transform:rotate(360deg) scale(1)}}
+
   </style>
 </head>
 
 <body>
+
+  <div class="predikt-loader" id="prediktLoader" aria-live="polite" aria-label="Cargando PREDIKT">
+    <div class="predikt-loader-card">
+      <div class="predikt-loader-ball" aria-hidden="true">⚽</div>
+      <strong class="predikt-loader-title">Cargando PREDIKT™</strong>
+      <p class="predikt-loader-copy" id="prediktLoaderCopy">Preparando tu pronóstico...</p>
+      <small class="powered-jvsys">Powered by JVSys™</small>
+    </div>
+  </div>
+
   <main class="page-shell">
     <header class="top-bar" aria-label="Encabezado de PREDIKT">
       <a href="index.html" class="brand-block" aria-label="Ir a inicio">
         <strong class="brand-name">PREDIKT™</strong>
+          <small class="powered-jvsys">Powered by JVSys™</small>
         <span class="hello" data-auth-hello>Validando sesión...</span>
       </a>
 
@@ -1117,7 +1133,12 @@
   </nav>
 
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    function hidePrediktLoader(){const loader=document.getElementById("prediktLoader");if(loader)loader.classList.add("hide");}
+    window.addEventListener("load",()=>{window.setTimeout(hidePrediktLoader,450);});
+    window.setTimeout(()=>{const copy=document.getElementById("prediktLoaderCopy");if(copy)copy.textContent="Estamos preparando tu experiencia PREDIKT™...";},1800);
+
+  </script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/auth.js"></script>
 
