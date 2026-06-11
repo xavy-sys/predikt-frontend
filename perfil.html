@@ -3,8 +3,8 @@
 <head>
   <!--
     Nombre del archivo: perfil.html
-    Fecha: 2026-06-09
-    Versión: v4.0.0 Real Stats Certified
+    Fecha: 2026-06-10
+    Versión: v4.0.1 Mercado Pago Redirect Self Fix
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -926,7 +926,7 @@
       - "sandbox": recomendado durante pruebas controladas.
       - "production": usar cuando Mercado Pago quede listo para cobro real público.
     */
-    const PREDIKT_CHECKOUT_MODE = "sandbox";
+    const PREDIKT_CHECKOUT_MODE = "production";
 
     let currentAuthUser = null;
     let currentAuthSession = null;
@@ -1072,7 +1072,7 @@
       return {
         payer_name: displayName || "Fundador PREDIKT",
         payer_email: email || "test@predikt.mx",
-        source: "perfil_html_v4_0_0_real_stats_certified"
+        source: "perfil_html_v4_0_1_mp_redirect_self_fix"
       };
     }
 
@@ -1146,6 +1146,16 @@
       }
     }
 
+    function resolveMercadoPagoCheckoutUrl(result) {
+      const checkout = result && result.checkout ? result.checkout : {};
+
+      const preferredUrl = PREDIKT_CHECKOUT_MODE === "production"
+        ? checkout.init_point || checkout.sandbox_init_point
+        : checkout.sandbox_init_point || checkout.init_point;
+
+      return cleanText(preferredUrl);
+    }
+
     async function startFounderCheckout() {
       const founderButton = document.getElementById("founderButton");
 
@@ -1155,8 +1165,8 @@
 
       const originalText = founderButton.textContent;
       founderButton.disabled = true;
-      founderButton.textContent = "Preparando Mercado Pago...";
-      showToast("Preparando checkout seguro de Mercado Pago...");
+      founderButton.textContent = "Abriendo Mercado Pago...";
+      showToast("Conectando con Mercado Pago...");
 
       try {
         const payload = getSafeUserProfile();
@@ -1173,25 +1183,29 @@
 
         const result = await response.json().catch(() => null);
 
-        if (!response.ok || !result || result.ok !== true) {
-          throw new Error(result?.error || `create-founder-payment status ${response.status}`);
+        if (!response.ok) {
+          throw new Error(result && result.error ? result.error : `create-founder-payment status ${response.status}`);
         }
 
-        const checkout = result.checkout || {};
-        const checkoutUrl = PREDIKT_CHECKOUT_MODE === "sandbox"
-          ? checkout.sandbox_init_point || checkout.init_point
-          : checkout.init_point || checkout.sandbox_init_point;
-
-        if (!checkoutUrl) {
-          throw new Error("Mercado Pago no devolvió URL de checkout.");
+        if (!result || result.ok !== true) {
+          throw new Error(result && result.error ? result.error : "La función no confirmó la creación del checkout.");
         }
 
-        window.location.href = checkoutUrl;
+        const checkoutUrl = resolveMercadoPagoCheckoutUrl(result);
+
+        if (!checkoutUrl || !/^https:\/\//i.test(checkoutUrl)) {
+          throw new Error("Mercado Pago no devolvió una URL válida de checkout.");
+        }
+
+        founderButton.textContent = "Redirigiendo...";
+        showToast("Redirigiendo a Mercado Pago...");
+
+        window.location.assign(checkoutUrl);
       } catch (error) {
         console.error("PREDIKT Founder checkout error:", error);
         founderButton.disabled = false;
         founderButton.textContent = originalText;
-        showToast("No se pudo abrir Mercado Pago. Intenta de nuevo en unos segundos.");
+        showToast("No se pudo generar el checkout de Mercado Pago. Revisa la consola o intenta de nuevo.");
       }
     }
 
@@ -1274,7 +1288,7 @@
 
 <!--
 Cierre de archivo
-Versión: v4.0.0 Real Stats Certified
+Versión: v4.0.1 Mercado Pago Redirect Self Fix
 Fecha: 2026-06-09
 Líneas versión anterior: 1202
 Total de líneas: 1281
