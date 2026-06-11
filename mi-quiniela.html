@@ -3,19 +3,18 @@
 <head>
   <!--
     Nombre del archivo: mi-quiniela.html
-    Fecha: 2026-06-10
-    Versión: v1.2.0 Global Clean
+    Fecha: 2026-06-11
+    Versión: v2.0.0 Social Center
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla real de usuario para PREDIKT™ sin datos ficticios.
-      Elimina ranking simulado, puntos inventados, reconocimientos ficticios,
-      quinielas demo y partidos hardcodeados.
-      Muestra pronósticos reales del usuario desde Supabase mediante predikt_get_my_predictions.
+      Social Center real para crecimiento, retención y viralidad.
+      Mantiene Auth/Supabase real, sin rankings ficticios ni puntos inventados.
+      Agrega invitación WhatsApp, grupo social, actividad, próxima batalla, ranking de grupo en estado real/pendiente y CTA Fundadores.
       El próximo partido se carga desde sports.v_predikt_home_next_match y los pronósticos desde RPC real.
-      Mantiene UX mobile-first y navegación PWA.
-    Líneas versión anterior: 965
-    Líneas versión nueva: v3.0.0
+      Mantiene UX mobile-first, navegación PWA y foco Growth Sprint 1.
+    Archivo base recibido: mi-quiniela v1.2.0
+    Archivo nuevo: mi-quiniela.html v2.0.0 Social Center
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -488,6 +487,172 @@
 
     .note-card strong { color: var(--gold); }
 
+
+    .social-card {
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(145deg, rgba(18, 48, 77, 0.98), rgba(7, 24, 42, 0.98));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .social-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -55px -70px auto;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(245, 185, 66, 0.08);
+      pointer-events: none;
+    }
+
+    .social-kicker {
+      color: var(--gold);
+      font-size: 0.74rem;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .social-title {
+      font-size: 1.2rem;
+      font-weight: 950;
+      color: var(--white);
+      margin-bottom: 7px;
+      line-height: 1.18;
+    }
+
+    .social-copy {
+      color: var(--text-soft);
+      font-size: 0.86rem;
+      font-weight: 760;
+      line-height: 1.42;
+      margin-bottom: 14px;
+    }
+
+    .group-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .group-meta-item {
+      min-height: 72px;
+      padding: 11px 9px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      text-align: center;
+    }
+
+    .group-meta-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 850;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .group-meta-value {
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 950;
+      line-height: 1.05;
+    }
+
+    .invite-banner {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(135deg, rgba(245, 185, 66, 0.18), rgba(77, 183, 255, 0.08));
+      border: 1px solid rgba(245, 185, 66, 0.25);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.23);
+    }
+
+    .battle-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .battle-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.055);
+    }
+
+    .battle-label {
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      font-weight: 850;
+    }
+
+    .battle-value {
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: 950;
+      text-align: right;
+    }
+
+    .founder-card {
+      border-radius: var(--radius-xl);
+      padding: 17px;
+      background:
+        linear-gradient(145deg, rgba(245, 185, 66, 0.16), rgba(15, 39, 64, 0.98));
+      border: 1px solid rgba(245, 185, 66, 0.28);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+    }
+
+    .founder-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .founder-main {
+      font-size: 1rem;
+      font-weight: 950;
+      color: var(--white);
+    }
+
+    .founder-sub {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 780;
+      line-height: 1.35;
+    }
+
+    .whatsapp-btn {
+      color: #061826;
+      background: linear-gradient(135deg, #d9ffe7, #2ecc71);
+      box-shadow: 0 12px 24px rgba(46, 204, 113, 0.18);
+    }
+
+    .soft-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 14px 0;
+    }
+
     .app-footer-nav {
       position: fixed;
       left: 50%;
@@ -633,6 +798,45 @@
       </article>
     </section>
 
+    <section class="section" aria-label="Centro social de Mi Quiniela">
+      <article class="social-card" id="socialGroupCard">
+        <div class="social-kicker">👥 Mi Grupo</div>
+        <h2 class="social-title" id="groupNameTitle">Los Cuates</h2>
+        <p class="social-copy" id="groupInviteCopy">
+          Invita a tus amigos y descubre quién realmente sabe de fútbol.
+        </p>
+
+        <div class="group-meta-grid" aria-label="Resumen del grupo">
+          <div class="group-meta-item">
+            <span class="group-meta-label">Participantes</span>
+            <strong class="group-meta-value" id="groupMembersCount">1+</strong>
+          </div>
+          <div class="group-meta-item">
+            <span class="group-meta-label">Código</span>
+            <strong class="group-meta-value" id="groupCodeValue">PREDIKT</strong>
+          </div>
+          <div class="group-meta-item">
+            <span class="group-meta-label">Pronósticos</span>
+            <strong class="group-meta-value" id="groupPredictionCount">0</strong>
+          </div>
+        </div>
+
+        <div class="dual-actions">
+          <button class="btn whatsapp-btn" type="button" id="inviteWhatsappBtn">📲 Invitar Amigos</button>
+          <a class="btn btn-secondary" href="ranking.html">🏆 Ver Ranking</a>
+        </div>
+      </article>
+
+      <article class="invite-banner" aria-label="Mensaje de crecimiento">
+        <div class="social-kicker">🔥 Growth Sprint 1</div>
+        <h2 class="social-title">Convierte tu quiniela en competencia</h2>
+        <p class="social-copy" style="margin-bottom:0;">
+          Cada amigo invitado aumenta la emoción del ranking, la conversación y las ganas de regresar.
+        </p>
+      </article>
+    </section>
+
+
     <div class="desktop-grid">
       <div>
         <section class="section" aria-label="Mi quiniela activa">
@@ -666,6 +870,45 @@
       </div>
 
       <div>
+
+        <section class="section" aria-label="Próxima batalla social">
+          <div class="section-header">
+            <h2 class="section-title">Próxima Batalla</h2>
+          </div>
+
+          <article class="main-card" id="nextBattleCard">
+            <div class="battle-grid">
+              <div class="battle-line">
+                <span class="battle-label">Partido</span>
+                <strong class="battle-value" id="battleMatchName">Cargando...</strong>
+              </div>
+              <div class="battle-line">
+                <span class="battle-label">Tu pronóstico</span>
+                <strong class="battle-value" id="battleMyPrediction">Pendiente</strong>
+              </div>
+              <div class="battle-line">
+                <span class="battle-label">Acción recomendada</span>
+                <strong class="battle-value" id="battleActionText">Invita amigos</strong>
+              </div>
+            </div>
+            <div class="soft-divider"></div>
+            <a class="btn btn-primary" href="pronostico.html">⚽ Ir a Pronosticar</a>
+          </article>
+        </section>
+
+        <section class="section" aria-label="Fundadores PREDIKT">
+          <article class="founder-card">
+            <div class="founder-row">
+              <div>
+                <div class="founder-main">💎 Fundadores PREDIKT™</div>
+                <div class="founder-sub">Acceso de por vida. Lugares limitados a 100 fundadores.</div>
+              </div>
+              <span class="level-pill">100</span>
+            </div>
+            <a class="btn btn-primary" href="fundadores.html">Quiero ser fundador</a>
+          </article>
+        </section>
+
         <section class="section" aria-label="Reconocimientos reales">
           <div class="section-header">
             <h2 class="section-title">Reconocimientos</h2>
@@ -730,11 +973,11 @@
     </nav>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
     function hidePrediktLoader(){const loader=document.getElementById("prediktLoader");if(loader)loader.classList.add("hide");}
     window.addEventListener("load",()=>{window.setTimeout(hidePrediktLoader,450);});
     window.setTimeout(()=>{const copy=document.getElementById("prediktLoaderCopy");if(copy)copy.textContent="Estamos preparando tu experiencia PREDIKT™...";},1800);
-
   </script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/auth.js"></script>
@@ -743,16 +986,18 @@
     /*
       Nombre del bloque: PREDIKT™ Mi Quiniela Real User Runtime
       Fecha: 2026-06-10
-      Versión: v3.0.0 REAL USER PREDICTIONS
+      Versión: v2.0.0 SOCIAL CENTER REAL USER GROWTH
       Elaborado por: JVSys™
       Descripción:
         Protege sesión con Supabase Auth.
         Carga el próximo partido real desde sports.v_predikt_home_next_match.
         Recupera pronósticos reales del usuario mediante predikt_get_my_predictions.
-        Actualiza estadísticas visibles sin datos demo.
+        Actualiza estadísticas visibles sin datos demo y agrega acciones sociales Growth Sprint 1.
     */
 
     const PREDIKT_DEFAULT_GROUP_NAME = "Los Cuates";
+    const PREDIKT_GROUP_CODE = "PREDIKT";
+    const PREDIKT_APP_URL = "https://predikt-frontend-three.vercel.app";
 
     const predictionsList = document.getElementById("predictionsList");
     const statPredictions = document.getElementById("statPredictions");
@@ -763,6 +1008,13 @@
     const userGreeting = document.getElementById("userGreeting");
     const heroTitle = document.getElementById("heroTitle");
     const heroCopy = document.getElementById("heroCopy");
+    const inviteWhatsappBtn = document.getElementById("inviteWhatsappBtn");
+    const groupMembersCount = document.getElementById("groupMembersCount");
+    const groupPredictionCount = document.getElementById("groupPredictionCount");
+    const groupCodeValue = document.getElementById("groupCodeValue");
+    const battleMatchName = document.getElementById("battleMatchName");
+    const battleMyPrediction = document.getElementById("battleMyPrediction");
+    const battleActionText = document.getElementById("battleActionText");
 
     let authenticatedUser = null;
     let nextMatch = null;
@@ -806,6 +1058,51 @@
       });
     }
 
+
+
+    function buildWhatsappInviteMessage() {
+      return [
+        "⚽ ¿Quién le atina al marcador?",
+        "",
+        "Estoy jugando en PREDIKT™.",
+        "Únete a mi quiniela y compitamos.",
+        "",
+        `Código del grupo: ${PREDIKT_GROUP_CODE}`,
+        "",
+        PREDIKT_APP_URL,
+        "",
+        "Predice • Compite • Gana"
+      ].join("\n");
+    }
+
+    function shareByWhatsapp() {
+      const message = encodeURIComponent(buildWhatsappInviteMessage());
+      const whatsappUrl = `https://wa.me/?text=${message}`;
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    }
+
+    function renderSocialGrowthState(predictions) {
+      const count = Array.isArray(predictions) ? predictions.length : 0;
+      if (groupMembersCount) groupMembersCount.textContent = "1+";
+      if (groupPredictionCount) groupPredictionCount.textContent = String(count);
+      if (groupCodeValue) groupCodeValue.textContent = PREDIKT_GROUP_CODE;
+
+      const homeName = nextMatch?.home_team || "Local";
+      const awayName = nextMatch?.away_team || "Visitante";
+      if (battleMatchName) battleMatchName.textContent = nextMatch ? `${homeName} vs ${awayName}` : "Próximo partido";
+
+      const prediction = predictions && predictions[0] ? predictions[0] : null;
+      if (prediction) {
+        const homeScore = Number(prediction.predicted_home_score ?? 0);
+        const awayScore = Number(prediction.predicted_away_score ?? 0);
+        if (battleMyPrediction) battleMyPrediction.textContent = `${homeName} ${homeScore} - ${awayScore} ${awayName}`;
+        if (battleActionText) battleActionText.textContent = "Comparte tu grupo";
+      } else {
+        if (battleMyPrediction) battleMyPrediction.textContent = "Pendiente";
+        if (battleActionText) battleActionText.textContent = "Pronostica e invita amigos";
+      }
+    }
+
     function renderEmptyPredictions() {
       predictionsList.innerHTML = `
         <article class="main-card empty-card">
@@ -831,7 +1128,7 @@
             </div>
             <div class="dual-actions">
               <a class="btn btn-primary" href="pronostico.html">Editar pronóstico</a>
-              <a class="btn btn-secondary" href="ranking.html">Ver ranking</a>
+              <button class="btn whatsapp-btn" type="button" onclick="shareByWhatsapp()">Invitar amigos</button>
             </div>
           </div>
         `;
@@ -845,7 +1142,7 @@
         <p class="empty-copy">Cuando guardes tus predicciones, aquí aparecerá tu actividad.</p>
         <div class="dual-actions">
           <a class="btn btn-primary" href="pronostico.html">Pronosticar partido</a>
-          <a class="btn btn-secondary" href="perfil.html">Ver perfil</a>
+          <button class="btn whatsapp-btn" type="button" onclick="shareByWhatsapp()">Invitar amigos</button>
         </div>
       `;
     }
@@ -854,8 +1151,9 @@
       if (statPredictions) statPredictions.textContent = String(predictions.length);
       if (statPoints) statPoints.textContent = "0";
       if (statPosition) statPosition.textContent = "--";
-      if (statGroup) statGroup.textContent = predictions.length ? PREDIKT_DEFAULT_GROUP_NAME : "--";
+      if (statGroup) statGroup.textContent = PREDIKT_DEFAULT_GROUP_NAME;
 
+      renderSocialGrowthState(predictions);
       renderActiveQuiniela(predictions.length);
 
       if (!predictions.length) {
@@ -968,6 +1266,10 @@
           </article>
         `;
       }
+    }
+
+    if (inviteWhatsappBtn) {
+      inviteWhatsappBtn.addEventListener("click", shareByWhatsapp);
     }
 
     initializeMiQuiniela();
