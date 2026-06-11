@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: usuarios.html
     Fecha: 2026-06-11
-    Versión: v2.0.0 👥 Real Data Admin
+    Versión: v2.0.1 👥 Real Data Admin · Supabase Loader Fix
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -12,6 +12,7 @@
       Elimina completamente demoUsers y consume exclusivamente la RPC:
       public.predikt_admin_users().
       Mantiene Guardia Admin Real mediante assets/js/admin-guard.js.
+      Corrige carga robusta de cliente Supabase desde raíz o assets/js.
       Mobile First, sin datos inventados, lista para producción Beta.
     Archivo base auditado: usuarios.html v1.0.1
   -->
@@ -237,6 +238,11 @@
   <div class="toast" id="toast" role="status" aria-live="polite">Usuarios actualizados.</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!--
+    Carga robusta: algunos despliegues tienen supabase.js en raíz y otros en assets/js/.
+    Se cargan ambos sin romper si uno no existe. La pantalla NO contiene llaves ni Service Role.
+  -->
+  <script src="supabase.js"></script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/admin-guard.js"></script>
 
@@ -400,7 +406,7 @@
     async function loadRealUsers() {
       const client = getSupabaseClient();
       if (!client) {
-        showSystemError("No se encontró cliente Supabase. Verifica assets/js/supabase.js.");
+        showSystemError("No se encontró cliente Supabase. Verifica que exista supabase.js en raíz o assets/js/supabase.js.");
         state.users = [];
         renderKpis();
         renderUsers();
