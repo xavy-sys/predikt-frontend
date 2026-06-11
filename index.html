@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-10
-    Versión: v7.3.0 HOME REAL NEXT MATCH UX FIX
+    Versión: v7.5.0 SUPER ADMIN CONTROL ACCESS
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -29,6 +29,7 @@
       v6.0.0 elimina métricas ficticias de usuario nuevo y agrega la tarjeta
       Recomendación PREDIKT™ antes de elegir pronóstico.
       v7.4.0 corrige Home para leer primero sports.v_predikt_home_next_match, usar select=* y fallback certificado México vs Sudáfrica solo si Supabase no responde. La Home se mantiene como acción principal, no como navegador de partidos.
+      v7.5.0 agrega acceso visible al Centro de Control SUPER_ADMIN y corrige referencias JS a elementos inexistentes que detenían el runtime del Home.
     Líneas versión anterior: 1250
     Líneas versión nueva: v7.1.0
   -->
@@ -1091,6 +1092,69 @@
       white-space: nowrap;
     }
 
+    .super-admin-card {
+      border: 1px solid rgba(245, 185, 66, 0.32);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245, 185, 66, 0.18), transparent 30%),
+        linear-gradient(145deg, rgba(15, 39, 64, 0.98), rgba(44, 34, 14, 0.72));
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .super-admin-kicker {
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .super-admin-title {
+      font-size: 1.05rem;
+      font-weight: 980;
+      line-height: 1.08;
+      margin-bottom: 6px;
+    }
+
+    .super-admin-copy {
+      color: var(--text-soft);
+      font-size: 0.72rem;
+      font-weight: 760;
+      margin-bottom: 12px;
+    }
+
+    .super-admin-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .admin-action {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 0.70rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .admin-action.primary {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    }
+
+    .admin-action.secondary {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -1204,6 +1268,17 @@
         PREDIKT™ te sugiere un marcador inteligente. Tú decides el tuyo y compites por acertar.
       </p>
     </section>
+
+    <section class="super-admin-card" id="superAdminCard" aria-label="Centro de Control SUPER_ADMIN">
+      <p class="super-admin-kicker">🔐 SUPER_ADMIN</p>
+      <h2 class="super-admin-title">Centro de Control PREDIKT™</h2>
+      <p class="super-admin-copy">Opera usuarios, resultados oficiales, pronósticos, ranking, fundadores y partidos desde un solo tablero.</p>
+      <div class="super-admin-actions">
+        <a class="admin-action primary" href="dashboard-admin.html">Entrar al Control</a>
+        <a class="admin-action secondary" href="resultado-partido-admin.html">Capturar Resultado</a>
+      </div>
+    </section>
+
 <section class="section" aria-label="Tu próximo pronóstico">
       <div class="section-head">
         <h2 class="section-title">Tu próximo pronóstico</h2>
@@ -1615,8 +1690,10 @@
       document.getElementById("awayTeamName").textContent = teams.away;
       document.getElementById("awayTeamCode").textContent = awayCode;
       document.getElementById("awayTeamSmallCode").textContent = awayCode;
-      document.getElementById("homePredictionChoice").dataset.prediction = teams.home;
-      document.getElementById("awayPredictionChoice").dataset.prediction = teams.away;
+      const homePredictionChoice = document.getElementById("homePredictionChoice");
+      const awayPredictionChoice = document.getElementById("awayPredictionChoice");
+      if (homePredictionChoice) homePredictionChoice.dataset.prediction = teams.home;
+      if (awayPredictionChoice) awayPredictionChoice.dataset.prediction = teams.away;
 
       const scoreHomeName = document.getElementById("scoreHomeName");
       const scoreAwayName = document.getElementById("scoreAwayName");
