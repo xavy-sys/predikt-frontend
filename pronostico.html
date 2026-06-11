@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-10
-    Versión: v1.2.0 Global Clean
+    Versión: v3.2.3 NEXT MATCH DECLARATION FIX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -1267,11 +1267,15 @@
 
     let authenticatedUser = null;
     let currentMatch = null;
+    let upcomingMatches = [];
+    let currentMatchIndex = 0;
 
     const savedMatches = new Set();
     const toast = document.getElementById("toast");
     const compactStatus = document.getElementById("compactStatus");
     const nextMatchCard = document.getElementById("nextMatchCard");
+    const matchCounterText = document.getElementById("matchCounterText");
+    const nextMatchButton = document.getElementById("nextMatchButton");
 
     const countryFlags = {
       MX: "🇲🇽",
