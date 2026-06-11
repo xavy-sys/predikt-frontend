@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: resultado-partido-admin.html
     Fecha: 2026-06-11
-    Versión: v1.1.0 Official Result Capture Connected
+    Versión: v1.2.0 Official RPC Signature Fix
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -12,6 +12,7 @@
       Llama a predictions.predikt_admin_set_official_result y dispara scoring real.
       No muestra métricas públicas de comunidad.
       v1.1.0 agrega regreso claro al Dashboard Admin y navegación operativa conectada.
+      v1.2.0 corrige firma RPC para usar p_official_home_score y p_official_away_score según PostgreSQL real.
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -166,8 +167,8 @@
         const client = getClient();
         const { data, error } = await client.schema('predictions').rpc('predikt_admin_set_official_result', {
           p_event_id: match.event_id,
-          p_home_score: h,
-          p_away_score: a
+          p_official_home_score: h,
+          p_official_away_score: a
         });
         if(error) throw error;
         setStatus(`✅ Resultado guardado: ${match.home_team} ${h} - ${a} ${match.away_team}. Puntos calculados: ${data?.scoring?.scored_predictions ?? 'ver SQL'}.`, 'ok');
