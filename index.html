@@ -922,6 +922,13 @@
       margin-top: 12px;
     }
 
+    .save-score-action:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      filter: grayscale(0.25);
+      box-shadow: none;
+    }
+
 
     .prediction-progress-card {
       border-radius: 18px;
@@ -1398,6 +1405,33 @@
       }
     }
 
+    let initialScoreSignature = "";
+    let scoreHasChanged = false;
+
+    function getScoreSignature() {
+      const { homeScore, awayScore } = getScoreState();
+      return `${homeScore}-${awayScore}`;
+    }
+
+    function syncSaveButtonState() {
+      const saveButton = document.getElementById("saveScorePredictionBtn");
+      if (!saveButton) return;
+      scoreHasChanged = getScoreSignature() !== initialScoreSignature;
+      saveButton.disabled = !scoreHasChanged;
+      saveButton.textContent = scoreHasChanged ? "⚽ Guardar pronóstico" : "Ajusta el marcador para guardar";
+    }
+
+    function markScoreChanged() {
+      updateScoreInterpretation();
+      syncSaveButtonState();
+    }
+
+    function resetScoreBaseline() {
+      initialScoreSignature = getScoreSignature();
+      scoreHasChanged = false;
+      syncSaveButtonState();
+    }
+
 
     function sportsHeaders() {
       return {
@@ -1592,6 +1626,7 @@
       document.getElementById("matchDetailLink").href = detailHref;
       renderPrediktRecommendation(eventRow, teams);
       updateScoreInterpretation();
+      resetScoreBaseline();
     }
 
     function buildCertifiedHomeFallback() {
@@ -1662,6 +1697,11 @@
 
 
     function saveScorePrediction() {
+      if (!scoreHasChanged) {
+        showToast("Ajusta el marcador antes de guardar.");
+        return;
+      }
+
       const { homeName, awayName, homeScore, awayScore } = getScoreState();
 
       currentCompletedPredictions = Math.max(currentCompletedPredictions, 0) + 1;
@@ -1687,6 +1727,9 @@
         : "🏆 ¡Quiniela completa! Has pronosticado todos los partidos disponibles.";
 
       showToast(`✅ Pronóstico guardado: ${predictionPayload.interpreted_result}. ${progressMessage}`);
+      resetScoreBaseline();
+      const saveButton = document.getElementById("saveScorePredictionBtn");
+      if (saveButton) saveButton.textContent = "Pronóstico guardado";
 
       if (nextMatchBtn && pending > 0) {
         nextMatchBtn.classList.add("show");
@@ -1708,7 +1751,6 @@
       { home: "México", away: "Sudáfrica" }
     );
     updatePredictionProgress(currentCompletedPredictions, 72);
-    });
 
     document.querySelectorAll("[data-score-target]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -1717,15 +1759,15 @@
         const input = document.getElementById(target === "home" ? "homeScoreInput" : "awayScoreInput");
         if (!input) return;
         input.value = String(clampScore(Number(input.value || 0) + delta));
-        updateScoreInterpretation();
+        markScoreChanged();
       });
     });
 
     ["homeScoreInput", "awayScoreInput"].forEach((id) => {
       const input = document.getElementById(id);
       if (input) {
-        input.addEventListener("input", updateScoreInterpretation);
-        input.addEventListener("blur", updateScoreInterpretation);
+        input.addEventListener("input", markScoreChanged);
+        input.addEventListener("blur", markScoreChanged);
       }
     });
 
@@ -1735,6 +1777,7 @@
     }
 
     updateScoreInterpretation();
+    resetScoreBaseline();
 
     if (nextMatchBtn) {
       nextMatchBtn.addEventListener("click", goToNextMatch);
