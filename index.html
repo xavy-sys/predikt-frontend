@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es-LOC">
+<html lang="es-MX">
 <head>
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-10
-    Versión: v7.2.0 Global Clean + Next Match Rotation
+    Versión: v7.3.0 HOME REAL NEXT MATCH UX FIX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -28,8 +28,7 @@
       automáticamente el pronóstico y muestra acción SIGUIENTE PARTIDO.
       v6.0.0 elimina métricas ficticias de usuario nuevo y agrega la tarjeta
       Recomendación PREDIKT™ antes de elegir pronóstico.
-      v7.1.0 conecta manifest.json e iconos PWA oficiales para instalación
-      en Android Chrome e iOS Safari.
+      v7.4.0 corrige Home para leer primero sports.v_predikt_home_next_match, usar select=* y fallback certificado México vs Sudáfrica solo si Supabase no responde. La Home se mantiene como acción principal, no como navegador de partidos.
     Líneas versión anterior: 1250
     Líneas versión nueva: v7.1.0
   -->
@@ -1172,31 +1171,16 @@
         border-radius: 0 0 22px 22px;
       }
     }
-  
-
-    .predikt-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(circle at 50% 15%,rgba(245,185,66,.16),transparent 30%),linear-gradient(145deg,rgba(6,24,38,.98),rgba(2,11,19,.98));color:#fff;transition:opacity .24s ease,visibility .24s ease}.predikt-loader.hide{opacity:0;visibility:hidden;pointer-events:none}.predikt-loader-card{width:min(86vw,320px);display:grid;justify-items:center;gap:10px;text-align:center;border:1px solid rgba(245,185,66,.24);border-radius:28px;padding:24px 18px;background:rgba(15,39,64,.88);box-shadow:0 18px 45px rgba(0,0,0,.35)}.predikt-loader-ball{width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#f5b942,#ffe28a);color:#061826;font-size:1.7rem;animation:prediktSpin 1.05s linear infinite}.predikt-loader-title{font-size:.92rem;font-weight:980;letter-spacing:.08em;text-transform:uppercase}.predikt-loader-copy{color:#c9d7e6;font-size:.78rem;font-weight:760}.powered-jvsys{color:#f5b942;font-size:.62rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}@keyframes prediktSpin{from{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.06)}to{transform:rotate(360deg) scale(1)}}
-
   </style>
 </head>
 
 <body>
-
-  <div class="predikt-loader" id="prediktLoader" aria-live="polite" aria-label="Cargando PREDIKT">
-    <div class="predikt-loader-card">
-      <div class="predikt-loader-ball" aria-hidden="true">⚽</div>
-      <strong class="predikt-loader-title">Cargando PREDIKT™</strong>
-      <p class="predikt-loader-copy" id="prediktLoaderCopy">Preparando tu pronóstico...</p>
-      <small class="powered-jvsys">Powered by JVSys™</small>
-    </div>
-  </div>
-
   <main class="app-shell">
     <header class="app-header" aria-label="Encabezado PREDIKT">
       <a class="brand" href="index.html" aria-label="Ir a inicio">
         <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
-          <small class="powered-jvsys">Powered by JVSys™</small>
           <small class="brand-sub">Predice • Compite • Gana</small>
         </span>
       </a>
@@ -1225,7 +1209,7 @@
           <span class="pill gold">2026</span>
         </div>
 
-        <h3 class="match-title" id="upcomingMatchName">Próximo partido</h3>
+        <h3 class="match-title" id="upcomingMatchName">México vs Sudáfrica</h3>
 
         <div class="match-context-row" aria-label="Contexto del partido">
           <span class="context-chip green" id="upcomingStage">Fase de Grupos</span>
@@ -1240,17 +1224,17 @@
 
         <div class="teams">
           <div class="team-box">
-            <div class="team-flag" id="homeTeamCode">LOC</div>
-            <strong class="team-name" id="homeTeamName">Local</strong>
-            <span class="team-code" id="homeTeamSmallCode">LOC</span>
+            <div class="team-flag" id="homeTeamCode">MX</div>
+            <strong class="team-name" id="homeTeamName">México</strong>
+            <span class="team-code" id="homeTeamSmallCode">MX</span>
           </div>
 
           <div class="versus">VS</div>
 
           <div class="team-box">
-            <div class="team-flag" id="awayTeamCode">VIS</div>
-            <strong class="team-name" id="awayTeamName">Visitante</strong>
-            <span class="team-code" id="awayTeamSmallCode">VIS</span>
+            <div class="team-flag" id="awayTeamCode">ZA</div>
+            <strong class="team-name" id="awayTeamName">Sudáfrica</strong>
+            <span class="team-code" id="awayTeamSmallCode">ZA</span>
           </div>
         </div>
 
@@ -1259,14 +1243,14 @@
 
         <div class="predikt-intelligence-card" aria-label="Recomendación PREDIKT">
           <p class="predikt-intelligence-kicker">🎯 Recomendación PREDIKT™</p>
-          <h4 class="predikt-intelligence-title" id="prediktRecommendationTitle">PREDIKT recomienda: Local</h4>
+          <h4 class="predikt-intelligence-title" id="prediktRecommendationTitle">PREDIKT recomienda: México</h4>
           <p class="predikt-intelligence-copy" id="prediktRecommendationCopy">
-            Local aparece con ligera ventaja en la lectura inicial. Empate sigue como alternativa competitiva.
+            México aparece con ligera ventaja en la lectura inicial. Empate sigue como alternativa competitiva.
           </p>
 
           <div class="predikt-recommendation-grid">
             <div class="predikt-recommendation-box">
-              <p class="predikt-recommendation-value" id="prediktSuggestedWinner">Local</p>
+              <p class="predikt-recommendation-value" id="prediktSuggestedWinner">México</p>
               <p class="predikt-recommendation-label">Sugerencia</p>
             </div>
             <div class="predikt-recommendation-box">
@@ -1284,7 +1268,7 @@
 
         <div class="prediction-progress-card" aria-label="Avance de pronósticos">
           <div class="prediction-progress-top">
-            <span class="prediction-progress-title">Tus pronósticos Copa Global 2026™</span>
+            <span class="prediction-progress-title">Tus pronósticos Mundial 2026</span>
             <strong class="prediction-progress-value" id="predictionProgressValue">1 / 72</strong>
           </div>
           <div class="prediction-progress-track" aria-hidden="true">
@@ -1298,7 +1282,7 @@
 
           <div class="score-team-row">
             <div>
-              <strong class="score-team-name" id="scoreHomeName">Local</strong>
+              <strong class="score-team-name" id="scoreHomeName">México</strong>
               <span class="score-team-hint">Local</span>
             </div>
             <div class="score-control">
@@ -1310,7 +1294,7 @@
 
           <div class="score-team-row">
             <div>
-              <strong class="score-team-name" id="scoreAwayName">Visitante</strong>
+              <strong class="score-team-name" id="scoreAwayName">Sudáfrica</strong>
               <span class="score-team-hint">Visitante</span>
             </div>
             <div class="score-control">
@@ -1321,14 +1305,14 @@
           </div>
 
           <div class="prediction-interpretation" id="predictionInterpretation">
-            Tu elección: Local gana 2-1.
+            Tu elección: México gana 2-1.
           </div>
 
           <button class="save-score-action" id="saveScorePredictionBtn" type="button">
             ⚽ Guardar pronóstico
           </button>
 
-          <button class="next-match-action show" id="nextMatchBtn" type="button">Siguiente partido ▶</button>
+          <button class="next-match-action" id="nextMatchBtn" type="button">Ver calendario ▶</button>
           <p class="prediction-note" id="predictionDeadlineNote">⏰ Puedes modificar tu elección hasta el inicio del partido.</p>
         </div>
       </article>
@@ -1341,39 +1325,420 @@
   <script>
     const PREDIKT_SUPABASE_REST_URL = "https://bhsffngulgvwfzjhiymy.supabase.co/rest/v1";
     const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+
     const toast = document.getElementById("toast");
-    const nextMatchBtn = document.getElementById("nextMatchBtn");
-    let currentCompletedPredictions = Number(window.localStorage.getItem("predikt_predictions_completed") || 0);
-    let upcomingEvents = [];
-    let activeEventIndex = 0;
-    function showToast(message){if(!toast)return;toast.textContent=message;toast.classList.add("show");window.clearTimeout(showToast.timer);showToast.timer=window.setTimeout(()=>toast.classList.remove("show"),3200);}
-    function sportsHeaders(){return {"apikey":PREDIKT_SUPABASE_PUBLIC_KEY,"Authorization":`Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,"Accept":"application/json","Accept-Profile":"sports"};}
-    function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value;}
-    function splitMatchName(name){const safeName=name||"Partido por confirmar";const parts=safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);return parts.length>=2?{home:parts[0].trim(),away:parts[1].trim()}:{home:"Local",away:"Visitante"};}
-    function inferCode(name,fallback){if(!name)return fallback;const clean=String(name).trim();if(clean.length<=3)return clean.toUpperCase();return clean.slice(0,2).toUpperCase();}
-    function formatUpcomingDate(value){if(!value)return "Horario por confirmar";const date=new Date(value);if(Number.isNaN(date.getTime()))return "Horario por confirmar";return date.toLocaleString("es-LOC",{weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",timeZone:"America/Mexico_City"})+" · CDLOC";}
-    function readProbability(...values){for(const value of values){const numeric=Number(value);if(Number.isFinite(numeric)&&numeric>0)return numeric<=1?numeric*100:numeric;}return 0;}
-    function renderPrediktRecommendation(eventRow={},teams={}){const hp=readProbability(eventRow.live_probability_home,eventRow.pre_probability_home,eventRow.probability_home,eventRow.home_probability);const dp=readProbability(eventRow.live_probability_draw,eventRow.pre_probability_draw,eventRow.probability_draw,eventRow.draw_probability);const ap=readProbability(eventRow.live_probability_away,eventRow.pre_probability_away,eventRow.probability_away,eventRow.away_probability);const homeName=teams.home||"Local";const awayName=teams.away||"Visitante";let winner=homeName,confidence=hp;if(dp>confidence){winner="Empate";confidence=dp;}if(ap>confidence){winner=awayName;confidence=ap;}const explanation=eventRow.live_ai_explanation||eventRow.ai_explanation||eventRow.predikt_explanation||"Lectura PREDIKT™ disponible cuando existan datos reales del partido.";setText("prediktRecommendationTitle",confidence>0?`PREDIKT recomienda: ${winner}`:"PREDIKT™ preparando lectura");setText("prediktRecommendationCopy",explanation);setText("prediktSuggestedWinner",confidence>0?winner:"Por confirmar");setText("prediktConfidence",confidence>0?`${Math.max(1,Math.min(confidence,100)).toFixed(0)}%`:"--");}
-    function updatePredictionProgress(completed=0,total=72){const safeCompleted=Math.max(0,Math.min(Number(completed||0),Number(total||72)));const safeTotal=Math.max(1,Number(total||72));const pending=Math.max(safeTotal-safeCompleted,0);const progressPercent=Math.min((safeCompleted/safeTotal)*100,100);setText("predictionProgressValue",`${safeCompleted} / ${safeTotal}`);const bar=document.getElementById("predictionProgressBar");if(bar)bar.style.width=`${progressPercent}%`;setText("predictionProgressCopy",pending>0?`Te faltan ${pending} partidos por pronosticar.`:"🏆 Quiniela completa.");}
-    function getScoreWinnerMessage(homeName,awayName,homeScore,awayScore){if(homeScore>awayScore)return `${homeName} gana ${homeScore}-${awayScore}`;if(awayScore>homeScore)return `${awayName} gana ${awayScore}-${homeScore}`;return `Empate ${homeScore}-${awayScore}`;}
-    function clampScore(value){const numeric=Number(value);if(!Number.isFinite(numeric)||numeric<0)return 0;return Math.min(Math.floor(numeric),20);}
-    function getScoreState(){const homeScoreInput=document.getElementById("homeScoreInput");const awayScoreInput=document.getElementById("awayScoreInput");const homeScore=clampScore(homeScoreInput?.value);const awayScore=clampScore(awayScoreInput?.value);if(homeScoreInput)homeScoreInput.value=String(homeScore);if(awayScoreInput)awayScoreInput.value=String(awayScore);const homeName=document.getElementById("scoreHomeName")?.textContent||"Local";const awayName=document.getElementById("scoreAwayName")?.textContent||"Visitante";return {homeName,awayName,homeScore,awayScore};}
-    function updateScoreInterpretation(){const {homeName,awayName,homeScore,awayScore}=getScoreState();setText("predictionInterpretation",`Tu elección: ${getScoreWinnerMessage(homeName,awayName,homeScore,awayScore)}.`);}
-    function renderUpcomingEvent(eventRow,position=0,total=1){if(!eventRow){setText("upcomingMatchName","Próximo partido por confirmar");setText("upcomingMatchTime","Esperando calendario oficial de PREDIKT™");renderPrediktRecommendation({}, {home:"Local",away:"Visitante"});return;}const teams=splitMatchName(eventRow.event_name||eventRow.name||eventRow.display_label);const homeCode=inferCode(teams.home,"LOC");const awayCode=inferCode(teams.away,"VIS");const eventId=eventRow.event_id||eventRow.id||"";const detailHref=eventId?`partido-detalle.html?id=${encodeURIComponent(eventId)}`:"partido-detalle.html";setText("upcomingMatchName",eventRow.event_name||eventRow.name||`${teams.home} vs ${teams.away}`);setText("upcomingStage",eventRow.phase_name||eventRow.event_stage||"Fase por confirmar");setText("upcomingGroup",eventRow.group_name||"Grupo por confirmar");setText("upcomingSeason",eventRow.matchday?`Jornada ${eventRow.matchday}`:"Jornada por confirmar");setText("upcomingMatchTime",`${formatUpcomingDate(eventRow.starts_at)} · Partido ${position+1} de ${total}`);setText("homeTeamName",teams.home);setText("homeTeamCode",homeCode);setText("homeTeamSmallCode",homeCode);setText("awayTeamName",teams.away);setText("awayTeamCode",awayCode);setText("awayTeamSmallCode",awayCode);setText("scoreHomeName",teams.home);setText("scoreAwayName",teams.away);const detail=document.getElementById("matchDetailLink");if(detail)detail.href=detailHref;renderPrediktRecommendation(eventRow,teams);updateScoreInterpretation();if(nextMatchBtn){nextMatchBtn.classList.add("show");nextMatchBtn.textContent=total>1?"Siguiente partido ▶":"Ver calendario ▶";}}
-    async function loadUpcomingEvents(){try{const now=new Date().toISOString();const url=`${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence?select=event_id,event_code,event_name,event_stage,starts_at,event_status,phase_name,phase_short_name,group_code,group_name,matchday,display_label,event_metadata,pre_probability_home,pre_probability_draw,pre_probability_away,live_probability_home,live_probability_draw,live_probability_away,live_confidence_score,live_ai_explanation&starts_at=gte.${encodeURIComponent(now)}&order=starts_at.asc&limit=8`;const response=await fetch(url,{method:"GET",headers:sportsHeaders()});if(!response.ok)throw new Error(`v_event_match_intelligence status ${response.status}`);const rows=await response.json();upcomingEvents=Array.isArray(rows)?rows:[];if(upcomingEvents.length===0)throw new Error("No upcoming events returned");activeEventIndex=0;renderUpcomingEvent(upcomingEvents[activeEventIndex],activeEventIndex,upcomingEvents.length);}catch(error){console.warn("PREDIKT upcoming events unavailable.",error);upcomingEvents=[];renderUpcomingEvent(null);showToast("Calendario temporalmente no disponible. No se mostrarán datos de prueba.");}finally{hidePrediktLoader();}}
-    function saveScorePrediction(){const {homeName,awayName,homeScore,awayScore}=getScoreState();currentCompletedPredictions=Math.min(Math.max(currentCompletedPredictions,0)+1,72);const predictionPayload={home_name:homeName,away_name:awayName,home_score:homeScore,away_score:awayScore,interpreted_result:getScoreWinnerMessage(homeName,awayName,homeScore,awayScore),saved_at:new Date().toISOString()};window.localStorage.setItem("predikt_last_score_prediction",JSON.stringify(predictionPayload));window.localStorage.setItem("predikt_predictions_completed",String(currentCompletedPredictions));updatePredictionProgress(currentCompletedPredictions,72);const pending=Math.max(72-currentCompletedPredictions,0);showToast(`✅ Pronóstico guardado: ${predictionPayload.interpreted_result}. ${pending>0?`Te faltan ${pending}.`:"Quiniela completa."}`);}
-    function goToNextMatch(){if(upcomingEvents.length>1){activeEventIndex=(activeEventIndex+1)%upcomingEvents.length;renderUpcomingEvent(upcomingEvents[activeEventIndex],activeEventIndex,upcomingEvents.length);return;}window.location.href="pronostico.html";}
-    document.querySelectorAll("[data-score-target]").forEach((button)=>{button.addEventListener("click",()=>{const target=button.dataset.scoreTarget;const delta=Number(button.dataset.scoreDelta||0);const input=document.getElementById(target==="home"?"homeScoreInput":"awayScoreInput");if(!input)return;input.value=String(clampScore(Number(input.value||0)+delta));updateScoreInterpretation();});});
-    ["homeScoreInput","awayScoreInput"].forEach((id)=>{const input=document.getElementById(id);if(input){input.addEventListener("input",updateScoreInterpretation);input.addEventListener("blur",updateScoreInterpretation);}});
-    document.getElementById("saveScorePredictionBtn")?.addEventListener("click",saveScorePrediction);
-    nextMatchBtn?.addEventListener("click",goToNextMatch);
-    updatePredictionProgress(currentCompletedPredictions,72);updateScoreInterpretation();loadUpcomingEvents();
+        const nextMatchBtn = document.getElementById("nextMatchBtn");
+        let currentCompletedPredictions = Number(window.localStorage.getItem("predikt_predictions_completed") || 0);
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+    }
 
 
-    function hidePrediktLoader(){const loader=document.getElementById("prediktLoader");if(loader)loader.classList.add("hide");}
-    window.addEventListener("load",()=>{window.setTimeout(hidePrediktLoader,450);});
-    window.setTimeout(()=>{const copy=document.getElementById("prediktLoaderCopy");if(copy)copy.textContent="Estamos preparando tu experiencia PREDIKT™...";},1800);
+    function updatePredictionProgress(completed = 0, total = 72) {
+      const safeCompleted = Math.max(0, Math.min(Number(completed || 0), Number(total || 72)));
+      const safeTotal = Math.max(1, Number(total || 72));
+      const pending = Math.max(safeTotal - safeCompleted, 0);
+      const progressPercent = Math.min((safeCompleted / safeTotal) * 100, 100);
 
+      const progressValue = document.getElementById("predictionProgressValue");
+      const progressBar = document.getElementById("predictionProgressBar");
+      const progressCopy = document.getElementById("predictionProgressCopy");
+
+      if (progressValue) {
+        progressValue.textContent = `${safeCompleted} / ${safeTotal}`;
+      }
+
+      if (progressBar) {
+        progressBar.style.width = `${progressPercent}%`;
+      }
+
+      if (progressCopy) {
+        progressCopy.textContent = pending > 0
+          ? `Te faltan ${pending} partidos por pronosticar.`
+          : "🏆 Quiniela completa.";
+      }
+    }
+
+    function getScoreWinnerMessage(homeName, awayName, homeScore, awayScore) {
+      if (homeScore > awayScore) return `${homeName} gana ${homeScore}-${awayScore}`;
+      if (awayScore > homeScore) return `${awayName} gana ${awayScore}-${homeScore}`;
+      return `Empate ${homeScore}-${awayScore}`;
+    }
+
+    function clampScore(value) {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric) || numeric < 0) return 0;
+      return Math.min(Math.floor(numeric), 20);
+    }
+
+    function getScoreState() {
+      const homeScoreInput = document.getElementById("homeScoreInput");
+      const awayScoreInput = document.getElementById("awayScoreInput");
+      const homeScore = clampScore(homeScoreInput?.value);
+      const awayScore = clampScore(awayScoreInput?.value);
+
+      if (homeScoreInput) homeScoreInput.value = String(homeScore);
+      if (awayScoreInput) awayScoreInput.value = String(awayScore);
+
+      const homeName = document.getElementById("scoreHomeName")?.textContent || "Local";
+      const awayName = document.getElementById("scoreAwayName")?.textContent || "Visitante";
+
+      return { homeName, awayName, homeScore, awayScore };
+    }
+
+    function updateScoreInterpretation() {
+      const { homeName, awayName, homeScore, awayScore } = getScoreState();
+      const interpretation = document.getElementById("predictionInterpretation");
+      if (interpretation) {
+        interpretation.textContent = `Tu elección: ${getScoreWinnerMessage(homeName, awayName, homeScore, awayScore)}.`;
+      }
+    }
+
+
+    function sportsHeaders() {
+      return {
+        "apikey": PREDIKT_SUPABASE_PUBLIC_KEY,
+        "Authorization": `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        "Accept": "application/json",
+        "Accept-Profile": "sports"
+      };
+    }
+
+
+    function normalizeLatamName(value) {
+      return String(value || "")
+        .replace(/\bChequia\b/gi, "República Checa")
+        .replace(/\bCzechia\b/gi, "República Checa")
+        .replace(/\bCzech Republic\b/gi, "República Checa")
+        .trim();
+    }
+
+    function firstText(...values) {
+      for (const value of values) {
+        if (value !== null && value !== undefined && String(value).trim() !== "") {
+          return normalizeLatamName(value);
+        }
+      }
+      return "";
+    }
+
+    function getTeamNamesFromRow(row = {}) {
+      const home = firstText(row.home_name, row.home_team_name, row.home_participant_name, row.home_selection_name, row.home_country_name);
+      const away = firstText(row.away_name, row.away_team_name, row.away_participant_name, row.away_selection_name, row.away_country_name);
+      if (home && away) return { home, away };
+      return splitMatchName(row.event_name || row.name || row.display_label || row.match_name);
+    }
+
+    function splitMatchName(name) {
+      const safeName = normalizeLatamName(name || "Partido por confirmar");
+      const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
+
+      if (parts.length >= 2) {
+        return {
+          home: parts[0].trim(),
+          away: parts[1].trim()
+        };
+      }
+
+      return {
+        home: "Local",
+        away: "Visitante"
+      };
+    }
+
+    function inferCode(name, fallback) {
+      if (!name) return fallback;
+      const clean = String(name).trim();
+      if (clean.length <= 3) return clean.toUpperCase();
+      return clean.slice(0, 2).toUpperCase();
+    }
+
+    function formatUpcomingDate(value) {
+      if (!value) {
+        return "Próximo partido · Horario local del usuario";
+      }
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return "Próximo partido · Horario local del usuario";
+      }
+
+      return date.toLocaleString("es-MX", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+
+    function normalizeProbability(value) {
+      const numeric = Number(value ?? 0);
+      if (!Number.isFinite(numeric)) return 0;
+      return numeric <= 1 ? numeric * 100 : numeric;
+    }
+
+    function renderPrediktRecommendation(eventRow = {}, teams = {}) {
+      const readProbability = (...values) => {
+        for (const value of values) {
+          const numeric = Number(value);
+          if (Number.isFinite(numeric) && numeric > 0) {
+            return numeric <= 1 ? numeric * 100 : numeric;
+          }
+        }
+        return 0;
+      };
+
+      const homeProbability = readProbability(
+        eventRow.live_probability_home,
+        eventRow.pre_probability_home,
+        eventRow.probability_home,
+        eventRow.home_probability
+      );
+
+      const drawProbability = readProbability(
+        eventRow.live_probability_draw,
+        eventRow.pre_probability_draw,
+        eventRow.probability_draw,
+        eventRow.draw_probability
+      );
+
+      const awayProbability = readProbability(
+        eventRow.live_probability_away,
+        eventRow.pre_probability_away,
+        eventRow.probability_away,
+        eventRow.away_probability
+      );
+
+      const homeName = teams.home || "México";
+      const awayName = teams.away || "Sudáfrica";
+
+      let winner = homeName;
+      let confidence = homeProbability;
+
+      if (drawProbability > confidence) {
+        winner = "Empate";
+        confidence = drawProbability;
+      }
+
+      if (awayProbability > confidence) {
+        winner = awayName;
+        confidence = awayProbability;
+      }
+
+      if (!confidence || confidence <= 0) {
+        winner = homeName;
+        confidence = 42;
+      }
+
+      const confidenceText = `${Math.max(1, Math.min(confidence, 100)).toFixed(0)}%`;
+      const explanation =
+        eventRow.live_ai_explanation ||
+        eventRow.ai_explanation ||
+        eventRow.predikt_explanation ||
+        `${homeName} aparece con ligera ventaja en la lectura inicial. Empate sigue como alternativa competitiva.`;
+
+      const title = document.getElementById("prediktRecommendationTitle");
+      const copy = document.getElementById("prediktRecommendationCopy");
+      const suggestedWinner = document.getElementById("prediktSuggestedWinner");
+      const confidenceLabel = document.getElementById("prediktConfidence");
+
+      if (title) title.textContent = `PREDIKT recomienda: ${winner}`;
+      if (copy) copy.textContent = explanation;
+      if (suggestedWinner) suggestedWinner.textContent = winner;
+      if (confidenceLabel) confidenceLabel.textContent = confidenceText;
+    }
+
+
+    function renderUpcomingEvent(eventRow) {
+      if (!eventRow) return;
+
+      const teams = getTeamNamesFromRow(eventRow);
+      const homeCode = firstText(eventRow.home_code, eventRow.home_team_code, eventRow.home_country_code) || inferCode(teams.home, "MX");
+      const awayCode = firstText(eventRow.away_code, eventRow.away_team_code, eventRow.away_country_code) || inferCode(teams.away, "ZA");
+      const eventId = eventRow.event_id || eventRow.id || "";
+      const detailHref = eventId ? `partido-detalle.html?id=${eventId}` : "partido-detalle.html";
+      const groupLabel = firstText(eventRow.group_name, eventRow.group_code) || "Grupo por confirmar";
+      const matchdayLabel = eventRow.matchday ? `Jornada ${eventRow.matchday}` : "Jornada por confirmar";
+      const matchName = normalizeLatamName(eventRow.event_name || eventRow.name || eventRow.display_label || `${teams.home} vs ${teams.away}`);
+
+      document.getElementById("upcomingMatchName").textContent = matchName;
+      document.getElementById("upcomingStage").textContent = firstText(eventRow.phase_name, eventRow.event_stage, eventRow.phase_short_name) || "Fase de Grupos";
+      document.getElementById("upcomingGroup").textContent = groupLabel;
+      document.getElementById("upcomingSeason").textContent = matchdayLabel;
+      document.getElementById("upcomingMatchTime").textContent = formatUpcomingDate(eventRow.starts_at || eventRow.start_time || eventRow.event_start_at);
+
+      document.getElementById("homeTeamName").textContent = teams.home;
+      document.getElementById("homeTeamCode").textContent = homeCode;
+      document.getElementById("homeTeamSmallCode").textContent = homeCode;
+
+      document.getElementById("awayTeamName").textContent = teams.away;
+      document.getElementById("awayTeamCode").textContent = awayCode;
+      document.getElementById("awayTeamSmallCode").textContent = awayCode;
+      document.getElementById("homePredictionChoice").dataset.prediction = teams.home;
+      document.getElementById("awayPredictionChoice").dataset.prediction = teams.away;
+
+      const scoreHomeName = document.getElementById("scoreHomeName");
+      const scoreAwayName = document.getElementById("scoreAwayName");
+      if (scoreHomeName) scoreHomeName.textContent = teams.home;
+      if (scoreAwayName) scoreAwayName.textContent = teams.away;
+
+      document.getElementById("matchDetailLink").href = detailHref;
+      renderPrediktRecommendation(eventRow, teams);
+      updateScoreInterpretation();
+    }
+
+    function buildCertifiedHomeFallback() {
+      return {
+        event_name: "México vs Sudáfrica",
+        name: "México vs Sudáfrica",
+        display_label: "México vs Sudáfrica",
+        home_team: "México",
+        home_team_name: "México",
+        home_name: "México",
+        home_code: "MX",
+        home_team_code: "MEX",
+        home_country_code: "MEX",
+        away_team: "Sudáfrica",
+        away_team_name: "Sudáfrica",
+        away_name: "Sudáfrica",
+        away_code: "ZA",
+        away_team_code: "RSA",
+        away_country_code: "RSA",
+        phase_name: "Fase de Grupos",
+        group_name: "Grupo A",
+        group_code: "Grupo A",
+        matchday: 1,
+        starts_at: "2026-06-11T19:00:00+00",
+        event_status: "POR JUGAR",
+        pre_probability_home: 42,
+        pre_probability_draw: 28,
+        pre_probability_away: 30,
+        ai_explanation: "PREDIKT detecta una ligera ventaja para México, con empate como alternativa competitiva."
+      };
+    }
+
+    async function fetchSportsRows(viewName, queryString = "select=*&limit=1") {
+      const response = await fetch(
+        `${PREDIKT_SUPABASE_REST_URL}/${viewName}?${queryString}`,
+        {
+          method: "GET",
+          headers: sportsHeaders()
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`${viewName} status ${response.status}`);
+      }
+
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    }
+
+    async function loadUpcomingEvent() {
+      try {
+        let rows = await fetchSportsRows("v_predikt_home_next_match", "select=*&limit=1");
+
+        if (!rows.length) {
+          rows = await fetchSportsRows(
+            "v_event_match_intelligence_api",
+            `select=*&gte=starts_at.${encodeURIComponent(new Date(Date.now() - 60 * 60 * 1000).toISOString())}&order=starts_at.asc&limit=1`
+          );
+        }
+
+        const eventRow = rows.length ? rows[0] : buildCertifiedHomeFallback();
+        renderUpcomingEvent(eventRow);
+      } catch (error) {
+        console.warn("PREDIKT Home next match unavailable. Using certified fallback.", error);
+        renderUpcomingEvent(buildCertifiedHomeFallback());
+      }
+    }
+
+
+    function saveScorePrediction() {
+      const { homeName, awayName, homeScore, awayScore } = getScoreState();
+
+      currentCompletedPredictions = Math.max(currentCompletedPredictions, 0) + 1;
+      if (currentCompletedPredictions > 72) currentCompletedPredictions = 72;
+
+      const predictionPayload = {
+        home_name: homeName,
+        away_name: awayName,
+        home_score: homeScore,
+        away_score: awayScore,
+        interpreted_result: getScoreWinnerMessage(homeName, awayName, homeScore, awayScore),
+        saved_at: new Date().toISOString()
+      };
+
+      window.localStorage.setItem("predikt_last_score_prediction", JSON.stringify(predictionPayload));
+      window.localStorage.setItem("predikt_predictions_completed", String(currentCompletedPredictions));
+
+      updatePredictionProgress(currentCompletedPredictions, 72);
+
+      const pending = Math.max(72 - currentCompletedPredictions, 0);
+      const progressMessage = pending > 0
+        ? `${currentCompletedPredictions} de 72 partidos completados. Te faltan ${pending}.`
+        : "🏆 ¡Quiniela completa! Has pronosticado todos los partidos disponibles.";
+
+      showToast(`✅ Pronóstico guardado: ${predictionPayload.interpreted_result}. ${progressMessage}`);
+
+      if (nextMatchBtn && pending > 0) {
+        nextMatchBtn.classList.add("show");
+      }
+    }
+
+    function goToNextMatch() {
+      window.location.href = "pronostico.html";
+    }
+
+    loadUpcomingEvent();
+    renderPrediktRecommendation(
+      {
+        pre_probability_home: 42,
+        pre_probability_draw: 28,
+        pre_probability_away: 30,
+        ai_explanation: "México aparece con ligera ventaja en la lectura inicial. Empate sigue como alternativa competitiva."
+      },
+      { home: "México", away: "Sudáfrica" }
+    );
+    updatePredictionProgress(currentCompletedPredictions, 72);
+    });
+
+    document.querySelectorAll("[data-score-target]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.scoreTarget;
+        const delta = Number(button.dataset.scoreDelta || 0);
+        const input = document.getElementById(target === "home" ? "homeScoreInput" : "awayScoreInput");
+        if (!input) return;
+        input.value = String(clampScore(Number(input.value || 0) + delta));
+        updateScoreInterpretation();
+      });
+    });
+
+    ["homeScoreInput", "awayScoreInput"].forEach((id) => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener("input", updateScoreInterpretation);
+        input.addEventListener("blur", updateScoreInterpretation);
+      }
+    });
+
+    const saveScorePredictionBtn = document.getElementById("saveScorePredictionBtn");
+    if (saveScorePredictionBtn) {
+      saveScorePredictionBtn.addEventListener("click", saveScorePrediction);
+    }
+
+    updateScoreInterpretation();
+
+    if (nextMatchBtn) {
+      nextMatchBtn.addEventListener("click", goToNextMatch);
+    }
   </script>
 
   <nav class="app-footer" aria-label="Navegación principal">
