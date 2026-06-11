@@ -3,24 +3,23 @@
 <head>
   <!--
     Nombre del archivo: usuarios.html
-    Fecha: 2026-06-07
-    Versión: v1.0.1 🔐 Guardia Admin Real
+    Fecha: 2026-06-11
+    Versión: v2.0.0 👥 Real Data Admin
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla administrativa de usuarios para Beta Pública PREDIKT™.
-      Conecta desde el Centro de Lanzamiento mediante el botón 👥 Usuarios.
-      Permite visualizar KPIs, buscar usuarios, revisar estado, actividad,
-      pronósticos y puntos acumulados. Versión mobile-first con datos demo/fallback,
-      preparada para conexión posterior con Supabase Analytics y protección admin.
-    Líneas versión anterior: 0
-    Líneas versión nueva: 360
+      Pantalla administrativa de usuarios reales PREDIKT™.
+      Elimina completamente demoUsers y consume exclusivamente la RPC:
+      public.predikt_admin_users().
+      Mantiene Guardia Admin Real mediante assets/js/admin-guard.js.
+      Mobile First, sin datos inventados, lista para producción Beta.
+    Archivo base auditado: usuarios.html v1.0.1
   -->
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PREDIKT™ | Usuarios</title>
-  <meta name="description" content="Administración Beta de usuarios PREDIKT™." />
+  <title>PREDIKT™ | Usuarios Reales</title>
+  <meta name="description" content="Administración de usuarios reales PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
   <link rel="icon" type="image/png" href="assets/logos/predikt-logo.png" />
@@ -32,13 +31,8 @@
   </script>
 
   <style>
-    html.admin-guard-pending{
-      visibility:hidden;
-      opacity:0;
-    }
-  </style>
+    html.admin-guard-pending { visibility: hidden; opacity: 0; }
 
-  <style>
     :root {
       --bg-main: #061826;
       --bg-deep: #020b13;
@@ -79,6 +73,7 @@
     a { color: inherit; text-decoration: none; }
     button, input { font: inherit; }
     button { border: 0; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
 
     .app-shell { width: min(100%, var(--app-max)); margin: 0 auto; padding: 18px 14px 0; }
     .app-header {
@@ -119,7 +114,13 @@
     }
     .hero-kicker { color: var(--gold); font-size: .70rem; font-weight: 980; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
     .hero-title { position: relative; z-index: 1; font-size: clamp(1.35rem,5.2vw,2.15rem); font-weight: 980; line-height: 1; letter-spacing: -.04em; margin-bottom: 8px; }
-    .hero-copy { position: relative; z-index: 1; color: var(--text-soft); max-width: 680px; font-size: .82rem; font-weight: 760; }
+    .hero-copy { position: relative; z-index: 1; color: var(--text-soft); max-width: 720px; font-size: .82rem; font-weight: 760; }
+
+    .system-banner {
+      display: none; margin-bottom: 12px; border-radius: var(--radius-lg); border: 1px solid rgba(255,90,95,.30);
+      background: rgba(255,90,95,.10); color: var(--text-main); padding: 12px; font-size: .76rem; font-weight: 820;
+    }
+    .system-banner.show { display: block; }
 
     .kpi-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
     .kpi-card {
@@ -157,25 +158,28 @@
     .user-main { min-width: 0; display: grid; gap: 8px; }
     .user-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
     .user-name { font-size: .9rem; font-weight: 960; line-height: 1.1; }
+    .founder-diamond { color: var(--gold); margin-left: 4px; }
     .user-email { color: var(--text-muted); font-size: .64rem; font-weight: 760; margin-top: 2px; overflow-wrap: anywhere; }
     .status-pill { min-height: 28px; display: inline-flex; align-items: center; justify-content: center; padding: 0 9px; border-radius: 999px; font-size: .58rem; font-weight: 980; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
     .status-active { color: #061826; background: linear-gradient(135deg, var(--green), #8cffc4); }
     .status-new { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
     .status-idle { color: var(--text-soft); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
     .user-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
-    .metric { border-radius: 14px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.08); padding: 8px 6px; text-align: center; }
-    .metric strong { display: block; font-size: .82rem; font-weight: 980; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+    .metric { border-radius: 14px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.08); padding: 8px 6px; text-align: center; min-width: 0; }
+    .metric strong { display: block; font-size: .75rem; font-weight: 980; color: var(--gold); line-height: 1.05; margin-bottom: 4px; overflow-wrap: anywhere; }
     .metric span { display: block; color: var(--text-muted); font-size: .54rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
     .user-actions { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
     .action-btn { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: var(--text-main); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); font-size: .64rem; font-weight: 920; text-transform: uppercase; letter-spacing: .03em; }
     .action-btn.primary { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
     .admin-note { margin-top: 12px; border: 1px dashed rgba(245,185,66,.28); border-radius: var(--radius-lg); background: rgba(245,185,66,.08); padding: 12px; color: var(--text-soft); font-size: .70rem; font-weight: 790; }
+    .loader-card { border-radius: var(--radius-md); background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.085); padding: 18px; color: var(--text-soft); font-size: .82rem; font-weight: 820; text-align: center; }
     .toast { position: fixed; left: 50%; bottom: calc(var(--footer-height) + 18px); transform: translateX(-50%) translateY(20px); z-index: 60; width: min(calc(100% - 28px), 560px); border: 1px solid rgba(72,242,154,.34); border-radius: 18px; background: rgba(7,28,46,.98); color: var(--text-main); padding: 13px 15px; box-shadow: 0 14px 36px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; font-size: .83rem; font-weight: 830; text-align: center; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .app-footer { position: fixed; left: 50%; bottom: 0; z-index: 40; width: min(100%,560px); transform: translateX(-50%); display: grid; grid-template-columns: repeat(5,1fr); gap: 4px; padding: 9px 10px 11px; border: 1px solid rgba(255,255,255,.11); border-bottom: 0; border-radius: 24px 24px 0 0; background: rgba(4,17,29,.97); backdrop-filter: blur(18px); box-shadow: 0 -12px 34px rgba(0,0,0,.34); }
     .footer-item { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; padding: 7px 4px; color: var(--text-muted); font-size: .58rem; font-weight: 880; gap: 3px; }
     .footer-item span { font-size: 1rem; line-height: 1; }
     .footer-item.active { color: var(--gold); background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.22); }
+
     @media (min-width:640px) { .kpi-grid { grid-template-columns: repeat(4,1fr); } .toolbar { grid-template-columns: 1.4fr 1fr; align-items: center; } }
     @media (min-width:900px) { .app-shell { padding: 22px 18px 0; } .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; } .user-row { grid-template-columns: auto 1fr 260px; } .user-actions { align-self: stretch; align-content: center; } }
     @media (max-width:520px) { .filter-row, .user-metrics, .user-actions { grid-template-columns: 1fr; } .user-topline { flex-direction: column; } .status-pill { width: fit-content; } }
@@ -189,7 +193,7 @@
         <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
-          <small class="brand-sub">👥 Usuarios</small>
+          <small class="brand-sub">👥 Usuarios Reales</small>
         </span>
       </a>
       <div class="header-actions">
@@ -199,20 +203,22 @@
     </header>
 
     <section class="hero-card" aria-label="Administración de usuarios">
-      <p class="hero-kicker">👥 PREDIKT™ · Administración Beta</p>
+      <p class="hero-kicker">👥 PREDIKT™ · Administración Real</p>
       <h1 class="hero-title">Usuarios PREDIKT™</h1>
-      <p class="hero-copy">Monitorea registros, actividad, pronósticos, puntos y estado de usuarios durante la Beta Pública.</p>
+      <p class="hero-copy">Monitorea registros reales, actividad, pronósticos, puntos y fundadores desde Supabase. Powered by JVSys™.</p>
     </section>
 
+    <div class="system-banner" id="systemBanner" role="alert"></div>
+
     <section class="kpi-grid" aria-label="KPIs de usuarios">
-      <article class="kpi-card" data-icon="👥"><p class="kpi-label">Usuarios Totales</p><p class="kpi-value blue" id="totalUsers">6</p><p class="kpi-sub">Base inicial Beta.</p></article>
-      <article class="kpi-card" data-icon="🟢"><p class="kpi-label">Activos 7 Días</p><p class="kpi-value green" id="activeUsers">3</p><p class="kpi-sub">Con actividad reciente.</p></article>
-      <article class="kpi-card" data-icon="🎯"><p class="kpi-label">Con Pronósticos</p><p class="kpi-value gold" id="usersWithPredictions">4</p><p class="kpi-sub">Ya participaron.</p></article>
-      <article class="kpi-card" data-icon="💎"><p class="kpi-label">Fundadores</p><p class="kpi-value orange" id="founderUsers">1</p><p class="kpi-sub">Registrados como fundadores.</p></article>
+      <article class="kpi-card" data-icon="👥"><p class="kpi-label">Usuarios Totales</p><p class="kpi-value blue" id="totalUsers">—</p><p class="kpi-sub">Registros reales.</p></article>
+      <article class="kpi-card" data-icon="🟢"><p class="kpi-label">Activos 7 Días</p><p class="kpi-value green" id="activeUsers">—</p><p class="kpi-sub">Con acceso reciente.</p></article>
+      <article class="kpi-card" data-icon="🎯"><p class="kpi-label">Con Pronósticos</p><p class="kpi-value gold" id="usersWithPredictions">—</p><p class="kpi-sub">Ya participaron.</p></article>
+      <article class="kpi-card" data-icon="💎"><p class="kpi-label">Fundadores</p><p class="kpi-value orange" id="founderUsers">—</p><p class="kpi-sub">Registrados como fundadores.</p></article>
     </section>
 
     <section class="toolbar" aria-label="Búsqueda y filtros">
-      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por alias, nombre o correo..." />
+      <input class="search-box" id="searchInput" type="search" placeholder="🔎 Buscar por nombre o correo..." />
       <div class="filter-row">
         <button class="filter-chip active" type="button" data-filter="all">Todos</button>
         <button class="filter-chip" type="button" data-filter="active">Activos</button>
@@ -221,34 +227,44 @@
     </section>
 
     <section class="users-panel" aria-label="Listado de usuarios">
-      <div class="section-head"><h2 class="section-title">Listado Beta</h2><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div>
-      <div class="user-list" id="userList"></div>
+      <div class="section-head"><h2 class="section-title">Listado Real</h2><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div>
+      <div class="user-list" id="userList"><div class="loader-card">Cargando usuarios reales…</div></div>
     </section>
 
-    <p class="admin-note">Vista administrativa no pública. Versión con datos demo/fallback para validar UX. La siguiente etapa conecta usuarios reales desde Supabase y protección por rol administrador.</p>
+    <p class="admin-note">Vista administrativa protegida. No contiene datos demo. Los botones Ver detalle, Ver pronósticos y Bloquear usuario quedan preparados para la siguiente capa operativa.</p>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite">Usuarios actualizados.</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
   <script src="assets/js/admin-guard.js"></script>
 
   <script>
-    const demoUsers = [
-      { alias: "ElTigre", name: "Carlos Rivera", email: "eltigre@predikt.demo", registered: "06 Jun", lastAccess: "Hoy", predictions: 12, points: 98, status: "active", founder: true },
-      { alias: "Pey", name: "Pey", email: "pey@predikt.demo", registered: "06 Jun", lastAccess: "Hoy", predictions: 10, points: 92, status: "active", founder: false },
-      { alias: "Javier", name: "Javier", email: "javier@predikt.demo", registered: "05 Jun", lastAccess: "Ayer", predictions: 9, points: 89, status: "active", founder: false },
-      { alias: "GolMaster", name: "Gol Master", email: "golmaster@predikt.demo", registered: "05 Jun", lastAccess: "Hace 3 días", predictions: 4, points: 41, status: "new", founder: false },
-      { alias: "FutboleroMX", name: "Futbolero MX", email: "futbolero@predikt.demo", registered: "04 Jun", lastAccess: "Sin acceso", predictions: 0, points: 0, status: "idle", founder: false },
-      { alias: "LaQuiniela", name: "La Quiniela", email: "quiniela@predikt.demo", registered: "04 Jun", lastAccess: "Sin acceso", predictions: 0, points: 0, status: "idle", founder: false }
-    ];
+    "use strict";
+
+    const state = {
+      users: [],
+      activeFilter: "all",
+      loading: false
+    };
 
     const userList = document.getElementById("userList");
     const searchInput = document.getElementById("searchInput");
     const filterButtons = document.querySelectorAll("[data-filter]");
     const refreshBtn = document.getElementById("refreshBtn");
     const toast = document.getElementById("toast");
-    let activeFilter = "all";
+    const systemBanner = document.getElementById("systemBanner");
+
+    function getSupabaseClient() {
+      if (window.PrediktSupabase && window.PrediktSupabase.client) return window.PrediktSupabase.client;
+      if (window.prediktSupabaseClient) return window.prediktSupabaseClient;
+      if (window.supabaseClient) return window.supabaseClient;
+      if (window.supabase && window.PREDIKT_SUPABASE_URL && window.PREDIKT_SUPABASE_ANON_KEY) {
+        return window.supabase.createClient(window.PREDIKT_SUPABASE_URL, window.PREDIKT_SUPABASE_ANON_KEY);
+      }
+      return null;
+    }
 
     function showToast(message) {
       toast.textContent = message;
@@ -257,74 +273,163 @@
       showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    function statusLabel(status) {
-      if (status === "active") return { label: "🟢 Activo", className: "status-active" };
-      if (status === "new") return { label: "🟡 Nuevo", className: "status-new" };
-      return { label: "⚪ Sin actividad", className: "status-idle" };
+    function showSystemError(message) {
+      systemBanner.textContent = message;
+      systemBanner.classList.add("show");
     }
 
-    function initials(alias) { return String(alias || "U").slice(0, 2).toUpperCase(); }
+    function hideSystemError() {
+      systemBanner.textContent = "";
+      systemBanner.classList.remove("show");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(value) {
+      if (!value) return "Sin acceso";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Sin dato";
+      return new Intl.DateTimeFormat("es-MX", { day: "2-digit", month: "short", year: "2-digit" }).format(date);
+    }
+
+    function isActiveLastSevenDays(value) {
+      if (!value) return false;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return false;
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+      return Date.now() - date.getTime() <= sevenDaysMs;
+    }
+
+    function statusForUser(user) {
+      if (isActiveLastSevenDays(user.last_sign_in_at)) return { key: "active", label: "🟢 Activo", className: "status-active" };
+      if (!user.last_sign_in_at) return { key: "new", label: "🟡 Nuevo", className: "status-new" };
+      return { key: "idle", label: "⚪ Sin actividad", className: "status-idle" };
+    }
+
+    function initials(name, email) {
+      const base = String(name || email || "U").trim();
+      const parts = base.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+      return base.slice(0, 2).toUpperCase();
+    }
 
     function userMatches(user, query) {
       const q = query.trim().toLowerCase();
       if (!q) return true;
-      return [user.alias, user.name, user.email].some((value) => String(value || "").toLowerCase().includes(q));
+      return [user.display_name, user.email].some((value) => String(value || "").toLowerCase().includes(q));
     }
 
     function filterMatches(user) {
-      if (activeFilter === "all") return true;
-      if (activeFilter === "active") return user.status === "active" || user.status === "new";
-      if (activeFilter === "idle") return user.status === "idle";
+      if (state.activeFilter === "all") return true;
+      const status = statusForUser(user).key;
+      if (state.activeFilter === "active") return status === "active" || status === "new";
+      if (state.activeFilter === "idle") return status === "idle";
       return true;
+    }
+
+    function renderKpis() {
+      const users = state.users;
+      document.getElementById("totalUsers").textContent = users.length;
+      document.getElementById("activeUsers").textContent = users.filter((user) => isActiveLastSevenDays(user.last_sign_in_at)).length;
+      document.getElementById("usersWithPredictions").textContent = users.filter((user) => Number(user.predictions_count || 0) > 0).length;
+      document.getElementById("founderUsers").textContent = users.filter((user) => user.is_founder === true).length;
     }
 
     function renderUsers() {
       const query = searchInput.value || "";
-      const rows = demoUsers.filter((user) => userMatches(user, query) && filterMatches(user));
-      if (!rows.length) {
-        userList.innerHTML = '<div class="user-row"><div class="avatar">--</div><div class="user-main"><p class="user-name">Sin resultados</p><p class="user-email">Ajusta búsqueda o filtros.</p></div></div>';
+      const rows = state.users.filter((user) => userMatches(user, query) && filterMatches(user));
+
+      if (state.loading) {
+        userList.innerHTML = '<div class="loader-card">Cargando usuarios reales…</div>';
         return;
       }
+
+      if (!rows.length) {
+        userList.innerHTML = '<div class="user-row"><div class="avatar">--</div><div class="user-main"><p class="user-name">Sin resultados</p><p class="user-email">No hay usuarios reales para esta búsqueda o filtro.</p></div></div>';
+        return;
+      }
+
       userList.innerHTML = rows.map((user) => {
-        const status = statusLabel(user.status);
+        const status = statusForUser(user);
+        const displayName = user.display_name || String(user.email || "Usuario PREDIKT™").split("@")[0];
+        const founderDiamond = user.is_founder ? '<span class="founder-diamond" title="Fundador PREDIKT™">💎</span>' : '';
         return `
-          <article class="user-row">
-            <div class="avatar">${initials(user.alias)}</div>
+          <article class="user-row" data-user-id="${escapeHtml(user.user_id)}">
+            <div class="avatar">${escapeHtml(initials(displayName, user.email))}</div>
             <div class="user-main">
               <div class="user-topline">
-                <div><p class="user-name">${user.alias}</p><p class="user-email">${user.name} · ${user.email}</p></div>
+                <div>
+                  <p class="user-name">${escapeHtml(displayName)}${founderDiamond}</p>
+                  <p class="user-email">${escapeHtml(user.email || "Sin correo")}</p>
+                </div>
                 <span class="status-pill ${status.className}">${status.label}</span>
               </div>
               <div class="user-metrics">
-                <div class="metric"><strong>${user.registered}</strong><span>Registro</span></div>
-                <div class="metric"><strong>${user.lastAccess}</strong><span>Acceso</span></div>
-                <div class="metric"><strong>${user.predictions}</strong><span>Pronósticos</span></div>
-                <div class="metric"><strong>${user.points}</strong><span>Puntos</span></div>
+                <div class="metric"><strong>${escapeHtml(formatDate(user.created_at))}</strong><span>Registro</span></div>
+                <div class="metric"><strong>${escapeHtml(formatDate(user.last_sign_in_at))}</strong><span>Acceso</span></div>
+                <div class="metric"><strong>${Number(user.predictions_count || 0)}</strong><span>Pronósticos</span></div>
+                <div class="metric"><strong>${Number(user.total_points || 0)}</strong><span>Puntos</span></div>
               </div>
             </div>
             <div class="user-actions">
-              <button class="action-btn primary" type="button" data-action="view" data-user="${user.alias}">👁 Ver</button>
-              <button class="action-btn" type="button" data-action="predictions" data-user="${user.alias}">🏆 Picks</button>
-              <button class="action-btn" type="button" data-action="block" data-user="${user.alias}">🚫 Bloquear</button>
+              <button class="action-btn primary" type="button" data-action="view" data-user="${escapeHtml(displayName)}">👁 Ver</button>
+              <button class="action-btn" type="button" data-action="predictions" data-user="${escapeHtml(displayName)}">🎯 Picks</button>
+              <button class="action-btn" type="button" data-action="block" data-user="${escapeHtml(displayName)}">🚫 Bloquear</button>
             </div>
           </article>`;
       }).join("");
+
       document.querySelectorAll("[data-action]").forEach((button) => {
         button.addEventListener("click", () => {
           const user = button.dataset.user;
           const action = button.dataset.action;
-          if (action === "view") showToast(`Vista de ${user} preparada para detalle futuro.`);
-          if (action === "predictions") showToast(`Pronósticos de ${user} preparados para módulo futuro.`);
-          if (action === "block") showToast(`Bloqueo de ${user} requiere confirmación admin futura.`);
+          if (action === "view") showToast(`Detalle de ${user} preparado para la siguiente versión.`);
+          if (action === "predictions") showToast(`Pronósticos de ${user}: módulo admin siguiente.`);
+          if (action === "block") showToast(`Bloqueo de ${user}: acción preparada, aún no ejecuta cambios.`);
         });
       });
     }
 
-    function renderKpis() {
-      document.getElementById("totalUsers").textContent = demoUsers.length;
-      document.getElementById("activeUsers").textContent = demoUsers.filter((user) => user.status === "active").length;
-      document.getElementById("usersWithPredictions").textContent = demoUsers.filter((user) => user.predictions > 0).length;
-      document.getElementById("founderUsers").textContent = demoUsers.filter((user) => user.founder).length;
+    async function loadRealUsers() {
+      const client = getSupabaseClient();
+      if (!client) {
+        showSystemError("No se encontró cliente Supabase. Verifica assets/js/supabase.js.");
+        state.users = [];
+        renderKpis();
+        renderUsers();
+        return;
+      }
+
+      hideSystemError();
+      state.loading = true;
+      refreshBtn.disabled = true;
+      renderUsers();
+
+      const { data, error } = await client.rpc("predikt_admin_users");
+
+      state.loading = false;
+      refreshBtn.disabled = false;
+
+      if (error) {
+        console.error("PREDIKT_ADMIN_USERS_ERROR", error);
+        state.users = [];
+        renderKpis();
+        renderUsers();
+        showSystemError(`No se pudieron cargar usuarios reales: ${error.message || "Error Supabase"}`);
+        return;
+      }
+
+      state.users = Array.isArray(data) ? data : [];
+      renderKpis();
+      renderUsers();
+      showToast("Usuarios reales actualizados.");
     }
 
     searchInput.addEventListener("input", renderUsers);
@@ -332,18 +437,25 @@
       button.addEventListener("click", () => {
         filterButtons.forEach((item) => item.classList.remove("active"));
         button.classList.add("active");
-        activeFilter = button.dataset.filter;
+        state.activeFilter = button.dataset.filter;
         renderUsers();
       });
     });
-    refreshBtn.addEventListener("click", () => { renderKpis(); renderUsers(); showToast("Usuarios actualizados."); });
-    async function initializeUsersAdmin(){
-      const ok = await window.PrediktAdminGuard.requireAdminAccess();
-      if(!ok){ return; }
+    refreshBtn.addEventListener("click", loadRealUsers);
+
+    async function initializeUsersAdmin() {
+      const guard = window.PrediktAdminGuard;
+      if (!guard || typeof guard.requireAdminAccess !== "function") {
+        showSystemError("No se encontró PrediktAdminGuard. Verifica assets/js/admin-guard.js.");
+        document.documentElement.classList.remove("admin-guard-pending");
+        return;
+      }
+
+      const ok = await guard.requireAdminAccess();
+      if (!ok) return;
 
       document.documentElement.classList.remove("admin-guard-pending");
-      renderKpis();
-      renderUsers();
+      await loadRealUsers();
     }
 
     initializeUsersAdmin();
