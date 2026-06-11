@@ -1781,7 +1781,7 @@
         event_metadata: row.event_metadata || {},
         context_metadata: row.context_metadata || {},
         watch_label: row.watch_label || row.broadcast_label || row.where_to_watch || row.tv_channel || row.streaming_label || (row.event_metadata && (row.event_metadata.watch_label || row.event_metadata.where_to_watch)) || "",
-        weather_label: row.weather_label || row.weather_summary || row.match_weather || (row.weather_temp_c ? `${row.weather_temp_c}°C` : "") || (row.event_metadata && (row.event_metadata.weather_label || row.event_metadata.weather_summary)) || ""
+        weather_label: row.weather_label || row.weather_summary || row.match_weather || row.weather_conditions || row.weather_forecast || row.climate_label || (row.weather_temp_c ? `${row.weather_temp_c}°C${row.weather_condition ? " · " + row.weather_condition : ""}` : "") || (row.event_metadata && (row.event_metadata.weather_label || row.event_metadata.weather_summary || row.event_metadata.weather_forecast)) || ""
       };
     }
 
@@ -1796,7 +1796,7 @@
       document.getElementById("phaseLabel").textContent = match.phase_name || "Fase por confirmar";
       document.getElementById("groupLabel").textContent = match.group_name || "Grupo por confirmar";
       document.getElementById("matchdayLabel").textContent = matchdayLabel;
-      document.getElementById("matchTitle").textContent = match.event_name || `${match.home_name} vs ${match.away_name}`;
+      document.getElementById("matchTitle").textContent = (match.event_name || `${match.home_name} vs ${match.away_name}`).replace(/\bChequia\b/gi, "República Checa").replace(/\bCzechia\b/gi, "República Checa").replace(/\bCzech Republic\b/gi, "República Checa");
 
       if (homeFlagPath) homeFlag.src = homeFlagPath;
       homeFlag.alt = `Bandera de ${match.home_name}`;
@@ -1834,10 +1834,16 @@
       document.getElementById("venueTimezoneLabel").textContent = compactTimezone(match.venue_timezone);
       const watchCard = document.getElementById("watchInfoCard");
       const watchLabel = document.getElementById("watchInfoLabel");
-      if (watchCard && watchLabel) { if (match.watch_label) { watchLabel.textContent = `Dónde verlo · ${match.watch_label}`; watchCard.hidden = false; } else { watchCard.hidden = true; } }
+      if (watchCard && watchLabel) {
+        watchLabel.textContent = `Dónde verlo · ${match.watch_label || "Por confirmar"}`;
+        watchCard.hidden = false;
+      }
       const weatherCard = document.getElementById("weatherInfoCard");
       const weatherLabel = document.getElementById("weatherInfoLabel");
-      if (weatherCard && weatherLabel) { if (match.weather_label) { weatherLabel.textContent = `Clima esperado · ${match.weather_label}`; weatherCard.hidden = false; } else { weatherCard.hidden = true; } }
+      if (weatherCard && weatherLabel) {
+        weatherLabel.textContent = `Clima esperado · ${match.weather_label || "Por confirmar"}`;
+        weatherCard.hidden = false;
+      }
 
 
       document.getElementById("homeProbabilityLabel").textContent = match.home_name;
