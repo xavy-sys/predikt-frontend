@@ -4,13 +4,14 @@
   <!--
     Archivo: dashboard-admin.html
     Proyecto: PREDIKT™
-    Versión: v1.1.2 ADMIN USERS ROUTE ROLLBACK
+    Versión: v1.2.0 ADMIN CONTROL CENTER CONNECTED
     Fecha: 2026-06-10
     Fabricante: JVSys™
     Descripción:
       Dashboard administrativo completo mobile-first.
       Corrige sustitución accidental por snippet de navegación.
       Integra acceso a usuarios-admin.html.
+      v1.2.0 agrega acceso operativo directo a resultado-partido-admin.html para capturar resultados oficiales y disparar scoring real.
       Mantiene navegación admin certificada:
         dashboard-admin.html
         usuarios-admin.html
@@ -24,7 +25,7 @@
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PREDIKT™ | Dashboard Admin v1.1.2</title>
+  <title>PREDIKT™ | Centro de Control Admin v1.2.0</title>
   <meta name="description" content="Panel administrativo de PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
@@ -239,7 +240,7 @@
     <section class="hero-card" aria-label="Panel de administración">
       <p class="hero-kicker">🔐 SUPER_ADMIN</p>
       <h1 class="hero-title">Centro de Control PREDIKT™</h1>
-      <p class="hero-copy">Administra usuarios, partidos, pronósticos, ranking y fundadores desde una consola mobile-first.</p>
+      <p class="hero-copy">Administra usuarios, resultados oficiales, partidos, pronósticos, ranking y fundadores desde una consola mobile-first.</p>
     </section>
 
     <div class="status-card" id="statusCard">Validando acceso...</div>
@@ -252,6 +253,15 @@
         <div class="admin-card-content">
           <strong>Usuarios</strong>
           <span>Usuarios registrados, roles, fundadores, pronósticos y puntos.</span>
+        </div>
+        <div class="admin-arrow">›</div>
+      </a>
+
+      <a class="admin-card featured" href="resultado-partido-admin.html" aria-label="Capturar resultado oficial y calificar pronósticos">
+        <div class="admin-card-icon">✅</div>
+        <div class="admin-card-content">
+          <strong>Resultados Oficiales</strong>
+          <span>Captura marcador final, califica pronósticos y actualiza puntos reales.</span>
         </div>
         <div class="admin-arrow">›</div>
       </a>
@@ -293,7 +303,7 @@
       </a>
     </section>
 
-    <p class="footer-note">PREDIKT™ Admin Console v1.1.2 · Powered by JVSys™</p>
+    <p class="footer-note">PREDIKT™ Admin Console v1.2.0 · Powered by JVSys™</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
