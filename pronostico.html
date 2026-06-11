@@ -512,6 +512,13 @@
       box-shadow: 0 12px 26px rgba(46, 204, 113, 0.22);
     }
 
+    .save-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.56;
+      filter: grayscale(0.15);
+      box-shadow: none;
+    }
+
     .side-card {
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
@@ -1494,21 +1501,52 @@
       }, 2800);
     }
 
+    function setSaveButtonState(card, state) {
+      const saveButton = card.querySelector("[data-save]");
+      if (!saveButton) return;
+
+      saveButton.classList.remove("saved");
+
+      if (state === "clean-suggested") {
+        card.dataset.dirty = "false";
+        saveButton.disabled = true;
+        saveButton.textContent = "Ajusta el marcador para guardar";
+        return;
+      }
+
+      if (state === "clean-saved") {
+        card.dataset.dirty = "false";
+        saveButton.disabled = true;
+        saveButton.classList.add("saved");
+        saveButton.textContent = "Pronóstico guardado";
+        return;
+      }
+
+      if (state === "dirty-new") {
+        card.dataset.dirty = "true";
+        saveButton.disabled = false;
+        saveButton.textContent = "Guardar pronóstico";
+        return;
+      }
+
+      if (state === "dirty-update") {
+        card.dataset.dirty = "true";
+        saveButton.disabled = false;
+        saveButton.textContent = "Actualizar pronóstico";
+      }
+    }
+
     function markCardAsSaved(card) {
       const eventId = card.dataset.eventId;
-      const saveButton = card.querySelector("[data-save]");
       if (eventId) savedMatches.add(eventId);
-      saveButton.classList.add("saved");
-      saveButton.textContent = "Pronóstico guardado";
+      setSaveButtonState(card, "clean-saved");
       updateProgress();
     }
 
     function markCardAsUnsaved(card) {
       const eventId = card.dataset.eventId;
-      const saveButton = card.querySelector("[data-save]");
-      if (eventId) savedMatches.delete(eventId);
-      saveButton.classList.remove("saved");
-      saveButton.textContent = "Guardar pronóstico";
+      const wasSaved = eventId && savedMatches.has(eventId);
+      setSaveButtonState(card, wasSaved ? "dirty-update" : "dirty-new");
       updateProgress();
     }
 
@@ -1586,12 +1624,7 @@
       if (homeScoreElement) homeScoreElement.textContent = String(recommendation.suggestedHomeScore ?? 0);
       if (awayScoreElement) awayScoreElement.textContent = String(recommendation.suggestedAwayScore ?? 0);
 
-      const saveButton = card.querySelector("[data-save]");
-      if (saveButton) {
-        saveButton.classList.remove("saved");
-        saveButton.disabled = false;
-        saveButton.textContent = "Guardar pronóstico";
-      }
+      setSaveButtonState(card, "clean-suggested");
     }
 
     function updateMatchNavigation() {
@@ -1765,6 +1798,11 @@
       const saveButton = card.querySelector("[data-save]");
       const { homeScore, awayScore } = getCardScores(card);
 
+      if (card.dataset.dirty !== "true") {
+        showToast("Ajusta el marcador antes de guardar.");
+        return;
+      }
+
       saveButton.disabled = true;
       saveButton.textContent = "Guardando...";
 
@@ -1789,9 +1827,8 @@
         console.error("PREDIKT™ savePredictionToSupabase RPC error:", error);
         saveButton.classList.remove("saved");
         saveButton.textContent = "Guardar pronóstico";
-        showToast(`No se pudo guardar: ${error.message || "revisa función RPC/permisos"}.`);
-      } finally {
         saveButton.disabled = false;
+        showToast(`No se pudo guardar: ${error.message || "revisa función RPC/permisos"}.`);
       }
     }
 
@@ -1867,6 +1904,10 @@
       }
 
       if (saveButton) {
+        if (saveButton.disabled) {
+          showToast("Ajusta el marcador para activar el guardado.");
+          return;
+        }
         await savePredictionToSupabase(nextMatchCard);
       }
     });
@@ -1879,8 +1920,9 @@
 
 <!--
 Cierre de archivo
-Versión: v3.2.2 NEXT MATCH ROTATION + PREDIKT VISIBILITY
+Versión: v3.2.6 SAVE BUTTON DIRTY STATE
 Fecha: 2026-06-10
 Elaborado por: JVSys™
 Total de líneas: v3.1.0
 -->
+        
