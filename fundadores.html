@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: fundadores.html
     Fecha: 2026-06-09
-    Versión: v2.0.4 💎 DATA LOADER FIX
+    Versión: v2.0.5 💎 MERCADO PAGO REDIRECT SELF FIX
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -14,16 +14,16 @@
       Conecta con founders.v_founder_program_summary y founders.founder_members.
       Muestra KPIs reales, fundadores reales, suspendidos, manuales, Mercado Pago,
       recaudación, estado vitalicio y avance del programa.
-      Corrige carga del listado con Supabase JS autenticado primero y REST como respaldo; mantiene botones directos y marca visual v2.0.4.
+      Corrige apertura de Mercado Pago evitando popup/window.open y redirigiendo en la misma ventana/PWA mediante window.location.assign(init_point). Mantiene carga del listado con Supabase JS autenticado primero y REST como respaldo.
       Mantiene evidencia, no borra registros y conserva enfoque mobile-first.
     Líneas versión anterior: 260
-    Líneas versión nueva: 317
+    Líneas versión nueva: 365
   -->
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>PREDIKT™ | Fundadores v2.0.4</title>
+  <title>PREDIKT™ | Fundadores v2.0.5</title>
   <meta name="description" content="Administración real del Programa Fundadores PREDIKT™." />
   <meta name="theme-color" content="#061826" />
 
@@ -130,7 +130,7 @@
     </header>
 
     <section class="hero-card" aria-label="Administración de fundadores">
-      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores <span class="version-badge">v2.0.4</span></p><h1 class="hero-title">Fundadores PREDIKT™</h1>
+      <p class="hero-kicker">💎 PREDIKT™ · Programa Fundadores <span class="version-badge">v2.0.5</span></p><h1 class="hero-title">Fundadores PREDIKT™</h1>
       <p class="hero-copy">Controla los primeros 100 lugares, confirma pagos, conserva evidencia y protege el acceso gratuito de por vida.</p>
     </section>
 
@@ -156,7 +156,7 @@
     </section>
 
     <section class="founders-panel" aria-label="Listado de fundadores">
-      <div class="section-head"><h2 class="section-title">Listado Fundadores</h2><div class="section-actions"><button class="admin-pill" type="button" id="newFounderBtn" onclick="openFounderRegistrationNotice()">➕ Registrar</button><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div></div>
+      <div class="section-head"><h2 class="section-title">Listado Fundadores</h2><div class="section-actions"><button class="admin-pill" type="button" id="newFounderBtn">➕ Registrar / MP</button><a class="section-link" href="dashboard-admin.html">Centro de Lanzamiento</a></div></div>
       <p class="data-status" id="dataStatus">Cargando listado...</p><div class="founder-list" id="founderList"></div>
     </section>
 
@@ -186,16 +186,98 @@
       showToast.timer=window.setTimeout(()=>toast.classList.remove("show"),2600);
     }
 
-    function openFounderRegistrationNotice(){
-      window.alert([
-        "Registro manual de Fundador PREDIKT™",
-        "",
-        "Botón operativo en v2.0.4.",
-        "La pantalla de alta manual todavía no está certificada.",
-        "",
-        "Siguiente paso:",
-        "crear fundador-nuevo.html o integrar formulario aquí."
-      ].join("\n"));
+    const MERCADO_PAGO_FOUNDERS_ENDPOINTS = [
+      "https://bhsffngulgvwfzjhiymy.supabase.co/functions/v1/create-founder-preference",
+      "https://bhsffngulgvwfzjhiymy.supabase.co/functions/v1/mercado-pago-founder-preference",
+      "https://bhsffngulgvwfzjhiymy.supabase.co/functions/v1/create-mercado-pago-preference"
+    ];
+
+    function extractMercadoPagoUrl(payload){
+      if(!payload || typeof payload !== "object"){ return ""; }
+      return payload.init_point || payload.sandbox_init_point || payload.checkout_url || payload.url || "";
+    }
+
+    function redirectToMercadoPago(checkoutUrl){
+      const url = String(checkoutUrl || "").trim();
+
+      if(!url || !/^https:\/\//i.test(url)){
+        setDataStatus("Mercado Pago no devolvió una URL válida de checkout.", "error");
+        showToast("No se pudo abrir Mercado Pago. Revisa la preferencia de pago.");
+        return false;
+      }
+
+      /*
+        CRÍTICO v2.0.5:
+        No usar window.open(...), target=_blank ni popup.
+        En móvil/PWA algunos navegadores bloquean el popup y muestran:
+        “No se puede abrir Mercado Pago”.
+        La navegación debe ir en la misma ventana.
+      */
+      window.location.assign(url);
+      return true;
+    }
+
+    async function createMercadoPagoFounderPreference(){
+      const token = await getSessionToken();
+
+      const payload = {
+        source: "predikt_founders_admin",
+        amount_mxn: 50,
+        description: "PREDIKT™ Fundador · Acceso vitalicio",
+        redirect_mode: "self",
+        back_urls: {
+          success: "https://predikt-frontend-three.vercel.app/fundadores.html?mp_status=success",
+          failure: "https://predikt-frontend-three.vercel.app/fundadores.html?mp_status=failure",
+          pending: "https://predikt-frontend-three.vercel.app/fundadores.html?mp_status=pending"
+        }
+      };
+
+      let lastError = null;
+
+      for(const endpoint of MERCADO_PAGO_FOUNDERS_ENDPOINTS){
+        try{
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token || REST_KEY}`,
+              "apikey": REST_KEY
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if(!response.ok){
+            lastError = new Error(`${endpoint} status ${response.status}`);
+            continue;
+          }
+
+          const data = await response.json();
+          const checkoutUrl = extractMercadoPagoUrl(data);
+
+          if(checkoutUrl){
+            return checkoutUrl;
+          }
+
+          lastError = new Error(`${endpoint} no devolvió init_point`);
+        }catch(error){
+          lastError = error;
+        }
+      }
+
+      throw lastError || new Error("No se pudo crear preferencia Mercado Pago.");
+    }
+
+    async function openFounderRegistrationNotice(){
+      try{
+        setDataStatus("Creando liga segura de Mercado Pago...", "");
+        showToast("Preparando Mercado Pago...");
+        const checkoutUrl = await createMercadoPagoFounderPreference();
+        redirectToMercadoPago(checkoutUrl);
+      }catch(error){
+        console.error("PREDIKT Mercado Pago checkout error:", error);
+        setDataStatus("No se pudo crear la preferencia de Mercado Pago. Verifica la Edge Function activa.", "error");
+        showToast("No se pudo abrir Mercado Pago. Revisa la función de checkout.");
+      }
     }
 
     function applyFounderFilter(filterValue, clickedButton){
