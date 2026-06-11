@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: partido-detalle.html
     Fecha: 2026-06-07
-    Versión: v1.4.3 Intelligence Experience
+    Versión: v1.4.4 Production Clean
     Fabricante: JVSys™
     Autor: JVSys™
     Proyecto: PREDIKT™
@@ -57,10 +57,11 @@
     content="Detalle del partido en PREDIKT™: marcador en vivo, momentum, explicación IA, sede, grupo, alineaciones y pronóstico."
   />
   <meta name="theme-color" content="#061826" />
+  <link rel="manifest" href="/manifest.json" />
 
-  <link rel="icon" type="image/png" href="assets/predikt-logo.png" />
-  <link rel="shortcut icon" type="image/png" href="assets/predikt-logo.png" />
-  <link rel="apple-touch-icon" href="assets/predikt-logo.png" />
+  <link rel="icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="shortcut icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="apple-touch-icon" href="/assets/icons/predikt-icon-192.png" />
 
   <style>
     :root {
@@ -1138,16 +1139,31 @@
         height: 58px;
       }
     }
+  
+
+    .predikt-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(circle at 50% 15%,rgba(245,185,66,.16),transparent 30%),linear-gradient(145deg,rgba(6,24,38,.98),rgba(2,11,19,.98));color:#fff;transition:opacity .24s ease,visibility .24s ease}.predikt-loader.hide{opacity:0;visibility:hidden;pointer-events:none}.predikt-loader-card{width:min(86vw,320px);display:grid;justify-items:center;gap:10px;text-align:center;border:1px solid rgba(245,185,66,.24);border-radius:28px;padding:24px 18px;background:rgba(15,39,64,.88);box-shadow:0 18px 45px rgba(0,0,0,.35)}.predikt-loader-ball{width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#f5b942,#ffe28a);color:#061826;font-size:1.7rem;animation:prediktSpin 1.05s linear infinite}.predikt-loader-title{font-size:.92rem;font-weight:980;letter-spacing:.08em;text-transform:uppercase}.predikt-loader-copy{color:#c9d7e6;font-size:.78rem;font-weight:760}.powered-jvsys{color:#f5b942;font-size:.62rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}@keyframes prediktSpin{from{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.06)}to{transform:rotate(360deg) scale(1)}}
+
   </style>
 </head>
 
 <body>
+
+  <div class="predikt-loader" id="prediktLoader" aria-live="polite" aria-label="Cargando PREDIKT">
+    <div class="predikt-loader-card">
+      <div class="predikt-loader-ball" aria-hidden="true">⚽</div>
+      <strong class="predikt-loader-title">Cargando PREDIKT™</strong>
+      <p class="predikt-loader-copy" id="prediktLoaderCopy">Preparando tu pronóstico...</p>
+      <small class="powered-jvsys">Powered by JVSys™</small>
+    </div>
+  </div>
+
   <main class="app-shell">
     <header class="app-header" aria-label="Encabezado PREDIKT">
       <a class="brand" href="index.html" aria-label="Ir a inicio">
         <img class="brand-logo" src="assets/predikt-logo.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
+          <small class="powered-jvsys">Powered by JVSys™</small>
           <small class="brand-sub">Detalle del Partido</small>
         </span>
       </a>
@@ -1230,8 +1246,8 @@
         </div>
 
         <div class="future-context-row" aria-label="Información futura del partido">
-          <div class="future-context-card">📺 Dónde verlo · Próximamente</div>
-          <div class="future-context-card">🌦 Clima esperado · Próximamente</div>
+          <div class="future-context-card" id="watchInfoCard" hidden>📺 <span id="watchInfoLabel"></span></div>
+          <div class="future-context-card" id="weatherInfoCard" hidden>🌦 <span id="weatherInfoLabel"></span></div>
         </div>
       </div>
     </section>
@@ -1323,7 +1339,7 @@
     <section class="section" aria-label="Explicación IA PREDIKT">
       <div class="section-head">
         <h2 class="section-title">🧠 PREDIKT™ EXPLICA</h2>
-        <span class="section-link">Claridad Humana</span>
+        <span class="section-link">Lectura PREDIKT™</span>
       </div>
 
       <div class="card">
@@ -1543,7 +1559,9 @@
       mvp_ai_reason: null,
       tournament_label: "",
       predikt_status_label: "Estado por confirmar",
-      match_state_label: "Marcador pendiente de actualización"
+      match_state_label: "Marcador pendiente de actualización",
+      watch_label: "",
+      weather_label: ""
     };
 
     const fallbackStandings = [];
@@ -1761,7 +1779,9 @@
         predikt_status_label: row.predikt_status_label || (row.is_live ? "EN VIVO" : "Programado"),
         match_state_label: row.match_state_label || "Marcador pendiente de actualización",
         event_metadata: row.event_metadata || {},
-        context_metadata: row.context_metadata || {}
+        context_metadata: row.context_metadata || {},
+        watch_label: row.watch_label || row.broadcast_label || row.where_to_watch || row.tv_channel || row.streaming_label || (row.event_metadata && (row.event_metadata.watch_label || row.event_metadata.where_to_watch)) || "",
+        weather_label: row.weather_label || row.weather_summary || row.match_weather || (row.weather_temp_c ? `${row.weather_temp_c}°C` : "") || (row.event_metadata && (row.event_metadata.weather_label || row.event_metadata.weather_summary)) || ""
       };
     }
 
@@ -1812,6 +1832,13 @@
       document.getElementById("venueCountryLabel").textContent = match.venue_country_name || match.venue_country_code || "Por confirmar";
       document.getElementById("venueCapacityLabel").textContent = formatCapacity(match.venue_capacity);
       document.getElementById("venueTimezoneLabel").textContent = compactTimezone(match.venue_timezone);
+      const watchCard = document.getElementById("watchInfoCard");
+      const watchLabel = document.getElementById("watchInfoLabel");
+      if (watchCard && watchLabel) { if (match.watch_label) { watchLabel.textContent = `Dónde verlo · ${match.watch_label}`; watchCard.hidden = false; } else { watchCard.hidden = true; } }
+      const weatherCard = document.getElementById("weatherInfoCard");
+      const weatherLabel = document.getElementById("weatherInfoLabel");
+      if (weatherCard && weatherLabel) { if (match.weather_label) { weatherLabel.textContent = `Clima esperado · ${match.weather_label}`; weatherCard.hidden = false; } else { weatherCard.hidden = true; } }
+
 
       document.getElementById("homeProbabilityLabel").textContent = match.home_name;
       document.getElementById("awayProbabilityLabel").textContent = match.away_name;
@@ -1978,7 +2005,7 @@
 
     async function fetchFirstAvailableMatch() {
       const response = await fetch(
-        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_api?select=*&order=starts_at.asc&limit=1`,
+        `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_api?select=*&starts_at=gte.${encodeURIComponent(new Date().toISOString())}&order=starts_at.asc&limit=1`,
         {
           method: "GET",
           headers: headersForSports()
@@ -2267,6 +2294,11 @@
     });
 
     init();
+  
+    function hidePrediktLoader(){const loader=document.getElementById("prediktLoader");if(loader)loader.classList.add("hide");}
+    window.addEventListener("load",()=>{window.setTimeout(hidePrediktLoader,450);});
+    window.setTimeout(()=>{const copy=document.getElementById("prediktLoaderCopy");if(copy)copy.textContent="Estamos preparando tu experiencia PREDIKT™...";},1800);
+
   </script>
 </body>
 </html>
