@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-11
-    Versión: v3.4.0 PREDIKT ADVISOR VISIBLE
+    Versión: v3.6.0 MATCH INTELLIGENCE ENGINE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -1189,7 +1189,7 @@
       <p class="eyebrow">Pronóstico · Próximo partido</p>
       <h1 class="hero-title">Haz tu pronóstico del próximo partido.</h1>
       <p class="hero-copy">
-        PREDIKT™ Advisor aparece primero: recomendación, confianza, probabilidades y razones para decidir tu marcador.
+        PREDIKT™ Advisor usa el Match Intelligence Engine™: probabilidad, confianza dinámica y explicación estadística.
       </p>
     </section>
 <div class="layout-grid">
@@ -1441,11 +1441,11 @@
   <script>
     /*
       Nombre del bloque: PREDIKT™ Real Next Match Prediction Runtime
-      Fecha: 2026-06-10
+      Fecha: 2026-06-12
       Elaborado por: JVSys™
       Descripción:
         Protege la pantalla con Supabase Auth.
-        Lee el próximo partido real desde sports.v_predikt_home_next_match.
+        Lee partidos y Advisor desde sports.v_predikt_advisor_v3.
         Recupera y guarda pronósticos con RPC reales.
         No usa partidos ni rankings ficticios.
     */
@@ -1682,17 +1682,39 @@
         away_code: row.away_code || row.away_team_code || row.away_country_code || "--",
         home_country: row.home_country || row.home_flag_code || row.home_country_code || row.home_team_code || "",
         away_country: row.away_country || row.away_flag_code || row.away_country_code || row.away_team_code || "",
-        probability_home: firstNumeric(row.pre_probability_home, row.live_probability_home, row.home_probability, row.home_win_probability),
-        probability_draw: firstNumeric(row.pre_probability_draw, row.live_probability_draw, row.draw_probability),
-        probability_away: firstNumeric(row.pre_probability_away, row.live_probability_away, row.away_probability, row.away_win_probability),
+        probability_home: firstNumeric(
+          row.probability_home,
+          row.pre_probability_home,
+          row.live_probability_home,
+          row.home_probability,
+          row.home_win_probability
+        ),
+        probability_draw: firstNumeric(
+          row.probability_draw,
+          row.pre_probability_draw,
+          row.live_probability_draw,
+          row.draw_probability
+        ),
+        probability_away: firstNumeric(
+          row.probability_away,
+          row.pre_probability_away,
+          row.live_probability_away,
+          row.away_probability,
+          row.away_win_probability
+        ),
         confidence_score: firstNumeric(
-          row.live_confidence_score,
-          row.confidence_score
+          row.confidence_score,
+          row.live_confidence_score
         ),
         ai_explanation:
-          row.live_ai_explanation ||
           row.ai_explanation ||
-          ""
+          row.live_ai_explanation ||
+          "",
+        recommendation:
+          row.recommendation || "",
+        user_factor: firstNumeric(row.user_factor),
+        confidence_stage:
+          row.confidence_stage || "BASE"
       };
     }
 
@@ -1753,9 +1775,10 @@
       const top = rows.slice().sort((a, b) => b.value - a.value)[0];
       const second = rows.slice().sort((a, b) => b.value - a.value)[1];
       const margin = Math.max(0, top.value - (second?.value || 0));
+      const recommendedLabel = safeText(match.recommendation) || top.label;
       const confidenceValue = Number(match.confidence_score) || 50;
 
-      title.textContent = `PREDIKT™ recomienda: ${top.label}`;
+      title.textContent = `PREDIKT™ recomienda: ${recommendedLabel}`;
       confidence.textContent = `${confidenceValue}%`;
       probabilities.innerHTML = rows.map((row) => `
         <div class="advisor-prob-row">
@@ -1768,10 +1791,11 @@
       reasons.innerHTML = `
         <p><strong>Análisis PREDIKT™</strong></p>
         <p>${match.ai_explanation || "PREDIKT™ está preparando la lectura inteligente."}</p>
+        <p><strong>Factor dinámico:</strong> ${match.confidence_stage || "BASE"} · Participación ${(Number(match.user_factor || 0) * 100).toFixed(1)}%</p>
       `;
 
       if (topTitle) {
-        topTitle.textContent = `PREDIKT™ recomienda: ${top.label}`;
+        topTitle.textContent = `PREDIKT™ recomienda: ${recommendedLabel}`;
       }
 
       if (topConfidence) {
@@ -1811,11 +1835,12 @@
       ].sort((a, b) => b.probability - a.probability);
 
       const top = options[0];
+      const recommendedLabel = safeText(match.recommendation) || top.label;
       const probabilityLabel = top.probability ? `${top.probability.toFixed(2)}%` : "probabilidad publicada";
 
       return {
-        label: `PREDIKT™ recomienda: ${top.label}`,
-        copy: `La probabilidad más alta favorece a ${top.label}. Confianza de referencia: ${probabilityLabel}. Revisa las barras del Advisor y ajusta tu marcador.`,
+        label: `PREDIKT™ recomienda: ${recommendedLabel}`,
+        copy: match.ai_explanation || `La probabilidad más alta favorece a ${recommendedLabel}. Confianza de referencia: ${probabilityLabel}. Revisa las barras del Advisor y ajusta tu marcador.`,
         suggestedHomeScore: top.suggestedHomeScore,
         suggestedAwayScore: top.suggestedAwayScore,
         scoreLabel: `${match.home_team} ${top.suggestedHomeScore} - ${top.suggestedAwayScore} ${match.away_team}`
@@ -1928,7 +1953,7 @@
       try {
         const { data, error } = await client
           .schema("sports")
-          .from("v_event_match_intelligence_api")
+          .from("v_predikt_advisor_v3")
           .select("*")
           .gte("starts_at", new Date(Date.now() - 60 * 60 * 1000).toISOString())
           .order("starts_at", { ascending: true })
@@ -2124,8 +2149,8 @@
 
 <!--
 Cierre de archivo
-Versión: v3.4.0 PREDIKT ADVISOR VISIBLE ENRICHED
-Fecha: 2026-06-10
+Versión: v3.6.0 MATCH INTELLIGENCE ENGINE ENRICHED
+Fecha: 2026-06-12
 Elaborado por: JVSys™
 Total de líneas: v3.1.0
 -->
