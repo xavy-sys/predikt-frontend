@@ -4,10 +4,18 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-12
-    Versión: v4.0.0 LISTADO MASIVO DE PARTIDOS
+    Versión: v4.0.1 LISTADO MASIVO RESILIENTE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
+
+    CAMBIOS v4.0.1:
+    1. Corrige bloqueo de carga cuando una consulta Supabase falla.
+    2. Carga partidos, pronósticos y resultados en bloques independientes.
+    3. Agrega diagnóstico visible y console.dir para errores reales.
+    4. Mantiene la pantalla operativa aunque official_results o RPC fallen.
+    5. Agrega fallback desde sports.v_event_match_intelligence_api si v_predikt_advisor_v3 falla.
+    6. Evita que los tres módulos queden eternamente en "Cargando...".
 
     CAMBIOS v4.0.0:
     1. Sustituye la UX de "un partido + anterior/siguiente" por listado masivo.
@@ -493,6 +501,27 @@
       text-align: center;
     }
 
+    .error-state {
+      border-radius: 18px;
+      background: rgba(255,90,95,.10);
+      border: 1px solid rgba(255,90,95,.25);
+      padding: 14px;
+      color: #ffd6d8;
+      font-size: .76rem;
+      font-weight: 760;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .diagnostic-code {
+      display: block;
+      margin-top: 7px;
+      color: var(--gold-soft);
+      font-size: .62rem;
+      font-weight: 850;
+      word-break: break-word;
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -831,6 +860,28 @@
       showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2800);
     }
 
+    function getReadableError(error) {
+      if (!error) return "Error desconocido.";
+      if (typeof error === "string") return error;
+      return error.message || error.details || error.hint || error.code || JSON.stringify(error);
+    }
+
+    function logSupabaseError(context, error) {
+      console.error(`PREDIKT™ ${context}:`, getReadableError(error));
+      console.dir(error);
+    }
+
+    function renderModuleError(containerId, title, error) {
+      const node = document.getElementById(containerId);
+      if (!node) return;
+      node.innerHTML = `
+        <div class="error-state">
+          ${title}
+          <span class="diagnostic-code">${getReadableError(error)}</span>
+        </div>
+      `;
+    }
+
     function getDisplayName(user) {
       const metadata = user && user.user_metadata ? user.user_metadata : {};
       const candidates = [metadata.alias, metadata.full_name, metadata.name, metadata.display_name];
@@ -1144,21 +1195,42 @@
 
     async function loadMatches() {
       const client = getSupabaseClient();
-      const { data, error } = await client
+
+      const advisorResponse = await client
         .schema("sports")
         .from("v_predikt_advisor_v3")
         .select("*")
         .order("starts_at", { ascending: true })
         .limit(120);
 
-      if (error) throw error;
+      if (!advisorResponse.error) {
+        allMatches = Array.isArray(advisorResponse.data)
+          ? advisorResponse.data.map(normalizeMatch).filter((match) => match && match.event_id)
+          : [];
+        return;
+      }
 
-      allMatches = Array.isArray(data)
-        ? data.map(normalizeMatch).filter((match) => match && match.event_id)
+      logSupabaseError("loadMatches advisor_v3 error", advisorResponse.error);
+
+      const fallbackResponse = await client
+        .schema("sports")
+        .from("v_event_match_intelligence_api")
+        .select("*")
+        .order("starts_at", { ascending: true })
+        .limit(120);
+
+      if (fallbackResponse.error) {
+        logSupabaseError("loadMatches fallback error", fallbackResponse.error);
+        throw fallbackResponse.error;
+      }
+
+      allMatches = Array.isArray(fallbackResponse.data)
+        ? fallbackResponse.data.map(normalizeMatch).filter((match) => match && match.event_id)
         : [];
     }
 
     async function loadMyPredictions() {
+      myPredictionsByEvent = new Map();
       if (!authenticatedUser || !allMatches.length) return;
 
       const client = getSupabaseClient();
@@ -1171,20 +1243,17 @@
 
         if (error) throw error;
 
-        myPredictionsByEvent = new Map();
         (Array.isArray(data) ? data : []).forEach((prediction) => {
           const eventId = getPredictionKey(prediction);
           if (eventId) myPredictionsByEvent.set(eventId, prediction);
         });
       } catch (error) {
-        console.warn("No se pudieron cargar pronósticos del usuario.", error);
-        myPredictionsByEvent = new Map();
+        logSupabaseError("loadMyPredictions RPC error", error);
       }
     }
 
     async function loadOfficialResults() {
       const client = getSupabaseClient();
-
       officialResultsByEvent = new Map();
 
       try {
@@ -1201,7 +1270,7 @@
           if (eventId) officialResultsByEvent.set(eventId, result);
         });
       } catch (error) {
-        console.warn("Resultados oficiales aún no disponibles o sin permisos.", error);
+        logSupabaseError("loadOfficialResults error", error);
       }
     }
 
@@ -1259,19 +1328,28 @@
     }
 
     async function refreshData() {
+      hidePrediktLoader();
+      showToast("Actualizando partidos...");
+
       try {
-        hidePrediktLoader();
-        showToast("Actualizando partidos...");
         await loadMatches();
-        await loadMyPredictions();
-        await loadOfficialResults();
-        renderLists();
       } catch (error) {
-        console.error("PREDIKT™ refreshData error:", error);
-        showToast("No se pudo cargar la información. Revisa Supabase.");
-      } finally {
+        logSupabaseError("refreshData loadMatches fatal", error);
+        allMatches = [];
+        document.getElementById("summaryOpen").textContent = "0";
+        document.getElementById("summarySaved").textContent = "0";
+        document.getElementById("summaryResults").textContent = "0";
+        renderModuleError("openMatchesList", "No se pudieron cargar los partidos.", error);
+        renderModuleError("savedPredictionsList", "No se pueden cargar pronósticos sin partidos.", error);
+        renderModuleError("officialResultsList", "No se pueden relacionar resultados sin partidos.", error);
         hidePrediktLoader();
+        return;
       }
+
+      await loadMyPredictions();
+      await loadOfficialResults();
+      renderLists();
+      hidePrediktLoader();
     }
 
     async function initializePage() {
@@ -1334,3 +1412,11 @@
   </script>
 </body>
 </html>
+
+<!--
+Cierre de archivo
+Versión: v4.0.1 LISTADO MASIVO RESILIENTE
+Fecha: 2026-06-12
+Elaborado por: JVSys™
+Acción: Sustituir pronostico.html completo.
+-->
