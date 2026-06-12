@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-11
-    Versión: v8.1.0 HOME DATA FLOW CERTIFICATION
+    Versión: v8.2.0 HOME 72 GROUPS CERTIFICATION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -30,8 +30,15 @@
       2. Si no hay partido en vivo, la tarjeta principal muestra el próximo partido real.
       3. Elimina el estado productivo Local / Visitante como fallback visual.
       4. Agrega consulta prioritaria a sports.v_predikt_home_next_open_match.
-      5. Mantiene próximos 5 partidos reales desde sports.v_event_match_intelligence_api.
+      5. Mantiene próximos partidos reales desde sports.v_event_match_intelligence_api.
       6. En caso de falla extrema, muestra mensaje controlado sin inventar equipos visibles como partido activo.
+
+      CAMBIOS v8.2.0:
+      1. Corrige la percepción de que Home solo muestra Grupo A.
+      2. Carga hasta 72 partidos desde la fuente deportiva certificada.
+      3. Construye una muestra diversificada: primer partido disponible de cada grupo.
+      4. Mantiene el partido principal como próximo/en vivo real.
+      5. La lista inferior cambia de próximos cronológicos a recorrido por grupos para incentivar exploración completa.
 
       NOTA DE ARQUITECTURA:
       Esta versión NO modifica SQL. Corrige exclusivamente flujo frontend de Home.
@@ -299,10 +306,10 @@
       </article>
     </section>
 
-    <section class="section" aria-label="Próximos partidos">
+    <section class="section" aria-label="Explora partidos por grupo">
       <div class="section-head">
-        <h2 class="section-title">Próximos partidos</h2>
-        <a class="section-link" href="pronostico.html">Ver todos</a>
+        <h2 class="section-title">Explora los 12 grupos</h2>
+        <a class="section-link" href="pronostico.html">Ver los 72</a>
       </div>
       <div class="list-panel">
         <div class="match-list" id="upcomingMatchesList">
@@ -527,10 +534,38 @@
       document.getElementById("liveDetailLink").href = eventId ? `partido-detalle.html?id=${encodeURIComponent(eventId)}` : "pronostico.html";
     }
 
+    function groupSortValue(groupLabel = "") {
+      const match = String(groupLabel).match(/([A-L])/i);
+      if (!match) return 999;
+      return match[1].toUpperCase().charCodeAt(0) - 64;
+    }
+
+    function buildDiverseGroupRows(rows = []) {
+      const cleanRows = rows
+        .filter((row) => !isLiveStatus(row))
+        .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label));
+
+      const firstByGroup = new Map();
+      cleanRows.forEach((row) => {
+        const group = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
+        const key = group.toUpperCase();
+        if (!firstByGroup.has(key)) firstByGroup.set(key, row);
+      });
+
+      const diversified = Array.from(firstByGroup.values())
+        .sort((a, b) => {
+          const groupA = firstText(a.group_name, a.group_code) || "";
+          const groupB = firstText(b.group_name, b.group_code) || "";
+          return groupSortValue(groupA) - groupSortValue(groupB);
+        });
+
+      return diversified.length ? diversified.slice(0, 12) : cleanRows.slice(0, 12);
+    }
+
     function renderUpcomingMatches(rows = []) {
       const list = document.getElementById("upcomingMatchesList");
       if (!list) return;
-      const safeRows = rows.length ? rows.slice(0, 5) : buildCertifiedFallbackRows();
+      const safeRows = rows.length ? rows.slice(0, 12) : buildCertifiedFallbackRows();
       list.innerHTML = safeRows.map((row) => {
         const teams = getTeamNamesFromRow(row);
         const eventId = row.event_id || row.id || "";
@@ -541,10 +576,10 @@
         const dateLabel = formatDateShort(row.starts_at || row.start_time || row.event_start_at);
         return `
           <a class="match-row" href="${href}">
-            <span class="match-row-date">${dateLabel}</span>
+            <span class="match-row-date">${group}</span>
             <span>
               <strong class="match-row-title">${title}</strong>
-              <small class="match-row-sub">${stage} · ${group}</small>
+              <small class="match-row-sub">${stage} · ${dateLabel}</small>
             </span>
             <span class="match-row-cta">Ver</span>
           </a>
@@ -566,24 +601,21 @@
         try {
           intelligenceRows = await fetchSportsRows(
             "v_event_match_intelligence_api",
-            "select=*&order=starts_at.asc&limit=12"
+            "select=*&order=starts_at.asc&limit=72"
           );
         } catch (innerError) {
           console.warn("Intelligence API sin starts_at/order. Intentando consulta básica.", innerError);
-          intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&limit=12");
+          intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&limit=72");
         }
 
         const rows = Array.isArray(intelligenceRows) ? intelligenceRows : [];
         const liveRow = rows.find(isLiveStatus);
         const nextOpenRow = nextOpenRows[0] || rows.find((row) => !isLiveStatus(row)) || rows[0] || null;
         const featuredRow = liveRow || nextOpenRow;
-        const upcomingRows = rows
-          .filter((row) => !isLiveStatus(row))
-          .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label))
-          .slice(0, 5);
+        const groupExplorerRows = buildDiverseGroupRows(rows);
 
         renderFeaturedMatch(featuredRow, liveRow ? "live" : "upcoming");
-        renderUpcomingMatches(upcomingRows.length ? upcomingRows : (nextOpenRows.length ? nextOpenRows : []));
+        renderUpcomingMatches(groupExplorerRows.length ? groupExplorerRows : (nextOpenRows.length ? nextOpenRows : []));
       } catch (error) {
         console.warn("PREDIKT Home data flow unavailable.", error);
         renderFeaturedMatch(null, "empty");
