@@ -4,10 +4,18 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-12
-    Versión: v4.0.2 MATCH DAY CURRENT GAME
+    Versión: v4.0.3 EN JUEGO VISIBLE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
+
+    CAMBIOS v4.0.3:
+    1. Agrega bloque EN JUEGO visible en Pronósticos.
+    2. Los partidos iniciados ya no desaparecen.
+    3. Los partidos EN JUEGO se muestran cerrados para captura.
+    4. Evita guardar pronósticos tarde.
+    5. Corrige la experiencia detectada con Canadá vs Bosnia y Herzegovina.
+    6. Separa claramente: Por pronosticar / En juego / Mis pronósticos / Resultados reales.
 
     CAMBIOS v4.0.2:
     1. Corrige Pronósticos para día de partido.
@@ -338,6 +346,7 @@
     .badge.saved { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
     .badge.final { color: #061826; background: linear-gradient(135deg, var(--blue), #b9e2ff); }
     .badge.closed { color: var(--text-soft); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); }
+    .badge.live { color: #ffffff; background: linear-gradient(135deg, var(--red), var(--orange)); }
 
     .advisor-lite {
       display: grid;
@@ -694,6 +703,7 @@
 
     <div class="toolbar" aria-label="Filtros rápidos">
       <button class="filter-btn active" type="button" data-scroll-target="openSection">⚽ Por pronosticar</button>
+      <button class="filter-btn" type="button" data-scroll-target="liveSection">🔴 En juego</button>
       <button class="filter-btn" type="button" data-scroll-target="savedSection">✅ Mis pronósticos</button>
       <button class="filter-btn" type="button" data-scroll-target="resultsSection">🏁 Resultados reales</button>
       <button class="filter-btn" type="button" id="refreshBtn">Actualizar</button>
@@ -708,6 +718,18 @@
       </div>
       <div class="match-list" id="openMatchesList">
         <div class="empty-state">Cargando partidos por pronosticar...</div>
+      </div>
+    </section>
+
+    <section class="section-card" id="liveSection" aria-label="Partidos en juego">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🔴 En juego</h2>
+          <p class="section-sub">Partidos iniciados. La captura de pronóstico ya está cerrada.</p>
+        </div>
+      </div>
+      <div class="match-list" id="liveMatchesList">
+        <div class="empty-state">Revisando partidos en juego...</div>
       </div>
     </section>
 
@@ -926,22 +948,9 @@
     }
 
     function isFutureMatch(match) {
-      /*
-        v4.0.2 MATCH DAY CURRENT GAME
-        Para operación de día de partido no usamos sólo starts_at.
-        Un partido iniciado debe seguir visible mientras su ventana no haya terminado.
-      */
       const startDate = new Date(match.starts_at);
-      const endDate = new Date(match.ends_at || match.starts_at);
-      const now = Date.now();
-
       if (Number.isNaN(startDate.getTime())) return true;
-
-      if (!Number.isNaN(endDate.getTime())) {
-        return endDate.getTime() >= now;
-      }
-
-      return startDate.getTime() >= now;
+      return startDate.getTime() > Date.now();
     }
 
     function isClosedMatch(match) {
@@ -1132,6 +1141,38 @@
       `;
     }
 
+    function renderLiveMatchCard(match) {
+      const prediction = myPredictionsByEvent.get(match.event_id);
+      const predictionScores = prediction ? getPredictionScores(prediction) : null;
+      const recommendation = getRecommendation(match);
+      const venue = [match.venue_city, match.venue_name].filter(Boolean).join(" · ") || "Sede por confirmar";
+
+      return `
+        <article class="match-card" data-event-id="${match.event_id}">
+          <div class="match-head">
+            <div>
+              <p class="match-date">${formatDateLabel(match.starts_at)}</p>
+              <h3 class="match-title">${normalizeFlag(match.home_code)} ${match.event_name} ${normalizeFlag(match.away_code)}</h3>
+              <p class="match-meta">${match.phase_name} · ${match.group_name} · ${venue}</p>
+            </div>
+            <span class="badge live">En juego</span>
+          </div>
+
+          <div class="advisor-lite">
+            <p class="advisor-title">PREDIKT™ recomendaba: ${recommendation} · Confianza ${match.confidence_score ? match.confidence_score + "%" : "--"}</p>
+            ${renderProbabilities(match)}
+            <p class="advisor-copy">${match.ai_explanation || "Lectura PREDIKT™ en preparación."}</p>
+          </div>
+
+          <div class="saved-summary">
+            <p class="summary-line"><span>Estado</span><strong>Pronósticos cerrados</strong></p>
+            ${predictionScores ? `<p class="summary-line"><span>Tu pronóstico</span><strong>${match.home_team} ${predictionScores.home} - ${predictionScores.away} ${match.away_team}</strong></p>` : `<p class="summary-line"><span>Tu pronóstico</span><strong>Sin pronóstico guardado antes del inicio</strong></p>`}
+            <p class="summary-line"><span>Nota</span><strong>El partido ya inició. Se mantiene visible para evitar confusión.</strong></p>
+          </div>
+        </article>
+      `;
+    }
+
     function renderSavedPredictionCard(match, prediction) {
       const scores = getPredictionScores(prediction);
       const result = officialResultsByEvent.get(match.event_id);
@@ -1192,11 +1233,16 @@
 
     function renderLists() {
       const openList = document.getElementById("openMatchesList");
+      const liveList = document.getElementById("liveMatchesList");
       const savedList = document.getElementById("savedPredictionsList");
       const resultsList = document.getElementById("officialResultsList");
 
       const openMatches = allMatches
         .filter((match) => isFutureMatch(match))
+        .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+
+      const liveMatches = allMatches
+        .filter((match) => isCurrentMatch(match))
         .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
 
       const savedMatches = allMatches
@@ -1214,6 +1260,12 @@
       openList.innerHTML = openMatches.length
         ? openMatches.map(renderMatchPredictionCard).join("")
         : `<div class="empty-state">No hay partidos futuros disponibles.</div>`;
+
+      if (liveList) {
+        liveList.innerHTML = liveMatches.length
+          ? liveMatches.map(renderLiveMatchCard).join("")
+          : `<div class="empty-state">No hay partidos en juego en este momento.</div>`;
+      }
 
       savedList.innerHTML = savedMatches.length
         ? savedMatches.map((match) => renderSavedPredictionCard(match, myPredictionsByEvent.get(match.event_id))).join("")
@@ -1446,7 +1498,7 @@
 
 <!--
 Cierre de archivo
-Versión: v4.0.2 MATCH DAY CURRENT GAME
+Versión: v4.0.3 EN JUEGO VISIBLE
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
@@ -1454,7 +1506,15 @@ Acción: Sustituir pronostico.html completo.
 
 <!--
 Cierre de archivo
-Versión: v4.0.2 MATCH DAY CURRENT GAME
+Versión: v4.0.3 EN JUEGO VISIBLE
+Fecha: 2026-06-12
+Elaborado por: JVSys™
+Acción: Sustituir pronostico.html completo.
+-->
+
+<!--
+Cierre de archivo
+Versión: v4.0.3 EN JUEGO VISIBLE
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
