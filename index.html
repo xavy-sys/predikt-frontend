@@ -4,85 +4,33 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-12
-    Versión: v8.7.0 DOBLE ACCIÓN PARTIDO
+    Versión: v8.8.0 APP HOME COMPACTA + RESULTADO RECIENTE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Home principal PREDIKT™ rediseñado como Growth Dashboard mobile-first.
-      Corrige el flujo frontend para dejar de depender de un único partido fijo.
-      Prioriza: Partido En Vivo, próximos partidos reales, Mi Quiniela viral,
-      acceso seguro al Centro de Control SUPER_ADMIN y navegación limpia de 5 botones.
+      Home principal PREDIKT™ rediseñado como App Home Mobile First.
+      Corrige la experiencia de página web larga y reduce scroll operativo.
+      Prioriza recompensa inmediata: puntos, resultado más reciente y partido principal.
 
-      CAMBIOS v8.0.0:
-      1. Congela SQL y corrige consumo frontend.
-      2. Carga Partido En Vivo desde sports.v_event_match_intelligence_api.
-      3. Carga próximos 5 partidos desde sports.v_event_match_intelligence_api.
-      4. Mantiene fallback certificado solo si Supabase no responde.
-      5. Elimina dependencia visual de un solo partido Grupo A.
-      6. Oculta Centro SUPER_ADMIN por defecto.
-      7. Intenta validar sesión/rol desde Supabase Auth localStorage + core.user_profiles.
-      8. Agrega Centro de Control Admin con Usuarios, Pronósticos, Partidos, Rankings y Fundadores.
-      9. Agrega tarjeta Mi Quiniela como eje viral.
-      10. Mantiene footer fijo de 5 botones: Inicio, Quiniela, Pronósticos, Ranking, Perfil.
+      CAMBIOS v8.8.0:
+      1. Convierte Inicio en tablero compacto tipo app, no landing page.
+      2. Elimina scroll innecesario desde Inicio.
+      3. Agrega tarjeta prioritaria: ⚽ Resultado más reciente.
+      4. Mantiene Tus puntos y Pendientes en la primera pantalla.
+      5. Mantiene partido principal con doble acción: Ver detalle / Haz tu quiniela.
+      6. Reduce Partidos de hoy a máximo 3 visibles en Inicio.
+      7. Mueve exploración completa a Pronósticos.
+      8. Colapsa Mi Quiniela en acceso rápido compacto.
+      9. Colapsa Fundadores en acceso secundario.
+      10. Conserva footer fijo de 5 botones.
+      11. Usa datos certificados:
+          - predictions.official_results
+          - predictions.prediction_scores
+          - rankings.user_stats
+          - sports.v_event_match_intelligence_api
 
-      CAMBIOS v8.1.0:
-      1. Certifica Home Data Flow usando la misma fuente deportiva ya validada por pronostico.html.
-      2. Si no hay partido en vivo, la tarjeta principal muestra el próximo partido real.
-      3. Elimina el estado productivo Local / Visitante como fallback visual.
-      4. Agrega consulta prioritaria a sports.v_predikt_home_next_open_match.
-      5. Mantiene próximos partidos reales desde sports.v_event_match_intelligence_api.
-      6. En caso de falla extrema, muestra mensaje controlado sin inventar equipos visibles como partido activo.
-
-      CAMBIOS v8.2.0:
-      1. Corrige la percepción de que Home solo muestra Grupo A.
-      2. Carga hasta 72 partidos desde la fuente deportiva certificada.
-      3. Construye una muestra diversificada: primer partido disponible de cada grupo.
-      4. Mantiene el partido principal como próximo/en vivo real.
-      5. La lista inferior cambia de próximos cronológicos a recorrido por grupos para incentivar exploración completa.
-
-
-      CAMBIOS v8.7.0:
-      1. Agrega doble acción en cada partido: Ver Detalle y Haz tu Quiniela.
-      2. Corrige confusión UX: Detalle informa, Pronóstico captura marcador.
-      3. En el partido destacado, separa claramente Ver Detalle de Haz tu Quiniela.
-      4. En Partidos de Hoy, cada tarjeta muestra ambos botones.
-      5. Haz tu Quiniela lleva a pronostico.html para capturar marcador.
-      6. Ver Detalle lleva a partido-detalle.html?id=event_id.
-
-      CAMBIOS v8.6.0:
-      1. Estabiliza Inicio para día de partido.
-      2. Congela consumo deportivo sobre sports.v_predikt_advisor_v3 / vista certificada.
-      3. Elimina llamada a user_profiles que provocaba 406 en consola.
-      4. Corrige dependencia de logo inexistente assets/logos/predikt-logo.png.
-      5. Mantiene partidos de hoy con hora, grupo, ciudad/sede cuando existan.
-      6. Evita ruido técnico visible antes del partido de Canadá.
-
-      CAMBIOS v8.5.0:
-      1. Agrega validación visual de partidos del día en Inicio.
-      2. Muestra horario local de México y ciudad/sede por partido.
-      3. La lista inferior queda enfocada en partidos del día cuando existan.
-      4. Facilita detectar errores de fixture como equipos repetidos el mismo día.
-      5. Mantiene la regla de Imagen del Día: EN VIVO o partido más cercano a NOW().
-
-      CAMBIOS v8.4.0:
-      1. La Imagen del Día ahora selecciona el partido más cercano a la hora actual.
-      2. Elimina prioridad artificial de v_predikt_home_next_open_match.
-      3. Calcula distancia temporal absoluta respecto a now().
-      4. Si existe partido en vivo se mantiene prioridad EN VIVO.
-      5. Si no existe partido en vivo se muestra el partido cronológicamente más cercano.
-
-      CAMBIOS v8.3.0:
-      1. Convierte Inicio en La Imagen del Día.
-      2. Elimina la lógica de exploración por grupos.
-      3. Elimina buildDiverseGroupRows() y cualquier selección por Grupo A/B/C.
-      4. Muestra el partido en vivo o el próximo partido más cercano, sin importar grupo.
-      5. Lista próximos partidos en orden cronológico puro.
-      6. Cambia dinámicamente el título de la sección principal: Partido en vivo / Próximo partido.
-      7. Sustituye el bloque de avance por Tus puntos y Pronósticos pendientes.
-      8. Mantiene Mi Quiniela, Fundadores, Super Admin y footer fijo de 5 botones.
-
-      NOTA DE ARQUITECTURA:
-      Esta versión NO modifica SQL. Corrige exclusivamente flujo frontend de Home.
+      FILOSOFÍA UX:
+      Abrir App → Ver puntos → Ver resultado reciente → Pronosticar siguiente partido.
   -->
 
   <meta charset="UTF-8" />
@@ -104,7 +52,6 @@
     :root {
       --bg-main: #061826;
       --bg-deep: #020b13;
-      --bg-soft: #092238;
       --bg-card: #0f2740;
       --gold: #f5b942;
       --gold-soft: #ffe28a;
@@ -117,10 +64,10 @@
       --text-soft: #c9d7e6;
       --text-muted: #7f95aa;
       --border: rgba(255, 255, 255, 0.11);
-      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-      --radius-xl: 30px;
-      --radius-lg: 24px;
-      --radius-md: 18px;
+      --shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
       --footer-height: 82px;
       --app-max: 560px;
     }
@@ -131,134 +78,529 @@
       min-height: 100vh;
       color: var(--text-main);
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.42;
+      line-height: 1.35;
       background:
-        radial-gradient(circle at top left, rgba(245, 185, 66, 0.14), transparent 26%),
-        radial-gradient(circle at top right, rgba(72, 242, 154, 0.11), transparent 23%),
-        linear-gradient(145deg, #061826 0%, #04111d 50%, #020b13 100%);
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.13), transparent 25%),
+        radial-gradient(circle at top right, rgba(72, 242, 154, 0.10), transparent 23%),
+        linear-gradient(145deg, #061826 0%, #04111d 52%, #020b13 100%);
       overflow-x: hidden;
-      padding-bottom: calc(var(--footer-height) + 18px);
+      padding-bottom: calc(var(--footer-height) + 14px);
     }
+
     a { color: inherit; text-decoration: none; }
     button { border: 0; font: inherit; cursor: pointer; }
 
-    .app-shell { width: min(100%, var(--app-max)); margin: 0 auto; padding: 18px 14px 0; }
+    .app-shell {
+      width: min(100%, var(--app-max));
+      margin: 0 auto;
+      padding: 12px 12px 0;
+    }
 
     .app-header {
-      position: sticky; top: 0; z-index: 20;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      margin: -18px -14px 14px; padding: 15px 14px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -12px -12px 10px;
+      padding: 12px 12px 10px;
       background: linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88));
-      backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .brand { display: inline-flex; align-items: center; gap: 9px; min-width: 0; }
-    .brand-logo { width: 34px; height: 34px; border-radius: 12px; object-fit: contain; background: rgba(255,255,255,0.04); }
+
+    .brand { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+    .brand-logo { width: 32px; height: 32px; border-radius: 11px; object-fit: contain; background: rgba(255,255,255,0.04); }
     .brand-text { display: grid; gap: 1px; min-width: 0; }
-    .brand-name { font-size: 0.95rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
-    .brand-sub { color: var(--text-muted); font-size: 0.64rem; font-weight: 820; white-space: nowrap; }
-    .header-actions { display: inline-flex; align-items: center; gap: 8px; }
-    .icon-btn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 15px; color: var(--text-main); background: rgba(255,255,255,0.065); border: 1px solid rgba(255,255,255,0.095); }
-    .login-btn { min-height: 38px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: #061826; background: linear-gradient(135deg, var(--green), #8cffc4); font-size: 0.72rem; font-weight: 980; letter-spacing: 0.04em; text-transform: uppercase; }
-
-    .welcome-card, .match-card, .quiniela-card, .super-admin-card, .founder-mini-card, .list-panel {
-      border-radius: var(--radius-xl); box-shadow: var(--shadow); margin-bottom: 14px;
+    .brand-name { font-size: 0.92rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 0.61rem; font-weight: 820; white-space: nowrap; }
+    .header-actions { display: inline-flex; align-items: center; gap: 7px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      color: var(--text-main);
+      background: rgba(255,255,255,0.065);
+      border: 1px solid rgba(255,255,255,0.095);
     }
-    .welcome-card {
-      position: relative; overflow: hidden; border: 1px solid rgba(245,185,66,0.24);
-      background: radial-gradient(circle at 100% 0%, rgba(245,185,66,0.2), transparent 34%), linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
-      padding: 20px;
+    .login-btn {
+      min-height: 36px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      font-size: 0.7rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
-    .welcome-card::after { content: ""; position: absolute; right: -20px; top: -18px; width: 128px; height: 128px; background: url("assets/icons/predikt-icon-192.png") center/contain no-repeat; opacity: 0.09; transform: rotate(12deg); }
-    .hello { color: var(--gold); font-size: 0.74rem; font-weight: 980; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
-    .welcome-title { max-width: 360px; font-size: clamp(1.5rem, 7vw, 2.35rem); font-weight: 980; line-height: 0.98; letter-spacing: -0.045em; margin-bottom: 9px; }
-    .welcome-copy { max-width: 390px; color: var(--text-soft); font-size: 0.86rem; font-weight: 720; }
 
-    .section { margin-bottom: 14px; }
-    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 9px; }
-    .section-title { font-size: 0.78rem; font-weight: 980; letter-spacing: 0.08em; text-transform: uppercase; }
-    .section-link { color: var(--gold); font-size: 0.7rem; font-weight: 950; }
+    .hero-strip {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(245,185,66,0.22);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.16), transparent 33%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .hello {
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .hero-title {
+      font-size: clamp(1.26rem, 6vw, 1.78rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 5px;
+    }
+    .hero-copy {
+      color: var(--text-soft);
+      font-size: 0.76rem;
+      font-weight: 760;
+    }
 
-    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .status-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: rgba(15,39,64,0.84); padding: 15px; min-height: 112px; }
-    .status-kicker { color: var(--text-muted); font-size: 0.67rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-    .status-main { font-size: 1.8rem; font-weight: 980; line-height: 1; margin-bottom: 6px; }
-    .status-main.gold { color: var(--gold); } .status-main.green { color: var(--green); }
-    .status-copy { color: var(--text-soft); font-size: 0.74rem; font-weight: 730; }
+    .quick-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+    .stat-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(15,39,64,0.86);
+      padding: 12px;
+      min-height: 82px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+    .stat-kicker {
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 7px;
+    }
+    .stat-main {
+      font-size: 1.62rem;
+      font-weight: 980;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .stat-main.gold { color: var(--gold); }
+    .stat-main.green { color: var(--green); }
+    .stat-copy {
+      color: var(--text-soft);
+      font-size: 0.67rem;
+      font-weight: 720;
+    }
 
-    .match-card { border: 1px solid rgba(72,242,154,0.22); background: radial-gradient(circle at 90% 10%, rgba(72,242,154,0.15), transparent 28%), linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98)); padding: 17px; }
-    .match-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-    .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 7px 10px; font-size: 0.66rem; font-weight: 980; letter-spacing: 0.05em; text-transform: uppercase; }
+    .reward-card,
+    .match-card,
+    .compact-card,
+    .super-admin-card,
+    .list-panel {
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+
+    .reward-card {
+      border: 1px solid rgba(245,185,66,0.30);
+      background:
+        radial-gradient(circle at 94% 4%, rgba(245,185,66,0.21), transparent 32%),
+        linear-gradient(145deg, rgba(42,34,15,0.92), rgba(15,39,64,0.98));
+      padding: 14px;
+    }
+    .reward-top,
+    .match-top,
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 9px;
+      margin-bottom: 9px;
+    }
+    .section-head { margin: 0 2px 8px; }
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .section-link {
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 950;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 0.61rem;
+      font-weight: 980;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
     .pill.green { color: var(--green); background: var(--green-soft); border: 1px solid rgba(72,242,154,0.22); }
     .pill.gold { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
     .pill.orange { color: #061826; background: linear-gradient(135deg, var(--orange), #ffd19b); }
-    .match-title { font-size: 1.1rem; font-weight: 980; margin-bottom: 9px; }
-    .match-context-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 13px; }
-    .context-chip { min-height: 25px; padding: 5px 9px; border-radius: 999px; color: var(--text-soft); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.11); font-size: 0.58rem; font-weight: 950; letter-spacing: 0.04em; text-transform: uppercase; }
+
+    .reward-title {
+      font-size: 1rem;
+      font-weight: 980;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .reward-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .reward-label {
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 880;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .reward-text {
+      font-size: 0.78rem;
+      font-weight: 920;
+    }
+    .reward-points {
+      min-width: 68px;
+      text-align: center;
+      color: var(--green);
+      font-size: 1.2rem;
+      font-weight: 980;
+    }
+
+    .match-card {
+      border: 1px solid rgba(72,242,154,0.22);
+      background:
+        radial-gradient(circle at 90% 10%, rgba(72,242,154,0.15), transparent 28%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
+      padding: 14px;
+    }
+    .match-title {
+      font-size: 1rem;
+      font-weight: 980;
+      margin-bottom: 8px;
+    }
+    .match-context-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .context-chip {
+      min-height: 23px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.11);
+      font-size: 0.55rem;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
     .context-chip.gold { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
     .context-chip.green { color: var(--green); background: var(--green-soft); border-color: rgba(72,242,154,0.22); }
-    .teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-bottom: 14px; }
-    .team-box { border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.055); padding: 14px 8px; text-align: center; min-height: 92px; display: grid; place-items: center; gap: 4px; }
-    .team-flag { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.13); font-size: 1.05rem; font-weight: 980; }
-    .team-name { font-size: 0.78rem; font-weight: 940; }
-    .team-code { color: var(--text-muted); font-size: 0.58rem; font-weight: 900; }
-    .versus { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; color: #061826; background: #fff; font-size: 0.74rem; font-weight: 980; }
-    .match-time { border-radius: 18px; background: rgba(93,173,226,0.12); border: 1px solid rgba(93,173,226,0.22); color: var(--text-soft); padding: 11px; text-align: center; font-size: 0.75rem; font-weight: 880; margin-bottom: 12px; }
-    .primary-action, .secondary-action, .soft-action, .admin-action { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 0.74rem; font-weight: 980; text-transform: uppercase; letter-spacing: 0.05em; text-align: center; }
-    .primary-action { width: 100%; color: #061826; background: linear-gradient(135deg, var(--green), #8cffc4); box-shadow: 0 14px 30px rgba(72,242,154,0.24); }
-    .secondary-action { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); padding: 0 14px; }
-    .soft-action { color: var(--text-main); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); padding: 0 14px; }
-    .dual-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
 
-    .intelligence-card { border-radius: 22px; background: radial-gradient(circle at 100% 0%, rgba(72,242,154,0.18), transparent 30%), linear-gradient(145deg, rgba(9,43,64,0.98), rgba(15,39,64,0.98)); border: 1px solid rgba(72,242,154,0.26); padding: 14px; margin: 0 0 12px; }
-    .intelligence-kicker { color: var(--green); font-size: 0.66rem; font-weight: 980; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
-    .intelligence-title { font-size: 1.05rem; font-weight: 980; line-height: 1.08; margin-bottom: 8px; }
-    .intelligence-copy { color: var(--text-soft); font-size: 0.74rem; font-weight: 760; }
+    .teams {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .team-box {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.055);
+      padding: 10px 6px;
+      text-align: center;
+      min-height: 78px;
+      display: grid;
+      place-items: center;
+      gap: 3px;
+    }
+    .team-flag {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13);
+      font-size: 0.86rem;
+      font-weight: 980;
+    }
+    .team-name { font-size: 0.72rem; font-weight: 940; }
+    .team-code { color: var(--text-muted); font-size: 0.54rem; font-weight: 900; }
+    .versus {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #061826;
+      background: #fff;
+      font-size: 0.68rem;
+      font-weight: 980;
+    }
 
-    .list-panel { border: 1px solid var(--border); background: rgba(15,39,64,0.82); padding: 12px; }
-    .match-list { display: grid; gap: 9px; }
-    .match-row { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; background: rgba(255,255,255,0.045); padding: 11px; }
-    .match-row-date { color: var(--gold); font-size: 0.58rem; font-weight: 950; text-transform: uppercase; min-width: 62px; max-width: 76px; line-height: 1.12; }
-    .match-row-title { font-size: 0.78rem; font-weight: 950; line-height: 1.12; }
-    .match-row-sub { color: var(--text-muted); font-size: 0.62rem; font-weight: 800; margin-top: 3px; }
-    .match-row-actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
-    .match-row-cta { min-height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 0.62rem; font-weight: 980; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
-    .match-row-cta.detail { color: var(--text-main); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); }
-    .match-row-cta.pick { color: #061826; background: linear-gradient(135deg, var(--green), #8cffc4); }
+    .primary-action,
+    .secondary-action,
+    .soft-action,
+    .admin-action {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 980;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+    .primary-action {
+      width: 100%;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      box-shadow: 0 12px 24px rgba(72,242,154,0.21);
+    }
+    .secondary-action {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      padding: 0 12px;
+    }
+    .soft-action {
+      color: var(--text-main);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 0 12px;
+    }
+    .dual-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
 
-    .quiniela-card { border: 1px solid rgba(93,173,226,0.24); background: radial-gradient(circle at 90% 0%, rgba(93,173,226,0.16), transparent 30%), linear-gradient(145deg, rgba(15,39,64,0.96), rgba(7,30,50,0.98)); padding: 17px; }
-    .quiniela-title { font-size: 1.15rem; font-weight: 980; margin-bottom: 6px; }
-    .quiniela-copy { color: var(--text-soft); font-size: 0.78rem; font-weight: 760; }
-    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
-    .mini-card { border-radius: 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); padding: 12px; }
-    .mini-icon { font-size: 1.25rem; margin-bottom: 6px; }
-    .mini-title { font-size: 0.78rem; font-weight: 960; margin-bottom: 3px; }
-    .mini-copy { color: var(--text-muted); font-size: 0.64rem; font-weight: 760; }
+    .compact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+    .compact-card {
+      border: 1px solid rgba(93,173,226,0.20);
+      background: rgba(15,39,64,0.82);
+      padding: 12px;
+      min-height: 92px;
+      display: grid;
+      align-content: space-between;
+    }
+    .compact-icon { font-size: 1.25rem; margin-bottom: 6px; }
+    .compact-title { font-size: 0.78rem; font-weight: 980; margin-bottom: 3px; }
+    .compact-copy { color: var(--text-muted); font-size: 0.62rem; font-weight: 760; }
 
-    .super-admin-card { display: none; border: 1px solid rgba(245,185,66,0.32); background: radial-gradient(circle at 100% 0%, rgba(245,185,66,0.18), transparent 30%), linear-gradient(145deg, rgba(15,39,64,0.98), rgba(44,34,14,0.72)); padding: 16px; }
+    .list-panel {
+      border: 1px solid var(--border);
+      background: rgba(15,39,64,0.82);
+      padding: 10px;
+    }
+    .match-list { display: grid; gap: 8px; }
+    .match-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 17px;
+      background: rgba(255,255,255,0.045);
+      padding: 10px;
+    }
+    .match-row-date {
+      color: var(--gold);
+      font-size: 0.57rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      min-width: 48px;
+      max-width: 64px;
+      line-height: 1.12;
+    }
+    .match-row-title {
+      display: block;
+      font-size: 0.73rem;
+      font-weight: 950;
+      line-height: 1.12;
+    }
+    .match-row-sub {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+    .mini-pick {
+      min-height: 34px;
+      min-width: 72px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      font-size: 0.59rem;
+      font-weight: 980;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .super-admin-card {
+      display: none;
+      border: 1px solid rgba(245,185,66,0.32);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.18), transparent 30%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(44,34,14,0.72));
+      padding: 14px;
+    }
     .super-admin-card.show { display: block; }
-    .super-admin-kicker { color: var(--gold); font-size: 0.66rem; font-weight: 980; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
-    .super-admin-title { font-size: 1.05rem; font-weight: 980; line-height: 1.08; margin-bottom: 6px; }
-    .super-admin-copy { color: var(--text-soft); font-size: 0.72rem; font-weight: 760; margin-bottom: 12px; }
-    .super-admin-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .super-admin-kicker {
+      color: var(--gold);
+      font-size: 0.62rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .super-admin-title {
+      font-size: 0.98rem;
+      font-weight: 980;
+      line-height: 1.08;
+      margin-bottom: 6px;
+    }
+    .super-admin-copy {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 760;
+      margin-bottom: 10px;
+    }
+    .super-admin-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
     .admin-action.primary { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
     .admin-action.secondary { color: var(--text-main); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); }
 
-    .founder-mini-card { border: 1px solid rgba(245,185,66,0.30); background: radial-gradient(circle at 10% 0%, rgba(245,185,66,0.18), transparent 30%), linear-gradient(145deg, rgba(15,39,64,0.98), rgba(64,48,18,0.72)); padding: 17px; }
-    .founder-title { font-size: 1rem; font-weight: 980; margin-bottom: 6px; }
-    .founder-copy { color: var(--text-soft); font-size: 0.78rem; font-weight: 740; margin-bottom: 12px; }
-
-    .toast { position: fixed; left: 50%; bottom: calc(var(--footer-height) + 18px); transform: translateX(-50%) translateY(20px); z-index: 60; width: min(calc(100% - 28px), var(--app-max)); border: 1px solid rgba(72,242,154,0.34); border-radius: 18px; background: rgba(7,28,46,0.98); color: var(--text-main); padding: 13px 15px; box-shadow: 0 14px 36px rgba(0,0,0,0.35); opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; font-size: 0.83rem; font-weight: 830; text-align: center; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 16px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 60;
+      width: min(calc(100% - 28px), var(--app-max));
+      border: 1px solid rgba(72,242,154,0.34);
+      border-radius: 18px;
+      background: rgba(7,28,46,0.98);
+      color: var(--text-main);
+      padding: 12px 14px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.8rem;
+      font-weight: 830;
+      text-align: center;
+    }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    .app-footer { position: fixed; left: 50%; bottom: 0; z-index: 40; width: min(100%, var(--app-max)); transform: translateX(-50%); display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 9px 10px 11px; border: 1px solid rgba(255,255,255,0.11); border-bottom: 0; border-radius: 24px 24px 0 0; background: rgba(4,17,29,0.97); backdrop-filter: blur(18px); box-shadow: 0 -12px 34px rgba(0,0,0,0.34); }
-    .footer-item { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; padding: 7px 4px; color: var(--text-muted); font-size: 0.58rem; font-weight: 880; gap: 3px; }
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 40;
+      width: min(100%, var(--app-max));
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4,17,29,0.97);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0,0,0,0.34);
+    }
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 880;
+      gap: 3px;
+    }
     .footer-item span { font-size: 1rem; line-height: 1; }
-    .footer-item.active { color: var(--gold); background: rgba(245,185,66,0.12); border: 1px solid rgba(245,185,66,0.22); }
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245,185,66,0.12);
+      border: 1px solid rgba(245,185,66,0.22);
+    }
+
+    @media (max-height: 760px) {
+      .hero-strip { padding: 12px; }
+      .hero-copy { display: none; }
+      .stat-card { min-height: 74px; padding: 10px; }
+      .match-context-row { display: none; }
+      .compact-grid { display: none; }
+    }
 
     @media (min-width: 760px) {
-      body { background: radial-gradient(circle at center top, rgba(245,185,66,0.08), transparent 28%), linear-gradient(145deg, #061826 0%, #020b13 100%); }
-      .app-shell { padding-top: 22px; }
-      .app-header { margin-left: 0; margin-right: 0; border-radius: 0 0 22px 22px; }
+      body {
+        background:
+          radial-gradient(circle at center top, rgba(245,185,66,0.08), transparent 28%),
+          linear-gradient(145deg, #061826 0%, #020b13 100%);
+      }
+      .app-shell { padding-top: 16px; }
+      .app-header {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0 0 22px 22px;
+      }
     }
   </style>
 </head>
@@ -279,10 +621,39 @@
       </div>
     </header>
 
-    <section class="welcome-card" aria-label="PREDIKT Intelligence">
+    <section class="hero-strip" aria-label="PREDIKT Intelligence">
       <p class="hello">🤖 PREDIKT™ Intelligence</p>
-      <h1 class="welcome-title">¿Quién le atina al marcador?</h1>
-      <p class="welcome-copy">Pronostica los partidos, crea tu quiniela con amigos y compite por el primer lugar.</p>
+      <h1 class="hero-title">¿Quién le atina al marcador?</h1>
+      <p class="hero-copy">Abre, revisa tus puntos y pronostica el siguiente partido.</p>
+    </section>
+
+    <section class="quick-stats" aria-label="Resumen diario PREDIKT">
+      <article class="stat-card">
+        <p class="stat-kicker">Tus puntos</p>
+        <p class="stat-main gold" id="userPointsValue">0</p>
+        <p class="stat-copy">puntos acumulados.</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-kicker">Pendientes</p>
+        <p class="stat-main green" id="userPendingValue">72</p>
+        <p class="stat-copy" id="userPendingCopy">partidos por pronosticar.</p>
+      </article>
+    </section>
+
+    <section class="reward-card" id="latestResultCard" aria-label="Resultado más reciente">
+      <div class="reward-top">
+        <h2 class="section-title">⚽ Resultado más reciente</h2>
+        <span class="pill gold" id="latestResultDate">Hoy</span>
+      </div>
+      <h3 class="reward-title" id="latestResultMatch">Cargando resultados reales...</h3>
+      <div class="reward-grid">
+        <div>
+          <p class="reward-label">Tu pronóstico</p>
+          <p class="reward-text" id="latestUserPrediction">Por confirmar</p>
+        </div>
+        <strong class="reward-points" id="latestPointsEarned">+0</strong>
+      </div>
+      <a class="primary-action" href="pronostico.html#resultados-reales">Ver resultados</a>
     </section>
 
     <section class="super-admin-card" id="superAdminCard" aria-label="Centro de Control SUPER_ADMIN">
@@ -299,52 +670,34 @@
       </div>
     </section>
 
-    <section class="status-grid" aria-label="Estado diario PREDIKT">
-      <article class="status-card">
-        <p class="status-kicker">Tus puntos</p>
-        <p class="status-main gold" id="userPointsValue">0</p>
-        <p class="status-copy">puntos acumulados.</p>
-      </article>
-      <article class="status-card">
-        <p class="status-kicker">Pendientes</p>
-        <p class="status-main green" id="userPendingValue">72</p>
-        <p class="status-copy" id="userPendingCopy">partidos por pronosticar.</p>
-      </article>
-    </section>
-
-    <section class="section" aria-label="Imagen del día">
+    <section class="section" aria-label="Partido principal">
       <div class="section-head">
-        <h2 class="section-title" id="featuredSectionTitle">⚽ Próximo partido</h2>
-        <a class="section-link" href="pronostico.html">Pronosticar</a>
+        <h2 class="section-title" id="featuredSectionTitle">⚽ Siguiente partido</h2>
+        <a class="section-link" href="pronostico.html">Ver todos</a>
       </div>
       <article class="match-card" id="liveMatchCard">
         <div class="match-top">
-          <span class="pill orange" id="liveStatusPill">Buscando en vivo</span>
-          <span class="pill gold">2026</span>
+          <span class="pill orange" id="liveStatusPill">Buscando partido</span>
+          <span class="pill green">Acción rápida</span>
         </div>
-        <h3 class="match-title" id="liveMatchName">Sin partido en vivo confirmado</h3>
+        <h3 class="match-title" id="liveMatchName">Cargando partido real</h3>
         <div class="match-context-row">
           <span class="context-chip green" id="liveStage">Fase por confirmar</span>
           <span class="context-chip gold" id="liveGroup">Grupo por confirmar</span>
-          <span class="context-chip" id="liveMinute">Minuto por confirmar</span>
+          <span class="context-chip" id="liveMinute">Horario por confirmar</span>
         </div>
         <div class="teams">
           <div class="team-box">
             <div class="team-flag" id="liveHomeCode">--</div>
             <strong class="team-name" id="liveHomeName">Local</strong>
-            <span class="team-code" id="liveHomeScore">0</span>
+            <span class="team-code" id="liveHomeScore">Próximo</span>
           </div>
           <div class="versus">VS</div>
           <div class="team-box">
             <div class="team-flag" id="liveAwayCode">--</div>
             <strong class="team-name" id="liveAwayName">Visitante</strong>
-            <span class="team-code" id="liveAwayScore">0</span>
+            <span class="team-code" id="liveAwayScore">Partido</span>
           </div>
-        </div>
-        <div class="intelligence-card">
-          <p class="intelligence-kicker">🎯 Lectura PREDIKT™</p>
-          <h4 class="intelligence-title" id="liveRecommendationTitle">Esperando señal del partido</h4>
-          <p class="intelligence-copy" id="liveRecommendationCopy">Cuando exista partido en vivo, se mostrará aquí la lectura inteligente.</p>
         </div>
         <div class="dual-actions">
           <a class="soft-action" id="liveDetailLink" href="pronostico.html">Ver detalle</a>
@@ -353,10 +706,27 @@
       </article>
     </section>
 
-    <section class="section" aria-label="Próximos partidos">
+    <section class="compact-grid" aria-label="Accesos rápidos">
+      <a class="compact-card" href="mi-quiniela.html">
+        <span class="compact-icon">👥</span>
+        <span>
+          <strong class="compact-title">Mi Quiniela</strong>
+          <p class="compact-copy">Invita amigos y compite.</p>
+        </span>
+      </a>
+      <a class="compact-card" href="fundadores.html">
+        <span class="compact-icon">☕</span>
+        <span>
+          <strong class="compact-title">Fundadores</strong>
+          <p class="compact-copy">Invítanos un café.</p>
+        </span>
+      </a>
+    </section>
+
+    <section class="section" aria-label="Partidos de hoy">
       <div class="section-head">
         <h2 class="section-title" id="todayMatchesTitle">Partidos de hoy</h2>
-        <a class="section-link" href="pronostico.html">Ver todos</a>
+        <a class="section-link" href="pronostico.html">Todos</a>
       </div>
       <div class="list-panel">
         <div class="match-list" id="upcomingMatchesList">
@@ -364,43 +734,12 @@
             <span class="match-row-date">...</span>
             <span>
               <strong class="match-row-title">Cargando partidos reales</strong>
-              <small class="match-row-sub">Conectando con PREDIKT™ Data Flow</small>
+              <small class="match-row-sub">PREDIKT™ Data Flow</small>
             </span>
-            <div class="match-row-actions">
-              <a class="match-row-cta detail" href="pronostico.html">Ver detalle</a>
-              <a class="match-row-cta pick" href="pronostico.html">Haz tu quiniela</a>
-            </div>
+            <a class="mini-pick" href="pronostico.html">Quiniela</a>
           </article>
         </div>
       </div>
-    </section>
-
-    <section class="quiniela-card" aria-label="Mi Quiniela">
-      <p class="hello">⚽ MI QUINIELA</p>
-      <h2 class="quiniela-title">Invita a tus amigos y compitan por el primer lugar.</h2>
-      <p class="quiniela-copy">Crea tu grupo privado, comparte la liga por WhatsApp y descubre quién le atina al marcador.</p>
-      <div class="mini-grid">
-        <article class="mini-card">
-          <div class="mini-icon">👥</div>
-          <h3 class="mini-title">Grupos privados</h3>
-          <p class="mini-copy">Juega con amigos, familia o trabajo.</p>
-        </article>
-        <article class="mini-card">
-          <div class="mini-icon">🏆</div>
-          <h3 class="mini-title">Ranking propio</h3>
-          <p class="mini-copy">Compitan por puntos y orgullo.</p>
-        </article>
-      </div>
-      <div class="dual-actions">
-        <a class="secondary-action" href="mi-quiniela.html">Crear Quiniela</a>
-        <button class="soft-action" type="button" id="sharePrediktBtn">Compartir</button>
-      </div>
-    </section>
-
-    <section class="founder-mini-card" aria-label="Fundadores PREDIKT">
-      <h2 class="founder-title">☕ Fundadores PREDIKT™</h2>
-      <p class="founder-copy">Si te gusta PREDIKT™, invítanos un café y forma parte de los primeros fundadores.</p>
-      <a class="secondary-action" href="fundadores.html">Ver fundadores</a>
     </section>
   </main>
 
@@ -439,12 +778,21 @@
       };
     }
 
-    function coreHeaders(accessToken) {
+    function predictionsHeaders(accessToken) {
       return {
         apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
         Authorization: `Bearer ${accessToken || PREDIKT_SUPABASE_PUBLIC_KEY}`,
         Accept: "application/json",
-        "Accept-Profile": "core"
+        "Accept-Profile": "predictions"
+      };
+    }
+
+    function rankingsHeaders(accessToken) {
+      return {
+        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${accessToken || PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        Accept: "application/json",
+        "Accept-Profile": "rankings"
       };
     }
 
@@ -484,11 +832,35 @@
       return clean.slice(0, 2).toUpperCase();
     }
 
+    function getStoredSupabaseSession() {
+      try {
+        for (let index = 0; index < window.localStorage.length; index += 1) {
+          const key = window.localStorage.key(index);
+          if (!key || !key.includes("auth-token")) continue;
+          const raw = window.localStorage.getItem(key);
+          if (!raw) continue;
+          const parsed = JSON.parse(raw);
+          const session = parsed.currentSession || parsed.session || parsed;
+          if (session?.access_token) return session;
+        }
+      } catch (error) {
+        console.warn("No se pudo leer sesión Supabase local.", error);
+      }
+      return null;
+    }
+
     function formatDateShort(value) {
       if (!value) return "Por definir";
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return "Por definir";
-      return date.toLocaleString("es-MX", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+      return date.toLocaleString("es-MX", {
+        timeZone: "America/Mexico_City",
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
     }
 
     function formatTimeMX(value) {
@@ -502,14 +874,16 @@
       });
     }
 
-    function getVenueLabel(row = {}) {
-      const metadata = row.metadata || row.event_metadata || {};
-      const city = firstText(row.venue_city, row.city, metadata.venue_city);
-      const venue = firstText(row.venue_name, row.stadium_name, metadata.venue_name);
-      if (city && venue) return `${city} · ${venue}`;
-      if (city) return city;
-      if (venue) return venue;
-      return "Sede por confirmar";
+    function formatDateOnlyMX(value) {
+      if (!value) return "Hoy";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Hoy";
+      return date.toLocaleDateString("es-MX", {
+        timeZone: "America/Mexico_City",
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
     }
 
     function isSameMexicoDate(value, reference = new Date()) {
@@ -525,54 +899,75 @@
       return fmt.format(date) === fmt.format(reference);
     }
 
-    function normalizeProbability(value) {
-      const numeric = Number(value ?? 0);
-      if (!Number.isFinite(numeric)) return 0;
-      return numeric <= 1 ? numeric * 100 : numeric;
-    }
-
     function isLiveStatus(row = {}) {
       const statusText = String(firstText(row.event_status, row.status, row.match_status, row.state)).toLowerCase();
       const minute = Number(row.minute ?? row.current_minute ?? row.match_minute ?? 0);
       return statusText.includes("live") || statusText.includes("vivo") || statusText.includes("en juego") || (minute > 0 && minute < 130);
     }
 
+    function getRowStartTime(row = {}) {
+      const raw = row.starts_at || row.start_time || row.event_start_at || row.event_date || row.match_date;
+      const date = new Date(raw);
+      return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
+    }
+
     async function fetchSportsRows(viewName, queryString = "select=*&limit=1") {
-      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${viewName}?${queryString}`, { method: "GET", headers: sportsHeaders() });
+      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${viewName}?${queryString}`, {
+        method: "GET",
+        headers: sportsHeaders()
+      });
       if (!response.ok) throw new Error(`${viewName} status ${response.status}`);
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    }
+
+    async function fetchPredictionsRows(tableName, queryString, accessToken) {
+      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${tableName}?${queryString}`, {
+        method: "GET",
+        headers: predictionsHeaders(accessToken)
+      });
+      if (!response.ok) throw new Error(`${tableName} status ${response.status}`);
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    }
+
+    async function fetchRankingsRows(tableName, queryString, accessToken) {
+      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${tableName}?${queryString}`, {
+        method: "GET",
+        headers: rankingsHeaders(accessToken)
+      });
+      if (!response.ok) throw new Error(`${tableName} status ${response.status}`);
       const rows = await response.json();
       return Array.isArray(rows) ? rows : [];
     }
 
     function buildCertifiedFallbackRows() {
       return [
-        { event_id: "fallback-mex-rsa", event_name: "México vs Sudáfrica", home_name: "México", away_name: "Sudáfrica", home_code: "MEX", away_code: "RSA", phase_name: "Fase de Grupos", group_name: "Grupo A", matchday: 1, starts_at: "2026-06-11T19:00:00+00", pre_probability_home: 42, pre_probability_draw: 28, pre_probability_away: 30 },
-        { event_id: "fallback-can-eur", event_name: "Canadá vs Rival por confirmar", home_name: "Canadá", away_name: "Rival por confirmar", home_code: "CAN", away_code: "--", phase_name: "Fase de Grupos", group_name: "Grupo B", matchday: 1, starts_at: "2026-06-12T19:00:00+00", pre_probability_home: 38, pre_probability_draw: 31, pre_probability_away: 31 }
+        {
+          event_id: "fallback-can-bos",
+          event_name: "Canadá vs Bosnia y Herzegovina",
+          home_name: "Canadá",
+          away_name: "Bosnia y Herzegovina",
+          home_code: "CAN",
+          away_code: "BIH",
+          phase_name: "Fase de Grupos",
+          group_name: "Grupo por confirmar",
+          starts_at: "2026-06-12T19:00:00+00"
+        }
       ];
     }
 
-    function getRecommendation(row, teams) {
-      const homeProbability = normalizeProbability(row.live_probability_home ?? row.pre_probability_home ?? row.probability_home ?? row.home_probability);
-      const drawProbability = normalizeProbability(row.live_probability_draw ?? row.pre_probability_draw ?? row.probability_draw ?? row.draw_probability);
-      const awayProbability = normalizeProbability(row.live_probability_away ?? row.pre_probability_away ?? row.probability_away ?? row.away_probability);
-      let winner = teams.home;
-      let confidence = homeProbability;
-      if (drawProbability > confidence) { winner = "Empate"; confidence = drawProbability; }
-      if (awayProbability > confidence) { winner = teams.away; confidence = awayProbability; }
-      if (!confidence || confidence <= 0) { winner = teams.home; confidence = 42; }
-      return {
-        winner,
-        confidence: `${Math.max(1, Math.min(confidence, 100)).toFixed(0)}%`,
-        explanation: row.live_ai_explanation || row.ai_explanation || row.predikt_explanation || `${winner} aparece como la lectura más fuerte para este partido.`
-      };
+    function buildChronologicalRows(rows = []) {
+      return rows
+        .filter((row) => !isLiveStatus(row))
+        .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label))
+        .sort((a, b) => getRowStartTime(a) - getRowStartTime(b))
+        .slice(0, 8);
     }
 
     function renderFeaturedMatch(row, mode = "upcoming") {
-      const card = document.getElementById("liveMatchCard");
-
       if (!row) {
-        const featuredSectionTitle = document.getElementById("featuredSectionTitle");
-        if (featuredSectionTitle) featuredSectionTitle.textContent = "⚽ Próximo partido";
+        document.getElementById("featuredSectionTitle").textContent = "⚽ Siguiente partido";
         document.getElementById("liveStatusPill").textContent = "Sin datos activos";
         document.getElementById("liveMatchName").textContent = "Partidos por cargar";
         document.getElementById("liveStage").textContent = "Fase por confirmar";
@@ -584,11 +979,8 @@
         document.getElementById("liveAwayCode").textContent = "--";
         document.getElementById("liveAwayName").textContent = "Equipo por confirmar";
         document.getElementById("liveAwayScore").textContent = "";
-        document.getElementById("liveRecommendationTitle").textContent = "PREDIKT está cargando el calendario";
-        document.getElementById("liveRecommendationCopy").textContent = "Actualiza la página o entra a Pronósticos para ver la lista completa de partidos.";
         document.getElementById("liveDetailLink").href = "pronostico.html";
         document.getElementById("liveQuinielaLink").href = "pronostico.html";
-        if (card) card.style.borderColor = "rgba(245,185,66,0.22)";
         return;
       }
 
@@ -596,16 +988,14 @@
       const homeCode = firstText(row.home_code, row.home_team_code, row.home_country_code) || inferCode(teams.home);
       const awayCode = firstText(row.away_code, row.away_team_code, row.away_country_code) || inferCode(teams.away);
       const eventId = row.event_id || row.id || "";
-      const recommendation = getRecommendation(row, teams);
       const isLive = mode === "live" || isLiveStatus(row);
-      const featuredSectionTitle = document.getElementById("featuredSectionTitle");
-      if (featuredSectionTitle) featuredSectionTitle.textContent = isLive ? "🔴 Partido en vivo" : "⚽ Próximo partido";
       const minute = firstText(row.minute, row.current_minute, row.match_minute) || "EN VIVO";
       const homeScore = Number(row.home_score ?? row.home_goals ?? row.score_home ?? 0);
       const awayScore = Number(row.away_score ?? row.away_goals ?? row.score_away ?? 0);
       const startsAt = row.starts_at || row.start_time || row.event_start_at;
 
-      document.getElementById("liveStatusPill").textContent = isLive ? "EN VIVO" : "PRÓXIMO PARTIDO";
+      document.getElementById("featuredSectionTitle").textContent = isLive ? "🔴 Partido en vivo" : "⚽ Siguiente partido";
+      document.getElementById("liveStatusPill").textContent = isLive ? "EN VIVO" : "PRÓXIMO";
       document.getElementById("liveMatchName").textContent = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
       document.getElementById("liveStage").textContent = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
       document.getElementById("liveGroup").textContent = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
@@ -618,24 +1008,8 @@
       document.getElementById("liveAwayCode").textContent = awayCode;
       document.getElementById("liveAwayName").textContent = teams.away;
       document.getElementById("liveAwayScore").textContent = isLive ? String(awayScore) : "Partido";
-      document.getElementById("liveRecommendationTitle").textContent = `PREDIKT recomienda: ${recommendation.winner}`;
-      document.getElementById("liveRecommendationCopy").textContent = recommendation.explanation;
       document.getElementById("liveDetailLink").href = eventId ? `partido-detalle.html?id=${encodeURIComponent(eventId)}` : "pronostico.html";
       document.getElementById("liveQuinielaLink").href = eventId ? `pronostico.html?event_id=${encodeURIComponent(eventId)}` : "pronostico.html";
-    }
-
-    function getRowStartTime(row = {}) {
-      const raw = row.starts_at || row.start_time || row.event_start_at || row.event_date || row.match_date;
-      const date = new Date(raw);
-      return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
-    }
-
-    function buildChronologicalRows(rows = []) {
-      return rows
-        .filter((row) => !isLiveStatus(row))
-        .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label))
-        .sort((a, b) => getRowStartTime(a) - getRowStartTime(b))
-        .slice(0, 12);
     }
 
     function renderUpcomingMatches(rows = []) {
@@ -645,39 +1019,167 @@
 
       const todayRows = rows
         .filter((row) => isSameMexicoDate(row.starts_at || row.start_time || row.event_start_at))
-        .slice(0, 12);
+        .slice(0, 3);
 
-      const safeRows = todayRows.length ? todayRows : (rows.length ? rows.slice(0, 12) : buildCertifiedFallbackRows());
+      const safeRows = todayRows.length ? todayRows : (rows.length ? rows.slice(0, 3) : buildCertifiedFallbackRows());
 
-      if (titleNode) {
-        titleNode.textContent = todayRows.length ? "Partidos de hoy" : "Próximos partidos";
-      }
+      if (titleNode) titleNode.textContent = todayRows.length ? "Partidos de hoy" : "Próximos partidos";
 
       list.innerHTML = safeRows.map((row) => {
         const teams = getTeamNamesFromRow(row);
         const eventId = row.event_id || row.id || "";
-        const detailHref = eventId ? `partido-detalle.html?id=${encodeURIComponent(eventId)}` : "pronostico.html";
         const quinielaHref = eventId ? `pronostico.html?event_id=${encodeURIComponent(eventId)}` : "pronostico.html";
         const title = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
-        const group = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
-        const stage = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
+        const group = firstText(row.group_name, row.group_code) || "Grupo";
         const startsAt = row.starts_at || row.start_time || row.event_start_at;
         const dateLabel = todayRows.length ? formatTimeMX(startsAt) : formatDateShort(startsAt);
-        const venueLabel = getVenueLabel(row);
+
         return `
           <article class="match-row">
             <span class="match-row-date">${dateLabel}</span>
             <span>
               <strong class="match-row-title">${title}</strong>
-              <small class="match-row-sub">${stage} · ${group} · ${venueLabel}</small>
+              <small class="match-row-sub">${group}</small>
             </span>
-            <div class="match-row-actions">
-              <a class="match-row-cta detail" href="${detailHref}">Ver detalle</a>
-              <a class="match-row-cta pick" href="${quinielaHref}">Haz tu quiniela</a>
-            </div>
+            <a class="mini-pick" href="${quinielaHref}">Quiniela</a>
           </article>
         `;
       }).join("");
+    }
+
+    function normalizeScoreValue(value) {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) return "0";
+      return String(numeric);
+    }
+
+    function resultNameFromOfficial(row = {}) {
+      const teams = getTeamNamesFromRow(row);
+      const homeGoals = normalizeScoreValue(row.home_score ?? row.home_goals ?? row.official_home_score ?? row.home_result);
+      const awayGoals = normalizeScoreValue(row.away_score ?? row.away_goals ?? row.official_away_score ?? row.away_result);
+      return `${teams.home} ${homeGoals}-${awayGoals} ${teams.away}`;
+    }
+
+    function predictionLabelFromScore(row = {}) {
+      const home = row.predicted_home_score ?? row.user_home_score ?? row.home_prediction ?? row.home_goals_prediction;
+      const away = row.predicted_away_score ?? row.user_away_score ?? row.away_prediction ?? row.away_goals_prediction;
+      if (home !== undefined && home !== null && away !== undefined && away !== null) return `${home}-${away}`;
+      const outcome = firstText(row.predicted_outcome, row.user_prediction, row.outcome);
+      return outcome || "Sin pronóstico registrado";
+    }
+
+    function renderLatestResult({ officialResult = null, predictionScore = null } = {}) {
+      const matchNode = document.getElementById("latestResultMatch");
+      const predictionNode = document.getElementById("latestUserPrediction");
+      const pointsNode = document.getElementById("latestPointsEarned");
+      const dateNode = document.getElementById("latestResultDate");
+
+      if (!matchNode || !predictionNode || !pointsNode || !dateNode) return;
+
+      if (!officialResult) {
+        matchNode.textContent = "Aún no hay resultados oficiales visibles.";
+        predictionNode.textContent = "Entra a Pronósticos";
+        pointsNode.textContent = "+0";
+        dateNode.textContent = "Pendiente";
+        return;
+      }
+
+      matchNode.textContent = resultNameFromOfficial(officialResult);
+      predictionNode.textContent = predictionScore ? predictionLabelFromScore(predictionScore) : "Sin pronóstico registrado";
+      const points = Number(predictionScore?.points ?? predictionScore?.score ?? predictionScore?.total_points ?? 0);
+      pointsNode.textContent = `+${Number.isFinite(points) ? points : 0}`;
+      const resultDate = officialResult.result_date || officialResult.played_at || officialResult.created_at || officialResult.updated_at;
+      dateNode.textContent = formatDateOnlyMX(resultDate);
+    }
+
+    async function loadLatestResultFlow() {
+      const session = getStoredSupabaseSession();
+      const accessToken = session?.access_token;
+      const userId = session?.user?.id;
+
+      try {
+        const officialRows = await fetchPredictionsRows(
+          "official_results",
+          "select=*&order=created_at.desc&limit=1",
+          accessToken
+        );
+
+        const officialResult = officialRows[0] || null;
+
+        let predictionScore = null;
+        if (officialResult && userId) {
+          const eventId = officialResult.event_id || officialResult.match_id || officialResult.id;
+          const scoreQueries = [
+            `select=*&user_id=eq.${encodeURIComponent(userId)}&event_id=eq.${encodeURIComponent(eventId)}&limit=1`,
+            `select=*&user_id=eq.${encodeURIComponent(userId)}&match_id=eq.${encodeURIComponent(eventId)}&limit=1`
+          ];
+
+          for (const query of scoreQueries) {
+            try {
+              const rows = await fetchPredictionsRows("prediction_scores", query, accessToken);
+              if (rows[0]) {
+                predictionScore = rows[0];
+                break;
+              }
+            } catch (innerError) {
+              console.warn("Consulta alternativa prediction_scores no disponible.", innerError);
+            }
+          }
+        }
+
+        renderLatestResult({ officialResult, predictionScore });
+      } catch (error) {
+        console.warn("No se pudo cargar resultado más reciente.", error);
+        renderLatestResult({ officialResult: null, predictionScore: null });
+      }
+    }
+
+    async function loadUserStatsFlow() {
+      const session = getStoredSupabaseSession();
+      const accessToken = session?.access_token;
+      const userId = session?.user?.id;
+      const profileBtn = document.getElementById("profileAccessBtn");
+
+      if (session?.user?.email && profileBtn) profileBtn.textContent = "Perfil";
+
+      if (!userId) {
+        syncLocalProgress();
+        return;
+      }
+
+      try {
+        const rows = await fetchRankingsRows(
+          "user_stats",
+          `select=*&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+          accessToken
+        );
+        const stats = rows[0] || null;
+        if (!stats) {
+          syncLocalProgress();
+          return;
+        }
+
+        const points = Number(stats.total_points ?? stats.points ?? 0);
+        const completed = Number(stats.total_predictions ?? stats.predictions_count ?? 0);
+        const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - (Number.isFinite(completed) ? completed : 0));
+
+        document.getElementById("userPointsValue").textContent = String(Number.isFinite(points) ? points : 0);
+        document.getElementById("userPendingValue").textContent = String(pending);
+        document.getElementById("userPendingCopy").textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
+      } catch (error) {
+        console.warn("No se pudo cargar rankings.user_stats. Usando progreso local.", error);
+        syncLocalProgress();
+      }
+    }
+
+    function syncLocalProgress() {
+      const completed = Math.max(0, Math.min(Number(window.localStorage.getItem("predikt_predictions_completed") || 0), TOTAL_CERTIFIED_MATCHES));
+      const points = Math.max(0, Number(window.localStorage.getItem("predikt_user_points") || 0));
+      const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - completed);
+
+      document.getElementById("userPointsValue").textContent = String(points);
+      document.getElementById("userPendingValue").textContent = String(pending);
+      document.getElementById("userPendingCopy").textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
     }
 
     async function loadHomeSportsFlow() {
@@ -706,16 +1208,11 @@
         const rows = Array.isArray(intelligenceRows) ? intelligenceRows : [];
         const liveRow = rows.find(isLiveStatus);
         const chronologicalRows = buildChronologicalRows(rows);
-
         const nowMs = Date.now();
 
         const nearestRow = rows
           .filter((row) => !isLiveStatus(row))
-          .sort((a, b) => {
-            const da = Math.abs(getRowStartTime(a) - nowMs);
-            const db = Math.abs(getRowStartTime(b) - nowMs);
-            return da - db;
-          })[0] || null;
+          .sort((a, b) => Math.abs(getRowStartTime(a) - nowMs) - Math.abs(getRowStartTime(b) - nowMs))[0] || null;
 
         const featuredRow = liveRow || nearestRow || nextOpenRows[0] || chronologicalRows[0] || rows[0] || null;
 
@@ -729,74 +1226,8 @@
       }
     }
 
-    function getStoredSupabaseSession() {
-      try {
-        for (let index = 0; index < window.localStorage.length; index += 1) {
-          const key = window.localStorage.key(index);
-          if (!key || !key.includes("auth-token")) continue;
-          const raw = window.localStorage.getItem(key);
-          if (!raw) continue;
-          const parsed = JSON.parse(raw);
-          const session = parsed.currentSession || parsed.session || parsed;
-          if (session?.access_token) return session;
-        }
-      } catch (error) {
-        console.warn("No se pudo leer sesión Supabase local.", error);
-      }
-      return null;
-    }
-
-    async function loadUserProfileAndAdminAccess() {
-      const session = getStoredSupabaseSession();
-      const profileBtn = document.getElementById("profileAccessBtn");
-
-      if (session?.user?.email && profileBtn) {
-        profileBtn.textContent = "Perfil";
-      }
-
-      /*
-        v8.6.0 MATCH DAY STABILIZATION
-        Se desactiva la lectura directa a user_profiles desde Inicio.
-        Motivo: evitamos 406 en consola y ruido operativo en día de partido.
-        La validación SUPER_ADMIN queda concentrada en dashboard-admin.html.
-      */
-      return;
-    }
-
-    function syncLocalProgress() {
-      const completed = Math.max(0, Math.min(Number(window.localStorage.getItem("predikt_predictions_completed") || 0), TOTAL_CERTIFIED_MATCHES));
-      const points = Math.max(0, Number(window.localStorage.getItem("predikt_user_points") || 0));
-      const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - completed);
-      const userPointsValue = document.getElementById("userPointsValue");
-      const userPendingValue = document.getElementById("userPendingValue");
-      const userPendingCopy = document.getElementById("userPendingCopy");
-      if (userPointsValue) userPointsValue.textContent = String(points);
-      if (userPendingValue) userPendingValue.textContent = String(pending);
-      if (userPendingCopy) userPendingCopy.textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
-    }
-
-    async function sharePredikt() {
-      const shareData = {
-        title: "PREDIKT™",
-        text: "⚽ ¿Quién le atina al marcador? Entra a PREDIKT™, crea tu quiniela y compite con tus amigos.",
-        url: "https://predikt-frontend-three.vercel.app/"
-      };
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-        } else {
-          await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-          showToast("Liga copiada para compartir por WhatsApp.");
-        }
-      } catch (error) {
-        console.warn("Compartir cancelado o no disponible.", error);
-      }
-    }
-
-    document.getElementById("sharePrediktBtn")?.addEventListener("click", sharePredikt);
-
-    syncLocalProgress();
-    loadUserProfileAndAdminAccess();
+    loadUserStatsFlow();
+    loadLatestResultFlow();
     loadHomeSportsFlow();
   </script>
 </body>
@@ -804,9 +1235,9 @@
 
 <!--
 Cierre de archivo
-Versión: v8.7.0 DOBLE ACCIÓN PARTIDO
+Versión: v8.8.0 APP HOME COMPACTA + RESULTADO RECIENTE
 Fecha: 2026-06-12
 Elaborado por: JVSys™
-Regla UX: Detalle informa; Haz tu quiniela captura marcador.
+Regla UX: Inicio debe sentirse como app, no como página web.
 Acción: Sustituir index.html completo.
 -->
