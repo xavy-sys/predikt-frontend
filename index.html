@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-12
-    Versión: v8.4.0 REAL NEAREST MATCH
+    Versión: v8.5.0 TODAY MATCHES VISUAL VALIDATION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -40,6 +40,13 @@
       4. Mantiene el partido principal como próximo/en vivo real.
       5. La lista inferior cambia de próximos cronológicos a recorrido por grupos para incentivar exploración completa.
 
+
+      CAMBIOS v8.5.0:
+      1. Agrega validación visual de partidos del día en Inicio.
+      2. Muestra horario local de México y ciudad/sede por partido.
+      3. La lista inferior queda enfocada en partidos del día cuando existan.
+      4. Facilita detectar errores de fixture como equipos repetidos el mismo día.
+      5. Mantiene la regla de Imagen del Día: EN VIVO o partido más cercano a NOW().
 
       CAMBIOS v8.4.0:
       1. La Imagen del Día ahora selecciona el partido más cercano a la hora actual.
@@ -326,7 +333,7 @@
 
     <section class="section" aria-label="Próximos partidos">
       <div class="section-head">
-        <h2 class="section-title">Próximos partidos</h2>
+        <h2 class="section-title" id="todayMatchesTitle">Partidos de hoy</h2>
         <a class="section-link" href="pronostico.html">Ver todos</a>
       </div>
       <div class="list-panel">
@@ -459,6 +466,40 @@
       return date.toLocaleString("es-MX", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
     }
 
+    function formatTimeMX(value) {
+      if (!value) return "Hora por definir";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Hora por definir";
+      return date.toLocaleTimeString("es-MX", {
+        timeZone: "America/Mexico_City",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function getVenueLabel(row = {}) {
+      const metadata = row.metadata || row.event_metadata || {};
+      const city = firstText(row.venue_city, row.city, metadata.venue_city);
+      const venue = firstText(row.venue_name, row.stadium_name, metadata.venue_name);
+      if (city && venue) return `${city} · ${venue}`;
+      if (city) return city;
+      if (venue) return venue;
+      return "Sede por confirmar";
+    }
+
+    function isSameMexicoDate(value, reference = new Date()) {
+      if (!value) return false;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return false;
+      const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Mexico_City",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      return fmt.format(date) === fmt.format(reference);
+    }
+
     function normalizeProbability(value) {
       const numeric = Number(value ?? 0);
       if (!Number.isFinite(numeric)) return 0;
@@ -572,8 +613,19 @@
 
     function renderUpcomingMatches(rows = []) {
       const list = document.getElementById("upcomingMatchesList");
+      const titleNode = document.getElementById("todayMatchesTitle");
       if (!list) return;
-      const safeRows = rows.length ? rows.slice(0, 12) : buildCertifiedFallbackRows();
+
+      const todayRows = rows
+        .filter((row) => isSameMexicoDate(row.starts_at || row.start_time || row.event_start_at))
+        .slice(0, 12);
+
+      const safeRows = todayRows.length ? todayRows : (rows.length ? rows.slice(0, 12) : buildCertifiedFallbackRows());
+
+      if (titleNode) {
+        titleNode.textContent = todayRows.length ? "Partidos de hoy" : "Próximos partidos";
+      }
+
       list.innerHTML = safeRows.map((row) => {
         const teams = getTeamNamesFromRow(row);
         const eventId = row.event_id || row.id || "";
@@ -581,13 +633,15 @@
         const title = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
         const group = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
         const stage = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
-        const dateLabel = formatDateShort(row.starts_at || row.start_time || row.event_start_at);
+        const startsAt = row.starts_at || row.start_time || row.event_start_at;
+        const dateLabel = todayRows.length ? formatTimeMX(startsAt) : formatDateShort(startsAt);
+        const venueLabel = getVenueLabel(row);
         return `
           <a class="match-row" href="${href}">
             <span class="match-row-date">${dateLabel}</span>
             <span>
               <strong class="match-row-title">${title}</strong>
-              <small class="match-row-sub">${stage} · ${group}</small>
+              <small class="match-row-sub">${stage} · ${group} · ${venueLabel}</small>
             </span>
             <span class="match-row-cta">Ver</span>
           </a>
