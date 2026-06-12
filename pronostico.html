@@ -4,10 +4,20 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-12
-    Versión: v4.0.3 EN JUEGO VISIBLE
+    Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
+
+    CAMBIOS v4.1.0:
+    1. Implementa regla permanente: un partido nunca desaparece el mismo día.
+    2. Agrega clasificación por estado UX: Por Pronosticar, En Juego, Finalizado y Resultado Oficial.
+    3. Si un partido inició hoy y no tiene resultado oficial, se muestra en EN JUEGO aunque la vista no traiga ends_at.
+    4. Canadá vs Bosnia y Herzegovina permanece visible aunque ya haya iniciado.
+    5. Los partidos iniciados cierran captura pero siguen visibles.
+    6. Los partidos con resultado oficial migran a Resultados Reales.
+    7. El contador Por Pronosticar deja de mezclar partidos en juego.
+    8. Se elimina la lógica de desaparición por starts_at vencido.
 
     CAMBIOS v4.0.3:
     1. Agrega bloque EN JUEGO visible en Pronósticos.
@@ -687,7 +697,7 @@
       <article class="summary-card">
         <p class="summary-kicker">Por pronosticar</p>
         <p class="summary-value green" id="summaryOpen">--</p>
-        <p class="summary-copy">partidos disponibles.</p>
+        <p class="summary-copy">partidos abiertos.</p>
       </article>
       <article class="summary-card">
         <p class="summary-kicker">Mis pronósticos</p>
@@ -713,7 +723,7 @@
       <div class="section-header">
         <div>
           <h2 class="section-title">⚽ Por pronosticar</h2>
-          <p class="section-sub">Partidos disponibles, actuales y próximos, ordenados por horario.</p>
+          <p class="section-sub">Partidos futuros con captura abierta.</p>
         </div>
       </div>
       <div class="match-list" id="openMatchesList">
@@ -947,25 +957,60 @@
       });
     }
 
+    function mexicoDateKey(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Mexico_City",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(date);
+    }
+
+    function isSameMexicoDay(value, reference = new Date()) {
+      return mexicoDateKey(value) === mexicoDateKey(reference);
+    }
+
+    function hasOfficialResult(match) {
+      return Boolean(officialResultsByEvent.get(match.event_id)) || String(match.event_status || "").toUpperCase().includes("FINAL");
+    }
+
     function isFutureMatch(match) {
       const startDate = new Date(match.starts_at);
       if (Number.isNaN(startDate.getTime())) return true;
       return startDate.getTime() > Date.now();
     }
 
-    function isClosedMatch(match) {
-      const endDate = new Date(match.ends_at || match.starts_at);
-      if (Number.isNaN(endDate.getTime())) return false;
-      return endDate.getTime() < Date.now();
-    }
-
     function isCurrentMatch(match) {
+      /*
+        REGLA PREDIKT™ v4.1.0
+        Un partido iniciado hoy NO desaparece.
+        Si ya inició hoy y aún no tiene resultado oficial, se muestra como EN JUEGO,
+        aunque la vista no entregue ends_at o event_status LIVE.
+      */
+      if (hasOfficialResult(match)) return false;
+
       const startDate = new Date(match.starts_at);
-      const endDate = new Date(match.ends_at || match.starts_at);
+      if (Number.isNaN(startDate.getTime())) return false;
+
       const now = Date.now();
 
-      if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return false;
-      return startDate.getTime() <= now && endDate.getTime() >= now;
+      if (startDate.getTime() <= now && isSameMexicoDay(match.starts_at)) {
+        return true;
+      }
+
+      const endDate = new Date(match.ends_at || "");
+      if (!Number.isNaN(endDate.getTime())) {
+        return startDate.getTime() <= now && endDate.getTime() >= now;
+      }
+
+      return false;
+    }
+
+    function isClosedMatch(match) {
+      return hasOfficialResult(match);
     }
 
     function normalizeMatch(row) {
@@ -1237,21 +1282,21 @@
       const savedList = document.getElementById("savedPredictionsList");
       const resultsList = document.getElementById("officialResultsList");
 
-      const openMatches = allMatches
-        .filter((match) => isFutureMatch(match))
-        .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+      const resultMatches = allMatches
+        .filter((match) => hasOfficialResult(match))
+        .sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at));
 
       const liveMatches = allMatches
         .filter((match) => isCurrentMatch(match))
         .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
 
+      const openMatches = allMatches
+        .filter((match) => isFutureMatch(match) && !hasOfficialResult(match))
+        .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+
       const savedMatches = allMatches
         .filter((match) => myPredictionsByEvent.has(match.event_id))
         .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
-
-      const resultMatches = allMatches
-        .filter((match) => officialResultsByEvent.has(match.event_id) || String(match.event_status || "").toUpperCase().includes("FINAL"))
-        .sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at));
 
       document.getElementById("summaryOpen").textContent = String(openMatches.filter((match) => !myPredictionsByEvent.has(match.event_id)).length);
       document.getElementById("summarySaved").textContent = String(savedMatches.length);
@@ -1259,7 +1304,7 @@
 
       openList.innerHTML = openMatches.length
         ? openMatches.map(renderMatchPredictionCard).join("")
-        : `<div class="empty-state">No hay partidos futuros disponibles.</div>`;
+        : `<div class="empty-state">No hay partidos futuros con captura abierta.</div>`;
 
       if (liveList) {
         liveList.innerHTML = liveMatches.length
@@ -1498,7 +1543,7 @@
 
 <!--
 Cierre de archivo
-Versión: v4.0.3 EN JUEGO VISIBLE
+Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
@@ -1506,7 +1551,7 @@ Acción: Sustituir pronostico.html completo.
 
 <!--
 Cierre de archivo
-Versión: v4.0.3 EN JUEGO VISIBLE
+Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
@@ -1514,8 +1559,17 @@ Acción: Sustituir pronostico.html completo.
 
 <!--
 Cierre de archivo
-Versión: v4.0.3 EN JUEGO VISIBLE
+Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
 Fecha: 2026-06-12
 Elaborado por: JVSys™
+Acción: Sustituir pronostico.html completo.
+-->
+
+<!--
+Cierre de archivo
+Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
+Fecha: 2026-06-12
+Elaborado por: JVSys™
+Regla: Un partido nunca desaparece el mismo día.
 Acción: Sustituir pronostico.html completo.
 -->
