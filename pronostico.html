@@ -4,10 +4,18 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-12
-    Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
+    Versión: v4.1.1 EN JUEGO PRIMERO
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
+
+    CAMBIOS v4.1.1:
+    1. Corrige UX crítica: EN JUEGO aparece antes de Por Pronosticar.
+    2. Evita que el usuario tenga que bajar después de 68 partidos futuros para ver el partido iniciado.
+    3. El botón principal abre primero la sección EN JUEGO.
+    4. Canadá vs Bosnia y Herzegovina debe aparecer arriba si ya inició.
+    5. Mantiene pronóstico cerrado en partidos iniciados.
+    6. No requiere consola para validar.
 
     CAMBIOS v4.1.0:
     1. Implementa regla permanente: un partido nunca desaparece el mismo día.
@@ -307,6 +315,13 @@
       border-radius: 20px;
       background: rgba(255,255,255,.045);
       overflow: hidden;
+    }
+
+    #liveSection {
+      border-color: rgba(255,90,95,.35);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,90,95,.18), transparent 28%),
+        linear-gradient(145deg, rgba(15,39,64,.98), rgba(7,30,50,.98));
     }
 
     .match-head {
@@ -712,24 +727,12 @@
     </section>
 
     <div class="toolbar" aria-label="Filtros rápidos">
-      <button class="filter-btn active" type="button" data-scroll-target="openSection">⚽ Por pronosticar</button>
-      <button class="filter-btn" type="button" data-scroll-target="liveSection">🔴 En juego</button>
+      <button class="filter-btn active" type="button" data-scroll-target="liveSection">🔴 En juego</button>
+      <button class="filter-btn" type="button" data-scroll-target="openSection">⚽ Por pronosticar</button>
       <button class="filter-btn" type="button" data-scroll-target="savedSection">✅ Mis pronósticos</button>
       <button class="filter-btn" type="button" data-scroll-target="resultsSection">🏁 Resultados reales</button>
       <button class="filter-btn" type="button" id="refreshBtn">Actualizar</button>
     </div>
-
-    <section class="section-card" id="openSection" aria-label="Partidos por pronosticar">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">⚽ Por pronosticar</h2>
-          <p class="section-sub">Partidos futuros con captura abierta.</p>
-        </div>
-      </div>
-      <div class="match-list" id="openMatchesList">
-        <div class="empty-state">Cargando partidos por pronosticar...</div>
-      </div>
-    </section>
 
     <section class="section-card" id="liveSection" aria-label="Partidos en juego">
       <div class="section-header">
@@ -740,6 +743,18 @@
       </div>
       <div class="match-list" id="liveMatchesList">
         <div class="empty-state">Revisando partidos en juego...</div>
+      </div>
+    </section>
+
+    <section class="section-card" id="openSection" aria-label="Partidos por pronosticar">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">⚽ Por pronosticar</h2>
+          <p class="section-sub">Partidos futuros con captura abierta.</p>
+        </div>
+      </div>
+      <div class="match-list" id="openMatchesList">
+        <div class="empty-state">Cargando partidos por pronosticar...</div>
       </div>
     </section>
 
@@ -1477,6 +1492,16 @@
       await loadMyPredictions();
       await loadOfficialResults();
       renderLists();
+
+      const liveList = document.getElementById("liveMatchesList");
+      const hasLiveCards = liveList && liveList.querySelector(".match-card");
+      if (hasLiveCards && !window.__prediktLiveAutoscrolled) {
+        window.__prediktLiveAutoscrolled = true;
+        window.setTimeout(() => {
+          document.getElementById("liveSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 350);
+      }
+
       hidePrediktLoader();
     }
 
@@ -1543,7 +1568,7 @@
 
 <!--
 Cierre de archivo
-Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
+Versión: v4.1.1 EN JUEGO PRIMERO
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
@@ -1551,7 +1576,7 @@ Acción: Sustituir pronostico.html completo.
 
 <!--
 Cierre de archivo
-Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
+Versión: v4.1.1 EN JUEGO PRIMERO
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
@@ -1559,7 +1584,7 @@ Acción: Sustituir pronostico.html completo.
 
 <!--
 Cierre de archivo
-Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
+Versión: v4.1.1 EN JUEGO PRIMERO
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
@@ -1567,9 +1592,18 @@ Acción: Sustituir pronostico.html completo.
 
 <!--
 Cierre de archivo
-Versión: v4.1.0 VISIBILIDAD CONTINUA DE PARTIDOS
+Versión: v4.1.1 EN JUEGO PRIMERO
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Regla: Un partido nunca desaparece el mismo día.
+Acción: Sustituir pronostico.html completo.
+-->
+
+<!--
+Cierre de archivo
+Versión: v4.1.1 EN JUEGO PRIMERO
+Fecha: 2026-06-12
+Elaborado por: JVSys™
+Regla: Los partidos en juego se muestran antes de la lista futura.
 Acción: Sustituir pronostico.html completo.
 -->
