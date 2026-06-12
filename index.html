@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-12
-    Versión: v8.3.0 HOME IMAGE OF THE DAY
+    Versión: v8.4.0 REAL NEAREST MATCH
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -40,6 +40,13 @@
       4. Mantiene el partido principal como próximo/en vivo real.
       5. La lista inferior cambia de próximos cronológicos a recorrido por grupos para incentivar exploración completa.
 
+
+      CAMBIOS v8.4.0:
+      1. La Imagen del Día ahora selecciona el partido más cercano a la hora actual.
+      2. Elimina prioridad artificial de v_predikt_home_next_open_match.
+      3. Calcula distancia temporal absoluta respecto a now().
+      4. Si existe partido en vivo se mantiene prioridad EN VIVO.
+      5. Si no existe partido en vivo se muestra el partido cronológicamente más cercano.
 
       CAMBIOS v8.3.0:
       1. Convierte Inicio en La Imagen del Día.
@@ -614,8 +621,18 @@
         const rows = Array.isArray(intelligenceRows) ? intelligenceRows : [];
         const liveRow = rows.find(isLiveStatus);
         const chronologicalRows = buildChronologicalRows(rows);
-        const nextOpenRow = nextOpenRows[0] || chronologicalRows[0] || rows.find((row) => !isLiveStatus(row)) || rows[0] || null;
-        const featuredRow = liveRow || nextOpenRow;
+
+        const nowMs = Date.now();
+
+        const nearestRow = rows
+          .filter((row) => !isLiveStatus(row))
+          .sort((a, b) => {
+            const da = Math.abs(getRowStartTime(a) - nowMs);
+            const db = Math.abs(getRowStartTime(b) - nowMs);
+            return da - db;
+          })[0] || null;
+
+        const featuredRow = liveRow || nearestRow || nextOpenRows[0] || chronologicalRows[0] || rows[0] || null;
 
         renderFeaturedMatch(featuredRow, liveRow ? "live" : "upcoming");
         renderUpcomingMatches(chronologicalRows.length ? chronologicalRows : (nextOpenRows.length ? nextOpenRows : []));
