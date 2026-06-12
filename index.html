@@ -28,7 +28,7 @@
       automáticamente el pronóstico y muestra acción SIGUIENTE PARTIDO.
       v6.0.0 elimina métricas ficticias de usuario nuevo y agrega la tarjeta
       Recomendación PREDIKT™ antes de elegir pronóstico.
-      v7.4.0 corrige Home para leer primero sports.v_predikt_home_next_match, usar select=* y fallback certificado México vs Sudáfrica solo si Supabase no responde. La Home se mantiene como acción principal, no como navegador de partidos.
+      v7.6.0 lee primero sports.v_predikt_home_next_open_match para evitar mostrar partidos ya cerrados con resultado oficial.
       v7.5.0 agrega acceso visible al Centro de Control SUPER_ADMIN y corrige referencias JS a elementos inexistentes que detenían el runtime del Home.
     Líneas versión anterior: 1250
     Líneas versión nueva: v7.1.0
@@ -1755,7 +1755,7 @@
 
     async function loadUpcomingEvent() {
       try {
-        let rows = await fetchSportsRows("v_predikt_home_next_match", "select=*&limit=1");
+        let rows = await fetchSportsRows("v_predikt_home_next_open_match", "select=*&limit=1");
 
         if (!rows.length) {
           rows = await fetchSportsRows(
