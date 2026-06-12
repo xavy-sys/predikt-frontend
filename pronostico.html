@@ -1,3 +1,19 @@
+PREDIKT™
+Archivo: pronostico.html
+Versión: v3.5.0 ADVISOR REAL DATA
+Fabricante: JVSys™
+
+RESUMEN EJECUTIVO
+- Integración de live_confidence_score.
+- Integración de live_ai_explanation.
+- Eliminación de confianza calculada artificialmente.
+- Advisor superior e inferior sincronizados.
+- Explicación inteligente real visible para el usuario.
+
+========================================
+ARCHIVO COMPLETO
+========================================
+
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
@@ -1684,7 +1700,15 @@
         away_country: row.away_country || row.away_flag_code || row.away_country_code || row.away_team_code || "",
         probability_home: firstNumeric(row.pre_probability_home, row.live_probability_home, row.home_probability, row.home_win_probability),
         probability_draw: firstNumeric(row.pre_probability_draw, row.live_probability_draw, row.draw_probability),
-        probability_away: firstNumeric(row.pre_probability_away, row.live_probability_away, row.away_probability, row.away_win_probability)
+        probability_away: firstNumeric(row.pre_probability_away, row.live_probability_away, row.away_probability, row.away_win_probability),
+        confidence_score: firstNumeric(
+          row.live_confidence_score,
+          row.confidence_score
+        ),
+        ai_explanation:
+          row.live_ai_explanation ||
+          row.ai_explanation ||
+          ""
       };
     }
 
@@ -1745,7 +1769,7 @@
       const top = rows.slice().sort((a, b) => b.value - a.value)[0];
       const second = rows.slice().sort((a, b) => b.value - a.value)[1];
       const margin = Math.max(0, top.value - (second?.value || 0));
-      const confidenceValue = Math.min(99, Math.max(35, Math.round(top.value + margin * 0.6)));
+      const confidenceValue = Number(match.confidence_score) || 50;
 
       title.textContent = `PREDIKT™ recomienda: ${top.label}`;
       confidence.textContent = `${confidenceValue}%`;
@@ -1758,12 +1782,25 @@
       `).join("");
 
       reasons.innerHTML = `
-        <p><strong>¿Por qué?</strong></p>
-        <p>✅ Es la opción con mayor probabilidad del modelo.</p>
-        <p>✅ La ventaja contra la segunda opción es de ${formatProbability(margin)}.</p>
-        <p>✅ Marcador sugerido: ${recommendation.scoreLabel}.</p>
-        <p>⚠️ Úsalo como referencia: tú decides el marcador final.</p>
+        <p><strong>Análisis PREDIKT™</strong></p>
+        <p>${match.ai_explanation || "PREDIKT™ está preparando la lectura inteligente."}</p>
       `;
+
+      if (topTitle) {
+        topTitle.textContent = `PREDIKT™ recomienda: ${top.label}`;
+      }
+
+      if (topConfidence) {
+        topConfidence.textContent = `${confidenceValue}%`;
+      }
+
+      if (topProbabilities) {
+        topProbabilities.innerHTML = probabilities.innerHTML;
+      }
+
+      if (topReasons) {
+        topReasons.innerHTML = reasons.innerHTML;
+      }
     }
 
 
@@ -1870,7 +1907,8 @@
       const recommendation = buildPrediktRecommendation(match);
       renderPrediktAdvisor(match, recommendation);
       document.getElementById("prediktVisibleTitle").textContent = recommendation.label;
-      document.getElementById("prediktVisibleCopy").textContent = recommendation.copy;
+      document.getElementById("prediktVisibleCopy").textContent =
+        match.ai_explanation || recommendation.copy;
       document.getElementById("suggestedScoreLabel").textContent = recommendation.scoreLabel;
       document.getElementById("suggestedText").textContent = recommendation.copy;
       document.getElementById("prediktReadLabel").textContent = recommendation.label.replace("PREDIKT™ recomienda: ", "");
