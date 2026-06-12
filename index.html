@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-11
-    Versión: v8.0.0 GROWTH DASHBOARD / FRONTEND DATA FLOW
+    Versión: v8.1.0 HOME DATA FLOW CERTIFICATION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -25,9 +25,16 @@
       9. Agrega tarjeta Mi Quiniela como eje viral.
       10. Mantiene footer fijo de 5 botones: Inicio, Quiniela, Pronósticos, Ranking, Perfil.
 
+      CAMBIOS v8.1.0:
+      1. Certifica Home Data Flow usando la misma fuente deportiva ya validada por pronostico.html.
+      2. Si no hay partido en vivo, la tarjeta principal muestra el próximo partido real.
+      3. Elimina el estado productivo Local / Visitante como fallback visual.
+      4. Agrega consulta prioritaria a sports.v_predikt_home_next_open_match.
+      5. Mantiene próximos 5 partidos reales desde sports.v_event_match_intelligence_api.
+      6. En caso de falla extrema, muestra mensaje controlado sin inventar equipos visibles como partido activo.
+
       NOTA DE ARQUITECTURA:
-      Esta versión NO modifica SQL. El siguiente archivo a corregir debe ser pronostico.html
-      para guardar pronósticos reales en Supabase y alimentar rankings.
+      Esta versión NO modifica SQL. Corrige exclusivamente flujo frontend de Home.
   -->
 
   <meta charset="UTF-8" />
@@ -469,13 +476,24 @@
       };
     }
 
-    function renderLiveMatch(row) {
+    function renderFeaturedMatch(row, mode = "upcoming") {
       const card = document.getElementById("liveMatchCard");
+
       if (!row) {
-        document.getElementById("liveStatusPill").textContent = "Sin juego en vivo";
-        document.getElementById("liveMatchName").textContent = "No hay partido en vivo ahora";
-        document.getElementById("liveRecommendationTitle").textContent = "PREDIKT mostrará aquí el partido activo";
-        document.getElementById("liveRecommendationCopy").textContent = "Mientras tanto, revisa los próximos partidos y guarda tus pronósticos.";
+        document.getElementById("liveStatusPill").textContent = "Sin datos activos";
+        document.getElementById("liveMatchName").textContent = "Partidos por cargar";
+        document.getElementById("liveStage").textContent = "Fase por confirmar";
+        document.getElementById("liveGroup").textContent = "Grupo por confirmar";
+        document.getElementById("liveMinute").textContent = "Horario por confirmar";
+        document.getElementById("liveHomeCode").textContent = "--";
+        document.getElementById("liveHomeName").textContent = "Equipo por confirmar";
+        document.getElementById("liveHomeScore").textContent = "";
+        document.getElementById("liveAwayCode").textContent = "--";
+        document.getElementById("liveAwayName").textContent = "Equipo por confirmar";
+        document.getElementById("liveAwayScore").textContent = "";
+        document.getElementById("liveRecommendationTitle").textContent = "PREDIKT está cargando el calendario";
+        document.getElementById("liveRecommendationCopy").textContent = "Actualiza la página o entra a Pronósticos para ver la lista completa de partidos.";
+        document.getElementById("liveDetailLink").href = "pronostico.html";
         if (card) card.style.borderColor = "rgba(245,185,66,0.22)";
         return;
       }
@@ -484,25 +502,29 @@
       const homeCode = firstText(row.home_code, row.home_team_code, row.home_country_code) || inferCode(teams.home);
       const awayCode = firstText(row.away_code, row.away_team_code, row.away_country_code) || inferCode(teams.away);
       const eventId = row.event_id || row.id || "";
+      const recommendation = getRecommendation(row, teams);
+      const isLive = mode === "live" || isLiveStatus(row);
       const minute = firstText(row.minute, row.current_minute, row.match_minute) || "EN VIVO";
       const homeScore = Number(row.home_score ?? row.home_goals ?? row.score_home ?? 0);
       const awayScore = Number(row.away_score ?? row.away_goals ?? row.score_away ?? 0);
-      const recommendation = getRecommendation(row, teams);
+      const startsAt = row.starts_at || row.start_time || row.event_start_at;
 
-      document.getElementById("liveStatusPill").textContent = "EN VIVO";
+      document.getElementById("liveStatusPill").textContent = isLive ? "EN VIVO" : "PRÓXIMO PARTIDO";
       document.getElementById("liveMatchName").textContent = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
       document.getElementById("liveStage").textContent = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
       document.getElementById("liveGroup").textContent = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
-      document.getElementById("liveMinute").textContent = String(minute).toUpperCase().includes("VIVO") ? String(minute) : `Min ${minute}`;
+      document.getElementById("liveMinute").textContent = isLive
+        ? (String(minute).toUpperCase().includes("VIVO") ? String(minute) : `Min ${minute}`)
+        : formatDateShort(startsAt);
       document.getElementById("liveHomeCode").textContent = homeCode;
       document.getElementById("liveHomeName").textContent = teams.home;
-      document.getElementById("liveHomeScore").textContent = String(homeScore);
+      document.getElementById("liveHomeScore").textContent = isLive ? String(homeScore) : "Próximo";
       document.getElementById("liveAwayCode").textContent = awayCode;
       document.getElementById("liveAwayName").textContent = teams.away;
-      document.getElementById("liveAwayScore").textContent = String(awayScore);
+      document.getElementById("liveAwayScore").textContent = isLive ? String(awayScore) : "Partido";
       document.getElementById("liveRecommendationTitle").textContent = `PREDIKT recomienda: ${recommendation.winner}`;
       document.getElementById("liveRecommendationCopy").textContent = recommendation.explanation;
-      document.getElementById("liveDetailLink").href = eventId ? `partido-detalle.html?id=${eventId}` : "partido-detalle.html";
+      document.getElementById("liveDetailLink").href = eventId ? `partido-detalle.html?id=${encodeURIComponent(eventId)}` : "pronostico.html";
     }
 
     function renderUpcomingMatches(rows = []) {
@@ -532,22 +554,41 @@
 
     async function loadHomeSportsFlow() {
       try {
-        const nowIso = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-        const rows = await fetchSportsRows(
-          "v_event_match_intelligence_api",
-          `select=*&gte=starts_at.${encodeURIComponent(nowIso)}&order=starts_at.asc&limit=12`
-        );
+        let nextOpenRows = [];
+        let intelligenceRows = [];
 
+        try {
+          nextOpenRows = await fetchSportsRows("v_predikt_home_next_open_match", "select=*&limit=1");
+        } catch (innerError) {
+          console.warn("Vista next open no disponible. Usando intelligence API.", innerError);
+        }
+
+        try {
+          intelligenceRows = await fetchSportsRows(
+            "v_event_match_intelligence_api",
+            "select=*&order=starts_at.asc&limit=12"
+          );
+        } catch (innerError) {
+          console.warn("Intelligence API sin starts_at/order. Intentando consulta básica.", innerError);
+          intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&limit=12");
+        }
+
+        const rows = Array.isArray(intelligenceRows) ? intelligenceRows : [];
         const liveRow = rows.find(isLiveStatus);
-        const upcomingRows = rows.filter((row) => !isLiveStatus(row)).slice(0, 5);
+        const nextOpenRow = nextOpenRows[0] || rows.find((row) => !isLiveStatus(row)) || rows[0] || null;
+        const featuredRow = liveRow || nextOpenRow;
+        const upcomingRows = rows
+          .filter((row) => !isLiveStatus(row))
+          .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label))
+          .slice(0, 5);
 
-        renderLiveMatch(liveRow || null);
-        renderUpcomingMatches(upcomingRows.length ? upcomingRows : rows.slice(0, 5));
+        renderFeaturedMatch(featuredRow, liveRow ? "live" : "upcoming");
+        renderUpcomingMatches(upcomingRows.length ? upcomingRows : (nextOpenRows.length ? nextOpenRows : []));
       } catch (error) {
-        console.warn("PREDIKT Home data flow unavailable. Using certified fallback.", error);
-        renderLiveMatch(null);
-        renderUpcomingMatches(buildCertifiedFallbackRows());
-        showToast("No se pudo conectar a partidos. Mostrando respaldo certificado.");
+        console.warn("PREDIKT Home data flow unavailable.", error);
+        renderFeaturedMatch(null, "empty");
+        renderUpcomingMatches([]);
+        showToast("No se pudo conectar a partidos. Entra a Pronósticos para ver la lista completa.");
       }
     }
 
