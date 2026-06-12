@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-12
-    Versión: v8.5.0 TODAY MATCHES VISUAL VALIDATION
+    Versión: v8.6.0 MATCH DAY STABILIZATION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -40,6 +40,14 @@
       4. Mantiene el partido principal como próximo/en vivo real.
       5. La lista inferior cambia de próximos cronológicos a recorrido por grupos para incentivar exploración completa.
 
+
+      CAMBIOS v8.6.0:
+      1. Estabiliza Inicio para día de partido.
+      2. Congela consumo deportivo sobre sports.v_predikt_advisor_v3 / vista certificada.
+      3. Elimina llamada a user_profiles que provocaba 406 en consola.
+      4. Corrige dependencia de logo inexistente assets/logos/predikt-logo.png.
+      5. Mantiene partidos de hoy con hora, grupo, ciudad/sede cuando existan.
+      6. Evita ruido técnico visible antes del partido de Canadá.
 
       CAMBIOS v8.5.0:
       1. Agrega validación visual de partidos del día en Inicio.
@@ -152,7 +160,7 @@
       background: radial-gradient(circle at 100% 0%, rgba(245,185,66,0.2), transparent 34%), linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
       padding: 20px;
     }
-    .welcome-card::after { content: ""; position: absolute; right: -20px; top: -18px; width: 128px; height: 128px; background: url("assets/logos/predikt-logo.png") center/contain no-repeat; opacity: 0.09; transform: rotate(12deg); }
+    .welcome-card::after { content: ""; position: absolute; right: -20px; top: -18px; width: 128px; height: 128px; background: url("assets/icons/predikt-icon-192.png") center/contain no-repeat; opacity: 0.09; transform: rotate(12deg); }
     .hello { color: var(--gold); font-size: 0.74rem; font-weight: 980; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
     .welcome-title { max-width: 360px; font-size: clamp(1.5rem, 7vw, 2.35rem); font-weight: 980; line-height: 0.98; letter-spacing: -0.045em; margin-bottom: 9px; }
     .welcome-copy { max-width: 390px; color: var(--text-soft); font-size: 0.86rem; font-weight: 720; }
@@ -248,7 +256,7 @@
   <main class="app-shell">
     <header class="app-header" aria-label="Encabezado PREDIKT">
       <a class="brand" href="index.html" aria-label="Ir a inicio">
-        <img class="brand-logo" src="assets/logos/predikt-logo.png" alt="PREDIKT™" />
+        <img class="brand-logo" src="assets/icons/predikt-icon-192.png" alt="PREDIKT™" />
         <span class="brand-text">
           <strong class="brand-name">PREDIKT™</strong>
           <small class="brand-sub">Predice • Compite • Gana</small>
@@ -718,25 +726,18 @@
     async function loadUserProfileAndAdminAccess() {
       const session = getStoredSupabaseSession();
       const profileBtn = document.getElementById("profileAccessBtn");
-      if (session?.user?.email && profileBtn) profileBtn.textContent = "Perfil";
-      if (!session?.access_token || !session?.user?.id) return;
 
-      try {
-        const response = await fetch(
-          `${PREDIKT_SUPABASE_REST_URL}/user_profiles?select=*&id=eq.${encodeURIComponent(session.user.id)}&limit=1`,
-          { method: "GET", headers: coreHeaders(session.access_token) }
-        );
-        if (!response.ok) return;
-        const rows = await response.json();
-        const profile = Array.isArray(rows) ? rows[0] : null;
-        const role = String(profile?.role || profile?.app_role || profile?.user_role || "").toUpperCase();
-        const isSuperAdmin = profile?.is_super_admin === true || role === "SUPER_ADMIN" || role === "ADMIN";
-        if (isSuperAdmin) {
-          document.getElementById("superAdminCard")?.classList.add("show");
-        }
-      } catch (error) {
-        console.warn("No se pudo validar rol SUPER_ADMIN.", error);
+      if (session?.user?.email && profileBtn) {
+        profileBtn.textContent = "Perfil";
       }
+
+      /*
+        v8.6.0 MATCH DAY STABILIZATION
+        Se desactiva la lectura directa a user_profiles desde Inicio.
+        Motivo: evitamos 406 en consola y ruido operativo en día de partido.
+        La validación SUPER_ADMIN queda concentrada en dashboard-admin.html.
+      */
+      return;
     }
 
     function syncLocalProgress() {
