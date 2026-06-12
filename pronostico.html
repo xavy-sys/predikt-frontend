@@ -4,10 +4,18 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-12
-    Versión: v4.0.1 LISTADO MASIVO RESILIENTE
+    Versión: v4.0.2 MATCH DAY CURRENT GAME
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
+
+    CAMBIOS v4.0.2:
+    1. Corrige Pronósticos para día de partido.
+    2. El bloque Por Pronosticar ya no excluye automáticamente partidos que ya iniciaron.
+    3. Mantiene visibles partidos actuales mientras no haya terminado su ventana operativa.
+    4. Usa starts_at y ends_at para decidir vigencia del partido.
+    5. Canadá vs Bosnia y Herzegovina aparece antes que Qatar vs Suiza cuando está en curso.
+    6. Cambia el conteo de partidos disponibles con regla de ventana activa, no sólo inicio futuro.
 
     CAMBIOS v4.0.1:
     1. Corrige bloqueo de carga cuando una consulta Supabase falla.
@@ -670,7 +678,7 @@
       <article class="summary-card">
         <p class="summary-kicker">Por pronosticar</p>
         <p class="summary-value green" id="summaryOpen">--</p>
-        <p class="summary-copy">partidos futuros.</p>
+        <p class="summary-copy">partidos disponibles.</p>
       </article>
       <article class="summary-card">
         <p class="summary-kicker">Mis pronósticos</p>
@@ -695,7 +703,7 @@
       <div class="section-header">
         <div>
           <h2 class="section-title">⚽ Por pronosticar</h2>
-          <p class="section-sub">Partidos futuros ordenados por horario.</p>
+          <p class="section-sub">Partidos disponibles, actuales y próximos, ordenados por horario.</p>
         </div>
       </div>
       <div class="match-list" id="openMatchesList">
@@ -918,15 +926,37 @@
     }
 
     function isFutureMatch(match) {
-      const date = new Date(match.starts_at);
-      if (Number.isNaN(date.getTime())) return true;
-      return date.getTime() > Date.now();
+      /*
+        v4.0.2 MATCH DAY CURRENT GAME
+        Para operación de día de partido no usamos sólo starts_at.
+        Un partido iniciado debe seguir visible mientras su ventana no haya terminado.
+      */
+      const startDate = new Date(match.starts_at);
+      const endDate = new Date(match.ends_at || match.starts_at);
+      const now = Date.now();
+
+      if (Number.isNaN(startDate.getTime())) return true;
+
+      if (!Number.isNaN(endDate.getTime())) {
+        return endDate.getTime() >= now;
+      }
+
+      return startDate.getTime() >= now;
     }
 
     function isClosedMatch(match) {
-      const date = new Date(match.starts_at);
-      if (Number.isNaN(date.getTime())) return false;
-      return date.getTime() <= Date.now();
+      const endDate = new Date(match.ends_at || match.starts_at);
+      if (Number.isNaN(endDate.getTime())) return false;
+      return endDate.getTime() < Date.now();
+    }
+
+    function isCurrentMatch(match) {
+      const startDate = new Date(match.starts_at);
+      const endDate = new Date(match.ends_at || match.starts_at);
+      const now = Date.now();
+
+      if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return false;
+      return startDate.getTime() <= now && endDate.getTime() >= now;
     }
 
     function normalizeMatch(row) {
@@ -940,6 +970,7 @@
         event_name: normalizeMatchName(row.event_name || row.name, homeTeam, awayTeam),
         event_status: row.event_status || row.status || row.predikt_status_label || "SCHEDULED",
         starts_at: row.starts_at || row.start_time || row.event_start_at || null,
+        ends_at: row.ends_at || row.end_time || row.event_end_at || null,
 
         home_team: homeTeam,
         away_team: awayTeam,
@@ -1045,7 +1076,7 @@
       const existing = myPredictionsByEvent.get(match.event_id);
       const suggested = existing ? getPredictionScores(existing) : buildSuggestedScore(match);
       const status = existing ? "saved" : "open";
-      const statusLabel = existing ? "Pronosticado" : "Por jugar";
+      const statusLabel = existing ? "Pronosticado" : (isCurrentMatch(match) ? "En juego" : "Por jugar");
       const recommendation = getRecommendation(match);
       const venue = [match.venue_city, match.venue_name].filter(Boolean).join(" · ") || "Sede por confirmar";
 
@@ -1415,7 +1446,15 @@
 
 <!--
 Cierre de archivo
-Versión: v4.0.1 LISTADO MASIVO RESILIENTE
+Versión: v4.0.2 MATCH DAY CURRENT GAME
+Fecha: 2026-06-12
+Elaborado por: JVSys™
+Acción: Sustituir pronostico.html completo.
+-->
+
+<!--
+Cierre de archivo
+Versión: v4.0.2 MATCH DAY CURRENT GAME
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
