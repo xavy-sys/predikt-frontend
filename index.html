@@ -3,8 +3,8 @@
 <head>
   <!--
     Nombre del archivo: index.html
-    Fecha: 2026-06-11
-    Versión: v8.2.0 HOME 72 GROUPS CERTIFICATION
+    Fecha: 2026-06-12
+    Versión: v8.3.0 HOME IMAGE OF THE DAY
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -39,6 +39,17 @@
       3. Construye una muestra diversificada: primer partido disponible de cada grupo.
       4. Mantiene el partido principal como próximo/en vivo real.
       5. La lista inferior cambia de próximos cronológicos a recorrido por grupos para incentivar exploración completa.
+
+
+      CAMBIOS v8.3.0:
+      1. Convierte Inicio en La Imagen del Día.
+      2. Elimina la lógica de exploración por grupos.
+      3. Elimina buildDiverseGroupRows() y cualquier selección por Grupo A/B/C.
+      4. Muestra el partido en vivo o el próximo partido más cercano, sin importar grupo.
+      5. Lista próximos partidos en orden cronológico puro.
+      6. Cambia dinámicamente el título de la sección principal: Partido en vivo / Próximo partido.
+      7. Sustituye el bloque de avance por Tus puntos y Pronósticos pendientes.
+      8. Mantiene Mi Quiniela, Fundadores, Super Admin y footer fijo de 5 botones.
 
       NOTA DE ARQUITECTURA:
       Esta versión NO modifica SQL. Corrige exclusivamente flujo frontend de Home.
@@ -176,7 +187,7 @@
     .list-panel { border: 1px solid var(--border); background: rgba(15,39,64,0.82); padding: 12px; }
     .match-list { display: grid; gap: 9px; }
     .match-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; background: rgba(255,255,255,0.045); padding: 11px; }
-    .match-row-date { color: var(--gold); font-size: 0.62rem; font-weight: 950; text-transform: uppercase; min-width: 48px; }
+    .match-row-date { color: var(--gold); font-size: 0.58rem; font-weight: 950; text-transform: uppercase; min-width: 62px; max-width: 76px; line-height: 1.12; }
     .match-row-title { font-size: 0.78rem; font-weight: 950; line-height: 1.12; }
     .match-row-sub { color: var(--text-muted); font-size: 0.62rem; font-weight: 800; margin-top: 3px; }
     .match-row-cta { color: var(--green); font-size: 0.68rem; font-weight: 980; white-space: nowrap; }
@@ -255,22 +266,22 @@
       </div>
     </section>
 
-    <section class="status-grid" aria-label="Estado de la quiniela">
+    <section class="status-grid" aria-label="Estado diario PREDIKT">
       <article class="status-card">
-        <p class="status-kicker">Partidos</p>
-        <p class="status-main gold" id="totalMatchesValue">72</p>
-        <p class="status-copy">fase de grupos certificados.</p>
+        <p class="status-kicker">Tus puntos</p>
+        <p class="status-main gold" id="userPointsValue">0</p>
+        <p class="status-copy">puntos acumulados.</p>
       </article>
       <article class="status-card">
-        <p class="status-kicker">Tu avance</p>
-        <p class="status-main green" id="userProgressValue">0/72</p>
-        <p class="status-copy" id="userProgressCopy">Empieza tu quiniela.</p>
+        <p class="status-kicker">Pendientes</p>
+        <p class="status-main green" id="userPendingValue">72</p>
+        <p class="status-copy" id="userPendingCopy">partidos por pronosticar.</p>
       </article>
     </section>
 
-    <section class="section" aria-label="Partido en vivo">
+    <section class="section" aria-label="Imagen del día">
       <div class="section-head">
-        <h2 class="section-title">Partido en vivo</h2>
+        <h2 class="section-title" id="featuredSectionTitle">⚽ Próximo partido</h2>
         <a class="section-link" href="pronostico.html">Pronosticar</a>
       </div>
       <article class="match-card" id="liveMatchCard">
@@ -306,10 +317,10 @@
       </article>
     </section>
 
-    <section class="section" aria-label="Explora partidos por grupo">
+    <section class="section" aria-label="Próximos partidos">
       <div class="section-head">
-        <h2 class="section-title">Explora los 12 grupos</h2>
-        <a class="section-link" href="pronostico.html">Ver los 72</a>
+        <h2 class="section-title">Próximos partidos</h2>
+        <a class="section-link" href="pronostico.html">Ver todos</a>
       </div>
       <div class="list-panel">
         <div class="match-list" id="upcomingMatchesList">
@@ -487,6 +498,8 @@
       const card = document.getElementById("liveMatchCard");
 
       if (!row) {
+        const featuredSectionTitle = document.getElementById("featuredSectionTitle");
+        if (featuredSectionTitle) featuredSectionTitle.textContent = "⚽ Próximo partido";
         document.getElementById("liveStatusPill").textContent = "Sin datos activos";
         document.getElementById("liveMatchName").textContent = "Partidos por cargar";
         document.getElementById("liveStage").textContent = "Fase por confirmar";
@@ -511,6 +524,8 @@
       const eventId = row.event_id || row.id || "";
       const recommendation = getRecommendation(row, teams);
       const isLive = mode === "live" || isLiveStatus(row);
+      const featuredSectionTitle = document.getElementById("featuredSectionTitle");
+      if (featuredSectionTitle) featuredSectionTitle.textContent = isLive ? "🔴 Partido en vivo" : "⚽ Próximo partido";
       const minute = firstText(row.minute, row.current_minute, row.match_minute) || "EN VIVO";
       const homeScore = Number(row.home_score ?? row.home_goals ?? row.score_home ?? 0);
       const awayScore = Number(row.away_score ?? row.away_goals ?? row.score_away ?? 0);
@@ -534,32 +549,18 @@
       document.getElementById("liveDetailLink").href = eventId ? `partido-detalle.html?id=${encodeURIComponent(eventId)}` : "pronostico.html";
     }
 
-    function groupSortValue(groupLabel = "") {
-      const match = String(groupLabel).match(/([A-L])/i);
-      if (!match) return 999;
-      return match[1].toUpperCase().charCodeAt(0) - 64;
+    function getRowStartTime(row = {}) {
+      const raw = row.starts_at || row.start_time || row.event_start_at || row.event_date || row.match_date;
+      const date = new Date(raw);
+      return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
     }
 
-    function buildDiverseGroupRows(rows = []) {
-      const cleanRows = rows
+    function buildChronologicalRows(rows = []) {
+      return rows
         .filter((row) => !isLiveStatus(row))
-        .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label));
-
-      const firstByGroup = new Map();
-      cleanRows.forEach((row) => {
-        const group = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
-        const key = group.toUpperCase();
-        if (!firstByGroup.has(key)) firstByGroup.set(key, row);
-      });
-
-      const diversified = Array.from(firstByGroup.values())
-        .sort((a, b) => {
-          const groupA = firstText(a.group_name, a.group_code) || "";
-          const groupB = firstText(b.group_name, b.group_code) || "";
-          return groupSortValue(groupA) - groupSortValue(groupB);
-        });
-
-      return diversified.length ? diversified.slice(0, 12) : cleanRows.slice(0, 12);
+        .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label))
+        .sort((a, b) => getRowStartTime(a) - getRowStartTime(b))
+        .slice(0, 12);
     }
 
     function renderUpcomingMatches(rows = []) {
@@ -576,10 +577,10 @@
         const dateLabel = formatDateShort(row.starts_at || row.start_time || row.event_start_at);
         return `
           <a class="match-row" href="${href}">
-            <span class="match-row-date">${group}</span>
+            <span class="match-row-date">${dateLabel}</span>
             <span>
               <strong class="match-row-title">${title}</strong>
-              <small class="match-row-sub">${stage} · ${dateLabel}</small>
+              <small class="match-row-sub">${stage} · ${group}</small>
             </span>
             <span class="match-row-cta">Ver</span>
           </a>
@@ -598,24 +599,26 @@
           console.warn("Vista next open no disponible. Usando intelligence API.", innerError);
         }
 
+        const lowerBoundIso = new Date(Date.now() - (3 * 60 * 60 * 1000)).toISOString();
+
         try {
           intelligenceRows = await fetchSportsRows(
             "v_event_match_intelligence_api",
-            "select=*&order=starts_at.asc&limit=72"
+            `select=*&starts_at=gte.${encodeURIComponent(lowerBoundIso)}&order=starts_at.asc&limit=72`
           );
         } catch (innerError) {
-          console.warn("Intelligence API sin starts_at/order. Intentando consulta básica.", innerError);
-          intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&limit=72");
+          console.warn("Intelligence API sin filtro starts_at. Intentando consulta cronológica básica.", innerError);
+          intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&order=starts_at.asc&limit=72");
         }
 
         const rows = Array.isArray(intelligenceRows) ? intelligenceRows : [];
         const liveRow = rows.find(isLiveStatus);
-        const nextOpenRow = nextOpenRows[0] || rows.find((row) => !isLiveStatus(row)) || rows[0] || null;
+        const chronologicalRows = buildChronologicalRows(rows);
+        const nextOpenRow = nextOpenRows[0] || chronologicalRows[0] || rows.find((row) => !isLiveStatus(row)) || rows[0] || null;
         const featuredRow = liveRow || nextOpenRow;
-        const groupExplorerRows = buildDiverseGroupRows(rows);
 
         renderFeaturedMatch(featuredRow, liveRow ? "live" : "upcoming");
-        renderUpcomingMatches(groupExplorerRows.length ? groupExplorerRows : (nextOpenRows.length ? nextOpenRows : []));
+        renderUpcomingMatches(chronologicalRows.length ? chronologicalRows : (nextOpenRows.length ? nextOpenRows : []));
       } catch (error) {
         console.warn("PREDIKT Home data flow unavailable.", error);
         renderFeaturedMatch(null, "empty");
@@ -667,10 +670,14 @@
 
     function syncLocalProgress() {
       const completed = Math.max(0, Math.min(Number(window.localStorage.getItem("predikt_predictions_completed") || 0), TOTAL_CERTIFIED_MATCHES));
-      const userProgressValue = document.getElementById("userProgressValue");
-      const userProgressCopy = document.getElementById("userProgressCopy");
-      if (userProgressValue) userProgressValue.textContent = `${completed}/${TOTAL_CERTIFIED_MATCHES}`;
-      if (userProgressCopy) userProgressCopy.textContent = completed > 0 ? `Te faltan ${TOTAL_CERTIFIED_MATCHES - completed} partidos.` : "Empieza tu quiniela.";
+      const points = Math.max(0, Number(window.localStorage.getItem("predikt_user_points") || 0));
+      const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - completed);
+      const userPointsValue = document.getElementById("userPointsValue");
+      const userPendingValue = document.getElementById("userPendingValue");
+      const userPendingCopy = document.getElementById("userPendingCopy");
+      if (userPointsValue) userPointsValue.textContent = String(points);
+      if (userPendingValue) userPendingValue.textContent = String(pending);
+      if (userPendingCopy) userPendingCopy.textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
     }
 
     async function sharePredikt() {
