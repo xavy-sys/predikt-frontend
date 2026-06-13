@@ -281,15 +281,15 @@
     async function loadHome(manualRefresh) {
       try {
         if (manualRefresh) showToast('Actualizando Inicio...');
-        const todayRange = getMexicoCityDayRange();
-        const [todayMatches, upcomingMatches, nextMatch, standings] = await Promise.all([
-          fetchTodayMatches(todayRange.startISO, todayRange.endISO),
+        const [upcomingMatches, nextMatch, standings] = await Promise.all([
           fetchUpcomingMatches(),
           fetchNextMatch(),
           fetchGroupStandings()
         ]);
-        todayMatchesCache = todayMatches;
         nextMatchCache = nextMatch || upcomingMatches[0] || null;
+        const todayRange = getMexicoCityDayRange(nextMatchCache?.starts_at);
+        const todayMatches = await fetchTodayMatches(todayRange.startISO, todayRange.endISO, nextMatchCache, upcomingMatches);
+        todayMatchesCache = todayMatches;
         renderDailyCommand(todayMatches, nextMatchCache);
         renderTodayMatches(todayMatches, upcomingMatches);
         renderGroups(standings);
@@ -304,15 +304,52 @@
       }
     }
 
-    async function fetchTodayMatches(startISO, endISO) {
-      let rows = await querySportsView('v_upcoming_events', (q) => q.select('*').limit(160));
-      let normalized = rows.map(normalizeMatch).filter(Boolean);
+    async function fetchTodayMatches(startISO, endISO, anchorMatch = null, upcomingFallback = []) {
       const start = new Date(startISO).getTime();
       const end = new Date(endISO).getTime();
+
+      let rows = await querySportsView('v_upcoming_events', (q) => q.select('*').limit(200));
+      let normalized = rows.map(normalizeMatch).filter(Boolean);
+
       let today = normalized.filter(m => inRange(m.starts_at, start, end)).sort(sortByStart);
-      if (today.length) return today;
-      rows = await querySportsView('events', (q) => q.select('id,code,name,event_stage,starts_at,ends_at,event_status,metadata,home_participant_id,away_participant_id').eq('event_type','MATCH').eq('event_stage','Fase de Grupos').gte('starts_at', startISO).lt('starts_at', endISO).order('starts_at', { ascending:true }));
-      return rows.map(normalizeMatch).filter(Boolean);
+      if (today.length) return dedupeMatches(today);
+
+      rows = await querySportsView('events', (q) => q
+        .select('id,code,name,event_stage,starts_at,ends_at,event_status,metadata,home_participant_id,away_participant_id')
+        .eq('event_type','MATCH')
+        .eq('event_stage','Fase de Grupos')
+        .gte('starts_at', startISO)
+        .lt('starts_at', endISO)
+        .order('starts_at', { ascending:true })
+        .limit(80)
+      );
+      today = rows.map(normalizeMatch).filter(Boolean).sort(sortByStart);
+      if (today.length) return dedupeMatches(today);
+
+      // Fallback crítico de retención:
+      // si la vista de próximos partidos sí trae el partido clave de hoy, agrupamos toda la jornada por la fecha CDMX de ese partido.
+      if (anchorMatch?.starts_at) {
+        const anchorRange = getMexicoCityDayRange(anchorMatch.starts_at);
+        const aStart = new Date(anchorRange.startISO).getTime();
+        const aEnd = new Date(anchorRange.endISO).getTime();
+        const pool = [...normalized, ...upcomingFallback].map(normalizeMatch).filter(Boolean);
+        today = pool.filter(m => inRange(m.starts_at, aStart, aEnd)).sort(sortByStart);
+        if (today.length) return dedupeMatches(today);
+
+        rows = await querySportsView('events', (q) => q
+          .select('id,code,name,event_stage,starts_at,ends_at,event_status,metadata,home_participant_id,away_participant_id')
+          .eq('event_type','MATCH')
+          .eq('event_stage','Fase de Grupos')
+          .gte('starts_at', anchorRange.startISO)
+          .lt('starts_at', anchorRange.endISO)
+          .order('starts_at', { ascending:true })
+          .limit(80)
+        );
+        today = rows.map(normalizeMatch).filter(Boolean).sort(sortByStart);
+        if (today.length) return dedupeMatches(today);
+      }
+
+      return [];
     }
 
     async function fetchUpcomingMatches() {
@@ -366,7 +403,7 @@
       const row = $('todayMatchesRow');
       $('todayCountLabel').textContent = `${todayMatches.length} partido${todayMatches.length === 1 ? '' : 's'}`;
       const source = todayMatches.length ? todayMatches : upcomingMatches.slice(0, 8);
-      if (!source.length) { row.innerHTML = '<div class="empty-state">No hay partidos cargados todavía.</div>'; return; }
+      if (!source.length) { row.innerHTML = '<div class="empty-state">No se pudo leer la jornada. Pulsa actualizar o revisa RLS/v_upcoming_events.</div>'; return; }
       if (!todayMatches.length) $('todayCountLabel').textContent = 'Próximos partidos';
       row.innerHTML = source.map(match => renderMatchCard(match, !todayMatches.length)).join('');
     }
@@ -457,10 +494,11 @@
     function flag(teamName) { return countryFlags[teamName] || ''; }
     function sortByStart(a,b) { return new Date(a.starts_at) - new Date(b.starts_at); }
     function inRange(iso,start,end) { const ts = new Date(iso).getTime(); return Number.isFinite(ts) && ts >= start && ts < end; }
+    function dedupeMatches(matches) { const seen = new Set(); return matches.filter(m => { const key = m.id || `${m.name}-${m.starts_at}`; if (seen.has(key)) return false; seen.add(key); return true; }); }
     function statusLabel(status) { const s = String(status || '').toUpperCase(); if (s === 'FINISHED') return 'Finalizado'; if (s === 'LIVE') return 'En vivo'; if (s === 'SCHEDULED') return 'Programado'; return status || 'Programado'; }
     function statusShort(status) { const s = String(status || '').toUpperCase(); if (s === 'FINISHED') return 'FINAL'; if (s === 'LIVE') return 'EN VIVO'; return 'HOY'; }
     function isFinished(match) { return String(match?.event_status || '').toUpperCase() === 'FINISHED'; }
-    function getMexicoCityDayRange() { const parts = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(new Date()).reduce((a,p)=>{a[p.type]=p.value; return a;}, {}); const start = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00-06:00`); const end = new Date(start.getTime() + 86400000); return { startISO:start.toISOString(), endISO:end.toISOString() }; }
+    function getMexicoCityDayRange(anchorISO = null) { const anchor = anchorISO ? new Date(anchorISO) : new Date(); const parts = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(anchor).reduce((a,p)=>{a[p.type]=p.value; return a;}, {}); const start = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00-06:00`); const end = new Date(start.getTime() + 86400000); return { startISO:start.toISOString(), endISO:end.toISOString() }; }
     function isTodayCDMX(iso) { if (!iso) return false; const fmt = d => new Intl.DateTimeFormat('en-CA', { timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit' }).format(d); return fmt(new Date()) === fmt(new Date(iso)); }
     function formatTodayLabel(date) { return new Intl.DateTimeFormat('es-MX', { timeZone:TZ, weekday:'long', day:'numeric', month:'long' }).format(date).replace(/^./, c => c.toUpperCase()); }
     function formatTimeCDMX(iso) { if (!iso) return '--:--'; return new Intl.DateTimeFormat('es-MX', { timeZone:TZ, hour:'2-digit', minute:'2-digit', hour12:false }).format(new Date(iso)) + ' hrs'; }
