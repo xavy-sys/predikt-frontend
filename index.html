@@ -4,13 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_v9.0.1_HOME_NO_PROFILE_REDIRECT -->
+  <!-- version: index_v9.0.2_AUTH_ENGINE_ALIGNED -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
   <link rel="apple-touch-icon" href="./predikt-logo.png" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
 
   <style>
     :root {
@@ -592,12 +594,10 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_v9.0.1_HOME_NO_PROFILE_REDIRECT';
-    console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - no profile redirect');
+    const HOME_BUILD_VERSION = 'index_v9.0.2_AUTH_ENGINE_ALIGNED';
+    console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - auth engine aligned');
 
-    const SUPABASE_URL = window.PREDIKT_SUPABASE_URL || 'https://YOUR_PROJECT.supabase.co';
-    const SUPABASE_ANON_KEY = window.PREDIKT_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabaseClient = null;
 
     const USER_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const LIVE_WINDOW_MINUTES = 130;
@@ -625,10 +625,15 @@
         bindActions();
         renderTimezone();
 
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-        if (error) throw error;
-        if (!session?.user) {
-          window.location.href = './login.html?redirect=index.html';
+        if (!window.PrediktAuth || !window.prediktSupabase) {
+          throw new Error('Auth engine no disponible: falta assets/js/supabase.js o assets/js/auth.js');
+        }
+
+        supabaseClient = window.prediktSupabase;
+
+        const session = await window.PrediktAuth.getCurrentSession();
+        if (!session || !session.user) {
+          window.location.replace('./login.html?redirect=index.html');
           return;
         }
 
