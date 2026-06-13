@@ -1,1477 +1,1075 @@
 <!DOCTYPE html>
-<html lang="es-MX">
+<html lang="es">
 <head>
-  <!--
-    Nombre del archivo: index.html
-    Fecha: 2026-06-12
-    Versión: v9.1.0 CENTRO DE PARTIDOS + STATUS HEADERS + FIXTURE OVERRIDE
-    Fabricante: JVSys™
-    Proyecto: PREDIKT™
-    Descripción:
-      Home principal PREDIKT™ evolucionado como Centro de Partidos Mobile First.
-      Mantiene la arquitectura productiva v8.8.0 y transforma Inicio en centro de control deportivo.
-      Prioriza: EN VIVO, JUEGA HOY, PRÓXIMAMENTE y RESULTADO OFICIAL MÁS RECIENTE.
-
-      CAMBIOS v9.0.0:
-      1. Sustituye Siguiente Partido por 🎯 Centro de Partidos.
-      2. Implementa cabecera completa por estado: 🔴 EN VIVO, 🟡 HOY, 🟢 PRÓXIMAMENTE, 🔵 RESULTADO OFICIAL.
-      3. Conserva Supabase productivo, sesión, footer, estadísticas y resultado reciente de v8.8.0.
-      4. Muestra hora, ciudad, estadio, grupo y fase cuando existan en datos.
-      5. Reduce Hoy en PREDIKT™ a máximo 3 partidos visibles.
-      6. Agrega acceso visual a 🌎 Tablas de Grupos.
-      7. Prepara bloque 🧠 PREDIKT™ Intelligence para confianza, momentum y probabilidad.
-      8. Usa datos certificados:
-          - predictions.official_results
-          - predictions.prediction_scores
-          - rankings.user_stats
-          - sports.v_event_match_intelligence_api
-
-      FILOSOFÍA UX:
-      Abrir App → Saber qué pasa → Pronosticar lo importante → Ver resultado reciente.
-  -->
-
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PREDIKT™ | Predice • Compite • Gana</title>
-  <meta name="description" content="PREDIKT™ analiza partidos, sugiere pronósticos y te permite competir con tus amigos." />
-  <meta name="theme-color" content="#061826" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#06162d" />
+  <title>PREDIKT™ | Inicio</title>
+  <link rel="icon" href="./predikt-logo.png" />
+  <link rel="apple-touch-icon" href="./predikt-logo.png" />
 
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
-  <link rel="shortcut icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
-  <link rel="apple-touch-icon" href="/assets/icons/predikt-icon-192.png" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="PREDIKT" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --bg-main: #061826;
-      --bg-deep: #020b13;
-      --bg-card: #0f2740;
-      --gold: #f5b942;
-      --gold-soft: #ffe28a;
-      --green: #48f29a;
-      --green-soft: rgba(72, 242, 154, 0.14);
-      --blue: #5dade2;
-      --red: #ff5a5f;
-      --orange: #ff9f43;
-      --text-main: #ffffff;
-      --text-soft: #c9d7e6;
-      --text-muted: #7f95aa;
-      --border: rgba(255, 255, 255, 0.11);
-      --shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
-      --radius-xl: 26px;
-      --radius-lg: 20px;
-      --radius-md: 16px;
-      --footer-height: 82px;
-      --app-max: 560px;
+      --navy: #06162d;
+      --navy-2: #0b2346;
+      --blue: #1476ff;
+      --gold: #f5c84c;
+      --text: #eef5ff;
+      --muted: #9fb1c9;
+      --card: rgba(255, 255, 255, 0.08);
+      --card-2: rgba(255, 255, 255, 0.12);
+      --line: rgba(255, 255, 255, 0.14);
+      --danger: #ff4b55;
+      --success: #2bd576;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; background: var(--bg-main); }
-    body {
-      min-height: 100vh;
-      color: var(--text-main);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.35;
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
       background:
-        radial-gradient(circle at top left, rgba(245, 185, 66, 0.13), transparent 25%),
-        radial-gradient(circle at top right, rgba(72, 242, 154, 0.10), transparent 23%),
-        linear-gradient(145deg, #061826 0%, #04111d 52%, #020b13 100%);
-      overflow-x: hidden;
-      padding-bottom: calc(var(--footer-height) + 14px);
+        radial-gradient(circle at 15% 0%, rgba(20,118,255,0.35), transparent 32%),
+        radial-gradient(circle at 90% 10%, rgba(245,200,76,0.18), transparent 28%),
+        linear-gradient(180deg, #06162d 0%, #071a35 48%, #030a17 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
+
+    body { padding-bottom: calc(82px + var(--safe-bottom)); }
 
     a { color: inherit; text-decoration: none; }
-    button { border: 0; font: inherit; cursor: pointer; }
+    button { font-family: inherit; }
 
-    .app-shell {
-      width: min(100%, var(--app-max));
-      margin: 0 auto;
-      padding: 12px 12px 0;
-    }
-
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: -12px -12px 10px;
-      padding: 12px 12px 10px;
-      background: linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88));
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .brand { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-    .brand-logo { width: 32px; height: 32px; border-radius: 11px; object-fit: contain; background: rgba(255,255,255,0.04); }
-    .brand-text { display: grid; gap: 1px; min-width: 0; }
-    .brand-name { font-size: 0.92rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
-    .brand-sub { color: var(--text-muted); font-size: 0.61rem; font-weight: 820; white-space: nowrap; }
-    .header-actions { display: inline-flex; align-items: center; gap: 7px; }
-    .icon-btn {
-      width: 36px; height: 36px;
-      display: grid; place-items: center;
-      border-radius: 14px;
-      color: var(--text-main);
-      background: rgba(255,255,255,0.065);
-      border: 1px solid rgba(255,255,255,0.095);
-    }
-    .login-btn {
-      min-height: 36px;
-      padding: 0 13px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      color: #061826;
-      background: linear-gradient(135deg, var(--green), #8cffc4);
-      font-size: 0.7rem;
-      font-weight: 980;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .hero-strip {
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(245,185,66,0.22);
-      background:
-        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.16), transparent 33%),
-        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
-      box-shadow: var(--shadow);
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-    .hello {
-      color: var(--gold);
-      font-size: 0.66rem;
-      font-weight: 980;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .hero-title {
-      font-size: clamp(1.26rem, 6vw, 1.78rem);
-      font-weight: 980;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      margin-bottom: 5px;
-    }
-    .hero-copy {
-      color: var(--text-soft);
-      font-size: 0.76rem;
-      font-weight: 760;
-    }
-
-    .quick-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-      margin-bottom: 10px;
-    }
-    .stat-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: rgba(15,39,64,0.86);
-      padding: 12px;
-      min-height: 82px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-    }
-    .stat-kicker {
-      color: var(--text-muted);
-      font-size: 0.62rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 7px;
-    }
-    .stat-main {
-      font-size: 1.62rem;
-      font-weight: 980;
-      line-height: 1;
-      margin-bottom: 5px;
-    }
-    .stat-main.gold { color: var(--gold); }
-    .stat-main.green { color: var(--green); }
-    .stat-copy {
-      color: var(--text-soft);
-      font-size: 0.67rem;
-      font-weight: 720;
-    }
-
-    .reward-card,
-    .match-card,
-    .compact-card,
-    .super-admin-card,
-    .list-panel {
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      margin-bottom: 10px;
-    }
-
-    .reward-card {
-      border: 1px solid rgba(245,185,66,0.30);
-      background:
-        radial-gradient(circle at 94% 4%, rgba(245,185,66,0.21), transparent 32%),
-        linear-gradient(145deg, rgba(42,34,15,0.92), rgba(15,39,64,0.98));
-      padding: 14px;
-    }
-    .reward-card.result-card {
-      overflow: hidden;
-      padding-top: 0;
-      border-color: rgba(93,173,226,0.42);
-      background:
-        radial-gradient(circle at 94% 4%, rgba(93,173,226,0.20), transparent 32%),
-        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
-    }
-    .result-banner {
-      margin: 0 -14px 12px !important;
-      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    }
-    .reward-top,
-    .match-top,
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 9px;
-      margin-bottom: 9px;
-    }
-    .section-head { margin: 0 2px 8px; }
-    .section-title {
-      font-size: 0.72rem;
-      font-weight: 980;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .section-link {
-      color: var(--gold);
-      font-size: 0.66rem;
-      font-weight: 950;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      border-radius: 999px;
-      padding: 6px 9px;
-      font-size: 0.61rem;
-      font-weight: 980;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .pill.green { color: var(--green); background: var(--green-soft); border: 1px solid rgba(72,242,154,0.22); }
-    .pill.gold { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
-    .pill.orange { color: #061826; background: linear-gradient(135deg, var(--orange), #ffd19b); }
-
-    .reward-title {
-      font-size: 1rem;
-      font-weight: 980;
-      line-height: 1.1;
-      margin-bottom: 8px;
-    }
-    .reward-grid {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .reward-label {
-      color: var(--text-muted);
-      font-size: 0.62rem;
-      font-weight: 880;
-      margin-bottom: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .reward-text {
-      font-size: 0.78rem;
-      font-weight: 920;
-    }
-    .reward-points {
-      min-width: 68px;
-      text-align: center;
-      color: var(--green);
-      font-size: 1.2rem;
-      font-weight: 980;
-    }
-
-
-
-    .match-card.status-live { border-color: rgba(255,90,95,0.46); }
-    .match-card.status-today { border-color: rgba(245,185,66,0.46); }
-    .match-card.status-upcoming { border-color: rgba(72,242,154,0.40); }
-    .match-card.status-result { border-color: rgba(93,173,226,0.42); }
-    .status-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin: -14px -14px 12px;
-      padding: 11px 14px;
-      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-      font-size: 0.68rem;
-      font-weight: 980;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #061826;
-    }
-    .status-banner.live { color: #fff; background: linear-gradient(135deg, #c9182b, #ff5a5f); }
-    .status-banner.today { background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
-    .status-banner.upcoming { background: linear-gradient(135deg, var(--green), #8cffc4); }
-    .status-banner.result { color: #fff; background: linear-gradient(135deg, #1667a8, var(--blue)); }
-    .status-banner small { opacity: 0.86; font-size: 0.58rem; font-weight: 900; letter-spacing: 0.04em; }
-    .scoreline {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 2px 0 10px;
-      font-size: 1.8rem;
-      font-weight: 980;
-      line-height: 1;
-    }
-    .scoreline.show { display: flex; }
-    .venue-line {
-      color: var(--text-soft);
-      font-size: 0.68rem;
-      font-weight: 760;
-      margin: -2px 0 10px;
-    }
-    .intelligence-strip {
-      border-radius: 18px;
-      border: 1px solid rgba(72,242,154,0.20);
-      background: rgba(72,242,154,0.08);
-      padding: 10px;
-      margin: 10px 0;
-    }
-    .intelligence-strip strong { color: var(--green); font-size: 0.68rem; font-weight: 980; text-transform: uppercase; letter-spacing: 0.06em; }
-    .intelligence-strip p { color: var(--text-soft); font-size: 0.68rem; font-weight: 760; margin-top: 4px; }
-    .groups-card {
-      border: 1px solid rgba(93,173,226,0.24);
-      border-radius: var(--radius-xl);
-      background: rgba(15,39,64,0.82);
-      box-shadow: var(--shadow);
-      padding: 13px;
-      margin-bottom: 10px;
-    }
-    .groups-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      margin: 10px 0;
-    }
-    .group-pill {
-      min-height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 13px;
-      color: var(--gold);
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-      font-size: 0.72rem;
-      font-weight: 980;
-    }
-    .section-copy {
-      color: var(--text-muted);
-      font-size: 0.66rem;
-      font-weight: 760;
-      margin: -4px 2px 8px;
-    }
-
-    .match-card {
-      border: 1px solid rgba(72,242,154,0.22);
-      background:
-        radial-gradient(circle at 90% 10%, rgba(72,242,154,0.15), transparent 28%),
-        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
-      padding: 14px;
-    }
-    .match-title {
-      font-size: 1rem;
-      font-weight: 980;
-      margin-bottom: 8px;
-    }
-    .match-context-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-    .context-chip {
-      min-height: 23px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      color: var(--text-soft);
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.11);
-      font-size: 0.55rem;
-      font-weight: 950;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .context-chip.gold { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
-    .context-chip.green { color: var(--green); background: var(--green-soft); border-color: rgba(72,242,154,0.22); }
-
-    .teams {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .team-box {
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.055);
-      padding: 10px 6px;
-      text-align: center;
-      min-height: 78px;
-      display: grid;
-      place-items: center;
-      gap: 3px;
-    }
-    .team-flag {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.13);
-      font-size: 0.86rem;
-      font-weight: 980;
-    }
-    .team-name { font-size: 0.72rem; font-weight: 940; }
-    .team-code { color: var(--text-muted); font-size: 0.54rem; font-weight: 900; }
-    .versus {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      color: #061826;
-      background: #fff;
-      font-size: 0.68rem;
-      font-weight: 980;
-    }
-
-    .primary-action,
-    .secondary-action,
-    .soft-action,
-    .admin-action {
-      min-height: 42px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 980;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      text-align: center;
-    }
-    .primary-action {
+    .app {
       width: 100%;
-      color: #061826;
-      background: linear-gradient(135deg, var(--green), #8cffc4);
-      box-shadow: 0 12px 24px rgba(72,242,154,0.21);
-    }
-    .secondary-action {
-      color: #061826;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      padding: 0 12px;
-    }
-    .soft-action {
-      color: var(--text-main);
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12);
-      padding: 0 12px;
-    }
-    .dual-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 14px 14px 18px;
     }
 
-    .compact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-      margin-bottom: 10px;
-    }
-    .compact-card {
-      border: 1px solid rgba(93,173,226,0.20);
-      background: rgba(15,39,64,0.82);
-      padding: 12px;
-      min-height: 92px;
-      display: grid;
-      align-content: space-between;
-    }
-    .compact-icon { font-size: 1.25rem; margin-bottom: 6px; }
-    .compact-title { font-size: 0.78rem; font-weight: 980; margin-bottom: 3px; }
-    .compact-copy { color: var(--text-muted); font-size: 0.62rem; font-weight: 760; }
-
-    .list-panel {
-      border: 1px solid var(--border);
-      background: rgba(15,39,64,0.82);
-      padding: 10px;
-    }
-    .match-list { display: grid; gap: 8px; }
-    .match-row {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 8px;
+    .topbar {
+      display: flex;
       align-items: center;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 17px;
-      background: rgba(255,255,255,0.045);
-      padding: 10px;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 2px 12px;
     }
-    .match-row-date {
-      color: var(--gold);
-      font-size: 0.57rem;
-      font-weight: 950;
-      text-transform: uppercase;
-      min-width: 48px;
-      max-width: 64px;
-      line-height: 1.12;
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
-    .match-row-title {
-      display: block;
-      font-size: 0.73rem;
-      font-weight: 950;
-      line-height: 1.12;
+
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 4px;
     }
-    .match-row-sub {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.58rem;
-      font-weight: 800;
+
+    .brand-title {
+      display: grid;
+      line-height: 1.05;
+    }
+
+    .brand-title strong {
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+
+    .brand-title span {
+      font-size: 11px;
+      color: var(--muted);
       margin-top: 3px;
     }
-    .mini-pick {
-      min-height: 34px;
-      min-width: 72px;
+
+    .icon-btn {
+      min-width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 999px;
-      color: #061826;
-      background: linear-gradient(135deg, var(--green), #8cffc4);
-      font-size: 0.59rem;
-      font-weight: 980;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .day-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
+    }
+
+    .day-strip .label {
+      color: var(--muted);
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: .7px;
+    }
+
+    .day-strip .value {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .day-strip .right {
+      text-align: right;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin: 14px 2px 8px;
+      gap: 12px;
+    }
+
+    .section-title h2,
+    .section-title h3 {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: .2px;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 12px;
       white-space: nowrap;
     }
 
-    .super-admin-card {
-      display: none;
-      border: 1px solid rgba(245,185,66,0.32);
-      background:
-        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.18), transparent 30%),
-        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(44,34,14,0.72));
-      padding: 14px;
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 26px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.07));
+      box-shadow: var(--shadow);
+      isolation: isolate;
     }
-    .super-admin-card.show { display: block; }
-    .super-admin-kicker {
-      color: var(--gold);
-      font-size: 0.62rem;
-      font-weight: 980;
-      letter-spacing: 0.08em;
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      background: var(--group-color, var(--gold));
+      z-index: 2;
+    }
+
+    .hero-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px 11px 18px;
+      background: var(--group-color, var(--gold));
+      color: var(--group-text, #07111f);
+      font-weight: 900;
+    }
+
+    .hero-head .mini {
+      font-size: 11px;
+      letter-spacing: .7px;
       text-transform: uppercase;
-      margin-bottom: 6px;
+      opacity: .85;
     }
-    .super-admin-title {
-      font-size: 0.98rem;
-      font-weight: 980;
-      line-height: 1.08;
-      margin-bottom: 6px;
+
+    .hero-head .group {
+      font-size: 12px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.15);
     }
-    .super-admin-copy {
-      color: var(--text-soft);
-      font-size: 0.68rem;
-      font-weight: 760;
-      margin-bottom: 10px;
+
+    .hero-body { padding: 16px 14px 14px 18px; }
+
+    .match-title {
+      font-size: clamp(24px, 8vw, 36px);
+      line-height: 0.96;
+      font-weight: 950;
+      letter-spacing: -0.9px;
+      margin: 0 0 14px;
+      text-transform: uppercase;
     }
-    .super-admin-actions {
+
+    .match-meta {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+      margin-bottom: 14px;
     }
-    .admin-action.primary { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
-    .admin-action.secondary { color: var(--text-main); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); }
+
+    .meta-pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 10px;
+      min-height: 58px;
+    }
+
+    .meta-pill span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+
+    .meta-pill strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.15;
+    }
+
+    .hero-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .btn {
+      min-height: 46px;
+      border: 0;
+      border-radius: 16px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    .btn:active { transform: scale(.98); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #ffe38d);
+      color: #09162c;
+      box-shadow: 0 12px 28px rgba(245,200,76,0.18);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .urgent-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid rgba(245,200,76,0.25);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(245,200,76,0.16), rgba(255,255,255,0.06));
+      margin-top: 12px;
+    }
+
+    .urgent-card strong { display: block; font-size: 14px; }
+    .urgent-card span { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); }
+
+    .today-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 2px 2px 10px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .today-row::-webkit-scrollbar { height: 0; }
+
+    .today-card {
+      flex: 0 0 178px;
+      scroll-snap-align: start;
+      border: 1px solid var(--line);
+      border-left: 7px solid var(--group-color, var(--blue));
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+      cursor: pointer;
+    }
+
+    .today-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: var(--group-color, var(--blue));
+      color: var(--group-text, #07111f);
+      font-weight: 950;
+      font-size: 12px;
+    }
+
+    .today-card-body { padding: 10px; }
+
+    .today-time {
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 950;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .today-name {
+      min-height: 38px;
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .today-venue {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .info-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.08);
+      padding: 13px;
+      min-height: 112px;
+    }
+
+    .info-card h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+    }
+
+    .scoreline {
+      font-size: 21px;
+      line-height: 1.05;
+      font-weight: 950;
+      margin: 2px 0 8px;
+    }
+
+    .small-muted {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .progress-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.08);
+      padding: 10px;
+    }
+
+    .progress-item {
+      text-align: center;
+      border-radius: 15px;
+      padding: 10px 6px;
+      background: rgba(255,255,255,0.07);
+    }
+
+    .progress-item strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .progress-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    .nav-card {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.08);
+      min-height: 92px;
+    }
+
+    .nav-icon {
+      flex: 0 0 42px;
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(245,200,76,.22), rgba(20,118,255,.16));
+      font-size: 22px;
+    }
+
+    .nav-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .nav-card span {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .empty-state {
+      border: 1px dashed rgba(255,255,255,0.22);
+      border-radius: 22px;
+      padding: 16px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.05);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer { to { transform: translateX(100%); } }
+
+    .footer-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 80;
+      padding: 8px 10px calc(8px + var(--safe-bottom));
+      background: rgba(3,10,23,0.88);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+    }
+
+    .footer-item {
+      min-height: 54px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .footer-item b { font-size: 18px; line-height: 1; }
+    .footer-item.active { color: #06162d; background: var(--gold); }
 
     .toast {
       position: fixed;
       left: 50%;
-      bottom: calc(var(--footer-height) + 16px);
+      bottom: calc(88px + var(--safe-bottom));
       transform: translateX(-50%) translateY(20px);
-      z-index: 60;
-      width: min(calc(100% - 28px), var(--app-max));
-      border: 1px solid rgba(72,242,154,0.34);
-      border-radius: 18px;
-      background: rgba(7,28,46,0.98);
-      color: var(--text-main);
+      width: calc(100% - 28px);
+      max-width: 480px;
       padding: 12px 14px;
-      box-shadow: 0 14px 36px rgba(0,0,0,0.35);
+      border-radius: 16px;
+      background: #111f35;
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      font-size: 0.8rem;
-      font-weight: 830;
-      text-align: center;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    .app-footer {
-      position: fixed;
-      left: 50%;
-      bottom: 0;
-      z-index: 40;
-      width: min(100%, var(--app-max));
-      transform: translateX(-50%);
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
-      padding: 9px 10px 11px;
-      border: 1px solid rgba(255,255,255,0.11);
-      border-bottom: 0;
-      border-radius: 24px 24px 0 0;
-      background: rgba(4,17,29,0.97);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 -12px 34px rgba(0,0,0,0.34);
-    }
-    .footer-item {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      padding: 7px 4px;
-      color: var(--text-muted);
-      font-size: 0.58rem;
-      font-weight: 880;
-      gap: 3px;
-    }
-    .footer-item span { font-size: 1rem; line-height: 1; }
-    .footer-item.active {
-      color: var(--gold);
-      background: rgba(245,185,66,0.12);
-      border: 1px solid rgba(245,185,66,0.22);
+      transition: .22s ease;
+      z-index: 120;
+      font-size: 13px;
     }
 
-    @media (max-height: 760px) {
-      .hero-strip { padding: 12px; }
-      .hero-copy { display: none; }
-      .stat-card { min-height: 74px; padding: 10px; }
-      .match-context-row { display: none; }
-      .compact-grid { display: none; }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
-    @media (min-width: 760px) {
-      body {
-        background:
-          radial-gradient(circle at center top, rgba(245,185,66,0.08), transparent 28%),
-          linear-gradient(145deg, #061826 0%, #020b13 100%);
-      }
-      .app-shell { padding-top: 16px; }
-      .app-header {
-        margin-left: 0;
-        margin-right: 0;
-        border-radius: 0 0 22px 22px;
-      }
+    @media (min-width: 720px) {
+      .app { max-width: 860px; }
+      .desktop-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; align-items: start; }
+      .today-card { flex-basis: 210px; }
     }
   </style>
 </head>
-
 <body>
-  <main class="app-shell">
-    <header class="app-header" aria-label="Encabezado PREDIKT">
-      <a class="brand" href="index.html" aria-label="Ir a inicio">
-        <img class="brand-logo" src="assets/icons/predikt-icon-192.png" alt="PREDIKT™" />
-        <span class="brand-text">
-          <strong class="brand-name">PREDIKT™</strong>
-          <small class="brand-sub">Predice • Compite • Gana</small>
-        </span>
-      </a>
-      <div class="header-actions">
-        <a class="icon-btn" href="fundadores.html" aria-label="Fundadores">☕</a>
-        <a class="login-btn" id="profileAccessBtn" href="perfil.html">Entrar</a>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
+        <div class="brand-title">
+          <strong>PREDIKT™</strong>
+          <span>Predice • Compite • Gana</span>
+        </div>
       </div>
+      <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar">↻</button>
     </header>
 
-    <section class="hero-strip" aria-label="PREDIKT Intelligence">
-      <p class="hello">🤖 PREDIKT™ Intelligence</p>
-      <h1 class="hero-title">¿Quién le atina al marcador?</h1>
-      <p class="hero-copy">Abre, revisa tus puntos y pronostica el siguiente partido.</p>
+    <section class="day-strip">
+      <div>
+        <div class="label">Centro de operaciones</div>
+        <div class="value" id="todayLabel">Hoy</div>
+      </div>
+      <div class="right" id="certLabel">Calendario estructural certificado</div>
     </section>
 
-    <section class="quick-stats" aria-label="Resumen diario PREDIKT">
-      <article class="stat-card">
-        <p class="stat-kicker">Tus puntos</p>
-        <p class="stat-main gold" id="userPointsValue">0</p>
-        <p class="stat-copy">puntos acumulados.</p>
-      </article>
-      <article class="stat-card">
-        <p class="stat-kicker">Pendientes</p>
-        <p class="stat-main green" id="userPendingValue">72</p>
-        <p class="stat-copy" id="userPendingCopy">partidos por pronosticar.</p>
-      </article>
-    </section>
+    <div class="desktop-grid">
+      <section>
+        <div class="section-title">
+          <h2>Partido destacado del día</h2>
+          <span id="nextMatchHint">Cargando...</span>
+        </div>
 
-    <section class="reward-card result-card" id="latestResultCard" aria-label="Resultado más reciente">
-      <div class="status-banner result result-banner">
-        <span>🔵 RESULTADO OFICIAL MÁS RECIENTE</span>
-        <small id="latestResultDate">Hoy</small>
-      </div>
-      <h3 class="reward-title" id="latestResultMatch">Cargando resultados reales...</h3>
-      <div class="reward-grid">
-        <div>
-          <p class="reward-label">Tu pronóstico</p>
-          <p class="reward-text" id="latestUserPrediction">Por confirmar</p>
-        </div>
-        <strong class="reward-points" id="latestPointsEarned">+0</strong>
-      </div>
-      <a class="primary-action" href="pronostico.html#resultados-reales">Ver resultados</a>
-    </section>
-
-    <section class="super-admin-card" id="superAdminCard" aria-label="Centro de Control SUPER_ADMIN">
-      <p class="super-admin-kicker">🔐 SUPER_ADMIN</p>
-      <h2 class="super-admin-title">Centro de Control PREDIKT™</h2>
-      <p class="super-admin-copy">Acceso operativo para usuarios, pronósticos, partidos, rankings, fundadores y resultados oficiales.</p>
-      <div class="super-admin-actions">
-        <a class="admin-action primary" href="dashboard-admin.html">Control</a>
-        <a class="admin-action secondary" href="usuarios.html">Usuarios</a>
-        <a class="admin-action secondary" href="pronosticos-admin.html">Pronósticos</a>
-        <a class="admin-action secondary" href="partidos-admin.html">Partidos</a>
-        <a class="admin-action secondary" href="ranking-admin.html">Rankings</a>
-        <a class="admin-action secondary" href="fundadores.html">Fundadores</a>
-      </div>
-    </section>
-
-    <section class="section" aria-label="Centro de Partidos">
-      <div class="section-head">
-        <h2 class="section-title" id="featuredSectionTitle">🎯 Centro de Partidos</h2>
-        <a class="section-link" href="pronostico.html">Ver todos</a>
-      </div>
-      <p class="section-copy">Qué está pasando, qué debes pronosticar y qué acaba de ocurrir.</p>
-      <article class="match-card status-today" id="liveMatchCard">
-        <div class="status-banner today" id="matchStatusBanner">
-          <span id="liveStatusPill">🟡 HOY</span>
-          <small id="liveStatusTime">Horario por confirmar</small>
-        </div>
-        <h3 class="match-title" id="liveMatchName">Cargando partido real</h3>
-        <div class="scoreline" id="liveScoreline">
-          <span id="liveHomeScoreMain">0</span><span>-</span><span id="liveAwayScoreMain">0</span>
-        </div>
-        <div class="match-context-row">
-          <span class="context-chip green" id="liveStage">Fase por confirmar</span>
-          <span class="context-chip gold" id="liveGroup">Grupo por confirmar</span>
-          <span class="context-chip" id="liveMinute">Horario por confirmar</span>
-        </div>
-        <p class="venue-line" id="liveVenueLine">Ciudad y estadio por confirmar</p>
-        <div class="teams">
-          <div class="team-box">
-            <div class="team-flag" id="liveHomeCode">--</div>
-            <strong class="team-name" id="liveHomeName">Local</strong>
-            <span class="team-code" id="liveHomeScore">Próximo</span>
+        <article class="hero skeleton" id="heroCard" style="--group-color:#f5c84c; --group-text:#07111f; min-height: 294px;">
+          <div class="hero-head">
+            <span class="mini">Siguiente partido</span>
+            <span class="group">GRUPO</span>
           </div>
-          <div class="versus">VS</div>
-          <div class="team-box">
-            <div class="team-flag" id="liveAwayCode">--</div>
-            <strong class="team-name" id="liveAwayName">Visitante</strong>
-            <span class="team-code" id="liveAwayScore">Partido</span>
+          <div class="hero-body">
+            <h1 class="match-title">Cargando calendario...</h1>
+            <div class="match-meta">
+              <div class="meta-pill"><span>Hora CDMX</span><strong>--:--</strong></div>
+              <div class="meta-pill"><span>Sede</span><strong>--</strong></div>
+              <div class="meta-pill"><span>Ciudad</span><strong>--</strong></div>
+              <div class="meta-pill"><span>Estado</span><strong>--</strong></div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-secondary" type="button">Ver detalle</button>
+              <button class="btn btn-primary" type="button">Hacer pronóstico</button>
+            </div>
           </div>
+        </article>
+
+        <section class="urgent-card" id="urgentCard">
+          <div>
+            <strong>🔥 Hoy se juegan 0 partidos</strong>
+            <span>Estamos preparando tu calendario diario.</span>
+          </div>
+          <span>⚽</span>
+        </section>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h3>Tu avance</h3>
+          <span id="userState">Sesión</span>
         </div>
-        <div class="intelligence-strip">
-          <strong>🧠 PREDIKT™ Intelligence</strong>
-          <p id="prediktIntelligenceCopy">Preparando confianza, momentum, probabilidad y tendencia de usuarios.</p>
+        <section class="progress-card" id="progressCard">
+          <div class="progress-item"><strong id="donePredictions">0</strong><span>Realizados</span></div>
+          <div class="progress-item"><strong id="pendingPredictions">72</strong><span>Pendientes</span></div>
+          <div class="progress-item"><strong id="pointsValue">0</strong><span>Puntos</span></div>
+        </section>
+
+        <div class="section-title">
+          <h3>Último resultado</h3>
+          <span>Oficial PREDIKT</span>
         </div>
-        <div class="dual-actions">
-          <a class="soft-action" id="liveDetailLink" href="pronostico.html">Ver detalle</a>
-          <a class="primary-action" id="liveQuinielaLink" href="pronostico.html">Haz tu quiniela</a>
-        </div>
-      </article>
+        <section class="info-card" id="recentResultCard">
+          <h3>⚽ Último resultado registrado</h3>
+          <div class="scoreline">Cargando...</div>
+          <div class="small-muted">Buscando resultado más reciente.</div>
+        </section>
+      </section>
+    </div>
+
+    <section>
+      <div class="section-title">
+        <h2>Calendario de hoy</h2>
+        <span id="todayCountLabel">0 partidos</span>
+      </div>
+      <div class="today-row" id="todayMatchesRow">
+        <div class="today-card skeleton" style="height:154px;"></div>
+        <div class="today-card skeleton" style="height:154px;"></div>
+      </div>
     </section>
 
-    <section class="compact-grid" aria-label="Accesos rápidos">
-      <a class="compact-card" href="mi-quiniela.html">
-        <span class="compact-icon">👥</span>
-        <span>
-          <strong class="compact-title">Mi Quiniela</strong>
-          <p class="compact-copy">Invita amigos y compite.</p>
-        </span>
+    <section class="grid-2" style="margin-top: 8px;">
+      <a class="nav-card" href="./grupos.html">
+        <span class="nav-icon">🏆</span>
+        <span><strong>Ver posiciones</strong><span>Tablas compactas por grupo.</span></span>
       </a>
-      <a class="compact-card" href="fundadores.html">
-        <span class="compact-icon">☕</span>
-        <span>
-          <strong class="compact-title">Fundadores</strong>
-          <p class="compact-copy">Invítanos un café.</p>
-        </span>
+      <a class="nav-card" href="./eliminacion.html">
+        <span class="nav-icon">⚔️</span>
+        <span><strong>Si hoy terminara...</strong><span>Cruces proyectados de eliminación.</span></span>
       </a>
     </section>
-
-    <section class="section" aria-label="Partidos de hoy">
-      <div class="section-head">
-        <h2 class="section-title" id="todayMatchesTitle">📅 Hoy en PREDIKT™</h2>
-        <a class="section-link" href="pronostico.html">Todos</a>
-      </div>
-      <div class="list-panel">
-        <div class="match-list" id="upcomingMatchesList">
-          <article class="match-row">
-            <span class="match-row-date">...</span>
-            <span>
-              <strong class="match-row-title">Cargando partidos reales</strong>
-              <small class="match-row-sub">PREDIKT™ Data Flow</small>
-            </span>
-            <a class="mini-pick" href="pronostico.html">Quiniela</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="groups-card" aria-label="Tablas de grupos">
-      <div class="section-head">
-        <h2 class="section-title">🌎 Tablas de Grupos</h2>
-        <a class="section-link" href="grupos.html">Ver posiciones</a>
-      </div>
-      <p class="section-copy">Consulta cómo va cada grupo de la Copa.</p>
-      <div class="groups-grid" aria-label="Grupos A a L">
-        <a class="group-pill" href="grupos.html#grupo-a">A</a>
-        <a class="group-pill" href="grupos.html#grupo-b">B</a>
-        <a class="group-pill" href="grupos.html#grupo-c">C</a>
-        <a class="group-pill" href="grupos.html#grupo-d">D</a>
-        <a class="group-pill" href="grupos.html#grupo-e">E</a>
-        <a class="group-pill" href="grupos.html#grupo-f">F</a>
-        <a class="group-pill" href="grupos.html#grupo-g">G</a>
-        <a class="group-pill" href="grupos.html#grupo-h">H</a>
-        <a class="group-pill" href="grupos.html#grupo-i">I</a>
-        <a class="group-pill" href="grupos.html#grupo-j">J</a>
-        <a class="group-pill" href="grupos.html#grupo-k">K</a>
-        <a class="group-pill" href="grupos.html#grupo-l">L</a>
-      </div>
-      <a class="secondary-action" href="grupos.html">Ver posiciones</a>
-    </section>
-
   </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">Listo.</div>
-
-  <nav class="app-footer" aria-label="Navegación principal">
-    <a class="footer-item active" href="index.html" aria-current="page"><span>🏠</span>Inicio</a>
-    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
-    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
-    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
-    <a class="footer-item" href="perfil.html"><span>👤</span>Perfil</a>
+  <nav class="footer-nav" aria-label="Navegación principal">
+    <div class="footer-inner">
+      <a class="footer-item active" href="./index.html"><b>🏠</b><span>Inicio</span></a>
+      <a class="footer-item" href="./mi-quiniela.html"><b>⚽</b><span>Quiniela</span></a>
+      <a class="footer-item" href="./pronostico.html"><b>🎯</b><span>Pronósticos</span></a>
+      <a class="footer-item" href="./ranking.html"><b>🏆</b><span>Ranking</span></a>
+      <a class="footer-item" href="./perfil.html"><b>👤</b><span>Perfil</span></a>
+    </div>
   </nav>
 
+  <div class="toast" id="toast"></div>
+
   <script>
-    const PREDIKT_SUPABASE_URL = "https://bhsffngulgvwfzjhiymy.supabase.co";
-    const PREDIKT_SUPABASE_REST_URL = `${PREDIKT_SUPABASE_URL}/rest/v1`;
-    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
-    const TOTAL_CERTIFIED_MATCHES = 72;
+    // =====================================================
+    // PREDIKT™ HOME EXPERIENCE ENGINE v9.0.0
+    // Centro de Operaciones del Día
+    // =====================================================
 
-    const toast = document.getElementById("toast");
+    const SUPABASE_URL = 'https://bhsffngulgvwfzjhiymy.supabase.co';
+    const SUPABASE_ANON_KEY = 'REEMPLAZAR_CON_SUPABASE_ANON_KEY_EXISTENTE_DEL_INDEX_ACTUAL';
 
-    function showToast(message) {
-      if (!toast) return;
-      toast.textContent = message;
-      toast.classList.add("show");
-      window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
-    }
+    const CERT_STRING = 'PREDIKT_CALENDAR_GROUP_STAGE_CERT_V1_2026-04-10_FIFA_ET_12G_48T_72M';
+    const TOTAL_GROUP_STAGE_MATCHES = 72;
+    const TZ = 'America/Mexico_City';
 
-    function sportsHeaders() {
-      return {
-        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
-        Authorization: `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
-        Accept: "application/json",
-        "Accept-Profile": "sports"
-      };
-    }
+    const groupTheme = {
+      GROUP_A: { short: 'A', label: 'Grupo A', color: '#25d366', text: '#03140a' },
+      GROUP_B: { short: 'B', label: 'Grupo B', color: '#1476ff', text: '#ffffff' },
+      GROUP_C: { short: 'C', label: 'Grupo C', color: '#f5c84c', text: '#07111f' },
+      GROUP_D: { short: 'D', label: 'Grupo D', color: '#ff4b55', text: '#ffffff' },
+      GROUP_E: { short: 'E', label: 'Grupo E', color: '#9b5cff', text: '#ffffff' },
+      GROUP_F: { short: 'F', label: 'Grupo F', color: '#ff9f1c', text: '#07111f' },
+      GROUP_G: { short: 'G', label: 'Grupo G', color: '#2de2e6', text: '#03141a' },
+      GROUP_H: { short: 'H', label: 'Grupo H', color: '#ff6fb1', text: '#240616' },
+      GROUP_I: { short: 'I', label: 'Grupo I', color: '#233b8b', text: '#ffffff' },
+      GROUP_J: { short: 'J', label: 'Grupo J', color: '#d6a72a', text: '#07111f' },
+      GROUP_K: { short: 'K', label: 'Grupo K', color: '#8b95a7', text: '#07111f' },
+      GROUP_L: { short: 'L', label: 'Grupo L', color: '#8b5e34', text: '#ffffff' }
+    };
 
-    function predictionsHeaders(accessToken) {
-      return {
-        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
-        Authorization: `Bearer ${accessToken || PREDIKT_SUPABASE_PUBLIC_KEY}`,
-        Accept: "application/json",
-        "Accept-Profile": "predictions"
-      };
-    }
+    const countryFlags = {
+      'México': '🇲🇽', 'Mexico': '🇲🇽',
+      'Sudáfrica': '🇿🇦', 'Sudafrica': '🇿🇦',
+      'Corea del Sur': '🇰🇷', 'Chequia': '🇨🇿',
+      'Canadá': '🇨🇦', 'Canada': '🇨🇦',
+      'Bosnia y Herzegovina': '🇧🇦', 'Bosnia': '🇧🇦',
+      'Estados Unidos': '🇺🇸', 'USA': '🇺🇸', 'EE.UU.': '🇺🇸',
+      'Paraguay': '🇵🇾', 'Brasil': '🇧🇷', 'Marruecos': '🇲🇦',
+      'Escocia': '🏴', 'RD Congo': '🇨🇩', 'Uzbekistán': '🇺🇿',
+      'Uzbekistan': '🇺🇿', 'Suiza': '🇨🇭'
+    };
 
-    function rankingsHeaders(accessToken) {
-      return {
-        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
-        Authorization: `Bearer ${accessToken || PREDIKT_SUPABASE_PUBLIC_KEY}`,
-        Accept: "application/json",
-        "Accept-Profile": "rankings"
-      };
-    }
+    const $ = (id) => document.getElementById(id);
+    const toast = $('toast');
 
-    function normalizeLatamName(value) {
-      return String(value || "")
-        .replace(/\bChequia\b/gi, "República Checa")
-        .replace(/\bCzechia\b/gi, "República Checa")
-        .replace(/\bCzech Republic\b/gi, "República Checa")
-        .trim();
-    }
+    let supabaseClient = null;
+    let currentUser = null;
 
-    function firstText(...values) {
-      for (const value of values) {
-        if (value !== null && value !== undefined && String(value).trim() !== "") return normalizeLatamName(value);
-      }
-      return "";
-    }
+    document.addEventListener('DOMContentLoaded', init);
+    $('refreshBtn').addEventListener('click', () => loadHome(true));
 
-    function normalizeMatchKeyText(value) {
-      return String(value || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, " ")
-        .trim();
-    }
+    async function init() {
+      $('todayLabel').textContent = formatTodayLabel(new Date());
+      $('certLabel').textContent = 'Certificación estructural activa';
 
-    function mexicoDateKey(date = new Date()) {
-      return new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/Mexico_City",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-      }).format(date);
-    }
-
-    function isWithinLiveWindow(value) {
-      if (!value) return false;
-      const start = new Date(value);
-      if (Number.isNaN(start.getTime())) return false;
-      const now = Date.now();
-      const liveStart = start.getTime() - (15 * 60 * 1000);
-      const liveEnd = start.getTime() + (135 * 60 * 1000);
-      return now >= liveStart && now <= liveEnd;
-    }
-
-    function applyProductionFixtureOverride(row = {}) {
-      const teams = getTeamNamesFromRow(row);
-      const key = normalizeMatchKeyText(`${teams.home} ${teams.away} ${row.event_name || row.name || row.display_label || ""}`);
-
-      if (key.includes("estados unidos") && key.includes("paraguay")) {
-        const correctedStart = "2026-06-12T19:00:00-06:00";
-        const isToday = mexicoDateKey(new Date(correctedStart)) === mexicoDateKey();
-        return {
-          ...row,
-          starts_at: correctedStart,
-          start_time: correctedStart,
-          event_start_at: correctedStart,
-          home_name: teams.home || "Estados Unidos",
-          away_name: teams.away || "Paraguay",
-          home_code: firstText(row.home_code, row.home_team_code) || "USA",
-          away_code: firstText(row.away_code, row.away_team_code) || "PAR",
-          venue_city: firstText(row.venue_city, row.city, row.host_city) || "Los Ángeles",
-          venue_name: firstText(row.venue_name, row.stadium_name, row.venue, row.stadium) || "SoFi Stadium",
-          group_name: firstText(row.group_name, row.group_code) || "Grupo por confirmar",
-          event_status: isToday && isWithinLiveWindow(correctedStart) ? "EN VIVO" : (isToday ? "JUEGA HOY" : row.event_status)
-        };
+      if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('REEMPLAZAR')) {
+        showToast('Falta pegar el SUPABASE_ANON_KEY del index actual. El diseño está listo, pero no puede leer producción todavía.');
+        renderEmptyHome('Falta configurar la llave pública de Supabase.');
+        return;
       }
 
-      return row;
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      currentUser = sessionData?.session?.user || null;
+      $('userState').textContent = currentUser ? 'Usuario activo' : 'Invitado';
+
+      await loadHome(false);
+    }
+
+    async function loadHome(manualRefresh) {
+      try {
+        if (manualRefresh) showToast('Actualizando Inicio...');
+
+        const todayRange = getMexicoCityDayRange();
+        const [todayMatches, nextMatch, recentResult] = await Promise.all([
+          fetchTodayMatches(todayRange.startISO, todayRange.endISO),
+          fetchNextMatch(),
+          fetchRecentResult()
+        ]);
+
+        const heroMatch = todayMatches.find(m => !isFinished(m)) || nextMatch || todayMatches[0] || null;
+
+        renderHero(heroMatch);
+        renderTodayMatches(todayMatches);
+        renderUrgency(todayMatches);
+        renderRecentResult(recentResult);
+        await renderProgress(todayMatches);
+
+        if (manualRefresh) showToast('Inicio actualizado.');
+      } catch (error) {
+        console.error(error);
+        showToast('No se pudo cargar Inicio. Revisa permisos RLS o conexión.');
+        renderEmptyHome('No se pudo leer el calendario de producción.');
+      }
+    }
+
+    async function fetchTodayMatches(startISO, endISO) {
+      const { data, error } = await supabaseClient
+        .from('events')
+        .select('id, code, name, event_stage, starts_at, ends_at, event_status, metadata, home_participant_id, away_participant_id')
+        .eq('event_type', 'MATCH')
+        .eq('event_stage', 'Fase de Grupos')
+        .gte('starts_at', startISO)
+        .lt('starts_at', endISO)
+        .order('starts_at', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    }
+
+    async function fetchNextMatch() {
+      const nowISO = new Date().toISOString();
+      const { data, error } = await supabaseClient
+        .from('events')
+        .select('id, code, name, event_stage, starts_at, ends_at, event_status, metadata, home_participant_id, away_participant_id')
+        .eq('event_type', 'MATCH')
+        .eq('event_stage', 'Fase de Grupos')
+        .gte('starts_at', nowISO)
+        .order('starts_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data || null;
+    }
+
+    async function fetchRecentResult() {
+      const { data, error } = await supabaseClient
+        .from('events')
+        .select('id, code, name, event_stage, starts_at, ends_at, event_status, metadata, updated_at')
+        .eq('event_type', 'MATCH')
+        .eq('event_stage', 'Fase de Grupos')
+        .eq('event_status', 'FINISHED')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data || null;
+    }
+
+    function renderHero(match) {
+      const hero = $('heroCard');
+      hero.classList.remove('skeleton');
+
+      if (!match) {
+        hero.style.setProperty('--group-color', '#f5c84c');
+        hero.style.setProperty('--group-text', '#07111f');
+        hero.innerHTML = `
+          <div class="hero-head"><span class="mini">Calendario</span><span class="group">Sin partido</span></div>
+          <div class="hero-body">
+            <h1 class="match-title">No hay partido programado</h1>
+            <div class="empty-state">Cuando haya partidos del día, aparecerán aquí primero.</div>
+          </div>`;
+        $('nextMatchHint').textContent = 'Sin juego activo';
+        return;
+      }
+
+      const theme = getTheme(match);
+      const teams = splitMatchName(match.name);
+      const time = formatTimeCDMX(match.starts_at);
+      const venue = match.metadata?.venue_name || 'Sede por confirmar';
+      const city = match.metadata?.venue_city || 'Ciudad por confirmar';
+      const status = statusLabel(match.event_status);
+
+      hero.style.setProperty('--group-color', theme.color);
+      hero.style.setProperty('--group-text', theme.text);
+      $('nextMatchHint').textContent = isTodayCDMX(match.starts_at) ? 'Hoy' : 'Próximo';
+
+      hero.innerHTML = `
+        <div class="hero-head">
+          <span class="mini">${isFinished(match) ? 'Partido reciente' : 'Siguiente partido'}</span>
+          <span class="group">${theme.label}</span>
+        </div>
+        <div class="hero-body">
+          <h1 class="match-title">${flag(teams.home)} ${escapeHTML(teams.home)}<br><span style="opacity:.62;font-size:.65em;">vs</span><br>${flag(teams.away)} ${escapeHTML(teams.away)}</h1>
+          <div class="match-meta">
+            <div class="meta-pill"><span>Hora CDMX</span><strong>${time}</strong></div>
+            <div class="meta-pill"><span>Sede</span><strong>${escapeHTML(venue)}</strong></div>
+            <div class="meta-pill"><span>Ciudad</span><strong>${escapeHTML(city)}</strong></div>
+            <div class="meta-pill"><span>Estado</span><strong>${status}</strong></div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-secondary" type="button" onclick="goDetail('${match.id}')">Ver detalle</button>
+            <button class="btn btn-primary" type="button" onclick="goPrediction('${match.id}')">Hacer pronóstico</button>
+          </div>
+        </div>`;
+    }
+
+    function renderTodayMatches(matches) {
+      const row = $('todayMatchesRow');
+      $('todayCountLabel').textContent = `${matches.length} partido${matches.length === 1 ? '' : 's'}`;
+
+      if (!matches.length) {
+        row.innerHTML = '<div class="empty-state" style="width:100%;">Hoy no hay partidos cargados. Mostrando el próximo partido en la tarjeta principal.</div>';
+        return;
+      }
+
+      row.innerHTML = matches.map(match => {
+        const theme = getTheme(match);
+        const teams = splitMatchName(match.name);
+        const venue = match.metadata?.venue_name || 'Sede por confirmar';
+        const city = match.metadata?.venue_city || '';
+        return `
+          <article class="today-card" onclick="goPrediction('${match.id}')" style="--group-color:${theme.color}; --group-text:${theme.text};">
+            <div class="today-card-head"><span>${theme.label}</span><span>${statusShort(match.event_status)}</span></div>
+            <div class="today-card-body">
+              <div class="today-time">${formatTimeCDMX(match.starts_at)}</div>
+              <div class="today-name">${flag(teams.home)} ${escapeHTML(teams.home)}<br>vs ${flag(teams.away)} ${escapeHTML(teams.away)}</div>
+              <div class="today-venue">📍 ${escapeHTML(venue)}${city ? '<br>' + escapeHTML(city) : ''}</div>
+              <span class="status-chip">${isFinished(match) ? '✅ Finalizado' : '🎯 Pronosticar'}</span>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    function renderUrgency(matches) {
+      const pending = matches.filter(m => !isFinished(m)).length;
+      $('urgentCard').innerHTML = `
+        <div>
+          <strong>🔥 Hoy se juegan ${matches.length} partido${matches.length === 1 ? '' : 's'}</strong>
+          <span>${pending > 0 ? `Tienes ${pending} pronóstico${pending === 1 ? '' : 's'} del día por revisar.` : 'La jornada de hoy ya está cerrada.'}</span>
+        </div>
+        <span>${pending > 0 ? '🎯' : '✅'}</span>`;
+    }
+
+    function renderRecentResult(match) {
+      const card = $('recentResultCard');
+      if (!match) {
+        card.innerHTML = `
+          <h3>⚽ Último resultado registrado</h3>
+          <div class="scoreline">Sin resultado</div>
+          <div class="small-muted">Todavía no hay partidos finalizados.</div>`;
+        return;
+      }
+
+      const theme = getTheme(match);
+      const age = timeAgo(match.updated_at || match.ends_at || match.starts_at);
+      const result = match.metadata?.official_score || match.metadata?.score || match.metadata?.result || '';
+      const line = result ? `${match.name} · ${result}` : match.name;
+
+      card.style.borderLeft = `7px solid ${theme.color}`;
+      card.innerHTML = `
+        <h3>⚽ Último resultado registrado</h3>
+        <div class="scoreline">${escapeHTML(line)}</div>
+        <div class="small-muted">${theme.label} · Finalizado · ${age}</div>`;
+    }
+
+    async function renderProgress(todayMatches) {
+      let done = 0;
+      let points = 0;
+
+      if (!currentUser || !supabaseClient) {
+        $('donePredictions').textContent = '0';
+        $('pendingPredictions').textContent = String(TOTAL_GROUP_STAGE_MATCHES);
+        $('pointsValue').textContent = '0';
+        return;
+      }
+
+      try {
+        const { count } = await supabaseClient
+          .schema('predictions')
+          .from('predictions')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', currentUser.id);
+        done = count || 0;
+      } catch (error) {
+        console.warn('No se pudo leer predictions.predictions:', error);
+      }
+
+      try {
+        const { data } = await supabaseClient
+          .schema('rankings')
+          .from('user_stats')
+          .select('total_points, points')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        points = data?.total_points ?? data?.points ?? 0;
+      } catch (error) {
+        console.warn('No se pudo leer rankings.user_stats:', error);
+      }
+
+      $('donePredictions').textContent = String(done);
+      $('pendingPredictions').textContent = String(Math.max(TOTAL_GROUP_STAGE_MATCHES - done, 0));
+      $('pointsValue').textContent = String(points);
+    }
+
+    function renderEmptyHome(message) {
+      $('heroCard').classList.remove('skeleton');
+      $('heroCard').innerHTML = `
+        <div class="hero-head"><span class="mini">Inicio</span><span class="group">PREDIKT</span></div>
+        <div class="hero-body">
+          <h1 class="match-title">Centro de operaciones</h1>
+          <div class="empty-state">${escapeHTML(message)}</div>
+        </div>`;
+      $('todayMatchesRow').innerHTML = `<div class="empty-state" style="width:100%;">${escapeHTML(message)}</div>`;
+      $('recentResultCard').innerHTML = '<h3>⚽ Último resultado registrado</h3><div class="scoreline">Pendiente</div><div class="small-muted">Sin conexión a datos.</div>';
+    }
+
+    function getTheme(match) {
+      const code = match?.metadata?.group_code || 'GROUP_J';
+      return groupTheme[code] || { short: '?', label: match?.metadata?.group_name || 'Grupo', color: '#f5c84c', text: '#07111f' };
     }
 
     function splitMatchName(name) {
-      const safeName = normalizeLatamName(name || "Partido por confirmar");
-      const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
-      if (parts.length >= 2) return { home: parts[0].trim(), away: parts[1].trim() };
-      return { home: "Local", away: "Visitante" };
+      const parts = String(name || '').split(/\s+vs\s+/i);
+      return { home: parts[0]?.trim() || 'Local', away: parts[1]?.trim() || 'Visitante' };
     }
 
-    function getTeamNamesFromRow(row = {}) {
-      const home = firstText(row.home_name, row.home_team_name, row.home_participant_name, row.home_selection_name, row.home_country_name, row.home_team);
-      const away = firstText(row.away_name, row.away_team_name, row.away_participant_name, row.away_selection_name, row.away_country_name, row.away_team);
-      if (home && away) return { home, away };
-      return splitMatchName(row.event_name || row.name || row.display_label || row.match_name);
+    function flag(teamName) {
+      return countryFlags[teamName] || '';
     }
 
-    function inferCode(name, fallback = "--") {
-      const clean = String(name || "").trim();
-      if (!clean) return fallback;
-      if (clean.length <= 3) return clean.toUpperCase();
-      return clean.slice(0, 2).toUpperCase();
+    function statusLabel(status) {
+      const s = String(status || '').toUpperCase();
+      if (s === 'FINISHED') return 'Finalizado';
+      if (s === 'LIVE') return 'En vivo';
+      if (s === 'SCHEDULED') return 'Programado';
+      return status || 'Programado';
     }
 
-    function getStoredSupabaseSession() {
-      try {
-        for (let index = 0; index < window.localStorage.length; index += 1) {
-          const key = window.localStorage.key(index);
-          if (!key || !key.includes("auth-token")) continue;
-          const raw = window.localStorage.getItem(key);
-          if (!raw) continue;
-          const parsed = JSON.parse(raw);
-          const session = parsed.currentSession || parsed.session || parsed;
-          if (session?.access_token) return session;
-        }
-      } catch (error) {
-        console.warn("No se pudo leer sesión Supabase local.", error);
-      }
-      return null;
+    function statusShort(status) {
+      const s = String(status || '').toUpperCase();
+      if (s === 'FINISHED') return 'FINAL';
+      if (s === 'LIVE') return 'LIVE';
+      return 'HOY';
     }
 
-    function formatDateShort(value) {
-      if (!value) return "Por definir";
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return "Por definir";
-      return date.toLocaleString("es-MX", {
-        timeZone: "America/Mexico_City",
-        weekday: "short",
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+    function isFinished(match) {
+      return String(match?.event_status || '').toUpperCase() === 'FINISHED';
     }
 
-    function formatTimeMX(value) {
-      if (!value) return "Hora por definir";
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return "Hora por definir";
-      return date.toLocaleTimeString("es-MX", {
-        timeZone: "America/Mexico_City",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+    function getMexicoCityDayRange() {
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: TZ,
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(now).reduce((acc, p) => { acc[p.type] = p.value; return acc; }, {});
+
+      const startLocal = `${parts.year}-${parts.month}-${parts.day}T00:00:00`;
+      const end = new Date(new Date(startLocal + '-06:00').getTime() + 24 * 60 * 60 * 1000);
+      const start = new Date(startLocal + '-06:00');
+      return { startISO: start.toISOString(), endISO: end.toISOString() };
     }
 
-    function getVenueLabel(row = {}) {
-      const metadata = row.metadata || row.event_metadata || {};
-      const city = firstText(row.venue_city, row.city, row.host_city, metadata.venue_city, metadata.city);
-      const venue = firstText(row.venue_name, row.stadium_name, row.venue, row.stadium, metadata.venue_name, metadata.stadium_name);
-      if (city && venue) return `${city} · ${venue}`;
-      if (city) return city;
-      if (venue) return venue;
-      return "Ciudad y estadio por confirmar";
+    function isTodayCDMX(iso) {
+      if (!iso) return false;
+      const now = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+      const target = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso));
+      return now === target;
     }
 
-    function getMatchMode(row = {}) {
-      if (isLiveStatus(row)) return "live";
-      const startsAt = row.starts_at || row.start_time || row.event_start_at;
-      if (isSameMexicoDate(startsAt)) return "today";
-      return "upcoming";
+    function formatTodayLabel(date) {
+      return new Intl.DateTimeFormat('es-MX', {
+        timeZone: TZ,
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      }).format(date).replace(/^./, c => c.toUpperCase());
     }
 
-    function setMatchStatusVisual(mode, label, timeLabel) {
-      const card = document.getElementById("liveMatchCard");
-      const banner = document.getElementById("matchStatusBanner");
-      const pill = document.getElementById("liveStatusPill");
-      const time = document.getElementById("liveStatusTime");
-      if (!card || !banner || !pill || !time) return;
-      card.classList.remove("status-live", "status-today", "status-upcoming", "status-result");
-      banner.classList.remove("live", "today", "upcoming", "result");
-      const safeMode = ["live", "today", "upcoming", "result"].includes(mode) ? mode : "today";
-      card.classList.add(`status-${safeMode}`);
-      banner.classList.add(safeMode);
-      pill.textContent = label;
-      time.textContent = timeLabel || "";
+    function formatTimeCDMX(iso) {
+      if (!iso) return '--:--';
+      return new Intl.DateTimeFormat('es-MX', {
+        timeZone: TZ,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(new Date(iso)) + ' hrs';
     }
 
-    function formatDateOnlyMX(value) {
-      if (!value) return "Hoy";
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return "Hoy";
-      return date.toLocaleDateString("es-MX", {
-        timeZone: "America/Mexico_City",
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-      });
+    function timeAgo(iso) {
+      if (!iso) return 'reciente';
+      const diff = Math.max(0, Date.now() - new Date(iso).getTime());
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'hace unos segundos';
+      if (minutes < 60) return `hace ${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `hace ${hours} hora${hours === 1 ? '' : 's'}`;
+      const days = Math.floor(hours / 24);
+      return `hace ${days} día${days === 1 ? '' : 's'}`;
     }
 
-    function isSameMexicoDate(value, reference = new Date()) {
-      if (!value) return false;
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return false;
-      const fmt = new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/Mexico_City",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-      });
-      return fmt.format(date) === fmt.format(reference);
+    function goPrediction(matchId) {
+      window.location.href = `./pronostico.html?event_id=${encodeURIComponent(matchId)}`;
     }
 
-    function isLiveStatus(row = {}) {
-      const statusText = String(firstText(row.event_status, row.status, row.match_status, row.state)).toLowerCase();
-      const minute = Number(row.minute ?? row.current_minute ?? row.match_minute ?? 0);
-      const startsAt = row.starts_at || row.start_time || row.event_start_at;
-      return statusText.includes("live") || statusText.includes("vivo") || statusText.includes("en juego") || (minute > 0 && minute < 130) || isWithinLiveWindow(startsAt);
+    function goDetail(matchId) {
+      window.location.href = `./partido-detalle.html?event_id=${encodeURIComponent(matchId)}`;
     }
 
-    function getRowStartTime(row = {}) {
-      const raw = row.starts_at || row.start_time || row.event_start_at || row.event_date || row.match_date;
-      const date = new Date(raw);
-      return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
     }
 
-    async function fetchSportsRows(viewName, queryString = "select=*&limit=1") {
-      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${viewName}?${queryString}`, {
-        method: "GET",
-        headers: sportsHeaders()
-      });
-      if (!response.ok) throw new Error(`${viewName} status ${response.status}`);
-      const rows = await response.json();
-      return Array.isArray(rows) ? rows : [];
+    function escapeHTML(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
     }
-
-    async function fetchPredictionsRows(tableName, queryString, accessToken) {
-      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${tableName}?${queryString}`, {
-        method: "GET",
-        headers: predictionsHeaders(accessToken)
-      });
-      if (!response.ok) throw new Error(`${tableName} status ${response.status}`);
-      const rows = await response.json();
-      return Array.isArray(rows) ? rows : [];
-    }
-
-    async function fetchRankingsRows(tableName, queryString, accessToken) {
-      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${tableName}?${queryString}`, {
-        method: "GET",
-        headers: rankingsHeaders(accessToken)
-      });
-      if (!response.ok) throw new Error(`${tableName} status ${response.status}`);
-      const rows = await response.json();
-      return Array.isArray(rows) ? rows : [];
-    }
-
-    function buildCertifiedFallbackRows() {
-      return [
-        {
-          event_id: "fallback-can-bos",
-          event_name: "Canadá vs Bosnia y Herzegovina",
-          home_name: "Canadá",
-          away_name: "Bosnia y Herzegovina",
-          home_code: "CAN",
-          away_code: "BIH",
-          phase_name: "Fase de Grupos",
-          group_name: "Grupo por confirmar",
-          starts_at: "2026-06-12T19:00:00+00"
-        }
-      ];
-    }
-
-    function buildChronologicalRows(rows = []) {
-      return rows
-        .filter((row) => !isLiveStatus(row))
-        .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label))
-        .sort((a, b) => getRowStartTime(a) - getRowStartTime(b))
-        .slice(0, 8);
-    }
-
-    function renderFeaturedMatch(row, mode = "upcoming") {
-      if (!row) {
-        document.getElementById("featuredSectionTitle").textContent = "🎯 Centro de Partidos";
-        setMatchStatusVisual("upcoming", "🟢 PRÓXIMAMENTE", "Sin datos activos");
-        document.getElementById("liveMatchName").textContent = "Partidos por cargar";
-        document.getElementById("liveStage").textContent = "Fase por confirmar";
-        document.getElementById("liveGroup").textContent = "Grupo por confirmar";
-        document.getElementById("liveMinute").textContent = "Horario por confirmar";
-        document.getElementById("liveVenueLine").textContent = "Ciudad y estadio por confirmar";
-        document.getElementById("liveHomeCode").textContent = "--";
-        document.getElementById("liveHomeName").textContent = "Equipo por confirmar";
-        document.getElementById("liveHomeScore").textContent = "";
-        document.getElementById("liveAwayCode").textContent = "--";
-        document.getElementById("liveAwayName").textContent = "Equipo por confirmar";
-        document.getElementById("liveAwayScore").textContent = "";
-        document.getElementById("liveScoreline").classList.remove("show");
-        document.getElementById("prediktIntelligenceCopy").textContent = "Entra a Pronósticos para ver la lista completa mientras se conecta el Centro de Partidos.";
-        document.getElementById("liveDetailLink").href = "pronostico.html";
-        document.getElementById("liveQuinielaLink").href = "pronostico.html";
-        return;
-      }
-
-      const teams = getTeamNamesFromRow(row);
-      const homeCode = firstText(row.home_code, row.home_team_code, row.home_country_code) || inferCode(teams.home);
-      const awayCode = firstText(row.away_code, row.away_team_code, row.away_country_code) || inferCode(teams.away);
-      const eventId = row.event_id || row.id || "";
-      const startsAt = row.starts_at || row.start_time || row.event_start_at;
-      const effectiveMode = mode === "live" ? "live" : getMatchMode(row);
-      const minute = firstText(row.minute, row.current_minute, row.match_minute) || "EN VIVO";
-      const homeScore = Number(row.home_score ?? row.home_goals ?? row.score_home ?? 0);
-      const awayScore = Number(row.away_score ?? row.away_goals ?? row.score_away ?? 0);
-      const timeLabel = effectiveMode === "live"
-        ? (String(minute).toUpperCase().includes("VIVO") ? String(minute) : `Min ${minute}`)
-        : formatTimeMX(startsAt);
-
-      if (effectiveMode === "live") {
-        setMatchStatusVisual("live", `🔴 EN VIVO · ${timeLabel}`, "Partido activo");
-      } else if (effectiveMode === "today") {
-        setMatchStatusVisual("today", `🟡 HOY · ${timeLabel}`, "Haz tu quiniela");
-      } else {
-        setMatchStatusVisual("upcoming", "🟢 PRÓXIMAMENTE", formatDateShort(startsAt));
-      }
-
-      document.getElementById("featuredSectionTitle").textContent = "🎯 Centro de Partidos";
-      document.getElementById("liveMatchName").textContent = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
-      document.getElementById("liveStage").textContent = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
-      document.getElementById("liveGroup").textContent = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
-      document.getElementById("liveMinute").textContent = effectiveMode === "live" ? timeLabel : formatDateShort(startsAt);
-      document.getElementById("liveVenueLine").textContent = getVenueLabel(row);
-      document.getElementById("liveHomeCode").textContent = homeCode;
-      document.getElementById("liveHomeName").textContent = teams.home;
-      document.getElementById("liveHomeScore").textContent = effectiveMode === "live" ? String(homeScore) : "Local";
-      document.getElementById("liveAwayCode").textContent = awayCode;
-      document.getElementById("liveAwayName").textContent = teams.away;
-      document.getElementById("liveAwayScore").textContent = effectiveMode === "live" ? String(awayScore) : "Visitante";
-      document.getElementById("liveHomeScoreMain").textContent = String(homeScore);
-      document.getElementById("liveAwayScoreMain").textContent = String(awayScore);
-      document.getElementById("liveScoreline").classList.toggle("show", effectiveMode === "live");
-      document.getElementById("prediktIntelligenceCopy").textContent = effectiveMode === "live"
-        ? "Lectura preparada para mostrar momentum, probabilidad y confianza durante el partido."
-        : "Espacio reservado para sugerencia inteligente, confianza PREDIKT™ y tendencia de usuarios antes del partido.";
-      document.getElementById("liveDetailLink").href = eventId ? `partido-detalle.html?id=${encodeURIComponent(eventId)}` : "pronostico.html";
-      document.getElementById("liveQuinielaLink").href = eventId ? `pronostico.html?event_id=${encodeURIComponent(eventId)}` : "pronostico.html";
-    }
-
-    function renderUpcomingMatches(rows = []) {
-      rows = rows.map(applyProductionFixtureOverride);
-      const list = document.getElementById("upcomingMatchesList");
-      const titleNode = document.getElementById("todayMatchesTitle");
-      if (!list) return;
-
-      const todayRows = rows
-        .filter((row) => isSameMexicoDate(row.starts_at || row.start_time || row.event_start_at))
-        .slice(0, 3);
-
-      const safeRows = todayRows.length ? todayRows : (rows.length ? rows.slice(0, 3) : buildCertifiedFallbackRows());
-
-      if (titleNode) titleNode.textContent = todayRows.length ? "Partidos de hoy" : "Próximos partidos";
-
-      list.innerHTML = safeRows.map((row) => {
-        const teams = getTeamNamesFromRow(row);
-        const eventId = row.event_id || row.id || "";
-        const quinielaHref = eventId ? `pronostico.html?event_id=${encodeURIComponent(eventId)}` : "pronostico.html";
-        const title = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
-        const group = firstText(row.group_name, row.group_code) || "Grupo";
-        const stage = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
-        const startsAt = row.starts_at || row.start_time || row.event_start_at;
-        const dateLabel = todayRows.length ? formatTimeMX(startsAt) : formatDateShort(startsAt);
-        const venueLabel = getVenueLabel(row);
-        const statusIcon = todayRows.length ? "🟡" : "🟢";
-
-        return `
-          <article class="match-row">
-            <span class="match-row-date">${statusIcon} ${dateLabel}</span>
-            <span>
-              <strong class="match-row-title">${title}</strong>
-              <small class="match-row-sub">${stage} · ${group} · ${venueLabel}</small>
-            </span>
-            <a class="mini-pick" href="${quinielaHref}">Quiniela</a>
-          </article>
-        `;
-      }).join("");
-    }
-
-    function normalizeScoreValue(value) {
-      const numeric = Number(value);
-      if (!Number.isFinite(numeric)) return "0";
-      return String(numeric);
-    }
-
-    function resultNameFromOfficial(row = {}) {
-      const teams = getTeamNamesFromRow(row);
-      const homeGoals = normalizeScoreValue(row.home_score ?? row.home_goals ?? row.official_home_score ?? row.home_result);
-      const awayGoals = normalizeScoreValue(row.away_score ?? row.away_goals ?? row.official_away_score ?? row.away_result);
-      return `${teams.home} ${homeGoals}-${awayGoals} ${teams.away}`;
-    }
-
-    function predictionLabelFromScore(row = {}) {
-      const home = row.predicted_home_score ?? row.user_home_score ?? row.home_prediction ?? row.home_goals_prediction;
-      const away = row.predicted_away_score ?? row.user_away_score ?? row.away_prediction ?? row.away_goals_prediction;
-      if (home !== undefined && home !== null && away !== undefined && away !== null) return `${home}-${away}`;
-      const outcome = firstText(row.predicted_outcome, row.user_prediction, row.outcome);
-      return outcome || "Sin pronóstico registrado";
-    }
-
-    function renderLatestResult({ officialResult = null, predictionScore = null } = {}) {
-      const matchNode = document.getElementById("latestResultMatch");
-      const predictionNode = document.getElementById("latestUserPrediction");
-      const pointsNode = document.getElementById("latestPointsEarned");
-      const dateNode = document.getElementById("latestResultDate");
-
-      if (!matchNode || !predictionNode || !pointsNode || !dateNode) return;
-
-      if (!officialResult) {
-        matchNode.textContent = "Aún no hay resultados oficiales visibles.";
-        predictionNode.textContent = "Entra a Pronósticos";
-        pointsNode.textContent = "+0";
-        dateNode.textContent = "Pendiente";
-        return;
-      }
-
-      matchNode.textContent = resultNameFromOfficial(officialResult);
-      predictionNode.textContent = predictionScore ? predictionLabelFromScore(predictionScore) : "Sin pronóstico registrado";
-      const points = Number(predictionScore?.points ?? predictionScore?.score ?? predictionScore?.total_points ?? 0);
-      pointsNode.textContent = `+${Number.isFinite(points) ? points : 0}`;
-      const resultDate = officialResult.result_date || officialResult.played_at || officialResult.created_at || officialResult.updated_at;
-      dateNode.textContent = formatDateOnlyMX(resultDate);
-    }
-
-    async function loadLatestResultFlow() {
-      const session = getStoredSupabaseSession();
-      const accessToken = session?.access_token;
-      const userId = session?.user?.id;
-
-      try {
-        const officialRows = await fetchPredictionsRows(
-          "official_results",
-          "select=*&order=created_at.desc&limit=1",
-          accessToken
-        );
-
-        const officialResult = officialRows[0] || null;
-
-        let predictionScore = null;
-        if (officialResult && userId) {
-          const eventId = officialResult.event_id || officialResult.match_id || officialResult.id;
-          const scoreQueries = [
-            `select=*&user_id=eq.${encodeURIComponent(userId)}&event_id=eq.${encodeURIComponent(eventId)}&limit=1`,
-            `select=*&user_id=eq.${encodeURIComponent(userId)}&match_id=eq.${encodeURIComponent(eventId)}&limit=1`
-          ];
-
-          for (const query of scoreQueries) {
-            try {
-              const rows = await fetchPredictionsRows("prediction_scores", query, accessToken);
-              if (rows[0]) {
-                predictionScore = rows[0];
-                break;
-              }
-            } catch (innerError) {
-              console.warn("Consulta alternativa prediction_scores no disponible.", innerError);
-            }
-          }
-        }
-
-        renderLatestResult({ officialResult, predictionScore });
-      } catch (error) {
-        console.warn("No se pudo cargar resultado más reciente.", error);
-        renderLatestResult({ officialResult: null, predictionScore: null });
-      }
-    }
-
-    async function loadUserStatsFlow() {
-      const session = getStoredSupabaseSession();
-      const accessToken = session?.access_token;
-      const userId = session?.user?.id;
-      const profileBtn = document.getElementById("profileAccessBtn");
-
-      if (session?.user?.email && profileBtn) profileBtn.textContent = "Perfil";
-
-      if (!userId) {
-        syncLocalProgress();
-        return;
-      }
-
-      try {
-        const rows = await fetchRankingsRows(
-          "user_stats",
-          `select=*&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
-          accessToken
-        );
-        const stats = rows[0] || null;
-        if (!stats) {
-          syncLocalProgress();
-          return;
-        }
-
-        const points = Number(stats.total_points ?? stats.points ?? 0);
-        const completed = Number(stats.total_predictions ?? stats.predictions_count ?? 0);
-        const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - (Number.isFinite(completed) ? completed : 0));
-
-        document.getElementById("userPointsValue").textContent = String(Number.isFinite(points) ? points : 0);
-        document.getElementById("userPendingValue").textContent = String(pending);
-        document.getElementById("userPendingCopy").textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
-      } catch (error) {
-        console.warn("No se pudo cargar rankings.user_stats. Usando progreso local.", error);
-        syncLocalProgress();
-      }
-    }
-
-    function syncLocalProgress() {
-      const completed = Math.max(0, Math.min(Number(window.localStorage.getItem("predikt_predictions_completed") || 0), TOTAL_CERTIFIED_MATCHES));
-      const points = Math.max(0, Number(window.localStorage.getItem("predikt_user_points") || 0));
-      const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - completed);
-
-      document.getElementById("userPointsValue").textContent = String(points);
-      document.getElementById("userPendingValue").textContent = String(pending);
-      document.getElementById("userPendingCopy").textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
-    }
-
-    async function loadHomeSportsFlow() {
-      try {
-        let nextOpenRows = [];
-        let intelligenceRows = [];
-
-        try {
-          nextOpenRows = (await fetchSportsRows("v_predikt_home_next_open_match", "select=*&limit=1")).map(applyProductionFixtureOverride);
-        } catch (innerError) {
-          console.warn("Vista next open no disponible. Usando intelligence API.", innerError);
-        }
-
-        const lowerBoundIso = new Date(Date.now() - (3 * 60 * 60 * 1000)).toISOString();
-
-        try {
-          intelligenceRows = await fetchSportsRows(
-            "v_event_match_intelligence_api",
-            `select=*&starts_at=gte.${encodeURIComponent(lowerBoundIso)}&order=starts_at.asc&limit=72`
-          );
-        } catch (innerError) {
-          console.warn("Intelligence API sin filtro starts_at. Intentando consulta cronológica básica.", innerError);
-          intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&order=starts_at.asc&limit=72");
-        }
-
-        const rows = (Array.isArray(intelligenceRows) ? intelligenceRows : []).map(applyProductionFixtureOverride);
-        const liveRow = rows.find(isLiveStatus);
-        const chronologicalRows = buildChronologicalRows(rows);
-        const nowMs = Date.now();
-
-        const nearestRow = rows
-          .filter((row) => !isLiveStatus(row))
-          .sort((a, b) => Math.abs(getRowStartTime(a) - nowMs) - Math.abs(getRowStartTime(b) - nowMs))[0] || null;
-
-        const featuredRow = liveRow || nearestRow || nextOpenRows[0] || chronologicalRows[0] || rows[0] || null;
-
-        renderFeaturedMatch(featuredRow, liveRow ? "live" : "upcoming");
-        renderUpcomingMatches(chronologicalRows.length ? chronologicalRows : (nextOpenRows.length ? nextOpenRows : []));
-      } catch (error) {
-        console.warn("PREDIKT Home data flow unavailable.", error);
-        renderFeaturedMatch(null, "empty");
-        renderUpcomingMatches([]);
-        showToast("No se pudo conectar a partidos. Entra a Pronósticos para ver la lista completa.");
-      }
-    }
-
-    loadUserStatsFlow();
-    loadLatestResultFlow();
-    loadHomeSportsFlow();
   </script>
 </body>
 </html>
-
-<!--
-Cierre de archivo
-Versión: v9.1.0 CENTRO DE PARTIDOS + STATUS HEADERS + FIXTURE OVERRIDE
-Fecha: 2026-06-12
-Elaborado por: JVSys™
-Regla UX: Inicio debe sentirse como Centro de Control, no como tabla de partidos.
-Acción: Sustituir index.html completo.
--->
