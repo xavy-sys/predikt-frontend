@@ -668,12 +668,12 @@
 
   <script>
     // =====================================================
-    // PREDIKT™ HOME EXPERIENCE ENGINE v9.0.0
+    // PREDIKT™ HOME CONNECTED ENGINE v9.1.0
     // Centro de Operaciones del Día
     // =====================================================
 
     const SUPABASE_URL = 'https://bhsffngulgvwfzjhiymy.supabase.co';
-    const SUPABASE_ANON_KEY = 'REEMPLAZAR_CON_SUPABASE_ANON_KEY_EXISTENTE_DEL_INDEX_ACTUAL';
+    const SUPABASE_ANON_KEY = 'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
 
     const CERT_STRING = 'PREDIKT_CALENDAR_GROUP_STAGE_CERT_V1_2026-04-10_FIFA_ET_12G_48T_72M';
     const TOTAL_GROUP_STAGE_MATCHES = 72;
@@ -720,7 +720,7 @@
       $('certLabel').textContent = 'Certificación estructural activa';
 
       if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('REEMPLAZAR')) {
-        showToast('Falta pegar el SUPABASE_ANON_KEY del index actual. El diseño está listo, pero no puede leer producción todavía.');
+        showToast('Falta configurar la llave pública de Supabase.');
         renderEmptyHome('Falta configurar la llave pública de Supabase.');
         return;
       }
@@ -762,48 +762,148 @@
     }
 
     async function fetchTodayMatches(startISO, endISO) {
-      const { data, error } = await supabaseClient
-        .from('events')
+      // Fuente principal: sports.v_upcoming_events.
+      // Filtramos en cliente para tolerar nombres de columnas distintos en la vista.
+      let rows = await querySportsView('v_upcoming_events', (q) => q.select('*').limit(120));
+      let normalized = rows.map(normalizeMatch).filter(Boolean);
+
+      const start = new Date(startISO).getTime();
+      const end = new Date(endISO).getTime();
+      let today = normalized
+        .filter(m => {
+          const ts = new Date(m.starts_at).getTime();
+          return Number.isFinite(ts) && ts >= start && ts < end;
+        })
+        .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+
+      if (today.length) return today;
+
+      // Fallback: lectura directa de sports.events si la vista no trae la jornada.
+      rows = await querySportsView('events', (q) => q
         .select('id, code, name, event_stage, starts_at, ends_at, event_status, metadata, home_participant_id, away_participant_id')
         .eq('event_type', 'MATCH')
         .eq('event_stage', 'Fase de Grupos')
         .gte('starts_at', startISO)
         .lt('starts_at', endISO)
-        .order('starts_at', { ascending: true });
+        .order('starts_at', { ascending: true })
+      );
 
-      if (error) throw error;
-      return data || [];
+      return rows.map(normalizeMatch).filter(Boolean);
     }
 
     async function fetchNextMatch() {
+      // Fuente principal: sports.v_predikt_home_next_open_match.
+      let rows = await querySportsView('v_predikt_home_next_open_match', (q) => q.select('*').limit(1));
+      if (rows.length) return normalizeMatch(rows[0]);
+
+      // Fallback: sports.v_predikt_home_next_match.
+      rows = await querySportsView('v_predikt_home_next_match', (q) => q.select('*').limit(1));
+      if (rows.length) return normalizeMatch(rows[0]);
+
+      // Último fallback: sports.events.
       const nowISO = new Date().toISOString();
-      const { data, error } = await supabaseClient
-        .from('events')
+      rows = await querySportsView('events', (q) => q
         .select('id, code, name, event_stage, starts_at, ends_at, event_status, metadata, home_participant_id, away_participant_id')
         .eq('event_type', 'MATCH')
         .eq('event_stage', 'Fase de Grupos')
         .gte('starts_at', nowISO)
         .order('starts_at', { ascending: true })
         .limit(1)
-        .maybeSingle();
+      );
 
-      if (error) throw error;
-      return data || null;
+      return rows.length ? normalizeMatch(rows[0]) : null;
     }
 
     async function fetchRecentResult() {
-      const { data, error } = await supabaseClient
-        .from('events')
+      // Fuente principal: sports.events por estado finalizado.
+      let rows = await querySportsView('events', (q) => q
         .select('id, code, name, event_stage, starts_at, ends_at, event_status, metadata, updated_at')
         .eq('event_type', 'MATCH')
         .eq('event_stage', 'Fase de Grupos')
         .eq('event_status', 'FINISHED')
         .order('updated_at', { ascending: false })
         .limit(1)
-        .maybeSingle();
+      );
 
-      if (error) throw error;
-      return data || null;
+      return rows.length ? normalizeMatch(rows[0]) : null;
+    }
+
+    async function querySportsView(resourceName, buildQuery) {
+      try {
+        const query = buildQuery(supabaseClient.schema('sports').from(resourceName));
+        const { data, error } = await query;
+        if (error) throw error;
+        return Array.isArray(data) ? data : (data ? [data] : []);
+      } catch (error) {
+        console.warn(`No se pudo leer sports.${resourceName}:`, error);
+        return [];
+      }
+    }
+
+    function normalizeMatch(row) {
+      if (!row) return null;
+
+      const metadata = row.metadata || row.event_metadata || {};
+      const id = firstValue(row, ['id', 'event_id', 'match_id']);
+      const name = firstValue(row, [
+        'name', 'event_name', 'match_name', 'fixture_name', 'title', 'match_title'
+      ]) || buildNameFromTeams(row);
+      const startsAt = firstValue(row, [
+        'starts_at', 'start_at', 'kickoff_at', 'kickoff_time', 'match_datetime', 'event_starts_at', 'date_time'
+      ]);
+      const endsAt = firstValue(row, ['ends_at', 'end_at', 'event_ends_at']);
+      const status = firstValue(row, ['event_status', 'status', 'match_status']) || 'SCHEDULED';
+      const groupCode = firstValue(row, ['group_code', 'group']) || metadata.group_code || metadata.group;
+      const groupName = firstValue(row, ['group_name']) || metadata.group_name;
+      const venueName = firstValue(row, ['venue_name', 'stadium', 'venue']) || metadata.venue_name;
+      const venueCity = firstValue(row, ['venue_city', 'city']) || metadata.venue_city;
+      const updatedAt = firstValue(row, ['updated_at', 'result_updated_at', 'finished_at']);
+
+      return {
+        ...row,
+        id,
+        name,
+        starts_at: startsAt,
+        ends_at: endsAt,
+        event_status: status,
+        updated_at: updatedAt,
+        metadata: {
+          ...metadata,
+          group_code: normalizeGroupCode(groupCode),
+          group_name: groupName || labelFromGroupCode(groupCode),
+          venue_name: venueName,
+          venue_city: venueCity,
+          official_score: firstValue(row, ['official_score', 'score', 'result']) || metadata.official_score || metadata.score || metadata.result
+        }
+      };
+    }
+
+    function firstValue(row, keys) {
+      for (const key of keys) {
+        if (row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
+      }
+      return null;
+    }
+
+    function buildNameFromTeams(row) {
+      const home = firstValue(row, ['home_team', 'home_name', 'home_participant', 'home_team_name', 'home_selection_name']) || 'Local';
+      const away = firstValue(row, ['away_team', 'away_name', 'away_participant', 'away_team_name', 'away_selection_name']) || 'Visitante';
+      return `${home} vs ${away}`;
+    }
+
+    function normalizeGroupCode(value) {
+      const raw = String(value || '').trim().toUpperCase();
+      if (!raw) return 'GROUP_J';
+      if (/^GROUP_[A-L]$/.test(raw)) return raw;
+      if (/^[A-L]$/.test(raw)) return `GROUP_${raw}`;
+      const match = raw.match(/GRUPO\s*([A-L])/i) || raw.match(/GROUP\s*([A-L])/i);
+      return match ? `GROUP_${match[1].toUpperCase()}` : raw;
+    }
+
+    function labelFromGroupCode(value) {
+      const normalized = normalizeGroupCode(value);
+      const letter = normalized.replace('GROUP_', '');
+      return letter ? `Grupo ${letter}` : 'Grupo';
     }
 
     function renderHero(match) {
