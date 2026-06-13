@@ -82,11 +82,19 @@
     .section-head h2, .section-head h3 { margin:0; font-size:15px; letter-spacing:-.2px; }
     .section-head span { color:#abc0dd; font-size:11px; }
 
-    .h-scroll { display:flex; gap:10px; overflow-x:auto; padding:0 18px 9px 2px; scroll-snap-type:x mandatory; scrollbar-width:none; }
+    .carousel-wrap { position:relative; }
+    .h-scroll { display:flex; gap:10px; overflow-x:auto; padding:0 46px 10px 2px; scroll-snap-type:x mandatory; scrollbar-width:none; scroll-behavior:smooth; }
     .h-scroll::-webkit-scrollbar { display:none; }
+    .carousel-help { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:-2px 3px 8px; color:#b9cae4; font-size:11px; }
+    .carousel-help strong { color:#ffd86a; font-weight:1000; }
+    .carousel-controls { position:absolute; right:1px; top:50%; transform:translateY(-50%); display:grid; gap:7px; z-index:6; }
+    .carousel-btn { width:36px; height:36px; border-radius:999px; border:1px solid rgba(255,255,255,.18); background:rgba(17,31,53,.88); color:#fff; font-weight:1000; box-shadow:0 10px 24px rgba(0,0,0,.25); cursor:pointer; }
+    .carousel-dots { display:flex; gap:5px; align-items:center; }
+    .carousel-dot { width:6px; height:6px; border-radius:99px; background:rgba(255,255,255,.26); }
+    .carousel-dot.active { width:18px; background:var(--gold); }
 
     .match-chip {
-      flex:0 0 76%;
+      flex:0 0 86%;
       min-height:170px;
       scroll-snap-align:start;
       border-radius:22px;
@@ -100,6 +108,11 @@
     .match-chip-top { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 11px; background:var(--group-color, var(--gold)); color:var(--group-text, #07111f); font-size:11px; font-weight:1000; text-transform:uppercase; }
     .match-chip-body { padding:13px 13px 12px; }
     .match-time { display:inline-flex; align-items:center; gap:5px; border-radius:999px; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12); padding:6px 9px; font-size:12px; font-weight:1000; }
+    .match-status-pill { display:inline-flex; align-items:center; gap:5px; margin-left:6px; border-radius:999px; padding:6px 9px; font-size:11px; font-weight:1000; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.13); }
+    .match-status-pill.live { background:rgba(255,75,85,.18); color:#fff; border-color:rgba(255,75,85,.55); animation:pulseLive 1.4s ease-in-out infinite; }
+    .match-status-pill.next { background:rgba(245,200,76,.18); color:#ffe58a; border-color:rgba(245,200,76,.45); }
+    .match-status-pill.finished { background:rgba(43,213,118,.14); color:#9df0bd; border-color:rgba(43,213,118,.35); }
+    @keyframes pulseLive { 0%,100%{ box-shadow:0 0 0 rgba(255,75,85,0); } 50%{ box-shadow:0 0 0 5px rgba(255,75,85,.13); } }
     .match-teams { margin:11px 0 7px; font-size:22px; line-height:1.08; font-weight:1000; letter-spacing:-.5px; text-transform:uppercase; }
     .match-vs { display:block; font-size:12px; opacity:.62; margin:3px 0; letter-spacing:.2px; }
     .match-venue { color:#b9cae4; font-size:12px; line-height:1.35; min-height:32px; }
@@ -189,7 +202,14 @@
 
       <section id="panelToday">
         <div class="section-head"><h2>Partidos de hoy</h2><span id="todayCountLabel">0 partidos</span></div>
-        <div class="h-scroll" id="todayMatchesRow"><div class="empty-state">Cargando calendario de hoy...</div></div>
+        <div class="carousel-help"><span><strong>Desliza</strong> o usa las flechas</span><div class="carousel-dots" id="todayDots"></div></div>
+        <div class="carousel-wrap">
+          <div class="h-scroll" id="todayMatchesRow"><div class="empty-state">Cargando calendario de hoy...</div></div>
+          <div class="carousel-controls" aria-label="Mover carrusel">
+            <button class="carousel-btn" type="button" id="carouselPrev" aria-label="Partido anterior">‹</button>
+            <button class="carousel-btn" type="button" id="carouselNext" aria-label="Siguiente partido">›</button>
+          </div>
+        </div>
       </section>
 
       <section id="panelGroups" class="hide">
@@ -237,7 +257,7 @@
 
   <script>
     // =====================================================
-    // PREDIKT™ HOME v10.6.0 DAILY MATCH HUB - 4 MATCH OPERATIONAL CAROUSEL
+    // PREDIKT™ HOME v10.7.0 DAILY MATCH HUB - LIVE STATE NAVIGATION CAROUSEL
     // App-first: saludo, carrusel diario visible, sin repetir partido clave, grupos, reto diario, avance.
     // =====================================================
 
@@ -271,6 +291,9 @@
       target?.id ? goPrediction(target.id) : window.location.href = './pronostico.html';
     });
     document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
+    $('carouselPrev')?.addEventListener('click', () => moveTodayCarousel(-1));
+    $('carouselNext')?.addEventListener('click', () => moveTodayCarousel(1));
+    $('todayMatchesRow')?.addEventListener('scroll', updateCarouselDots, { passive:true });
 
     async function init() {
       $('todayLabel').textContent = formatTodayLabel(new Date());
@@ -490,22 +513,66 @@
         : 'Sin datos';
       if (!source.length) {
         row.innerHTML = '<div class="empty-state">No se pudo cargar el carrusel. Ejecuta la vista sports.v_predikt_home_today_matches_v2 y concede SELECT.</div>';
+        renderCarouselDots(0, 0);
         return;
       }
       row.innerHTML = source.map((match, index) => renderMatchCard(match, !todayMatches.length, index, source.length)).join('');
+      renderCarouselDots(source.length, 0);
+      setTimeout(updateCarouselDots, 80);
     }
 
     function renderMatchCard(match, upcomingMode, index = 0, total = 1) {
-      const theme = getTheme(match); const teams = splitMatchName(match.name); const venue = match.metadata?.venue_name || 'Sede por confirmar'; const city = match.metadata?.venue_city || '';
+      const theme = getTheme(match);
+      const teams = splitMatchName(match.name);
+      const venue = match.metadata?.venue_name || 'Sede por confirmar';
+      const city = match.metadata?.venue_city || '';
+      const state = getMatchState(match);
+      const headerLabel = state.code === 'LIVE'
+        ? '🔴 EN JUEGO'
+        : state.code === 'FINISHED'
+          ? '✅ FINALIZADO'
+          : state.code === 'NEXT'
+            ? '🟡 SIGUIENTE'
+            : theme.label;
       return `<article class="match-chip" style="--group-color:${theme.color}; --group-text:${theme.text};">
-        <div class="match-chip-top"><span>${theme.label}</span><span>${index + 1}/${total}</span></div>
+        <div class="match-chip-top"><span>${headerLabel}</span><span>${index + 1}/${total}</span></div>
         <div class="match-chip-body">
-          <span class="match-time">⏰ ${formatTimeCDMX(match.starts_at)}</span>
+          <span class="match-time">⏰ ${formatTimeCDMX(match.starts_at)}</span><span class="match-status-pill ${state.className}">${state.label}</span>
           <div class="match-teams">${flag(teams.home)} ${escapeHTML(teams.home)}<span class="match-vs">vs</span>${flag(teams.away)} ${escapeHTML(teams.away)}</div>
           <div class="match-venue">📍 ${escapeHTML(venue)}${city ? '<br>' + escapeHTML(city) : ''}</div>
           <div class="match-actions"><button class="mini-btn" onclick="goDetail('${match.id}')">Ver detalle</button><button class="mini-btn gold" onclick="goPrediction('${match.id}')">Pronosticar</button></div>
         </div>
       </article>`;
+    }
+
+    function moveTodayCarousel(direction) {
+      const row = $('todayMatchesRow');
+      if (!row) return;
+      const card = row.querySelector('.match-chip');
+      const step = card ? card.getBoundingClientRect().width + 10 : row.clientWidth * .86;
+      row.scrollBy({ left: direction * step, behavior:'smooth' });
+    }
+
+    function renderCarouselDots(total, activeIndex = 0) {
+      const dots = $('todayDots');
+      if (!dots) return;
+      dots.innerHTML = Array.from({ length: Math.min(total, 8) }, (_, i) => `<span class="carousel-dot ${i === activeIndex ? 'active' : ''}"></span>`).join('');
+    }
+
+    function updateCarouselDots() {
+      const row = $('todayMatchesRow');
+      const dots = $('todayDots');
+      const cards = row ? Array.from(row.querySelectorAll('.match-chip')) : [];
+      if (!row || !dots || !cards.length) return;
+      const center = row.scrollLeft + row.clientWidth / 2;
+      let active = 0;
+      let best = Infinity;
+      cards.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const distance = Math.abs(center - cardCenter);
+        if (distance < best) { best = distance; active = index; }
+      });
+      dots.querySelectorAll('.carousel-dot').forEach((dot, index) => dot.classList.toggle('active', index === active));
     }
 
     function renderGroups(standings) {
@@ -592,6 +659,17 @@
     function sortByStart(a,b) { return new Date(a.starts_at) - new Date(b.starts_at); }
     function inRange(iso,start,end) { const ts = new Date(iso).getTime(); return Number.isFinite(ts) && ts >= start && ts < end; }
     function dedupeMatches(matches) { const seen = new Set(); return matches.filter(m => { const key = m.id || `${m.name}-${m.starts_at}`; if (seen.has(key)) return false; seen.add(key); return true; }); }
+    function getMatchState(match) {
+      const raw = String(match?.event_status || '').toUpperCase();
+      const start = new Date(match?.starts_at).getTime();
+      const end = match?.ends_at ? new Date(match.ends_at).getTime() : start + 2 * 60 * 60 * 1000;
+      const now = Date.now();
+      const liveStatuses = ['LIVE','IN_PLAY','IN_PROGRESS','PLAYING','HALFTIME','HT'];
+      if (raw === 'FINISHED' || raw === 'FINAL') return { code:'FINISHED', label:'Final', className:'finished' };
+      if (liveStatuses.includes(raw) || (Number.isFinite(start) && now >= start && now <= end)) return { code:'LIVE', label:'En juego', className:'live' };
+      if (Number.isFinite(start) && now < start) return { code:'NEXT', label:'Por jugar', className:'next' };
+      return { code:'TODAY', label:'Hoy', className:'next' };
+    }
     function statusLabel(status) { const s = String(status || '').toUpperCase(); if (s === 'FINISHED') return 'Finalizado'; if (s === 'LIVE') return 'En vivo'; if (s === 'SCHEDULED') return 'Programado'; return status || 'Programado'; }
     function statusShort(status) { const s = String(status || '').toUpperCase(); if (s === 'FINISHED') return 'FINAL'; if (s === 'LIVE') return 'EN VIVO'; return 'HOY'; }
     function isFinished(match) { return String(match?.event_status || '').toUpperCase() === 'FINISHED'; }
@@ -603,7 +681,7 @@
     function goPrediction(matchId) { window.location.href = `./pronostico.html?event_id=${encodeURIComponent(matchId)}`; }
     function goDetail(matchId) { window.location.href = `./partido-detalle.html?event_id=${encodeURIComponent(matchId)}`; }
     function showToast(message) { toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2600); }
-    function renderEmptyHome(message) { $('dailyTitle').textContent = 'Inicio no conectado'; $('dailySubtitle').textContent = message; $('todayMatchesRow').innerHTML = `<div class="empty-state">${escapeHTML(message)}</div>`; $('groupsRow').innerHTML = `<div class="empty-state">${escapeHTML(message)}</div>`; }
+    function renderEmptyHome(message) { $('dailyTitle').textContent = 'Inicio no conectado'; $('dailySubtitle').textContent = message; $('todayMatchesRow').innerHTML = `<div class="empty-state">${escapeHTML(message)}</div>`; $('groupsRow').innerHTML = `<div class="empty-state">${escapeHTML(message)}</div>`; renderCarouselDots(0,0); }
     function escapeHTML(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
   </script>
 </body>
