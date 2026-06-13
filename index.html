@@ -82,11 +82,11 @@
     .section-head h2, .section-head h3 { margin:0; font-size:15px; letter-spacing:-.2px; }
     .section-head span { color:#abc0dd; font-size:11px; }
 
-    .h-scroll { display:flex; gap:10px; overflow-x:auto; padding:0 2px 7px; scroll-snap-type:x mandatory; scrollbar-width:none; }
+    .h-scroll { display:flex; gap:10px; overflow-x:auto; padding:0 18px 9px 2px; scroll-snap-type:x mandatory; scrollbar-width:none; }
     .h-scroll::-webkit-scrollbar { display:none; }
 
     .match-chip {
-      flex:0 0 78%;
+      flex:0 0 76%;
       min-height:170px;
       scroll-snap-align:start;
       border-radius:22px;
@@ -213,11 +213,8 @@
         <div class="progress-item"><strong id="pointsValue">0</strong><span>Puntos</span></div>
       </section>
 
-      <div class="section-head"><h2>Partido clave</h2><span id="nextMatchHint">Próximo</span></div>
-      <article class="hero-compact" id="heroCard" style="--group-color:#f5c84c; --group-text:#06162d;">
-        <div class="hero-compact-head"><span>Siguiente partido</span><span>Grupo</span></div>
-        <div class="hero-compact-body"><h2>Cargando...</h2><div class="empty-state">Conectando con calendario.</div></div>
-      </article>
+      <!-- v10.5: se elimina el bloque duplicado de “Partido clave”.
+           El carrusel de jornada es ahora la fuente principal de acción. -->
 
       <div class="nav-grid">
         <a class="nav-card" href="./grupos.html"><b>🏆</b><span><strong>Ver posiciones</strong><span>Tabla completa por grupo.</span></span></a>
@@ -240,8 +237,8 @@
 
   <script>
     // =====================================================
-    // PREDIKT™ HOME v10.4.0 DAILY MATCH HUB - GREETING + DAILY CAROUSEL
-    // App-first: saludo, jornada completa, carrusel diario, grupos, reto diario, avance.
+    // PREDIKT™ HOME v10.5.0 DAILY MATCH HUB - TRUE CAROUSEL + NO DUPLICATE HERO
+    // App-first: saludo, carrusel diario visible, sin repetir partido clave, grupos, reto diario, avance.
     // =====================================================
 
     const SUPABASE_URL = 'https://bhsffngulgvwfzjhiymy.supabase.co';
@@ -306,7 +303,6 @@
         renderTodayMatches(todayMatches, upcomingMatches);
         renderGroups(standings);
         renderChallenge(todayMatches, nextMatchCache);
-        renderHero(nextMatchCache, todayMatches);
         await renderProgress(todayMatches);
         if (manualRefresh) showToast('Inicio actualizado.');
       } catch (error) {
@@ -320,30 +316,34 @@
 
     async function buildOperationalJornada(dailyMatches, upcomingMatches, nextMatch) {
       const primary = dedupeMatches((dailyMatches || []).map(normalizeMatch).filter(Boolean).sort(sortByStart));
+
+      // Si la vista diaria trae 2+ partidos, esa es la jornada real.
       if (primary.length >= 2) return primary.slice(0, 8);
 
+      // Si trae solo 1, NO duplicamos ese partido en otro bloque.
+      // Ampliamos el carrusel con próximos partidos visibles para que el usuario tenga navegación diaria.
       const anchor = nextMatch || primary[0] || upcomingMatches?.[0] || null;
-      if (!anchor?.starts_at) return primary;
+      const poolBase = dedupeMatches([...(primary || []), ...(upcomingMatches || []), anchor].map(normalizeMatch).filter(Boolean).sort(sortByStart));
+      if (poolBase.length >= 4) return poolBase.slice(0, 8);
+
+      if (!anchor?.starts_at) return poolBase;
 
       const anchorTime = new Date(anchor.starts_at).getTime();
-      const windowStart = new Date(anchorTime - 12 * 60 * 60 * 1000).toISOString();
-      const windowEnd = new Date(anchorTime + 36 * 60 * 60 * 1000).toISOString();
+      const windowStart = new Date(anchorTime - 4 * 60 * 60 * 1000).toISOString();
+      const windowEnd = new Date(anchorTime + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-      let rows = await querySportsView('events', (q) => q
+      const rows = await querySportsView('events', (q) => q
         .select('id,code,name,event_stage,starts_at,ends_at,event_status,metadata,home_participant_id,away_participant_id')
         .eq('event_type','MATCH')
         .eq('event_stage','Fase de Grupos')
         .gte('starts_at', windowStart)
         .lt('starts_at', windowEnd)
         .order('starts_at', { ascending:true })
-        .limit(12)
+        .limit(24)
       );
-      let expanded = rows.map(normalizeMatch).filter(Boolean).sort(sortByStart);
-      if (expanded.length >= 2) return dedupeMatches(expanded).slice(0, 8);
 
-      const pool = dedupeMatches([...(primary || []), ...(upcomingMatches || []), anchor].map(normalizeMatch).filter(Boolean).sort(sortByStart));
-      if (pool.length > 1) return pool.slice(0, 8);
-      return primary;
+      const expanded = dedupeMatches([...poolBase, ...rows.map(normalizeMatch)].filter(Boolean).sort(sortByStart));
+      return expanded.slice(0, 8);
     }
 
     async function fetchDailyMatchView() {
@@ -414,12 +414,17 @@
     }
 
     async function fetchUpcomingMatches() {
-      const nowISO = new Date().toISOString();
-      let rows = await querySportsView('v_upcoming_events', (q) => q.select('*').limit(18));
-      let normalized = rows.map(normalizeMatch).filter(Boolean).filter(m => new Date(m.starts_at) >= new Date(Date.now() - 3*60*60*1000)).sort(sortByStart);
-      if (normalized.length) return normalized.slice(0, 12);
-      rows = await querySportsView('events', (q) => q.select('id,code,name,event_stage,starts_at,ends_at,event_status,metadata,home_participant_id,away_participant_id').eq('event_type','MATCH').eq('event_stage','Fase de Grupos').gte('starts_at', nowISO).order('starts_at', { ascending:true }).limit(12));
-      return rows.map(normalizeMatch).filter(Boolean);
+      const nowISO = new Date(Date.now() - 3*60*60*1000).toISOString();
+      let rowsA = await querySportsView('v_upcoming_events', (q) => q.select('*').limit(24));
+      let rowsB = await querySportsView('events', (q) => q
+        .select('id,code,name,event_stage,starts_at,ends_at,event_status,metadata,home_participant_id,away_participant_id')
+        .eq('event_type','MATCH')
+        .eq('event_stage','Fase de Grupos')
+        .gte('starts_at', nowISO)
+        .order('starts_at', { ascending:true })
+        .limit(24)
+      );
+      return dedupeMatches([...rowsA, ...rowsB].map(normalizeMatch).filter(Boolean).sort(sortByStart)).slice(0, 12);
     }
 
     async function fetchNextMatch() {
@@ -459,12 +464,16 @@
 
     function renderDailyCommand(todayMatches, nextMatch) {
       const pending = todayMatches.filter(m => !isFinished(m)).length;
-      if (todayMatches.length) {
+      if (todayMatches.length >= 2) {
         $('dailyTitle').textContent = `Hoy se juegan ${todayMatches.length} partido${todayMatches.length === 1 ? '' : 's'}`;
-        $('dailySubtitle').textContent = pending ? `Te faltan ${pending} pronóstico${pending === 1 ? '' : 's'} de la jornada. Entra, decide y guarda.` : 'La jornada de hoy ya está cerrada. Revisa grupos y resultados.';
+        $('dailySubtitle').textContent = pending ? `Te faltan ${pending} pronóstico${pending === 1 ? '' : 's'}. Desliza el carrusel y elige.` : 'La jornada visible ya está cerrada. Revisa grupos y resultados.';
+      } else if (todayMatches.length === 1) {
+        const teams = splitMatchName(todayMatches[0].name);
+        $('dailyTitle').textContent = 'Jornada de hoy';
+        $('dailySubtitle').textContent = `Primer partido visible: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(todayMatches[0].starts_at)}. Desliza para próximos partidos.`;
       } else if (nextMatch) {
         const teams = splitMatchName(nextMatch.name);
-        $('dailyTitle').textContent = 'Jornada de hoy';
+        $('dailyTitle').textContent = 'Jornada en preparación';
         $('dailySubtitle').textContent = `Próximo visible: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(nextMatch.starts_at)}.`;
       } else {
         $('dailyTitle').textContent = 'Jornada en carga';
@@ -475,21 +484,21 @@
     function renderTodayMatches(todayMatches, upcomingMatches) {
       const row = $('todayMatchesRow');
       const fallback = upcomingMatches?.length ? upcomingMatches.slice(0, 8) : (nextMatchCache ? [nextMatchCache] : []);
-      const source = todayMatches.length ? todayMatches : fallback;
-      $('todayCountLabel').textContent = todayMatches.length
-        ? `${todayMatches.length} partido${todayMatches.length === 1 ? '' : 's'}`
-        : (source.length ? 'Próximos visibles' : 'Sin datos');
+      const source = dedupeMatches((todayMatches.length ? todayMatches : fallback).map(normalizeMatch).filter(Boolean).sort(sortByStart)).slice(0, 8);
+      $('todayCountLabel').textContent = source.length
+        ? `${source.length} partido${source.length === 1 ? '' : 's'} visibles`
+        : 'Sin datos';
       if (!source.length) {
-        row.innerHTML = '<div class="empty-state">Jornada en carga. Revisa que exista sports.v_predikt_home_today_matches con permisos SELECT.</div>';
+        row.innerHTML = '<div class="empty-state">No se pudo cargar la jornada. Revisa permisos SELECT en sports.v_predikt_home_today_matches y sports.events.</div>';
         return;
       }
-      row.innerHTML = source.map(match => renderMatchCard(match, !todayMatches.length)).join('');
+      row.innerHTML = source.map((match, index) => renderMatchCard(match, !todayMatches.length, index, source.length)).join('');
     }
 
-    function renderMatchCard(match, upcomingMode) {
+    function renderMatchCard(match, upcomingMode, index = 0, total = 1) {
       const theme = getTheme(match); const teams = splitMatchName(match.name); const venue = match.metadata?.venue_name || 'Sede por confirmar'; const city = match.metadata?.venue_city || '';
       return `<article class="match-chip" style="--group-color:${theme.color}; --group-text:${theme.text};">
-        <div class="match-chip-top"><span>${theme.label}</span><span>${upcomingMode ? formatDateShort(match.starts_at) : statusShort(match.event_status)}</span></div>
+        <div class="match-chip-top"><span>${theme.label}</span><span>${index + 1}/${total}</span></div>
         <div class="match-chip-body">
           <span class="match-time">⏰ ${formatTimeCDMX(match.starts_at)}</span>
           <div class="match-teams">${flag(teams.home)} ${escapeHTML(teams.home)}<span class="match-vs">vs</span>${flag(teams.away)} ${escapeHTML(teams.away)}</div>
