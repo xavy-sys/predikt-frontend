@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: grupos.html
     Fecha: 2026-06-12
-    Versión: v1.0.0 TABLAS OFICIALES
+    Versión: v1.1.0 MOTOR OFICIAL
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -15,8 +15,8 @@
       Abrir Grupos → entender quién lidera, quién clasifica y quién está en riesgo.
 
       NOTA DE ARQUITECTURA:
-      Esta versión no modifica SQL.
-      Intenta consumir vistas/tablas existentes y tiene fallback visual seguro sin inventar resultados.
+      Esta versión consume exclusivamente sports.v_group_standings.
+      No calcula PJ, G, E, P, GF, GC, DG, PTS ni posición en JavaScript.
   -->
 
   <meta charset="UTF-8" />
@@ -368,21 +368,24 @@
     const PREDIKT_SUPABASE_REST_URL = `${PREDIKT_SUPABASE_URL}/rest/v1`;
     const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
 
-    const GROUP_ORDER = ["Grupo A", "Grupo B", "Grupo C", "Grupo D", "Grupo E", "Grupo F", "Grupo G", "Grupo H", "Grupo I", "Grupo J", "Grupo K", "Grupo L"];
+    const GROUP_ORDER = [
+      "Grupo A", "Grupo B", "Grupo C", "Grupo D", "Grupo E", "Grupo F",
+      "Grupo G", "Grupo H", "Grupo I", "Grupo J", "Grupo K", "Grupo L"
+    ];
 
-    const SEED_GROUPS = {
-      "Grupo A": ["México", "Sudáfrica", "Corea del Sur", "República Checa"],
-      "Grupo B": ["Canadá", "Bosnia y Herzegovina", "Qatar", "Suiza"],
-      "Grupo C": ["Brasil", "Marruecos", "Haití", "Escocia"],
-      "Grupo D": ["Estados Unidos", "Paraguay", "Australia", "Turquía"],
-      "Grupo E": ["Alemania", "Curazao", "Costa de Marfil", "Ecuador"],
-      "Grupo F": ["Países Bajos", "Japón", "Túnez", "Suecia"],
-      "Grupo G": ["Bélgica", "Egipto", "Irán", "Nueva Zelanda"],
-      "Grupo H": ["España", "Cabo Verde", "Arabia Saudita", "Uruguay"],
-      "Grupo I": ["Francia", "Senegal", "Noruega", "Irak"],
-      "Grupo J": ["Argentina", "Argelia", "Austria", "Jordania"],
-      "Grupo K": ["Portugal", "RD Congo", "Uzbekistán", "Colombia"],
-      "Grupo L": ["Inglaterra", "Croacia", "Ghana", "Panamá"]
+    const GROUP_CODE_TO_NAME = {
+      GA: "Grupo A",
+      GB: "Grupo B",
+      GC: "Grupo C",
+      GD: "Grupo D",
+      GE: "Grupo E",
+      GF: "Grupo F",
+      GG: "Grupo G",
+      GH: "Grupo H",
+      GI: "Grupo I",
+      GJ: "Grupo J",
+      GK: "Grupo K",
+      GL: "Grupo L"
     };
 
     const toast = document.getElementById("toast");
@@ -404,81 +407,6 @@
       };
     }
 
-    function predictionsHeaders() {
-      return {
-        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
-        Authorization: `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
-        Accept: "application/json",
-        "Accept-Profile": "predictions"
-      };
-    }
-
-    function normalizeName(value) {
-      return String(value || "")
-        .replace(/\bChequia\b/gi, "República Checa")
-        .replace(/\bCzechia\b/gi, "República Checa")
-        .replace(/\bCzech Republic\b/gi, "República Checa")
-        .trim();
-    }
-
-    function splitMatchName(name) {
-      const safeName = normalizeName(name || "");
-      const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
-      if (parts.length >= 2) return { home: parts[0].trim(), away: parts[1].trim() };
-      return { home: "Local", away: "Visitante" };
-    }
-
-    function emptyStats(team) {
-      return { team, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
-    }
-
-    function ensureTeam(groupMap, groupName, teamName) {
-      const group = groupMap[groupName] || (groupMap[groupName] = new Map());
-      const cleanTeam = normalizeName(teamName);
-      if (!group.has(cleanTeam)) group.set(cleanTeam, emptyStats(cleanTeam));
-      return group.get(cleanTeam);
-    }
-
-    function applyResult(groupMap, result) {
-      const eventName = result.event_name || result.name || result.match_name || "";
-      const teams = splitMatchName(eventName);
-      const groupName = result.group_name || result.group_code || "Grupo por confirmar";
-      const homeGoals = Number(result.home_score ?? result.home_goals ?? result.official_home_score ?? result.home_result);
-      const awayGoals = Number(result.away_score ?? result.away_goals ?? result.official_away_score ?? result.away_result);
-      if (!Number.isFinite(homeGoals) || !Number.isFinite(awayGoals)) return;
-
-      const home = ensureTeam(groupMap, groupName, teams.home);
-      const away = ensureTeam(groupMap, groupName, teams.away);
-
-      home.pj += 1; away.pj += 1;
-      home.gf += homeGoals; home.gc += awayGoals;
-      away.gf += awayGoals; away.gc += homeGoals;
-      home.dg = home.gf - home.gc;
-      away.dg = away.gf - away.gc;
-
-      if (homeGoals > awayGoals) { home.g += 1; away.p += 1; home.pts += 3; }
-      else if (homeGoals < awayGoals) { away.g += 1; home.p += 1; away.pts += 3; }
-      else { home.e += 1; away.e += 1; home.pts += 1; away.pts += 1; }
-    }
-
-    function seedGroupMap() {
-      const groupMap = {};
-      GROUP_ORDER.forEach((groupName) => {
-        groupMap[groupName] = new Map();
-        (SEED_GROUPS[groupName] || []).forEach((team) => ensureTeam(groupMap, groupName, team));
-      });
-      return groupMap;
-    }
-
-    function sortRows(rows) {
-      return rows.sort((a, b) =>
-        b.pts - a.pts ||
-        b.dg - a.dg ||
-        b.gf - a.gf ||
-        a.team.localeCompare(b.team, "es")
-      );
-    }
-
     function renderTabs() {
       const tabs = document.getElementById("groupTabs");
       tabs.innerHTML = GROUP_ORDER.map((group, index) => {
@@ -496,99 +424,126 @@
       });
     }
 
-    function rowClass(index, total) {
-      if (index <= 1) return "classifies";
-      if (index === total - 1) return "eliminated";
+    function rowClass(row) {
+      if (row.classifies) return "classifies";
+      if (row.eliminated) return "eliminated";
       return "risk";
+    }
+
+    function groupDisplayName(groupCode) {
+      return GROUP_CODE_TO_NAME[groupCode] || `Grupo ${String(groupCode || "").replace("G", "")}`;
+    }
+
+    function buildGroupsFromStandings(rows) {
+      const groups = {};
+
+      GROUP_ORDER.forEach((groupName) => {
+        groups[groupName] = [];
+      });
+
+      rows.forEach((row) => {
+        const groupName = groupDisplayName(row.group_code);
+        if (!groups[groupName]) groups[groupName] = [];
+
+        groups[groupName].push({
+          team: row.team_name || "Selección",
+          pj: Number(row.pj || 0),
+          g: Number(row.g || 0),
+          e: Number(row.e || 0),
+          p: Number(row.p || 0),
+          gf: Number(row.gf || 0),
+          gc: Number(row.gc || 0),
+          dg: Number(row.dg || 0),
+          pts: Number(row.pts || 0),
+          position: Number(row.position || 99),
+          classifies: Boolean(row.classifies),
+          eliminated: Boolean(row.eliminated)
+        });
+      });
+
+      return groups;
     }
 
     function renderGroups(groupMap) {
       const wrap = document.getElementById("groupsWrap");
+
       const cards = GROUP_ORDER.map((groupName) => {
-        const rows = sortRows(Array.from((groupMap[groupName] || new Map()).values()));
-        const safeRows = rows.length ? rows : (SEED_GROUPS[groupName] || []).map(emptyStats);
+        const rows = (groupMap[groupName] || [])
+          .slice()
+          .sort((a, b) => a.position - b.position);
+
         const id = groupName.replace(" ", "-");
+        const hasRows = rows.length > 0;
+
         return `
           <article class="group-card" id="${id}">
             <div class="group-head">
               <h2 class="group-title">${groupName}</h2>
-              <span class="group-badge">${safeRows.length} selecciones</span>
+              <span class="group-badge">${hasRows ? `${rows.length} selecciones` : "Sin resultados"}</span>
             </div>
-            <div class="table-scroll">
-              <table aria-label="Tabla ${groupName}">
-                <thead>
-                  <tr>
-                    <th>Pos</th><th>Selección</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${safeRows.map((row, index) => `
-                    <tr class="${rowClass(index, safeRows.length)}">
-                      <td><span class="pos-pill">${index + 1}</span></td>
-                      <td class="team-cell">${index === 0 ? "🥇 " : index === 1 ? "🥈 " : ""}${row.team}</td>
-                      <td>${row.pj}</td>
-                      <td>${row.g}</td>
-                      <td>${row.e}</td>
-                      <td>${row.p}</td>
-                      <td>${row.gf}</td>
-                      <td>${row.gc}</td>
-                      <td>${row.dg > 0 ? "+" : ""}${row.dg}</td>
-                      <td class="pts">${row.pts}</td>
+            ${hasRows ? `
+              <div class="table-scroll">
+                <table aria-label="Tabla ${groupName}">
+                  <thead>
+                    <tr>
+                      <th>Pos</th><th>Selección</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
                     </tr>
-                  `).join("")}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    ${rows.map((row) => `
+                      <tr class="${rowClass(row)}">
+                        <td><span class="pos-pill">${row.position}</span></td>
+                        <td class="team-cell">${row.position === 1 ? "🥇 " : row.position === 2 ? "🥈 " : ""}${row.team}</td>
+                        <td>${row.pj}</td>
+                        <td>${row.g}</td>
+                        <td>${row.e}</td>
+                        <td>${row.p}</td>
+                        <td>${row.gf}</td>
+                        <td>${row.gc}</td>
+                        <td>${row.dg > 0 ? "+" : ""}${row.dg}</td>
+                        <td class="pts">${row.pts}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            ` : `
+              <div class="empty-state">Aún no hay resultados oficiales registrados para este grupo.</div>
+            `}
           </article>
         `;
       }).join("");
+
       wrap.innerHTML = cards;
     }
 
-    async function fetchJson(url, headers) {
-      const response = await fetch(url, { method: "GET", headers });
-      if (!response.ok) throw new Error(`${response.status} ${url}`);
+    async function loadGroupStandings() {
+      const url = `${PREDIKT_SUPABASE_REST_URL}/v_group_standings?select=*&order=group_code.asc,position.asc`;
+      const response = await fetch(url, { method: "GET", headers: sportsHeaders() });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       return Array.isArray(data) ? data : [];
     }
 
-    async function loadOfficialResults() {
-      const attempts = [
-        {
-          url: `${PREDIKT_SUPABASE_REST_URL}/official_results?select=*&order=created_at.asc&limit=200`,
-          headers: predictionsHeaders()
-        },
-        {
-          url: `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_api?select=*&event_status=eq.FINISHED&order=starts_at.asc&limit=200`,
-          headers: sportsHeaders()
-        }
-      ];
-
-      for (const attempt of attempts) {
-        try {
-          const rows = await fetchJson(attempt.url, attempt.headers);
-          if (rows.length) return rows;
-        } catch (error) {
-          console.warn("No se pudo cargar fuente de resultados.", error);
-        }
-      }
-      return [];
-    }
-
     async function init() {
       renderTabs();
-      const groupMap = seedGroupMap();
-      renderGroups(groupMap);
 
-      const results = await loadOfficialResults();
-      if (!results.length) {
-        showToast("Tablas listas. Aún no hay resultados oficiales suficientes.");
-        return;
+      try {
+        const standings = await loadGroupStandings();
+        const groupMap = buildGroupsFromStandings(standings);
+        renderGroups(groupMap);
+
+        if (!standings.length) {
+          showToast("Aún no hay posiciones oficiales disponibles.");
+          return;
+        }
+
+        showToast("Tablas oficiales actualizadas.");
+      } catch (error) {
+        console.error("No se pudo cargar sports.v_group_standings.", error);
+        renderGroups(buildGroupsFromStandings([]));
+        showToast("No se pudieron cargar las tablas oficiales.");
       }
-
-      results.forEach((result) => applyResult(groupMap, result));
-      renderGroups(groupMap);
-      showToast("Tablas actualizadas con resultados oficiales.");
     }
 
     init();
@@ -598,9 +553,8 @@
 
 <!--
 Cierre de archivo
-Versión: v1.0.0 TABLAS OFICIALES
+Versión: v1.1.0 MOTOR OFICIAL
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Acción: Guardar como grupos.html y enlazar desde index.html.
 -->
-
