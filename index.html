@@ -237,7 +237,7 @@
 
   <script>
     // =====================================================
-    // PREDIKT™ HOME v10.5.0 DAILY MATCH HUB - TRUE CAROUSEL + NO DUPLICATE HERO
+    // PREDIKT™ HOME v10.6.0 DAILY MATCH HUB - 4 MATCH OPERATIONAL CAROUSEL
     // App-first: saludo, carrusel diario visible, sin repetir partido clave, grupos, reto diario, avance.
     // =====================================================
 
@@ -347,9 +347,9 @@
     }
 
     async function fetchDailyMatchView() {
-      // Vista recomendada: sports.v_predikt_home_today_matches
+      // Vista recomendada: sports.v_predikt_home_today_matches_v2
       // Debe devolver TODOS los partidos de la jornada operativa CDMX.
-      let rows = await querySportsView('v_predikt_home_today_matches', (q) => q.select('*').limit(12));
+      let rows = await querySportsView('v_predikt_home_today_matches_v2', (q) => q.select('*').limit(12));
       let normalized = rows.map(normalizeMatch).filter(Boolean).sort(sortByStart);
       if (normalized.length) return dedupeMatches(normalized);
 
@@ -470,7 +470,7 @@
       } else if (todayMatches.length === 1) {
         const teams = splitMatchName(todayMatches[0].name);
         $('dailyTitle').textContent = 'Jornada de hoy';
-        $('dailySubtitle').textContent = `Primer partido visible: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(todayMatches[0].starts_at)}. Desliza para próximos partidos.`;
+        $('dailySubtitle').textContent = `Primer partido del día: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(todayMatches[0].starts_at)}. Desliza el carrusel para ver toda la jornada.`;
       } else if (nextMatch) {
         const teams = splitMatchName(nextMatch.name);
         $('dailyTitle').textContent = 'Jornada en preparación';
@@ -489,7 +489,7 @@
         ? `${source.length} partido${source.length === 1 ? '' : 's'} visibles`
         : 'Sin datos';
       if (!source.length) {
-        row.innerHTML = '<div class="empty-state">No se pudo cargar la jornada. Revisa permisos SELECT en sports.v_predikt_home_today_matches y sports.events.</div>';
+        row.innerHTML = '<div class="empty-state">No se pudo cargar el carrusel. Ejecuta la vista sports.v_predikt_home_today_matches_v2 y concede SELECT.</div>';
         return;
       }
       row.innerHTML = source.map((match, index) => renderMatchCard(match, !todayMatches.length, index, source.length)).join('');
