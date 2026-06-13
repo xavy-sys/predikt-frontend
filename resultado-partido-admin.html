@@ -3,16 +3,27 @@
 <head>
   <!--
     Nombre del archivo: resultado-partido-admin.html
-    Fecha: 2026-06-11
-    Versión: v1.2.0 Official RPC Signature Fix
+    Fecha: 2026-06-13
+    Versión: v2.0.0 RESULTADOS REALES PERSISTENTES
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
-      Pantalla operativa para capturar resultado oficial de un partido finalizado.
-      Llama a predictions.predikt_admin_set_official_result y dispara scoring real.
-      No muestra métricas públicas de comunidad.
-      v1.1.0 agrega regreso claro al Dashboard Admin y navegación operativa conectada.
-      v1.2.0 corrige firma RPC para usar p_official_home_score y p_official_away_score según PostgreSQL real.
+      Pantalla operativa para capturar, actualizar y validar resultados oficiales.
+
+      CAMBIOS v2.0.0:
+      1. Precarga resultados ya guardados desde predictions.official_results.
+      2. Al cambiar de partido, muestra el marcador existente si ya fue capturado.
+      3. Usa la función predictions.predikt_admin_set_official_result para guardar/cerrar evento/calcular puntos.
+      4. Relee inmediatamente el resultado guardado después de guardar.
+      5. Evita falso positivo: solo muestra éxito si el resultado existe nuevamente en base de datos.
+      6. Muestra estado FINISHED/SCHEDULED del evento.
+      7. Mantiene navegación operativa y footer estándar.
+
+      REQUISITO BACKEND:
+      predictions.predikt_admin_set_official_result debe:
+      - upsert predictions.official_results por event_id
+      - update sports.events.event_status = 'FINISHED'
+      - ejecutar calculate_event_scores
   -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,21 +31,23 @@
   <meta name="theme-color" content="#061826" />
   <link rel="icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
   <style>
-    :root{--bg:#061826;--card:#0f2740;--soft:#12304d;--gold:#f5b942;--text:#fff;--muted:#b9c7d6;--border:rgba(255,255,255,.11);--green:#2ecc71;--red:#ff5a5f;--shadow:0 18px 45px rgba(0,0,0,.35)}
-    *{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top right,rgba(245,185,66,.15),transparent 28%),linear-gradient(180deg,#061826,#020b13);color:var(--text);padding-bottom:94px}.shell{width:min(100%,760px);margin:0 auto;padding:20px 16px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-weight:950;letter-spacing:.08em}.pill{padding:8px 12px;border-radius:999px;background:rgba(245,185,66,.12);border:1px solid rgba(245,185,66,.35);color:var(--gold);font-size:.74rem;font-weight:900}.hero,.card{border:1px solid var(--border);border-radius:26px;background:linear-gradient(145deg,rgba(15,39,64,.98),rgba(8,30,50,.98));box-shadow:var(--shadow)}.hero{padding:22px;margin-bottom:16px}.kicker{color:var(--gold);font-size:.72rem;font-weight:950;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.hero h1{font-size:1.7rem;line-height:1.05;margin-bottom:8px}.copy{color:var(--muted);font-size:.9rem;line-height:1.42}.card{padding:16px;margin-bottom:14px}.field{display:grid;gap:7px;margin-bottom:13px}label{font-size:.75rem;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.06em}select,input{width:100%;min-height:46px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);padding:0 12px;font-weight:850}option{color:#061826}.score{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{width:100%;min-height:50px;border:0;border-radius:999px;background:linear-gradient(135deg,#ffe28a,var(--gold));color:#061826;font-weight:950;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}.btn.secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--border)}.status{padding:13px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-size:.86rem;font-weight:760;line-height:1.4}.status.ok{background:rgba(46,204,113,.12);border-color:rgba(46,204,113,.32);color:#dfffee}.status.err{background:rgba(255,90,95,.12);border-color:rgba(255,90,95,.32);color:#ffd8d9}.footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:9px 10px 11px;background:rgba(4,17,29,.96);border:1px solid var(--border);border-bottom:0;border-radius:22px 22px 0 0}.footer a{color:#7f95aa;text-decoration:none;text-align:center;font-size:.62rem;font-weight:850}.footer span{display:block;font-size:1rem}.footer .active{color:var(--gold);background:rgba(245,185,66,.12);border-radius:14px;padding:6px 2px}@media(max-width:560px){.score{grid-template-columns:1fr}.hero h1{font-size:1.4rem}}
+    :root{--bg:#061826;--card:#0f2740;--soft:#12304d;--gold:#f5b942;--gold-soft:#ffe28a;--text:#fff;--muted:#b9c7d6;--border:rgba(255,255,255,.11);--green:#2ecc71;--red:#ff5a5f;--blue:#5dade2;--shadow:0 18px 45px rgba(0,0,0,.35);--footer-height:82px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top right,rgba(245,185,66,.15),transparent 28%),linear-gradient(180deg,#061826,#020b13);color:var(--text);padding-bottom:calc(var(--footer-height) + 18px)}
+    a{color:inherit}.shell{width:min(100%,760px);margin:0 auto;padding:20px 16px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-weight:950;letter-spacing:.08em;text-decoration:none}.pill{padding:8px 12px;border-radius:999px;background:rgba(245,185,66,.12);border:1px solid rgba(245,185,66,.35);color:var(--gold);font-size:.74rem;font-weight:900;text-decoration:none}.hero,.card{border:1px solid var(--border);border-radius:26px;background:linear-gradient(145deg,rgba(15,39,64,.98),rgba(8,30,50,.98));box-shadow:var(--shadow)}.hero{padding:22px;margin-bottom:16px}.kicker{color:var(--gold);font-size:.72rem;font-weight:950;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.hero h1{font-size:1.7rem;line-height:1.05;margin-bottom:8px}.copy{color:var(--muted);font-size:.9rem;line-height:1.42}.card{padding:16px;margin-bottom:14px}.field{display:grid;gap:7px;margin-bottom:13px}label{font-size:.75rem;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.06em}select,input{width:100%;min-height:46px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);padding:0 12px;font-weight:850}option{color:#061826}.score{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{width:100%;min-height:50px;border:0;border-radius:999px;background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:#061826;font-weight:950;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}.btn:disabled{opacity:.58;cursor:not-allowed}.btn.secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--border)}.status{padding:13px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-size:.86rem;font-weight:760;line-height:1.4}.status.ok{background:rgba(46,204,113,.12);border-color:rgba(46,204,113,.32);color:#dfffee}.status.err{background:rgba(255,90,95,.12);border-color:rgba(255,90,95,.32);color:#ffd8d9}.status.warn{background:rgba(245,185,66,.13);border-color:rgba(245,185,66,.35);color:#fff2c7}.match-state{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}.state-box{border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.055);padding:12px}.state-label{color:var(--muted);font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}.state-main{font-weight:950}.state-main.finished{color:var(--green)}.state-main.scheduled{color:var(--gold)}.saved-banner{display:none;margin:0 0 14px;padding:12px;border-radius:18px;border:1px solid rgba(46,204,113,.32);background:rgba(46,204,113,.12);color:#dfffee;font-weight:850}.saved-banner.show{display:block}.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.quick-actions a{display:grid;place-items:center;text-decoration:none}.footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:9px 10px 11px;background:rgba(4,17,29,.96);border:1px solid var(--border);border-bottom:0;border-radius:22px 22px 0 0}.footer a{color:#7f95aa;text-decoration:none;text-align:center;font-size:.62rem;font-weight:850}.footer span{display:block;font-size:1rem}.footer .active{color:var(--gold);background:rgba(245,185,66,.12);border-radius:14px;padding:6px 2px}@media(max-width:560px){.score,.match-state,.quick-actions{grid-template-columns:1fr}.hero h1{font-size:1.4rem}}
   </style>
 </head>
 <body>
   <main class="shell">
     <header class="top">
-      <a class="brand" href="dashboard-admin.html" style="color:inherit;text-decoration:none">PREDIKT™</a>
-      <a class="pill" href="dashboard-admin.html" style="text-decoration:none">Dashboard Admin</a>
+      <a class="brand" href="dashboard-admin.html">PREDIKT™</a>
+      <a class="pill" href="dashboard-admin.html">Dashboard Admin</a>
     </header>
 
     <section class="hero">
       <div class="kicker">Operación Post-Partido</div>
       <h1>Captura el resultado final y califica pronósticos.</h1>
-      <p class="copy">Esta pantalla debe usarse solo cuando el partido ya terminó. Al guardar, PREDIKT™ calcula puntos reales para cada usuario.</p>
+      <p class="copy">Esta pantalla debe usarse solo cuando el partido ya terminó. Al guardar, PREDIKT™ registra el resultado, cierra el partido y calcula puntos reales.</p>
     </section>
 
     <section class="card">
@@ -42,6 +55,19 @@
         <label for="matchSelect">Partido</label>
         <select id="matchSelect"><option value="">Cargando partidos...</option></select>
       </div>
+
+      <div class="match-state">
+        <div class="state-box">
+          <p class="state-label">Estado del partido</p>
+          <p class="state-main scheduled" id="eventStatusValue">SCHEDULED</p>
+        </div>
+        <div class="state-box">
+          <p class="state-label">Resultado registrado</p>
+          <p class="state-main" id="savedResultValue">Sin resultado</p>
+        </div>
+      </div>
+
+      <div class="saved-banner" id="savedBanner">Resultado oficial ya registrado. Puedes corregirlo y volver a guardar si es necesario.</div>
 
       <div class="score">
         <div class="field">
@@ -64,12 +90,12 @@
 
     <section class="card">
       <div class="kicker">Validación inmediata</div>
-      <p class="copy">Después de guardar, valida Mi Quiniela y Ranking. No publiques tendencia de comunidad todavía.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
-        <a class="btn secondary" href="dashboard-admin.html" style="display:grid;place-items:center;text-decoration:none">Dashboard Admin</a>
-        <a class="btn secondary" href="ranking.html" style="display:grid;place-items:center;text-decoration:none">Ranking</a>
-        <a class="btn secondary" href="mi-quiniela.html" style="display:grid;place-items:center;text-decoration:none">Mi Quiniela</a>
-        <a class="btn secondary" href="pronosticos-admin.html" style="display:grid;place-items:center;text-decoration:none">Pronósticos Admin</a>
+      <p class="copy">Después de guardar, valida Inicio, Pronósticos, Mi Quiniela, Ranking y Tablas de Grupos.</p>
+      <div class="quick-actions">
+        <a class="btn secondary" href="dashboard-admin.html">Dashboard Admin</a>
+        <a class="btn secondary" href="ranking.html">Ranking</a>
+        <a class="btn secondary" href="mi-quiniela.html">Mi Quiniela</a>
+        <a class="btn secondary" href="grupos.html">Grupos</a>
       </div>
     </section>
   </main>
@@ -93,7 +119,12 @@
     const homeLabel = document.getElementById('homeLabel');
     const awayLabel = document.getElementById('awayLabel');
     const saveResultBtn = document.getElementById('saveResultBtn');
+    const eventStatusValue = document.getElementById('eventStatusValue');
+    const savedResultValue = document.getElementById('savedResultValue');
+    const savedBanner = document.getElementById('savedBanner');
+
     let matches = [];
+    let resultsByEventId = new Map();
 
     function setStatus(message, type=''){
       statusBox.className = `status ${type}`.trim();
@@ -114,34 +145,100 @@
       return d.toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'America/Mexico_City'});
     }
 
+    function firstText(...values){
+      for(const value of values){
+        if(value !== null && value !== undefined && String(value).trim() !== '') return String(value).trim();
+      }
+      return '';
+    }
+
+    function splitMatchName(name){
+      const safe = String(name || 'Local vs Visitante');
+      const parts = safe.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
+      if(parts.length >= 2) return { home: parts[0].trim(), away: parts[1].trim() };
+      return { home: 'Local', away: 'Visitante' };
+    }
+
+    function winnerLabel(winner){
+      if(winner === 'HOME') return 'Local';
+      if(winner === 'AWAY') return 'Visitante';
+      if(winner === 'DRAW') return 'Empate';
+      return 'Por definir';
+    }
+
     function normalize(row){
+      const eventName = row.event_name || row.name || `${row.home_team || 'Local'} vs ${row.away_team || 'Visitante'}`;
+      const split = splitMatchName(eventName);
+      const eventId = row.event_id || row.id;
+      const saved = resultsByEventId.get(eventId) || null;
       return {
-        event_id: row.event_id || row.id,
-        event_name: row.event_name || row.name || `${row.home_team || 'Local'} vs ${row.away_team || 'Visitante'}`,
+        event_id: eventId,
+        event_name: eventName,
         starts_at: row.starts_at || row.start_time || row.event_start_at,
-        home_team: row.home_team || row.home_team_name || row.home_name || 'Local',
-        away_team: row.away_team || row.away_team_name || row.away_name || 'Visitante'
+        event_status: row.event_status || row.status || 'SCHEDULED',
+        home_team: firstText(row.home_team, row.home_team_name, row.home_name, split.home, 'Local'),
+        away_team: firstText(row.away_team, row.away_team_name, row.away_name, split.away, 'Visitante'),
+        saved_result: saved
       };
+    }
+
+    function getSelectedMatch(){
+      return matches[Number(matchSelect.value || 0)] || null;
     }
 
     function renderMatches(){
       if(!matches.length){
         matchSelect.innerHTML = '<option value="">Sin partidos disponibles</option>';
+        setStatus('No hay partidos disponibles para captura.', 'err');
         return;
       }
-      matchSelect.innerHTML = matches.map((m,i)=>`<option value="${i}">${m.event_name} · ${fmtDate(m.starts_at)}</option>`).join('');
-      updateLabels();
+      matchSelect.innerHTML = matches.map((m,i)=>{
+        const savedMark = m.saved_result ? ' ✅' : '';
+        return `<option value="${i}">${m.event_name} · ${fmtDate(m.starts_at)}${savedMark}</option>`;
+      }).join('');
+      updateSelectedMatchView();
     }
 
-    function updateLabels(){
-      const m = matches[Number(matchSelect.value || 0)];
+    function updateSelectedMatchView(){
+      const m = getSelectedMatch();
       if(!m) return;
+      const saved = m.saved_result || null;
+
       homeLabel.textContent = `Goles ${m.home_team}`;
       awayLabel.textContent = `Goles ${m.away_team}`;
+      eventStatusValue.textContent = m.event_status || 'SCHEDULED';
+      eventStatusValue.className = `state-main ${String(m.event_status).toUpperCase() === 'FINISHED' ? 'finished' : 'scheduled'}`;
+
+      if(saved){
+        homeScore.value = Number(saved.official_home_score ?? 0);
+        awayScore.value = Number(saved.official_away_score ?? 0);
+        savedResultValue.textContent = `${m.home_team} ${saved.official_home_score} - ${saved.official_away_score} ${m.away_team}`;
+        savedResultValue.className = 'state-main finished';
+        savedBanner.classList.add('show');
+        setStatus(`✅ Resultado existente: ${m.home_team} ${saved.official_home_score} - ${saved.official_away_score} ${m.away_team}. Ganador: ${winnerLabel(saved.official_winner)}.`, 'ok');
+      }else{
+        homeScore.value = 0;
+        awayScore.value = 0;
+        savedResultValue.textContent = 'Sin resultado';
+        savedResultValue.className = 'state-main';
+        savedBanner.classList.remove('show');
+        setStatus('Selecciona el partido finalizado y captura el marcador oficial.');
+      }
+    }
+
+    async function loadOfficialResults(){
+      const client = getClient();
+      const { data, error } = await client.schema('predictions')
+        .from('official_results')
+        .select('event_id, official_home_score, official_away_score, official_winner, finalized_at')
+        .limit(500);
+      if(error) throw error;
+      resultsByEventId = new Map((Array.isArray(data) ? data : []).map(r => [r.event_id, r]));
     }
 
     async function loadMatches(){
       const client = getClient();
+      await loadOfficialResults();
       const { data, error } = await client.schema('sports')
         .from('v_event_match_intelligence_api')
         .select('*')
@@ -150,11 +247,21 @@
       if(error) throw error;
       matches = Array.isArray(data) ? data.map(normalize).filter(m=>m.event_id) : [];
       renderMatches();
-      setStatus('Selecciona el partido finalizado y captura el marcador oficial.');
+    }
+
+    async function verifySavedResult(eventId){
+      const client = getClient();
+      const { data, error } = await client.schema('predictions')
+        .from('official_results')
+        .select('event_id, official_home_score, official_away_score, official_winner, finalized_at')
+        .eq('event_id', eventId)
+        .maybeSingle();
+      if(error) throw error;
+      return data || null;
     }
 
     async function saveResult(){
-      const match = matches[Number(matchSelect.value || 0)];
+      const match = getSelectedMatch();
       if(!match){ setStatus('Selecciona un partido válido.', 'err'); return; }
       const h = Number(homeScore.value);
       const a = Number(awayScore.value);
@@ -171,10 +278,22 @@
           p_official_away_score: a
         });
         if(error) throw error;
-        setStatus(`✅ Resultado guardado: ${match.home_team} ${h} - ${a} ${match.away_team}. Puntos calculados: ${data?.scoring?.scored_predictions ?? 0}.`, 'ok');
+
+        const confirmed = await verifySavedResult(match.event_id);
+        if(!confirmed){
+          throw new Error('El RPC respondió, pero el resultado no apareció al releer official_results.');
+        }
+
+        resultsByEventId.set(match.event_id, confirmed);
+        match.saved_result = confirmed;
+        match.event_status = data?.event_status || 'FINISHED';
+        updateSelectedMatchView();
+        renderMatches();
+        const points = data?.scoring?.scored_predictions ?? data?.scoring?.scored_count ?? 0;
+        setStatus(`✅ Resultado guardado y verificado: ${match.home_team} ${h} - ${a} ${match.away_team}. Partido cerrado: FINISHED. Puntos calculados: ${points}.`, 'ok');
       }catch(err){
         console.error(err);
-        setStatus(`No se pudo guardar: ${err.message || 'revisa permisos/RPC'}. Si el error menciona DELETE, ejecuta el SQL v1.0.7 y recarga schema.`, 'err');
+        setStatus(`No se pudo guardar completamente: ${err.message || 'revisa permisos/RPC'}.`, 'err');
       }finally{
         saveResultBtn.disabled = false;
         saveResultBtn.textContent = 'Guardar resultado y calificar';
@@ -191,9 +310,17 @@
       }
     }
 
-    matchSelect.addEventListener('change', updateLabels);
+    matchSelect.addEventListener('change', updateSelectedMatchView);
     saveResultBtn.addEventListener('click', saveResult);
     init();
   </script>
 </body>
 </html>
+
+<!--
+Cierre de archivo
+Versión: v2.0.0 RESULTADOS REALES PERSISTENTES
+Fecha: 2026-06-13
+Elaborado por: JVSys™
+Acción: Sustituir resultado-partido-admin.html completo.
+-->
