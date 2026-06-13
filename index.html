@@ -57,6 +57,11 @@
     .brand span { display:block; margin-top:3px; color:#b9cae4; font-size:10px; }
     .icon-btn { width:38px; height:38px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.09); display:grid; place-items:center; cursor:pointer; }
 
+    .greeting-card { margin:6px 0 9px; padding:10px 12px; border-radius:18px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.065); display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .greeting-card strong { display:block; font-size:15px; line-height:1.1; }
+    .greeting-card span { display:block; margin-top:3px; color:#b9cae4; font-size:11px; }
+    .greeting-badge { flex:0 0 auto; border-radius:999px; background:rgba(245,200,76,.16); color:#ffe38a; border:1px solid rgba(245,200,76,.28); padding:7px 9px; font-size:11px; font-weight:900; }
+
     .daily-command {
       border:1px solid rgba(245,200,76,.34);
       background:linear-gradient(135deg, rgba(255,75,85,.18), rgba(245,200,76,.14)), rgba(255,255,255,.08);
@@ -164,6 +169,11 @@
         <button class="icon-btn" id="refreshBtn" type="button" aria-label="Actualizar">↻</button>
       </header>
 
+      <section class="greeting-card" aria-label="Saludo de usuario">
+        <div><strong id="greetingTitle">Hola</strong><span id="greetingSubtitle">Listo para jugar la jornada.</span></div>
+        <div class="greeting-badge" id="greetingBadge">PREDIKTER</div>
+      </section>
+
       <section class="daily-command" id="dailyCommand">
         <div class="daily-kicker"><span id="todayLabel">Hoy</span><span id="certLabel">Certificación activa</span></div>
         <h1 class="daily-title" id="dailyTitle">La jornada de hoy</h1>
@@ -230,8 +240,8 @@
 
   <script>
     // =====================================================
-    // PREDIKT™ HOME v10.2.0 DAILY MATCH HUB - JORNADA FIRST
-    // App-first: jornada, grupos, reto diario, avance.
+    // PREDIKT™ HOME v10.4.0 DAILY MATCH HUB - GREETING + DAILY CAROUSEL
+    // App-first: saludo, jornada completa, carrusel diario, grupos, reto diario, avance.
     // =====================================================
 
     const SUPABASE_URL = 'https://bhsffngulgvwfzjhiymy.supabase.co';
@@ -288,16 +298,15 @@
           fetchGroupStandings()
         ]);
         nextMatchCache = nextMatch || dailyMatches[0] || upcomingMatches[0] || null;
-        const todayRange = getMexicoCityDayRange(nextMatchCache?.starts_at);
-        const todayMatches = dailyMatches.length
-          ? dailyMatches
-          : await fetchTodayMatches(todayRange.startISO, todayRange.endISO, nextMatchCache, upcomingMatches);
+        const todayMatches = await buildOperationalJornada(dailyMatches, upcomingMatches, nextMatchCache);
         todayMatchesCache = todayMatches;
+        nextMatchCache = todayMatches.find(m => !isFinished(m)) || nextMatchCache;
+        renderGreeting();
         renderDailyCommand(todayMatches, nextMatchCache);
         renderTodayMatches(todayMatches, upcomingMatches);
         renderGroups(standings);
         renderChallenge(todayMatches, nextMatchCache);
-        renderHero(nextMatchCache);
+        renderHero(nextMatchCache, todayMatches);
         await renderProgress(todayMatches);
         if (manualRefresh) showToast('Inicio actualizado.');
       } catch (error) {
@@ -307,6 +316,35 @@
       }
     }
 
+
+
+    async function buildOperationalJornada(dailyMatches, upcomingMatches, nextMatch) {
+      const primary = dedupeMatches((dailyMatches || []).map(normalizeMatch).filter(Boolean).sort(sortByStart));
+      if (primary.length >= 2) return primary.slice(0, 8);
+
+      const anchor = nextMatch || primary[0] || upcomingMatches?.[0] || null;
+      if (!anchor?.starts_at) return primary;
+
+      const anchorTime = new Date(anchor.starts_at).getTime();
+      const windowStart = new Date(anchorTime - 12 * 60 * 60 * 1000).toISOString();
+      const windowEnd = new Date(anchorTime + 36 * 60 * 60 * 1000).toISOString();
+
+      let rows = await querySportsView('events', (q) => q
+        .select('id,code,name,event_stage,starts_at,ends_at,event_status,metadata,home_participant_id,away_participant_id')
+        .eq('event_type','MATCH')
+        .eq('event_stage','Fase de Grupos')
+        .gte('starts_at', windowStart)
+        .lt('starts_at', windowEnd)
+        .order('starts_at', { ascending:true })
+        .limit(12)
+      );
+      let expanded = rows.map(normalizeMatch).filter(Boolean).sort(sortByStart);
+      if (expanded.length >= 2) return dedupeMatches(expanded).slice(0, 8);
+
+      const pool = dedupeMatches([...(primary || []), ...(upcomingMatches || []), anchor].map(normalizeMatch).filter(Boolean).sort(sortByStart));
+      if (pool.length > 1) return pool.slice(0, 8);
+      return primary;
+    }
 
     async function fetchDailyMatchView() {
       // Vista recomendada: sports.v_predikt_home_today_matches
@@ -407,6 +445,18 @@
       }
     }
 
+
+    function renderGreeting() {
+      const meta = currentUser?.user_metadata || {};
+      const rawName = meta.full_name || meta.name || meta.display_name || currentUser?.email?.split('@')?.[0] || '';
+      const cleanName = rawName ? rawName.split(' ')[0] : 'Predikter';
+      $('greetingTitle').textContent = `Hola, ${cleanName}`;
+      $('greetingSubtitle').textContent = todayMatchesCache.length
+        ? 'Tu jornada está lista. Revisa partidos y pronostica.'
+        : 'Preparando tu jornada y tus grupos.';
+      $('greetingBadge').textContent = currentUser ? 'USUARIO ACTIVO' : 'INVITADO';
+    }
+
     function renderDailyCommand(todayMatches, nextMatch) {
       const pending = todayMatches.filter(m => !isFinished(m)).length;
       if (todayMatches.length) {
@@ -415,7 +465,7 @@
       } else if (nextMatch) {
         const teams = splitMatchName(nextMatch.name);
         $('dailyTitle').textContent = 'Jornada de hoy';
-        $('dailySubtitle').textContent = `Carrusel pendiente de sincronizar. Próximo visible: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(nextMatch.starts_at)}.`;
+        $('dailySubtitle').textContent = `Próximo visible: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(nextMatch.starts_at)}.`;
       } else {
         $('dailyTitle').textContent = 'Jornada en carga';
         $('dailySubtitle').textContent = 'Estamos preparando el calendario del día. Pulsa actualizar en unos segundos.';
@@ -468,9 +518,19 @@
       card.innerHTML = `<strong>🎯 Desafío del día</strong><h3>Acierta ${flag(teams.home)} ${escapeHTML(teams.home)} vs ${flag(teams.away)} ${escapeHTML(teams.away)}</h3><p>Guarda tu pronóstico antes de las ${formatTimeCDMX(match.starts_at)}. Bonus visual para crear hábito diario.</p>`;
     }
 
-    function renderHero(match) {
+    function renderHero(match, todayMatches = []) {
       const hero = $('heroCard');
-      if (!match) { hero.innerHTML = '<div class="hero-compact-head"><span>Partido clave</span><span>PREDIKT</span></div><div class="hero-compact-body"><h2>Sin partido</h2><div class="empty-state">No hay próximo partido disponible.</div></div>'; return; }
+      if (!match) { hero.classList.add('hide'); return; }
+      const duplicatedInCarousel = todayMatches.some(m => m?.id && match?.id && m.id === match.id);
+      if (duplicatedInCarousel && todayMatches.length >= 1) {
+        $('nextMatchHint').textContent = 'Jornada completa arriba';
+        hero.classList.remove('hide');
+        hero.style.setProperty('--group-color', '#f5c84c');
+        hero.style.setProperty('--group-text', '#06162d');
+        hero.innerHTML = '<div class="hero-compact-head"><span>Partido clave</span><span>PREDIKT</span></div><div class="hero-compact-body"><h2>Revisa el carrusel</h2><div class="empty-state">Los partidos de la jornada ya aparecen arriba. Desliza para ver los demás encuentros.</div></div>';
+        return;
+      }
+      hero.classList.remove('hide');
       const theme = getTheme(match); const teams = splitMatchName(match.name); const venue = match.metadata?.venue_name || 'Sede por confirmar'; const city = match.metadata?.venue_city || 'Ciudad por confirmar';
       hero.style.setProperty('--group-color', theme.color); hero.style.setProperty('--group-text', theme.text);
       $('nextMatchHint').textContent = isTodayCDMX(match.starts_at) ? 'Hoy' : 'Próximo';
