@@ -1,1 +1,606 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <!--
+    Nombre del archivo: grupos.html
+    Fecha: 2026-06-12
+    Versión: v1.0.0 TABLAS OFICIALES
+    Fabricante: JVSys™
+    Proyecto: PREDIKT™
+    Descripción:
+      Centro Oficial de Posiciones PREDIKT™ Mobile First.
+      Muestra tablas por grupo A-L para la Copa Internacional de Fútbol 2026.
+
+      FILOSOFÍA UX:
+      Abrir Grupos → entender quién lidera, quién clasifica y quién está en riesgo.
+
+      NOTA DE ARQUITECTURA:
+      Esta versión no modifica SQL.
+      Intenta consumir vistas/tablas existentes y tiene fallback visual seguro sin inventar resultados.
+  -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Tablas de Grupos</title>
+  <meta name="description" content="Consulta posiciones por grupo en PREDIKT™." />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="shortcut icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="apple-touch-icon" href="/assets/icons/predikt-icon-192.png" />
+
+  <style>
+    :root {
+      --bg-main: #061826;
+      --bg-deep: #020b13;
+      --bg-card: #0f2740;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --green: #48f29a;
+      --green-soft: rgba(72, 242, 154, 0.14);
+      --blue: #5dade2;
+      --red: #ff5a5f;
+      --red-soft: rgba(255, 90, 95, 0.13);
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --footer-height: 82px;
+      --app-max: 560px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg-main); scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(245,185,66,0.13), transparent 25%),
+        radial-gradient(circle at top right, rgba(72,242,154,0.10), transparent 23%),
+        linear-gradient(145deg, #061826 0%, #04111d 52%, #020b13 100%);
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 16px);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { border: 0; font: inherit; cursor: pointer; }
+
+    .app-shell { width: min(100%, var(--app-max)); margin: 0 auto; padding: 12px 12px 0; }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -12px -12px 10px;
+      padding: 12px 12px 10px;
+      background: linear-gradient(180deg, rgba(6,24,38,0.98), rgba(6,24,38,0.88));
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .brand { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+    .brand-logo { width: 32px; height: 32px; border-radius: 11px; object-fit: contain; background: rgba(255,255,255,0.04); }
+    .brand-text { display: grid; gap: 1px; min-width: 0; }
+    .brand-name { font-size: 0.92rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 0.61rem; font-weight: 820; white-space: nowrap; }
+
+    .back-btn {
+      min-height: 36px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: 0.7rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(245,185,66,0.24);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.18), transparent 32%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .hero-kicker {
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .hero-title { font-size: clamp(1.26rem, 6vw, 1.82rem); font-weight: 980; line-height: 1; letter-spacing: -0.04em; margin-bottom: 5px; }
+    .hero-copy { color: var(--text-soft); font-size: 0.76rem; font-weight: 760; }
+
+    .group-tabs {
+      position: sticky;
+      top: 55px;
+      z-index: 18;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin: 0 -2px 10px;
+      padding: 8px 2px;
+      background: linear-gradient(180deg, rgba(6,24,38,0.98), rgba(6,24,38,0.88));
+      backdrop-filter: blur(14px);
+    }
+
+    .group-tab {
+      min-height: 34px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.065);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--text-soft);
+      font-size: 0.67rem;
+      font-weight: 980;
+    }
+    .group-tab.active { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); border: 0; }
+
+    .status-legend {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .legend-card {
+      border-radius: 17px;
+      background: rgba(15,39,64,0.82);
+      border: 1px solid var(--border);
+      padding: 10px;
+      color: var(--text-soft);
+      font-size: 0.62rem;
+      font-weight: 820;
+    }
+    .legend-card strong { display: block; color: var(--text-main); font-size: 0.72rem; margin-bottom: 2px; }
+
+    .groups-wrap { display: grid; gap: 10px; }
+    .group-card {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(15,39,64,0.82);
+      box-shadow: var(--shadow);
+    }
+    .group-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 11px 12px;
+      background: linear-gradient(135deg, rgba(245,185,66,0.95), rgba(255,226,138,0.95));
+      color: #061826;
+    }
+    .group-title { font-size: 0.82rem; font-weight: 980; letter-spacing: 0.06em; text-transform: uppercase; }
+    .group-badge { font-size: 0.58rem; font-weight: 980; text-transform: uppercase; opacity: 0.82; }
+
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 520px; }
+    th, td { padding: 9px 7px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.075); }
+    th {
+      color: var(--text-muted);
+      font-size: 0.54rem;
+      font-weight: 980;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.13);
+    }
+    td { color: var(--text-soft); font-size: 0.68rem; font-weight: 850; }
+    td.team-cell { text-align: left; color: var(--text-main); font-size: 0.72rem; font-weight: 960; min-width: 142px; }
+    .pos-pill {
+      width: 25px;
+      height: 25px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      font-size: 0.62rem;
+      font-weight: 980;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-soft);
+    }
+    tr.classifies { background: rgba(72,242,154,0.075); }
+    tr.classifies .pos-pill { color: #061826; background: var(--green); }
+    tr.risk { background: rgba(255,255,255,0.025); }
+    tr.eliminated { background: var(--red-soft); }
+    tr.eliminated .pos-pill { color: #fff; background: rgba(255,90,95,0.70); }
+    .pts { color: var(--gold); font-weight: 980; }
+
+    .empty-state {
+      padding: 14px;
+      color: var(--text-soft);
+      font-size: 0.74rem;
+      font-weight: 760;
+      text-align: center;
+    }
+
+    .future-card {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(93,173,226,0.24);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(93,173,226,0.16), transparent 30%),
+        linear-gradient(145deg, rgba(15,39,64,0.96), rgba(7,30,50,0.98));
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-top: 10px;
+    }
+    .future-kicker { color: var(--blue); font-size: 0.64rem; font-weight: 980; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .future-title { font-size: 0.98rem; font-weight: 980; margin-bottom: 6px; }
+    .future-copy { color: var(--text-soft); font-size: 0.72rem; font-weight: 760; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 16px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 60;
+      width: min(calc(100% - 28px), var(--app-max));
+      border: 1px solid rgba(72,242,154,0.34);
+      border-radius: 18px;
+      background: rgba(7,28,46,0.98);
+      color: var(--text-main);
+      padding: 12px 14px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.8rem;
+      font-weight: 830;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 40;
+      width: min(100%, var(--app-max));
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4,17,29,0.97);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0,0,0,0.34);
+    }
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+    .footer-item span { font-size: 1rem; line-height: 1; }
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245,185,66,0.12);
+      border: 1px solid rgba(245,185,66,0.22);
+    }
+
+    @media (max-height: 760px) {
+      .hero-copy, .status-legend { display: none; }
+      th, td { padding-top: 7px; padding-bottom: 7px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado PREDIKT">
+      <a class="brand" href="index.html" aria-label="Ir a inicio">
+        <img class="brand-logo" src="assets/icons/predikt-icon-192.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">Predice • Compite • Gana</small>
+        </span>
+      </a>
+      <a class="back-btn" href="index.html">Inicio</a>
+    </header>
+
+    <section class="hero" aria-label="Tablas de grupos">
+      <p class="hero-kicker">🌎 Centro Oficial de Posiciones</p>
+      <h1 class="hero-title">Tablas de Grupos</h1>
+      <p class="hero-copy">Consulta quién lidera, quién clasifica y quién está en riesgo en cada grupo.</p>
+    </section>
+
+    <nav class="group-tabs" id="groupTabs" aria-label="Navegación por grupos"></nav>
+
+    <section class="status-legend" aria-label="Leyenda de clasificación">
+      <article class="legend-card"><strong>🥇🥈 Clasifica</strong>Primeros dos lugares del grupo.</article>
+      <article class="legend-card"><strong>❌ En riesgo</strong>Último lugar del grupo.</article>
+    </section>
+
+    <section class="groups-wrap" id="groupsWrap" aria-label="Tablas oficiales por grupo">
+      <article class="group-card">
+        <div class="group-head">
+          <h2 class="group-title">Cargando grupos</h2>
+          <span class="group-badge">PREDIKT™ Data Flow</span>
+        </div>
+        <div class="empty-state">Conectando con Supabase...</div>
+      </article>
+    </section>
+
+    <section class="future-card" aria-label="Evolución futura">
+      <p class="future-kicker">🧠 Próxima evolución</p>
+      <h2 class="future-title">Probabilidad de avanzar</h2>
+      <p class="future-copy">Este espacio queda preparado para clasificados, cruces de eliminación, Ranking FIFA, Ranking PREDIKT™ y sugerencias inteligentes.</p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Listo.</div>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item" href="index.html"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item active" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item" href="perfil.html"><span>👤</span>Perfil</a>
+  </nav>
+
+  <script>
+    const PREDIKT_SUPABASE_URL = "https://bhsffngulgvwfzjhiymy.supabase.co";
+    const PREDIKT_SUPABASE_REST_URL = `${PREDIKT_SUPABASE_URL}/rest/v1`;
+    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+
+    const GROUP_ORDER = ["Grupo A", "Grupo B", "Grupo C", "Grupo D", "Grupo E", "Grupo F", "Grupo G", "Grupo H", "Grupo I", "Grupo J", "Grupo K", "Grupo L"];
+
+    const SEED_GROUPS = {
+      "Grupo A": ["México", "Sudáfrica", "Corea del Sur", "República Checa"],
+      "Grupo B": ["Canadá", "Bosnia y Herzegovina", "Qatar", "Suiza"],
+      "Grupo C": ["Brasil", "Marruecos", "Haití", "Escocia"],
+      "Grupo D": ["Estados Unidos", "Paraguay", "Australia", "Turquía"],
+      "Grupo E": ["Alemania", "Curazao", "Costa de Marfil", "Ecuador"],
+      "Grupo F": ["Países Bajos", "Japón", "Túnez", "Suecia"],
+      "Grupo G": ["Bélgica", "Egipto", "Irán", "Nueva Zelanda"],
+      "Grupo H": ["España", "Cabo Verde", "Arabia Saudita", "Uruguay"],
+      "Grupo I": ["Francia", "Senegal", "Noruega", "Irak"],
+      "Grupo J": ["Argentina", "Argelia", "Austria", "Jordania"],
+      "Grupo K": ["Portugal", "RD Congo", "Uzbekistán", "Colombia"],
+      "Grupo L": ["Inglaterra", "Croacia", "Ghana", "Panamá"]
+    };
+
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+    function sportsHeaders() {
+      return {
+        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        Accept: "application/json",
+        "Accept-Profile": "sports"
+      };
+    }
+
+    function predictionsHeaders() {
+      return {
+        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        Accept: "application/json",
+        "Accept-Profile": "predictions"
+      };
+    }
+
+    function normalizeName(value) {
+      return String(value || "")
+        .replace(/\bChequia\b/gi, "República Checa")
+        .replace(/\bCzechia\b/gi, "República Checa")
+        .replace(/\bCzech Republic\b/gi, "República Checa")
+        .trim();
+    }
+
+    function splitMatchName(name) {
+      const safeName = normalizeName(name || "");
+      const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
+      if (parts.length >= 2) return { home: parts[0].trim(), away: parts[1].trim() };
+      return { home: "Local", away: "Visitante" };
+    }
+
+    function emptyStats(team) {
+      return { team, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
+    }
+
+    function ensureTeam(groupMap, groupName, teamName) {
+      const group = groupMap[groupName] || (groupMap[groupName] = new Map());
+      const cleanTeam = normalizeName(teamName);
+      if (!group.has(cleanTeam)) group.set(cleanTeam, emptyStats(cleanTeam));
+      return group.get(cleanTeam);
+    }
+
+    function applyResult(groupMap, result) {
+      const eventName = result.event_name || result.name || result.match_name || "";
+      const teams = splitMatchName(eventName);
+      const groupName = result.group_name || result.group_code || "Grupo por confirmar";
+      const homeGoals = Number(result.home_score ?? result.home_goals ?? result.official_home_score ?? result.home_result);
+      const awayGoals = Number(result.away_score ?? result.away_goals ?? result.official_away_score ?? result.away_result);
+      if (!Number.isFinite(homeGoals) || !Number.isFinite(awayGoals)) return;
+
+      const home = ensureTeam(groupMap, groupName, teams.home);
+      const away = ensureTeam(groupMap, groupName, teams.away);
+
+      home.pj += 1; away.pj += 1;
+      home.gf += homeGoals; home.gc += awayGoals;
+      away.gf += awayGoals; away.gc += homeGoals;
+      home.dg = home.gf - home.gc;
+      away.dg = away.gf - away.gc;
+
+      if (homeGoals > awayGoals) { home.g += 1; away.p += 1; home.pts += 3; }
+      else if (homeGoals < awayGoals) { away.g += 1; home.p += 1; away.pts += 3; }
+      else { home.e += 1; away.e += 1; home.pts += 1; away.pts += 1; }
+    }
+
+    function seedGroupMap() {
+      const groupMap = {};
+      GROUP_ORDER.forEach((groupName) => {
+        groupMap[groupName] = new Map();
+        (SEED_GROUPS[groupName] || []).forEach((team) => ensureTeam(groupMap, groupName, team));
+      });
+      return groupMap;
+    }
+
+    function sortRows(rows) {
+      return rows.sort((a, b) =>
+        b.pts - a.pts ||
+        b.dg - a.dg ||
+        b.gf - a.gf ||
+        a.team.localeCompare(b.team, "es")
+      );
+    }
+
+    function renderTabs() {
+      const tabs = document.getElementById("groupTabs");
+      tabs.innerHTML = GROUP_ORDER.map((group, index) => {
+        const letter = group.replace("Grupo ", "");
+        return `<button class="group-tab ${index === 0 ? "active" : ""}" type="button" data-target="${group.replace(" ", "-")}">${letter}</button>`;
+      }).join("");
+
+      tabs.querySelectorAll(".group-tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          tabs.querySelectorAll(".group-tab").forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          const target = document.getElementById(button.dataset.target);
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    }
+
+    function rowClass(index, total) {
+      if (index <= 1) return "classifies";
+      if (index === total - 1) return "eliminated";
+      return "risk";
+    }
+
+    function renderGroups(groupMap) {
+      const wrap = document.getElementById("groupsWrap");
+      const cards = GROUP_ORDER.map((groupName) => {
+        const rows = sortRows(Array.from((groupMap[groupName] || new Map()).values()));
+        const safeRows = rows.length ? rows : (SEED_GROUPS[groupName] || []).map(emptyStats);
+        const id = groupName.replace(" ", "-");
+        return `
+          <article class="group-card" id="${id}">
+            <div class="group-head">
+              <h2 class="group-title">${groupName}</h2>
+              <span class="group-badge">${safeRows.length} selecciones</span>
+            </div>
+            <div class="table-scroll">
+              <table aria-label="Tabla ${groupName}">
+                <thead>
+                  <tr>
+                    <th>Pos</th><th>Selección</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${safeRows.map((row, index) => `
+                    <tr class="${rowClass(index, safeRows.length)}">
+                      <td><span class="pos-pill">${index + 1}</span></td>
+                      <td class="team-cell">${index === 0 ? "🥇 " : index === 1 ? "🥈 " : ""}${row.team}</td>
+                      <td>${row.pj}</td>
+                      <td>${row.g}</td>
+                      <td>${row.e}</td>
+                      <td>${row.p}</td>
+                      <td>${row.gf}</td>
+                      <td>${row.gc}</td>
+                      <td>${row.dg > 0 ? "+" : ""}${row.dg}</td>
+                      <td class="pts">${row.pts}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        `;
+      }).join("");
+      wrap.innerHTML = cards;
+    }
+
+    async function fetchJson(url, headers) {
+      const response = await fetch(url, { method: "GET", headers });
+      if (!response.ok) throw new Error(`${response.status} ${url}`);
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    }
+
+    async function loadOfficialResults() {
+      const attempts = [
+        {
+          url: `${PREDIKT_SUPABASE_REST_URL}/official_results?select=*&order=created_at.asc&limit=200`,
+          headers: predictionsHeaders()
+        },
+        {
+          url: `${PREDIKT_SUPABASE_REST_URL}/v_event_match_intelligence_api?select=*&event_status=eq.FINISHED&order=starts_at.asc&limit=200`,
+          headers: sportsHeaders()
+        }
+      ];
+
+      for (const attempt of attempts) {
+        try {
+          const rows = await fetchJson(attempt.url, attempt.headers);
+          if (rows.length) return rows;
+        } catch (error) {
+          console.warn("No se pudo cargar fuente de resultados.", error);
+        }
+      }
+      return [];
+    }
+
+    async function init() {
+      renderTabs();
+      const groupMap = seedGroupMap();
+      renderGroups(groupMap);
+
+      const results = await loadOfficialResults();
+      if (!results.length) {
+        showToast("Tablas listas. Aún no hay resultados oficiales suficientes.");
+        return;
+      }
+
+      results.forEach((result) => applyResult(groupMap, result));
+      renderGroups(groupMap);
+      showToast("Tablas actualizadas con resultados oficiales.");
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
+<!--
+Cierre de archivo
+Versión: v1.0.0 TABLAS OFICIALES
+Fecha: 2026-06-12
+Elaborado por: JVSys™
+Acción: Guardar como grupos.html y enlazar desde index.html.
+-->
 
