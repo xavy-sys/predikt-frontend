@@ -4,7 +4,7 @@
   <!--
     Nombre del archivo: index.html
     Fecha: 2026-06-12
-    Versión: v9.0.0 CENTRO DE PARTIDOS INTEGRADO
+    Versión: v9.1.0 CENTRO DE PARTIDOS + STATUS HEADERS + FIXTURE OVERRIDE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
@@ -220,6 +220,18 @@
         radial-gradient(circle at 94% 4%, rgba(245,185,66,0.21), transparent 32%),
         linear-gradient(145deg, rgba(42,34,15,0.92), rgba(15,39,64,0.98));
       padding: 14px;
+    }
+    .reward-card.result-card {
+      overflow: hidden;
+      padding-top: 0;
+      border-color: rgba(93,173,226,0.42);
+      background:
+        radial-gradient(circle at 94% 4%, rgba(93,173,226,0.20), transparent 32%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
+    }
+    .result-banner {
+      margin: 0 -14px 12px !important;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     }
     .reward-top,
     .match-top,
@@ -720,10 +732,10 @@
       </article>
     </section>
 
-    <section class="reward-card" id="latestResultCard" aria-label="Resultado más reciente">
-      <div class="reward-top">
-        <h2 class="section-title">🔵 Resultado oficial más reciente</h2>
-        <span class="pill gold" id="latestResultDate">Hoy</span>
+    <section class="reward-card result-card" id="latestResultCard" aria-label="Resultado más reciente">
+      <div class="status-banner result result-banner">
+        <span>🔵 RESULTADO OFICIAL MÁS RECIENTE</span>
+        <small id="latestResultDate">Hoy</small>
       </div>
       <h3 class="reward-title" id="latestResultMatch">Cargando resultados reales...</h3>
       <div class="reward-grid">
@@ -924,6 +936,60 @@
       return "";
     }
 
+    function normalizeMatchKeyText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function mexicoDateKey(date = new Date()) {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Mexico_City",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(date);
+    }
+
+    function isWithinLiveWindow(value) {
+      if (!value) return false;
+      const start = new Date(value);
+      if (Number.isNaN(start.getTime())) return false;
+      const now = Date.now();
+      const liveStart = start.getTime() - (15 * 60 * 1000);
+      const liveEnd = start.getTime() + (135 * 60 * 1000);
+      return now >= liveStart && now <= liveEnd;
+    }
+
+    function applyProductionFixtureOverride(row = {}) {
+      const teams = getTeamNamesFromRow(row);
+      const key = normalizeMatchKeyText(`${teams.home} ${teams.away} ${row.event_name || row.name || row.display_label || ""}`);
+
+      if (key.includes("estados unidos") && key.includes("paraguay")) {
+        const correctedStart = "2026-06-12T19:00:00-06:00";
+        const isToday = mexicoDateKey(new Date(correctedStart)) === mexicoDateKey();
+        return {
+          ...row,
+          starts_at: correctedStart,
+          start_time: correctedStart,
+          event_start_at: correctedStart,
+          home_name: teams.home || "Estados Unidos",
+          away_name: teams.away || "Paraguay",
+          home_code: firstText(row.home_code, row.home_team_code) || "USA",
+          away_code: firstText(row.away_code, row.away_team_code) || "PAR",
+          venue_city: firstText(row.venue_city, row.city, row.host_city) || "Los Ángeles",
+          venue_name: firstText(row.venue_name, row.stadium_name, row.venue, row.stadium) || "SoFi Stadium",
+          group_name: firstText(row.group_name, row.group_code) || "Grupo por confirmar",
+          event_status: isToday && isWithinLiveWindow(correctedStart) ? "EN VIVO" : (isToday ? "JUEGA HOY" : row.event_status)
+        };
+      }
+
+      return row;
+    }
+
     function splitMatchName(name) {
       const safeName = normalizeLatamName(name || "Partido por confirmar");
       const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
@@ -1047,7 +1113,8 @@
     function isLiveStatus(row = {}) {
       const statusText = String(firstText(row.event_status, row.status, row.match_status, row.state)).toLowerCase();
       const minute = Number(row.minute ?? row.current_minute ?? row.match_minute ?? 0);
-      return statusText.includes("live") || statusText.includes("vivo") || statusText.includes("en juego") || (minute > 0 && minute < 130);
+      const startsAt = row.starts_at || row.start_time || row.event_start_at;
+      return statusText.includes("live") || statusText.includes("vivo") || statusText.includes("en juego") || (minute > 0 && minute < 130) || isWithinLiveWindow(startsAt);
     }
 
     function getRowStartTime(row = {}) {
@@ -1176,6 +1243,7 @@
     }
 
     function renderUpcomingMatches(rows = []) {
+      rows = rows.map(applyProductionFixtureOverride);
       const list = document.getElementById("upcomingMatchesList");
       const titleNode = document.getElementById("todayMatchesTitle");
       if (!list) return;
@@ -1354,7 +1422,7 @@
         let intelligenceRows = [];
 
         try {
-          nextOpenRows = await fetchSportsRows("v_predikt_home_next_open_match", "select=*&limit=1");
+          nextOpenRows = (await fetchSportsRows("v_predikt_home_next_open_match", "select=*&limit=1")).map(applyProductionFixtureOverride);
         } catch (innerError) {
           console.warn("Vista next open no disponible. Usando intelligence API.", innerError);
         }
@@ -1371,7 +1439,7 @@
           intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&order=starts_at.asc&limit=72");
         }
 
-        const rows = Array.isArray(intelligenceRows) ? intelligenceRows : [];
+        const rows = (Array.isArray(intelligenceRows) ? intelligenceRows : []).map(applyProductionFixtureOverride);
         const liveRow = rows.find(isLiveStatus);
         const chronologicalRows = buildChronologicalRows(rows);
         const nowMs = Date.now();
@@ -1401,7 +1469,7 @@
 
 <!--
 Cierre de archivo
-Versión: v9.0.0 CENTRO DE PARTIDOS INTEGRADO
+Versión: v9.1.0 CENTRO DE PARTIDOS + STATUS HEADERS + FIXTURE OVERRIDE
 Fecha: 2026-06-12
 Elaborado por: JVSys™
 Regla UX: Inicio debe sentirse como Centro de Control, no como tabla de partidos.
