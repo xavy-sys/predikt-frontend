@@ -1,362 +1,1409 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-MX">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>PREDIKT™ — Centro de Partidos</title>
-  <meta name="theme-color" content="#07162f" />
-  <meta name="description" content="PREDIKT™ — Predice • Compite • Gana" />
-  <link rel="icon" href="./predikt-logo.png" />
-  <link rel="apple-touch-icon" href="./predikt-logo.png" />
+  <!--
+    Nombre del archivo: index.html
+    Fecha: 2026-06-12
+    Versión: v9.0.0 CENTRO DE PARTIDOS INTEGRADO
+    Fabricante: JVSys™
+    Proyecto: PREDIKT™
+    Descripción:
+      Home principal PREDIKT™ evolucionado como Centro de Partidos Mobile First.
+      Mantiene la arquitectura productiva v8.8.0 y transforma Inicio en centro de control deportivo.
+      Prioriza: EN VIVO, JUEGA HOY, PRÓXIMAMENTE y RESULTADO OFICIAL MÁS RECIENTE.
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      CAMBIOS v9.0.0:
+      1. Sustituye Siguiente Partido por 🎯 Centro de Partidos.
+      2. Implementa cabecera completa por estado: 🔴 EN VIVO, 🟡 HOY, 🟢 PRÓXIMAMENTE, 🔵 RESULTADO OFICIAL.
+      3. Conserva Supabase productivo, sesión, footer, estadísticas y resultado reciente de v8.8.0.
+      4. Muestra hora, ciudad, estadio, grupo y fase cuando existan en datos.
+      5. Reduce Hoy en PREDIKT™ a máximo 3 partidos visibles.
+      6. Agrega acceso visual a 🌎 Tablas de Grupos.
+      7. Prepara bloque 🧠 PREDIKT™ Intelligence para confianza, momentum y probabilidad.
+      8. Usa datos certificados:
+          - predictions.official_results
+          - predictions.prediction_scores
+          - rankings.user_stats
+          - sports.v_event_match_intelligence_api
+
+      FILOSOFÍA UX:
+      Abrir App → Saber qué pasa → Pronosticar lo importante → Ver resultado reciente.
+  -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PREDIKT™ | Predice • Compite • Gana</title>
+  <meta name="description" content="PREDIKT™ analiza partidos, sugiere pronósticos y te permite competir con tus amigos." />
+  <meta name="theme-color" content="#061826" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="shortcut icon" type="image/png" href="/assets/icons/predikt-icon-192.png" />
+  <link rel="apple-touch-icon" href="/assets/icons/predikt-icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="PREDIKT" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <style>
-    :root{
-      --bg:#07162f;
-      --bg-2:#0a2148;
-      --card:#0f2b5c;
-      --card-2:#10346f;
-      --text:#ffffff;
-      --muted:#b9c7dd;
-      --line:rgba(255,255,255,.12);
-      --gold:#f5c542;
-      --gold-2:#ffe28a;
-      --red:#e63946;
-      --green:#21b26b;
-      --blue:#2477ff;
-      --orange:#ffb020;
-      --shadow:0 18px 45px rgba(0,0,0,.28);
-      --radius:22px;
-      --footer-h:74px;
+    :root {
+      --bg-main: #061826;
+      --bg-deep: #020b13;
+      --bg-card: #0f2740;
+      --gold: #f5b942;
+      --gold-soft: #ffe28a;
+      --green: #48f29a;
+      --green-soft: rgba(72, 242, 154, 0.14);
+      --blue: #5dade2;
+      --red: #ff5a5f;
+      --orange: #ff9f43;
+      --text-main: #ffffff;
+      --text-soft: #c9d7e6;
+      --text-muted: #7f95aa;
+      --border: rgba(255, 255, 255, 0.11);
+      --shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --footer-height: 82px;
+      --app-max: 560px;
     }
 
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;background:linear-gradient(180deg,var(--bg),#031024 76%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    body{padding-bottom:calc(var(--footer-h) + env(safe-area-inset-bottom));}
-    a{text-decoration:none;color:inherit}
-    button{font-family:inherit}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: var(--bg-main); }
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.35;
+      background:
+        radial-gradient(circle at top left, rgba(245, 185, 66, 0.13), transparent 25%),
+        radial-gradient(circle at top right, rgba(72, 242, 154, 0.10), transparent 23%),
+        linear-gradient(145deg, #061826 0%, #04111d 52%, #020b13 100%);
+      overflow-x: hidden;
+      padding-bottom: calc(var(--footer-height) + 14px);
+    }
 
-    .app{width:min(520px,100%);margin:0 auto;min-height:100vh;padding:14px 14px 18px;}
+    a { color: inherit; text-decoration: none; }
+    button { border: 0; font: inherit; cursor: pointer; }
 
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
-    .brand{display:flex;align-items:center;gap:10px;min-width:0;}
-    .brand img{width:42px;height:42px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.08);padding:5px;}
-    .brand-title{font-size:19px;font-weight:900;letter-spacing:.3px;line-height:1;}
-    .brand-sub{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap;}
-    .pill{border:1px solid rgba(245,197,66,.45);background:rgba(245,197,66,.12);color:var(--gold-2);border-radius:999px;padding:8px 10px;font-size:11px;font-weight:800;white-space:nowrap;}
+    .app-shell {
+      width: min(100%, var(--app-max));
+      margin: 0 auto;
+      padding: 12px 12px 0;
+    }
 
-    .hero{background:radial-gradient(circle at 20% 0%,rgba(245,197,66,.24),transparent 30%),linear-gradient(145deg,#0e316b,#071a39);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
-    .hero-kicker{color:var(--gold-2);font-size:12px;font-weight:900;letter-spacing:.9px;text-transform:uppercase;margin-bottom:7px;}
-    .hero h1{font-size:24px;line-height:1.04;margin:0 0 8px;font-weight:950;}
-    .hero p{margin:0;color:#d9e5f8;font-size:13px;line-height:1.35;}
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -12px -12px 10px;
+      padding: 12px 12px 10px;
+      background: linear-gradient(180deg, rgba(6, 24, 38, 0.98), rgba(6, 24, 38, 0.88));
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
-    .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
-    .action{border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px;background:rgba(255,255,255,.075);display:flex;align-items:center;gap:10px;min-height:62px;}
-    .action strong{font-size:13px;display:block;line-height:1.1;}
-    .action span{font-size:11px;color:var(--muted);display:block;margin-top:3px;line-height:1.2;}
-    .action-ico{width:32px;height:32px;border-radius:12px;display:grid;place-items:center;background:rgba(245,197,66,.14);font-size:18px;flex:0 0 auto;}
+    .brand { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+    .brand-logo { width: 32px; height: 32px; border-radius: 11px; object-fit: contain; background: rgba(255,255,255,0.04); }
+    .brand-text { display: grid; gap: 1px; min-width: 0; }
+    .brand-name { font-size: 0.92rem; font-weight: 980; letter-spacing: 0.08em; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 0.61rem; font-weight: 820; white-space: nowrap; }
+    .header-actions { display: inline-flex; align-items: center; gap: 7px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      color: var(--text-main);
+      background: rgba(255,255,255,0.065);
+      border: 1px solid rgba(255,255,255,0.095);
+    }
+    .login-btn {
+      min-height: 36px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      font-size: 0.7rem;
+      font-weight: 980;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
 
-    .section-title{display:flex;align-items:center;justify-content:space-between;margin:14px 2px 9px;gap:10px;}
-    .section-title h2{font-size:17px;margin:0;font-weight:950;}
-    .section-title small{color:var(--muted);font-size:11px;text-align:right;}
+    .hero-strip {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(245,185,66,0.22);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.16), transparent 33%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .hello {
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .hero-title {
+      font-size: clamp(1.26rem, 6vw, 1.78rem);
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 5px;
+    }
+    .hero-copy {
+      color: var(--text-soft);
+      font-size: 0.76rem;
+      font-weight: 760;
+    }
 
-    .match-stack{display:grid;gap:10px;}
-    .match-card{overflow:hidden;border-radius:var(--radius);background:linear-gradient(180deg,var(--card),#0a224c);border:1px solid var(--line);box-shadow:0 14px 32px rgba(0,0,0,.22);}
-    .match-head{padding:11px 14px;font-size:13px;font-weight:950;letter-spacing:.2px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-    .match-head .tag{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .match-head .time{font-size:12px;opacity:.98;white-space:nowrap;}
-    .status-live .match-head{background:linear-gradient(90deg,#c9182b,var(--red));}
-    .status-today .match-head{background:linear-gradient(90deg,#d79500,var(--gold));color:#10213e;}
-    .status-upcoming .match-head{background:linear-gradient(90deg,#12824e,var(--green));}
-    .status-result .match-head{background:linear-gradient(90deg,#1857c8,var(--blue));}
+    .quick-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+    .stat-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(15,39,64,0.86);
+      padding: 12px;
+      min-height: 82px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+    .stat-kicker {
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 7px;
+    }
+    .stat-main {
+      font-size: 1.62rem;
+      font-weight: 980;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .stat-main.gold { color: var(--gold); }
+    .stat-main.green { color: var(--green); }
+    .stat-copy {
+      color: var(--text-soft);
+      font-size: 0.67rem;
+      font-weight: 720;
+    }
 
-    .match-body{padding:14px;}
-    .teams{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
-    .team{flex:1;min-width:0;}
-    .team-name{font-size:16px;font-weight:950;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .score{font-size:29px;font-weight:1000;letter-spacing:.5px;text-align:center;min-width:86px;color:#fff;}
-    .vs{font-size:15px;font-weight:950;text-align:center;min-width:42px;color:var(--gold-2);}
+    .reward-card,
+    .match-card,
+    .compact-card,
+    .super-admin-card,
+    .list-panel {
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
 
-    .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 12px;}
-    .meta-item{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.055);border-radius:14px;padding:9px 10px;min-height:45px;}
-    .meta-label{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
-    .meta-value{font-size:12px;font-weight:850;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .reward-card {
+      border: 1px solid rgba(245,185,66,0.30);
+      background:
+        radial-gradient(circle at 94% 4%, rgba(245,185,66,0.21), transparent 32%),
+        linear-gradient(145deg, rgba(42,34,15,0.92), rgba(15,39,64,0.98));
+      padding: 14px;
+    }
+    .reward-top,
+    .match-top,
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 9px;
+      margin-bottom: 9px;
+    }
+    .section-head { margin: 0 2px 8px; }
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .section-link {
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 950;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 0.61rem;
+      font-weight: 980;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .pill.green { color: var(--green); background: var(--green-soft); border: 1px solid rgba(72,242,154,0.22); }
+    .pill.gold { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .pill.orange { color: #061826; background: linear-gradient(135deg, var(--orange), #ffd19b); }
 
-    .actions-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
-    .btn{border:0;border-radius:15px;padding:12px 10px;font-size:13px;font-weight:950;text-align:center;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;}
-    .btn-primary{background:linear-gradient(135deg,var(--gold),#fff0a8);color:#08204a;box-shadow:0 10px 20px rgba(245,197,66,.22);}
-    .btn-secondary{background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.14);}
-    .btn-full{grid-column:1/-1;}
+    .reward-title {
+      font-size: 1rem;
+      font-weight: 980;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .reward-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .reward-label {
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 880;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .reward-text {
+      font-size: 0.78rem;
+      font-weight: 920;
+    }
+    .reward-points {
+      min-width: 68px;
+      text-align: center;
+      color: var(--green);
+      font-size: 1.2rem;
+      font-weight: 980;
+    }
 
-    .intel{margin-top:10px;border:1px dashed rgba(245,197,66,.45);background:rgba(245,197,66,.08);border-radius:16px;padding:10px 11px;}
-    .intel-title{font-size:12px;font-weight:950;color:var(--gold-2);display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-    .intel-text{font-size:12px;color:#d9e5f8;line-height:1.32;}
 
-    .compact-row{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none;}
-    .compact-row::-webkit-scrollbar{display:none;}
-    .mini-card{min-width:150px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.065);border-radius:18px;padding:10px;}
-    .mini-status{font-size:10px;font-weight:950;color:var(--gold-2);margin-bottom:6px;text-transform:uppercase;}
-    .mini-teams{font-size:12px;font-weight:900;line-height:1.18;min-height:30px;}
-    .mini-meta{font-size:10px;color:var(--muted);margin-top:6px;}
 
-    .empty{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);border-radius:20px;padding:16px;color:#dbe6f8;font-size:13px;line-height:1.35;}
-    .error{border-color:rgba(230,57,70,.45);background:rgba(230,57,70,.12);}
+    .match-card.status-live { border-color: rgba(255,90,95,0.46); }
+    .match-card.status-today { border-color: rgba(245,185,66,0.46); }
+    .match-card.status-upcoming { border-color: rgba(72,242,154,0.40); }
+    .match-card.status-result { border-color: rgba(93,173,226,0.42); }
+    .status-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: -14px -14px 12px;
+      padding: 11px 14px;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      font-size: 0.68rem;
+      font-weight: 980;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #061826;
+    }
+    .status-banner.live { color: #fff; background: linear-gradient(135deg, #c9182b, #ff5a5f); }
+    .status-banner.today { background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .status-banner.upcoming { background: linear-gradient(135deg, var(--green), #8cffc4); }
+    .status-banner.result { color: #fff; background: linear-gradient(135deg, #1667a8, var(--blue)); }
+    .status-banner small { opacity: 0.86; font-size: 0.58rem; font-weight: 900; letter-spacing: 0.04em; }
+    .scoreline {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 2px 0 10px;
+      font-size: 1.8rem;
+      font-weight: 980;
+      line-height: 1;
+    }
+    .scoreline.show { display: flex; }
+    .venue-line {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 760;
+      margin: -2px 0 10px;
+    }
+    .intelligence-strip {
+      border-radius: 18px;
+      border: 1px solid rgba(72,242,154,0.20);
+      background: rgba(72,242,154,0.08);
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .intelligence-strip strong { color: var(--green); font-size: 0.68rem; font-weight: 980; text-transform: uppercase; letter-spacing: 0.06em; }
+    .intelligence-strip p { color: var(--text-soft); font-size: 0.68rem; font-weight: 760; margin-top: 4px; }
+    .groups-card {
+      border: 1px solid rgba(93,173,226,0.24);
+      border-radius: var(--radius-xl);
+      background: rgba(15,39,64,0.82);
+      box-shadow: var(--shadow);
+      padding: 13px;
+      margin-bottom: 10px;
+    }
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin: 10px 0;
+    }
+    .group-pill {
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: var(--gold);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 0.72rem;
+      font-weight: 980;
+    }
+    .section-copy {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+      font-weight: 760;
+      margin: -4px 2px 8px;
+    }
 
-    .footer{position:fixed;left:0;right:0;bottom:0;background:rgba(3,13,31,.94);backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.10);padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:50;}
-    .footer-inner{width:min(520px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;}
-    .nav{border-radius:15px;padding:7px 2px;text-align:center;color:#c6d3e8;font-size:10px;font-weight:800;}
-    .nav b{display:block;font-size:18px;line-height:1;margin-bottom:3px;}
-    .nav.active{background:rgba(245,197,66,.14);color:#fff;}
+    .match-card {
+      border: 1px solid rgba(72,242,154,0.22);
+      background:
+        radial-gradient(circle at 90% 10%, rgba(72,242,154,0.15), transparent 28%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(7,30,50,0.98));
+      padding: 14px;
+    }
+    .match-title {
+      font-size: 1rem;
+      font-weight: 980;
+      margin-bottom: 8px;
+    }
+    .match-context-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .context-chip {
+      min-height: 23px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.11);
+      font-size: 0.55rem;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .context-chip.gold { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .context-chip.green { color: var(--green); background: var(--green-soft); border-color: rgba(72,242,154,0.22); }
 
-    @media (max-width:380px){
-      .hero h1{font-size:22px}.score{font-size:25px;min-width:74px}.team-name{font-size:15px}.meta{grid-template-columns:1fr}.actions-row{grid-template-columns:1fr}.btn-full{grid-column:auto}
+    .teams {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .team-box {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.055);
+      padding: 10px 6px;
+      text-align: center;
+      min-height: 78px;
+      display: grid;
+      place-items: center;
+      gap: 3px;
+    }
+    .team-flag {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.13);
+      font-size: 0.86rem;
+      font-weight: 980;
+    }
+    .team-name { font-size: 0.72rem; font-weight: 940; }
+    .team-code { color: var(--text-muted); font-size: 0.54rem; font-weight: 900; }
+    .versus {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #061826;
+      background: #fff;
+      font-size: 0.68rem;
+      font-weight: 980;
+    }
+
+    .primary-action,
+    .secondary-action,
+    .soft-action,
+    .admin-action {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 980;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+    .primary-action {
+      width: 100%;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      box-shadow: 0 12px 24px rgba(72,242,154,0.21);
+    }
+    .secondary-action {
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      padding: 0 12px;
+    }
+    .soft-action {
+      color: var(--text-main);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 0 12px;
+    }
+    .dual-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .compact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+    .compact-card {
+      border: 1px solid rgba(93,173,226,0.20);
+      background: rgba(15,39,64,0.82);
+      padding: 12px;
+      min-height: 92px;
+      display: grid;
+      align-content: space-between;
+    }
+    .compact-icon { font-size: 1.25rem; margin-bottom: 6px; }
+    .compact-title { font-size: 0.78rem; font-weight: 980; margin-bottom: 3px; }
+    .compact-copy { color: var(--text-muted); font-size: 0.62rem; font-weight: 760; }
+
+    .list-panel {
+      border: 1px solid var(--border);
+      background: rgba(15,39,64,0.82);
+      padding: 10px;
+    }
+    .match-list { display: grid; gap: 8px; }
+    .match-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 17px;
+      background: rgba(255,255,255,0.045);
+      padding: 10px;
+    }
+    .match-row-date {
+      color: var(--gold);
+      font-size: 0.57rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      min-width: 48px;
+      max-width: 64px;
+      line-height: 1.12;
+    }
+    .match-row-title {
+      display: block;
+      font-size: 0.73rem;
+      font-weight: 950;
+      line-height: 1.12;
+    }
+    .match-row-sub {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+    .mini-pick {
+      min-height: 34px;
+      min-width: 72px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--green), #8cffc4);
+      font-size: 0.59rem;
+      font-weight: 980;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .super-admin-card {
+      display: none;
+      border: 1px solid rgba(245,185,66,0.32);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.18), transparent 30%),
+        linear-gradient(145deg, rgba(15,39,64,0.98), rgba(44,34,14,0.72));
+      padding: 14px;
+    }
+    .super-admin-card.show { display: block; }
+    .super-admin-kicker {
+      color: var(--gold);
+      font-size: 0.62rem;
+      font-weight: 980;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .super-admin-title {
+      font-size: 0.98rem;
+      font-weight: 980;
+      line-height: 1.08;
+      margin-bottom: 6px;
+    }
+    .super-admin-copy {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      font-weight: 760;
+      margin-bottom: 10px;
+    }
+    .super-admin-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .admin-action.primary { color: #061826; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); }
+    .admin-action.secondary { color: var(--text-main); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--footer-height) + 16px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 60;
+      width: min(calc(100% - 28px), var(--app-max));
+      border: 1px solid rgba(72,242,154,0.34);
+      border-radius: 18px;
+      background: rgba(7,28,46,0.98);
+      color: var(--text-main);
+      padding: 12px 14px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-size: 0.8rem;
+      font-weight: 830;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .app-footer {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 40;
+      width: min(100%, var(--app-max));
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 9px 10px 11px;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+      background: rgba(4,17,29,0.97);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -12px 34px rgba(0,0,0,0.34);
+    }
+    .footer-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 880;
+      gap: 3px;
+    }
+    .footer-item span { font-size: 1rem; line-height: 1; }
+    .footer-item.active {
+      color: var(--gold);
+      background: rgba(245,185,66,0.12);
+      border: 1px solid rgba(245,185,66,0.22);
+    }
+
+    @media (max-height: 760px) {
+      .hero-strip { padding: 12px; }
+      .hero-copy { display: none; }
+      .stat-card { min-height: 74px; padding: 10px; }
+      .match-context-row { display: none; }
+      .compact-grid { display: none; }
+    }
+
+    @media (min-width: 760px) {
+      body {
+        background:
+          radial-gradient(circle at center top, rgba(245,185,66,0.08), transparent 28%),
+          linear-gradient(145deg, #061826 0%, #020b13 100%);
+      }
+      .app-shell { padding-top: 16px; }
+      .app-header {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0 0 22px 22px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <main class="app">
-    <header class="topbar">
-      <a class="brand" href="./index.html" aria-label="Inicio PREDIKT">
-        <img src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
-        <div>
-          <div class="brand-title">PREDIKT™</div>
-          <div class="brand-sub">Predice • Compite • Gana</div>
-        </div>
+  <main class="app-shell">
+    <header class="app-header" aria-label="Encabezado PREDIKT">
+      <a class="brand" href="index.html" aria-label="Ir a inicio">
+        <img class="brand-logo" src="assets/icons/predikt-icon-192.png" alt="PREDIKT™" />
+        <span class="brand-text">
+          <strong class="brand-name">PREDIKT™</strong>
+          <small class="brand-sub">Predice • Compite • Gana</small>
+        </span>
       </a>
-      <div class="pill">Powered by JVSys™</div>
+      <div class="header-actions">
+        <a class="icon-btn" href="fundadores.html" aria-label="Fundadores">☕</a>
+        <a class="login-btn" id="profileAccessBtn" href="perfil.html">Entrar</a>
+      </div>
     </header>
 
-    <section class="hero">
-      <div class="hero-kicker">🎯 Centro de Partidos</div>
-      <h1>Tu control de la Copa en una sola pantalla.</h1>
-      <p>Ve qué está pasando, qué debes pronosticar y qué acaba de ocurrir sin perderte entre listas.</p>
+    <section class="hero-strip" aria-label="PREDIKT Intelligence">
+      <p class="hello">🤖 PREDIKT™ Intelligence</p>
+      <h1 class="hero-title">¿Quién le atina al marcador?</h1>
+      <p class="hero-copy">Abre, revisa tus puntos y pronostica el siguiente partido.</p>
     </section>
 
-    <nav class="quick-actions" aria-label="Acciones principales">
-      <a class="action" href="./pronostico.html">
-        <div class="action-ico">⚽</div>
-        <div><strong>Haz tu Quiniela</strong><span>Pronostica rápido</span></div>
-      </a>
-      <a class="action" href="./ranking.html">
-        <div class="action-ico">🏆</div>
-        <div><strong>Ver Ranking</strong><span>Compite con todos</span></div>
-      </a>
-    </nav>
-
-    <div class="section-title">
-      <h2>Partido principal</h2>
-      <small id="updatedAt">Actualizando…</small>
-    </div>
-
-    <section id="primaryMatch" class="match-stack">
-      <div class="empty">Cargando el Centro de Partidos…</div>
+    <section class="quick-stats" aria-label="Resumen diario PREDIKT">
+      <article class="stat-card">
+        <p class="stat-kicker">Tus puntos</p>
+        <p class="stat-main gold" id="userPointsValue">0</p>
+        <p class="stat-copy">puntos acumulados.</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-kicker">Pendientes</p>
+        <p class="stat-main green" id="userPendingValue">72</p>
+        <p class="stat-copy" id="userPendingCopy">partidos por pronosticar.</p>
+      </article>
     </section>
 
-    <div class="section-title">
-      <h2>También en el radar</h2>
-      <small>Hoy / próximos / resultado</small>
-    </div>
-    <section id="secondaryMatches" class="compact-row" aria-label="Más partidos"></section>
+    <section class="reward-card" id="latestResultCard" aria-label="Resultado más reciente">
+      <div class="reward-top">
+        <h2 class="section-title">🔵 Resultado oficial más reciente</h2>
+        <span class="pill gold" id="latestResultDate">Hoy</span>
+      </div>
+      <h3 class="reward-title" id="latestResultMatch">Cargando resultados reales...</h3>
+      <div class="reward-grid">
+        <div>
+          <p class="reward-label">Tu pronóstico</p>
+          <p class="reward-text" id="latestUserPrediction">Por confirmar</p>
+        </div>
+        <strong class="reward-points" id="latestPointsEarned">+0</strong>
+      </div>
+      <a class="primary-action" href="pronostico.html#resultados-reales">Ver resultados</a>
+    </section>
+
+    <section class="super-admin-card" id="superAdminCard" aria-label="Centro de Control SUPER_ADMIN">
+      <p class="super-admin-kicker">🔐 SUPER_ADMIN</p>
+      <h2 class="super-admin-title">Centro de Control PREDIKT™</h2>
+      <p class="super-admin-copy">Acceso operativo para usuarios, pronósticos, partidos, rankings, fundadores y resultados oficiales.</p>
+      <div class="super-admin-actions">
+        <a class="admin-action primary" href="dashboard-admin.html">Control</a>
+        <a class="admin-action secondary" href="usuarios.html">Usuarios</a>
+        <a class="admin-action secondary" href="pronosticos-admin.html">Pronósticos</a>
+        <a class="admin-action secondary" href="partidos-admin.html">Partidos</a>
+        <a class="admin-action secondary" href="ranking-admin.html">Rankings</a>
+        <a class="admin-action secondary" href="fundadores.html">Fundadores</a>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Centro de Partidos">
+      <div class="section-head">
+        <h2 class="section-title" id="featuredSectionTitle">🎯 Centro de Partidos</h2>
+        <a class="section-link" href="pronostico.html">Ver todos</a>
+      </div>
+      <p class="section-copy">Qué está pasando, qué debes pronosticar y qué acaba de ocurrir.</p>
+      <article class="match-card status-today" id="liveMatchCard">
+        <div class="status-banner today" id="matchStatusBanner">
+          <span id="liveStatusPill">🟡 HOY</span>
+          <small id="liveStatusTime">Horario por confirmar</small>
+        </div>
+        <h3 class="match-title" id="liveMatchName">Cargando partido real</h3>
+        <div class="scoreline" id="liveScoreline">
+          <span id="liveHomeScoreMain">0</span><span>-</span><span id="liveAwayScoreMain">0</span>
+        </div>
+        <div class="match-context-row">
+          <span class="context-chip green" id="liveStage">Fase por confirmar</span>
+          <span class="context-chip gold" id="liveGroup">Grupo por confirmar</span>
+          <span class="context-chip" id="liveMinute">Horario por confirmar</span>
+        </div>
+        <p class="venue-line" id="liveVenueLine">Ciudad y estadio por confirmar</p>
+        <div class="teams">
+          <div class="team-box">
+            <div class="team-flag" id="liveHomeCode">--</div>
+            <strong class="team-name" id="liveHomeName">Local</strong>
+            <span class="team-code" id="liveHomeScore">Próximo</span>
+          </div>
+          <div class="versus">VS</div>
+          <div class="team-box">
+            <div class="team-flag" id="liveAwayCode">--</div>
+            <strong class="team-name" id="liveAwayName">Visitante</strong>
+            <span class="team-code" id="liveAwayScore">Partido</span>
+          </div>
+        </div>
+        <div class="intelligence-strip">
+          <strong>🧠 PREDIKT™ Intelligence</strong>
+          <p id="prediktIntelligenceCopy">Preparando confianza, momentum, probabilidad y tendencia de usuarios.</p>
+        </div>
+        <div class="dual-actions">
+          <a class="soft-action" id="liveDetailLink" href="pronostico.html">Ver detalle</a>
+          <a class="primary-action" id="liveQuinielaLink" href="pronostico.html">Haz tu quiniela</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="compact-grid" aria-label="Accesos rápidos">
+      <a class="compact-card" href="mi-quiniela.html">
+        <span class="compact-icon">👥</span>
+        <span>
+          <strong class="compact-title">Mi Quiniela</strong>
+          <p class="compact-copy">Invita amigos y compite.</p>
+        </span>
+      </a>
+      <a class="compact-card" href="fundadores.html">
+        <span class="compact-icon">☕</span>
+        <span>
+          <strong class="compact-title">Fundadores</strong>
+          <p class="compact-copy">Invítanos un café.</p>
+        </span>
+      </a>
+    </section>
+
+    <section class="section" aria-label="Partidos de hoy">
+      <div class="section-head">
+        <h2 class="section-title" id="todayMatchesTitle">📅 Hoy en PREDIKT™</h2>
+        <a class="section-link" href="pronostico.html">Todos</a>
+      </div>
+      <div class="list-panel">
+        <div class="match-list" id="upcomingMatchesList">
+          <article class="match-row">
+            <span class="match-row-date">...</span>
+            <span>
+              <strong class="match-row-title">Cargando partidos reales</strong>
+              <small class="match-row-sub">PREDIKT™ Data Flow</small>
+            </span>
+            <a class="mini-pick" href="pronostico.html">Quiniela</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="groups-card" aria-label="Tablas de grupos">
+      <div class="section-head">
+        <h2 class="section-title">🌎 Tablas de Grupos</h2>
+        <a class="section-link" href="grupos.html">Ver posiciones</a>
+      </div>
+      <p class="section-copy">Consulta cómo va cada grupo de la Copa.</p>
+      <div class="groups-grid" aria-label="Grupos A a L">
+        <a class="group-pill" href="grupos.html#grupo-a">A</a>
+        <a class="group-pill" href="grupos.html#grupo-b">B</a>
+        <a class="group-pill" href="grupos.html#grupo-c">C</a>
+        <a class="group-pill" href="grupos.html#grupo-d">D</a>
+        <a class="group-pill" href="grupos.html#grupo-e">E</a>
+        <a class="group-pill" href="grupos.html#grupo-f">F</a>
+        <a class="group-pill" href="grupos.html#grupo-g">G</a>
+        <a class="group-pill" href="grupos.html#grupo-h">H</a>
+        <a class="group-pill" href="grupos.html#grupo-i">I</a>
+        <a class="group-pill" href="grupos.html#grupo-j">J</a>
+        <a class="group-pill" href="grupos.html#grupo-k">K</a>
+        <a class="group-pill" href="grupos.html#grupo-l">L</a>
+      </div>
+      <a class="secondary-action" href="grupos.html">Ver posiciones</a>
+    </section>
+
   </main>
 
-  <footer class="footer" role="navigation" aria-label="Navegación principal">
-    <div class="footer-inner">
-      <a class="nav active" href="./index.html"><b>🏠</b>Inicio</a>
-      <a class="nav" href="./mi-quiniela.html"><b>⚽</b>Quiniela</a>
-      <a class="nav" href="./pronostico.html"><b>🎯</b>Pronósticos</a>
-      <a class="nav" href="./ranking.html"><b>🏆</b>Ranking</a>
-      <a class="nav" href="./perfil.html"><b>👤</b>Perfil</a>
-    </div>
-  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite">Listo.</div>
+
+  <nav class="app-footer" aria-label="Navegación principal">
+    <a class="footer-item active" href="index.html" aria-current="page"><span>🏠</span>Inicio</a>
+    <a class="footer-item" href="mi-quiniela.html"><span>⚽</span>Quiniela</a>
+    <a class="footer-item" href="pronostico.html"><span>🎯</span>Pronósticos</a>
+    <a class="footer-item" href="ranking.html"><span>🏆</span>Ranking</a>
+    <a class="footer-item" href="perfil.html"><span>👤</span>Perfil</a>
+  </nav>
 
   <script>
-    const PREDIKT_VERSION = 'index_v8.9.0_CENTRO_DE_PARTIDOS';
+    const PREDIKT_SUPABASE_URL = "https://bhsffngulgvwfzjhiymy.supabase.co";
+    const PREDIKT_SUPABASE_REST_URL = `${PREDIKT_SUPABASE_URL}/rest/v1`;
+    const PREDIKT_SUPABASE_PUBLIC_KEY = "sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ";
+    const TOTAL_CERTIFIED_MATCHES = 72;
 
-    const SUPABASE_URL = window.PREDIKT_SUPABASE_URL || window.SUPABASE_URL || '';
-    const SUPABASE_ANON_KEY = window.PREDIKT_SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || '';
-    const TZ = 'America/Mexico_City';
+    const toast = document.getElementById("toast");
 
-    const $ = (id) => document.getElementById(id);
-
-    const statePriority = {
-      live: 1,
-      today: 2,
-      upcoming: 3,
-      result: 4
-    };
-
-    const statusCopy = {
-      live: { cls:'status-live', icon:'🔴', label:'EN VIVO' },
-      today: { cls:'status-today', icon:'🟡', label:'HOY' },
-      upcoming: { cls:'status-upcoming', icon:'🟢', label:'PRÓXIMAMENTE' },
-      result: { cls:'status-result', icon:'🔵', label:'RESULTADO OFICIAL' }
-    };
-
-    function mxDate(dateValue){
-      if(!dateValue) return null;
-      return new Date(dateValue);
+    function showToast(message) {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
     }
 
-    function formatTime(dateValue){
-      const d = mxDate(dateValue);
-      if(!d || Number.isNaN(d.getTime())) return 'Hora por confirmar';
-      return new Intl.DateTimeFormat('es-MX',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:TZ}).format(d);
+    function sportsHeaders() {
+      return {
+        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        Accept: "application/json",
+        "Accept-Profile": "sports"
+      };
     }
 
-    function formatDay(dateValue){
-      const d = mxDate(dateValue);
-      if(!d || Number.isNaN(d.getTime())) return 'Fecha por confirmar';
-      const now = new Date();
-      const key = new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
-      const today = new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
-      const tomorrowDate = new Date(now.getTime()+24*60*60*1000);
-      const tomorrow = new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(tomorrowDate);
-      if(key===today) return 'HOY';
-      if(key===tomorrow) return 'MAÑANA';
-      return new Intl.DateTimeFormat('es-MX',{weekday:'short',day:'numeric',month:'short',timeZone:TZ}).format(d).replace('.', '').toUpperCase();
+    function predictionsHeaders(accessToken) {
+      return {
+        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${accessToken || PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        Accept: "application/json",
+        "Accept-Profile": "predictions"
+      };
     }
 
-    function normalizeMatch(row){
-      const home = row.home_team || row.home_team_name || row.team_home || row.local_team || row.local || row.home || 'Local';
-      const away = row.away_team || row.away_team_name || row.team_away || row.visitor_team || row.visitante || row.away || 'Visitante';
-      const startsAt = row.starts_at || row.match_date || row.kickoff_at || row.start_time || row.event_start_at || row.date_time;
-      const statusRaw = String(row.status || row.match_status || row.state || '').toLowerCase();
-      const homeScore = row.home_score ?? row.local_score ?? row.score_home ?? row.goals_home ?? null;
-      const awayScore = row.away_score ?? row.visitor_score ?? row.score_away ?? row.goals_away ?? null;
-      const minute = row.minute || row.current_minute || row.match_minute || null;
-      const city = row.city || row.venue_city || row.sede_ciudad || 'Ciudad por confirmar';
-      const stadium = row.stadium || row.venue || row.venue_name || row.estadio || 'Estadio por confirmar';
-      const groupName = row.group_name || row.group_label || row.group_code || row.grupo || row.stage_group || 'Grupo por confirmar';
-      const id = row.id || row.match_id || row.event_id || '';
-      const completed = ['completed','finished','final','official','resultado','result'].some(s => statusRaw.includes(s));
-      const live = ['live','en vivo','playing','in_progress','en_juego'].some(s => statusRaw.includes(s));
-      const d = mxDate(startsAt);
-      const now = new Date();
-      const todayKey = new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
-      const matchKey = d && !Number.isNaN(d.getTime()) ? new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(d) : null;
-      let state = 'upcoming';
-      if(live) state = 'live';
-      else if(completed) state = 'result';
-      else if(matchKey === todayKey) state = 'today';
-      return { id, home, away, startsAt, homeScore, awayScore, minute, city, stadium, groupName, state, raw: row };
+    function rankingsHeaders(accessToken) {
+      return {
+        apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${accessToken || PREDIKT_SUPABASE_PUBLIC_KEY}`,
+        Accept: "application/json",
+        "Accept-Profile": "rankings"
+      };
     }
 
-    function sortForHome(a,b){
-      const pa = statePriority[a.state] || 99;
-      const pb = statePriority[b.state] || 99;
-      if(pa !== pb) return pa - pb;
-      const da = mxDate(a.startsAt)?.getTime() || 9999999999999;
-      const db = mxDate(b.startsAt)?.getTime() || 9999999999999;
-      if(a.state === 'result') return db - da;
-      return da - db;
+    function normalizeLatamName(value) {
+      return String(value || "")
+        .replace(/\bChequia\b/gi, "República Checa")
+        .replace(/\bCzechia\b/gi, "República Checa")
+        .replace(/\bCzech Republic\b/gi, "República Checa")
+        .trim();
     }
 
-    function headerText(m){
-      const s = statusCopy[m.state] || statusCopy.upcoming;
-      if(m.state === 'live') return `${s.icon} ${s.label}${m.minute ? ' · Min ' + m.minute : ''}`;
-      if(m.state === 'today') return `${s.icon} ${s.label} · ${formatTime(m.startsAt)}`;
-      if(m.state === 'upcoming') return `${s.icon} ${formatDay(m.startsAt)} · ${formatTime(m.startsAt)}`;
-      return `${s.icon} ${s.label}`;
-    }
-
-    function matchUrl(m){
-      if(!m.id) return './partido-detalle.html';
-      return `./partido-detalle.html?id=${encodeURIComponent(m.id)}`;
-    }
-
-    function actionPrimary(m){
-      if(m.state === 'today' || m.state === 'upcoming') return `<a class="btn btn-primary" href="./pronostico.html${m.id ? '?match_id='+encodeURIComponent(m.id) : ''}">Haz tu Quiniela</a>`;
-      if(m.state === 'live') return `<a class="btn btn-primary" href="${matchUrl(m)}">Ver en Vivo</a>`;
-      return `<a class="btn btn-primary" href="./resultados-reales.html${m.id ? '?match_id='+encodeURIComponent(m.id) : ''}">Ver Resultado</a>`;
-    }
-
-    function renderMainMatch(m){
-      const s = statusCopy[m.state] || statusCopy.upcoming;
-      const scoreOrVs = (m.homeScore !== null && m.awayScore !== null) ? `<div class="score">${m.homeScore} - ${m.awayScore}</div>` : `<div class="vs">VS</div>`;
-      const suggestion = m.raw?.predikt_suggestion || m.raw?.suggestion || 'Espacio reservado para confianza PREDIKT™, momentum, probabilidad de victoria y factor dinámico de usuarios.';
-      return `
-        <article class="match-card ${s.cls}">
-          <div class="match-head"><span class="tag">${headerText(m)}</span><span class="time">${formatDay(m.startsAt)}</span></div>
-          <div class="match-body">
-            <div class="teams">
-              <div class="team"><div class="team-name">${escapeHtml(m.home)}</div></div>
-              ${scoreOrVs}
-              <div class="team" style="text-align:right"><div class="team-name">${escapeHtml(m.away)}</div></div>
-            </div>
-            <div class="meta">
-              <div class="meta-item"><div class="meta-label">Hora</div><div class="meta-value">${formatTime(m.startsAt)}</div></div>
-              <div class="meta-item"><div class="meta-label">Grupo</div><div class="meta-value">${escapeHtml(m.groupName)}</div></div>
-              <div class="meta-item"><div class="meta-label">Ciudad</div><div class="meta-value">${escapeHtml(m.city)}</div></div>
-              <div class="meta-item"><div class="meta-label">Estadio</div><div class="meta-value">${escapeHtml(m.stadium)}</div></div>
-            </div>
-            <div class="actions-row">
-              ${actionPrimary(m)}
-              <a class="btn btn-secondary" href="${matchUrl(m)}">Ver Detalle</a>
-            </div>
-            <div class="intel">
-              <div class="intel-title">🧠 Motor Inteligente PREDIKT™</div>
-              <div class="intel-text">${escapeHtml(suggestion)}</div>
-            </div>
-          </div>
-        </article>`;
-    }
-
-    function renderMini(m){
-      return `<a class="mini-card" href="${matchUrl(m)}">
-        <div class="mini-status">${headerText(m)}</div>
-        <div class="mini-teams">${escapeHtml(m.home)}<br/>vs ${escapeHtml(m.away)}</div>
-        <div class="mini-meta">${formatTime(m.startsAt)} · ${escapeHtml(m.groupName)}</div>
-      </a>`;
-    }
-
-    function escapeHtml(value){
-      return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    }
-
-    async function fetchMatches(){
-      if(!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.supabase){
-        throw new Error('Falta configurar SUPABASE_URL / SUPABASE_ANON_KEY.');
+    function firstText(...values) {
+      for (const value of values) {
+        if (value !== null && value !== undefined && String(value).trim() !== "") return normalizeLatamName(value);
       }
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const sources = [
-        { schema:'sports', table:'v_predikt_home_match_center' },
-        { schema:'sports', table:'v_event_match_intelligence_api' },
-        { schema:'sports', table:'events' }
+      return "";
+    }
+
+    function splitMatchName(name) {
+      const safeName = normalizeLatamName(name || "Partido por confirmar");
+      const parts = safeName.split(/\s+vs\s+|\s+VS\s+|\s+v\s+/i);
+      if (parts.length >= 2) return { home: parts[0].trim(), away: parts[1].trim() };
+      return { home: "Local", away: "Visitante" };
+    }
+
+    function getTeamNamesFromRow(row = {}) {
+      const home = firstText(row.home_name, row.home_team_name, row.home_participant_name, row.home_selection_name, row.home_country_name, row.home_team);
+      const away = firstText(row.away_name, row.away_team_name, row.away_participant_name, row.away_selection_name, row.away_country_name, row.away_team);
+      if (home && away) return { home, away };
+      return splitMatchName(row.event_name || row.name || row.display_label || row.match_name);
+    }
+
+    function inferCode(name, fallback = "--") {
+      const clean = String(name || "").trim();
+      if (!clean) return fallback;
+      if (clean.length <= 3) return clean.toUpperCase();
+      return clean.slice(0, 2).toUpperCase();
+    }
+
+    function getStoredSupabaseSession() {
+      try {
+        for (let index = 0; index < window.localStorage.length; index += 1) {
+          const key = window.localStorage.key(index);
+          if (!key || !key.includes("auth-token")) continue;
+          const raw = window.localStorage.getItem(key);
+          if (!raw) continue;
+          const parsed = JSON.parse(raw);
+          const session = parsed.currentSession || parsed.session || parsed;
+          if (session?.access_token) return session;
+        }
+      } catch (error) {
+        console.warn("No se pudo leer sesión Supabase local.", error);
+      }
+      return null;
+    }
+
+    function formatDateShort(value) {
+      if (!value) return "Por definir";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Por definir";
+      return date.toLocaleString("es-MX", {
+        timeZone: "America/Mexico_City",
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function formatTimeMX(value) {
+      if (!value) return "Hora por definir";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Hora por definir";
+      return date.toLocaleTimeString("es-MX", {
+        timeZone: "America/Mexico_City",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function getVenueLabel(row = {}) {
+      const metadata = row.metadata || row.event_metadata || {};
+      const city = firstText(row.venue_city, row.city, row.host_city, metadata.venue_city, metadata.city);
+      const venue = firstText(row.venue_name, row.stadium_name, row.venue, row.stadium, metadata.venue_name, metadata.stadium_name);
+      if (city && venue) return `${city} · ${venue}`;
+      if (city) return city;
+      if (venue) return venue;
+      return "Ciudad y estadio por confirmar";
+    }
+
+    function getMatchMode(row = {}) {
+      if (isLiveStatus(row)) return "live";
+      const startsAt = row.starts_at || row.start_time || row.event_start_at;
+      if (isSameMexicoDate(startsAt)) return "today";
+      return "upcoming";
+    }
+
+    function setMatchStatusVisual(mode, label, timeLabel) {
+      const card = document.getElementById("liveMatchCard");
+      const banner = document.getElementById("matchStatusBanner");
+      const pill = document.getElementById("liveStatusPill");
+      const time = document.getElementById("liveStatusTime");
+      if (!card || !banner || !pill || !time) return;
+      card.classList.remove("status-live", "status-today", "status-upcoming", "status-result");
+      banner.classList.remove("live", "today", "upcoming", "result");
+      const safeMode = ["live", "today", "upcoming", "result"].includes(mode) ? mode : "today";
+      card.classList.add(`status-${safeMode}`);
+      banner.classList.add(safeMode);
+      pill.textContent = label;
+      time.textContent = timeLabel || "";
+    }
+
+    function formatDateOnlyMX(value) {
+      if (!value) return "Hoy";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Hoy";
+      return date.toLocaleDateString("es-MX", {
+        timeZone: "America/Mexico_City",
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function isSameMexicoDate(value, reference = new Date()) {
+      if (!value) return false;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return false;
+      const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Mexico_City",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      return fmt.format(date) === fmt.format(reference);
+    }
+
+    function isLiveStatus(row = {}) {
+      const statusText = String(firstText(row.event_status, row.status, row.match_status, row.state)).toLowerCase();
+      const minute = Number(row.minute ?? row.current_minute ?? row.match_minute ?? 0);
+      return statusText.includes("live") || statusText.includes("vivo") || statusText.includes("en juego") || (minute > 0 && minute < 130);
+    }
+
+    function getRowStartTime(row = {}) {
+      const raw = row.starts_at || row.start_time || row.event_start_at || row.event_date || row.match_date;
+      const date = new Date(raw);
+      return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
+    }
+
+    async function fetchSportsRows(viewName, queryString = "select=*&limit=1") {
+      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${viewName}?${queryString}`, {
+        method: "GET",
+        headers: sportsHeaders()
+      });
+      if (!response.ok) throw new Error(`${viewName} status ${response.status}`);
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    }
+
+    async function fetchPredictionsRows(tableName, queryString, accessToken) {
+      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${tableName}?${queryString}`, {
+        method: "GET",
+        headers: predictionsHeaders(accessToken)
+      });
+      if (!response.ok) throw new Error(`${tableName} status ${response.status}`);
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    }
+
+    async function fetchRankingsRows(tableName, queryString, accessToken) {
+      const response = await fetch(`${PREDIKT_SUPABASE_REST_URL}/${tableName}?${queryString}`, {
+        method: "GET",
+        headers: rankingsHeaders(accessToken)
+      });
+      if (!response.ok) throw new Error(`${tableName} status ${response.status}`);
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    }
+
+    function buildCertifiedFallbackRows() {
+      return [
+        {
+          event_id: "fallback-can-bos",
+          event_name: "Canadá vs Bosnia y Herzegovina",
+          home_name: "Canadá",
+          away_name: "Bosnia y Herzegovina",
+          home_code: "CAN",
+          away_code: "BIH",
+          phase_name: "Fase de Grupos",
+          group_name: "Grupo por confirmar",
+          starts_at: "2026-06-12T19:00:00+00"
+        }
       ];
-      let lastError = null;
-      for(const source of sources){
-        try{
-          const { data, error } = await client.schema(source.schema).from(source.table).select('*').limit(24);
-          if(error){ lastError = error; continue; }
-          if(Array.isArray(data) && data.length) return data;
-        }catch(err){ lastError = err; }
-      }
-      if(lastError) throw lastError;
-      return [];
     }
 
-    async function init(){
-      try{
-        const rows = await fetchMatches();
-        const matches = rows.map(normalizeMatch).sort(sortForHome);
-        $('updatedAt').textContent = new Intl.DateTimeFormat('es-MX',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:TZ}).format(new Date());
-        if(!matches.length){
-          $('primaryMatch').innerHTML = '<div class="empty">No hay partidos disponibles para mostrar en este momento.</div>';
-          $('secondaryMatches').innerHTML = '';
+    function buildChronologicalRows(rows = []) {
+      return rows
+        .filter((row) => !isLiveStatus(row))
+        .filter((row) => (row.event_id || row.id || row.event_name || row.name || row.display_label))
+        .sort((a, b) => getRowStartTime(a) - getRowStartTime(b))
+        .slice(0, 8);
+    }
+
+    function renderFeaturedMatch(row, mode = "upcoming") {
+      if (!row) {
+        document.getElementById("featuredSectionTitle").textContent = "🎯 Centro de Partidos";
+        setMatchStatusVisual("upcoming", "🟢 PRÓXIMAMENTE", "Sin datos activos");
+        document.getElementById("liveMatchName").textContent = "Partidos por cargar";
+        document.getElementById("liveStage").textContent = "Fase por confirmar";
+        document.getElementById("liveGroup").textContent = "Grupo por confirmar";
+        document.getElementById("liveMinute").textContent = "Horario por confirmar";
+        document.getElementById("liveVenueLine").textContent = "Ciudad y estadio por confirmar";
+        document.getElementById("liveHomeCode").textContent = "--";
+        document.getElementById("liveHomeName").textContent = "Equipo por confirmar";
+        document.getElementById("liveHomeScore").textContent = "";
+        document.getElementById("liveAwayCode").textContent = "--";
+        document.getElementById("liveAwayName").textContent = "Equipo por confirmar";
+        document.getElementById("liveAwayScore").textContent = "";
+        document.getElementById("liveScoreline").classList.remove("show");
+        document.getElementById("prediktIntelligenceCopy").textContent = "Entra a Pronósticos para ver la lista completa mientras se conecta el Centro de Partidos.";
+        document.getElementById("liveDetailLink").href = "pronostico.html";
+        document.getElementById("liveQuinielaLink").href = "pronostico.html";
+        return;
+      }
+
+      const teams = getTeamNamesFromRow(row);
+      const homeCode = firstText(row.home_code, row.home_team_code, row.home_country_code) || inferCode(teams.home);
+      const awayCode = firstText(row.away_code, row.away_team_code, row.away_country_code) || inferCode(teams.away);
+      const eventId = row.event_id || row.id || "";
+      const startsAt = row.starts_at || row.start_time || row.event_start_at;
+      const effectiveMode = mode === "live" ? "live" : getMatchMode(row);
+      const minute = firstText(row.minute, row.current_minute, row.match_minute) || "EN VIVO";
+      const homeScore = Number(row.home_score ?? row.home_goals ?? row.score_home ?? 0);
+      const awayScore = Number(row.away_score ?? row.away_goals ?? row.score_away ?? 0);
+      const timeLabel = effectiveMode === "live"
+        ? (String(minute).toUpperCase().includes("VIVO") ? String(minute) : `Min ${minute}`)
+        : formatTimeMX(startsAt);
+
+      if (effectiveMode === "live") {
+        setMatchStatusVisual("live", `🔴 EN VIVO · ${timeLabel}`, "Partido activo");
+      } else if (effectiveMode === "today") {
+        setMatchStatusVisual("today", `🟡 HOY · ${timeLabel}`, "Haz tu quiniela");
+      } else {
+        setMatchStatusVisual("upcoming", "🟢 PRÓXIMAMENTE", formatDateShort(startsAt));
+      }
+
+      document.getElementById("featuredSectionTitle").textContent = "🎯 Centro de Partidos";
+      document.getElementById("liveMatchName").textContent = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
+      document.getElementById("liveStage").textContent = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
+      document.getElementById("liveGroup").textContent = firstText(row.group_name, row.group_code) || "Grupo por confirmar";
+      document.getElementById("liveMinute").textContent = effectiveMode === "live" ? timeLabel : formatDateShort(startsAt);
+      document.getElementById("liveVenueLine").textContent = getVenueLabel(row);
+      document.getElementById("liveHomeCode").textContent = homeCode;
+      document.getElementById("liveHomeName").textContent = teams.home;
+      document.getElementById("liveHomeScore").textContent = effectiveMode === "live" ? String(homeScore) : "Local";
+      document.getElementById("liveAwayCode").textContent = awayCode;
+      document.getElementById("liveAwayName").textContent = teams.away;
+      document.getElementById("liveAwayScore").textContent = effectiveMode === "live" ? String(awayScore) : "Visitante";
+      document.getElementById("liveHomeScoreMain").textContent = String(homeScore);
+      document.getElementById("liveAwayScoreMain").textContent = String(awayScore);
+      document.getElementById("liveScoreline").classList.toggle("show", effectiveMode === "live");
+      document.getElementById("prediktIntelligenceCopy").textContent = effectiveMode === "live"
+        ? "Lectura preparada para mostrar momentum, probabilidad y confianza durante el partido."
+        : "Espacio reservado para sugerencia inteligente, confianza PREDIKT™ y tendencia de usuarios antes del partido.";
+      document.getElementById("liveDetailLink").href = eventId ? `partido-detalle.html?id=${encodeURIComponent(eventId)}` : "pronostico.html";
+      document.getElementById("liveQuinielaLink").href = eventId ? `pronostico.html?event_id=${encodeURIComponent(eventId)}` : "pronostico.html";
+    }
+
+    function renderUpcomingMatches(rows = []) {
+      const list = document.getElementById("upcomingMatchesList");
+      const titleNode = document.getElementById("todayMatchesTitle");
+      if (!list) return;
+
+      const todayRows = rows
+        .filter((row) => isSameMexicoDate(row.starts_at || row.start_time || row.event_start_at))
+        .slice(0, 3);
+
+      const safeRows = todayRows.length ? todayRows : (rows.length ? rows.slice(0, 3) : buildCertifiedFallbackRows());
+
+      if (titleNode) titleNode.textContent = todayRows.length ? "Partidos de hoy" : "Próximos partidos";
+
+      list.innerHTML = safeRows.map((row) => {
+        const teams = getTeamNamesFromRow(row);
+        const eventId = row.event_id || row.id || "";
+        const quinielaHref = eventId ? `pronostico.html?event_id=${encodeURIComponent(eventId)}` : "pronostico.html";
+        const title = firstText(row.event_name, row.name, row.display_label, `${teams.home} vs ${teams.away}`);
+        const group = firstText(row.group_name, row.group_code) || "Grupo";
+        const stage = firstText(row.phase_name, row.event_stage, row.phase_short_name) || "Fase de Grupos";
+        const startsAt = row.starts_at || row.start_time || row.event_start_at;
+        const dateLabel = todayRows.length ? formatTimeMX(startsAt) : formatDateShort(startsAt);
+        const venueLabel = getVenueLabel(row);
+        const statusIcon = todayRows.length ? "🟡" : "🟢";
+
+        return `
+          <article class="match-row">
+            <span class="match-row-date">${statusIcon} ${dateLabel}</span>
+            <span>
+              <strong class="match-row-title">${title}</strong>
+              <small class="match-row-sub">${stage} · ${group} · ${venueLabel}</small>
+            </span>
+            <a class="mini-pick" href="${quinielaHref}">Quiniela</a>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function normalizeScoreValue(value) {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) return "0";
+      return String(numeric);
+    }
+
+    function resultNameFromOfficial(row = {}) {
+      const teams = getTeamNamesFromRow(row);
+      const homeGoals = normalizeScoreValue(row.home_score ?? row.home_goals ?? row.official_home_score ?? row.home_result);
+      const awayGoals = normalizeScoreValue(row.away_score ?? row.away_goals ?? row.official_away_score ?? row.away_result);
+      return `${teams.home} ${homeGoals}-${awayGoals} ${teams.away}`;
+    }
+
+    function predictionLabelFromScore(row = {}) {
+      const home = row.predicted_home_score ?? row.user_home_score ?? row.home_prediction ?? row.home_goals_prediction;
+      const away = row.predicted_away_score ?? row.user_away_score ?? row.away_prediction ?? row.away_goals_prediction;
+      if (home !== undefined && home !== null && away !== undefined && away !== null) return `${home}-${away}`;
+      const outcome = firstText(row.predicted_outcome, row.user_prediction, row.outcome);
+      return outcome || "Sin pronóstico registrado";
+    }
+
+    function renderLatestResult({ officialResult = null, predictionScore = null } = {}) {
+      const matchNode = document.getElementById("latestResultMatch");
+      const predictionNode = document.getElementById("latestUserPrediction");
+      const pointsNode = document.getElementById("latestPointsEarned");
+      const dateNode = document.getElementById("latestResultDate");
+
+      if (!matchNode || !predictionNode || !pointsNode || !dateNode) return;
+
+      if (!officialResult) {
+        matchNode.textContent = "Aún no hay resultados oficiales visibles.";
+        predictionNode.textContent = "Entra a Pronósticos";
+        pointsNode.textContent = "+0";
+        dateNode.textContent = "Pendiente";
+        return;
+      }
+
+      matchNode.textContent = resultNameFromOfficial(officialResult);
+      predictionNode.textContent = predictionScore ? predictionLabelFromScore(predictionScore) : "Sin pronóstico registrado";
+      const points = Number(predictionScore?.points ?? predictionScore?.score ?? predictionScore?.total_points ?? 0);
+      pointsNode.textContent = `+${Number.isFinite(points) ? points : 0}`;
+      const resultDate = officialResult.result_date || officialResult.played_at || officialResult.created_at || officialResult.updated_at;
+      dateNode.textContent = formatDateOnlyMX(resultDate);
+    }
+
+    async function loadLatestResultFlow() {
+      const session = getStoredSupabaseSession();
+      const accessToken = session?.access_token;
+      const userId = session?.user?.id;
+
+      try {
+        const officialRows = await fetchPredictionsRows(
+          "official_results",
+          "select=*&order=created_at.desc&limit=1",
+          accessToken
+        );
+
+        const officialResult = officialRows[0] || null;
+
+        let predictionScore = null;
+        if (officialResult && userId) {
+          const eventId = officialResult.event_id || officialResult.match_id || officialResult.id;
+          const scoreQueries = [
+            `select=*&user_id=eq.${encodeURIComponent(userId)}&event_id=eq.${encodeURIComponent(eventId)}&limit=1`,
+            `select=*&user_id=eq.${encodeURIComponent(userId)}&match_id=eq.${encodeURIComponent(eventId)}&limit=1`
+          ];
+
+          for (const query of scoreQueries) {
+            try {
+              const rows = await fetchPredictionsRows("prediction_scores", query, accessToken);
+              if (rows[0]) {
+                predictionScore = rows[0];
+                break;
+              }
+            } catch (innerError) {
+              console.warn("Consulta alternativa prediction_scores no disponible.", innerError);
+            }
+          }
+        }
+
+        renderLatestResult({ officialResult, predictionScore });
+      } catch (error) {
+        console.warn("No se pudo cargar resultado más reciente.", error);
+        renderLatestResult({ officialResult: null, predictionScore: null });
+      }
+    }
+
+    async function loadUserStatsFlow() {
+      const session = getStoredSupabaseSession();
+      const accessToken = session?.access_token;
+      const userId = session?.user?.id;
+      const profileBtn = document.getElementById("profileAccessBtn");
+
+      if (session?.user?.email && profileBtn) profileBtn.textContent = "Perfil";
+
+      if (!userId) {
+        syncLocalProgress();
+        return;
+      }
+
+      try {
+        const rows = await fetchRankingsRows(
+          "user_stats",
+          `select=*&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+          accessToken
+        );
+        const stats = rows[0] || null;
+        if (!stats) {
+          syncLocalProgress();
           return;
         }
-        $('primaryMatch').innerHTML = renderMainMatch(matches[0]);
-        $('secondaryMatches').innerHTML = matches.slice(1,7).map(renderMini).join('');
-      }catch(err){
-        console.error('[PREDIKT INDEX]', err);
-        $('updatedAt').textContent = 'Sin conexión';
-        $('primaryMatch').innerHTML = `<div class="empty error"><strong>No se pudo cargar el Centro de Partidos.</strong><br/>${escapeHtml(err.message || err)}</div>`;
-        $('secondaryMatches').innerHTML = '';
+
+        const points = Number(stats.total_points ?? stats.points ?? 0);
+        const completed = Number(stats.total_predictions ?? stats.predictions_count ?? 0);
+        const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - (Number.isFinite(completed) ? completed : 0));
+
+        document.getElementById("userPointsValue").textContent = String(Number.isFinite(points) ? points : 0);
+        document.getElementById("userPendingValue").textContent = String(pending);
+        document.getElementById("userPendingCopy").textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
+      } catch (error) {
+        console.warn("No se pudo cargar rankings.user_stats. Usando progreso local.", error);
+        syncLocalProgress();
       }
     }
 
-    init();
+    function syncLocalProgress() {
+      const completed = Math.max(0, Math.min(Number(window.localStorage.getItem("predikt_predictions_completed") || 0), TOTAL_CERTIFIED_MATCHES));
+      const points = Math.max(0, Number(window.localStorage.getItem("predikt_user_points") || 0));
+      const pending = Math.max(0, TOTAL_CERTIFIED_MATCHES - completed);
+
+      document.getElementById("userPointsValue").textContent = String(points);
+      document.getElementById("userPendingValue").textContent = String(pending);
+      document.getElementById("userPendingCopy").textContent = pending === 1 ? "partido por pronosticar." : "partidos por pronosticar.";
+    }
+
+    async function loadHomeSportsFlow() {
+      try {
+        let nextOpenRows = [];
+        let intelligenceRows = [];
+
+        try {
+          nextOpenRows = await fetchSportsRows("v_predikt_home_next_open_match", "select=*&limit=1");
+        } catch (innerError) {
+          console.warn("Vista next open no disponible. Usando intelligence API.", innerError);
+        }
+
+        const lowerBoundIso = new Date(Date.now() - (3 * 60 * 60 * 1000)).toISOString();
+
+        try {
+          intelligenceRows = await fetchSportsRows(
+            "v_event_match_intelligence_api",
+            `select=*&starts_at=gte.${encodeURIComponent(lowerBoundIso)}&order=starts_at.asc&limit=72`
+          );
+        } catch (innerError) {
+          console.warn("Intelligence API sin filtro starts_at. Intentando consulta cronológica básica.", innerError);
+          intelligenceRows = await fetchSportsRows("v_event_match_intelligence_api", "select=*&order=starts_at.asc&limit=72");
+        }
+
+        const rows = Array.isArray(intelligenceRows) ? intelligenceRows : [];
+        const liveRow = rows.find(isLiveStatus);
+        const chronologicalRows = buildChronologicalRows(rows);
+        const nowMs = Date.now();
+
+        const nearestRow = rows
+          .filter((row) => !isLiveStatus(row))
+          .sort((a, b) => Math.abs(getRowStartTime(a) - nowMs) - Math.abs(getRowStartTime(b) - nowMs))[0] || null;
+
+        const featuredRow = liveRow || nearestRow || nextOpenRows[0] || chronologicalRows[0] || rows[0] || null;
+
+        renderFeaturedMatch(featuredRow, liveRow ? "live" : "upcoming");
+        renderUpcomingMatches(chronologicalRows.length ? chronologicalRows : (nextOpenRows.length ? nextOpenRows : []));
+      } catch (error) {
+        console.warn("PREDIKT Home data flow unavailable.", error);
+        renderFeaturedMatch(null, "empty");
+        renderUpcomingMatches([]);
+        showToast("No se pudo conectar a partidos. Entra a Pronósticos para ver la lista completa.");
+      }
+    }
+
+    loadUserStatsFlow();
+    loadLatestResultFlow();
+    loadHomeSportsFlow();
   </script>
 </body>
 </html>
+
+<!--
+Cierre de archivo
+Versión: v9.0.0 CENTRO DE PARTIDOS INTEGRADO
+Fecha: 2026-06-12
+Elaborado por: JVSys™
+Regla UX: Inicio debe sentirse como Centro de Control, no como tabla de partidos.
+Acción: Sustituir index.html completo.
+-->
