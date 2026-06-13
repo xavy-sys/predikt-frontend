@@ -230,7 +230,7 @@
 
   <script>
     // =====================================================
-    // PREDIKT™ HOME v10.0.0 DAILY MATCH HUB
+    // PREDIKT™ HOME v10.2.0 DAILY MATCH HUB - JORNADA FIRST
     // App-first: jornada, grupos, reto diario, avance.
     // =====================================================
 
@@ -281,14 +281,17 @@
     async function loadHome(manualRefresh) {
       try {
         if (manualRefresh) showToast('Actualizando Inicio...');
-        const [upcomingMatches, nextMatch, standings] = await Promise.all([
+        const [dailyMatches, upcomingMatches, nextMatch, standings] = await Promise.all([
+          fetchDailyMatchView(),
           fetchUpcomingMatches(),
           fetchNextMatch(),
           fetchGroupStandings()
         ]);
-        nextMatchCache = nextMatch || upcomingMatches[0] || null;
+        nextMatchCache = nextMatch || dailyMatches[0] || upcomingMatches[0] || null;
         const todayRange = getMexicoCityDayRange(nextMatchCache?.starts_at);
-        const todayMatches = await fetchTodayMatches(todayRange.startISO, todayRange.endISO, nextMatchCache, upcomingMatches);
+        const todayMatches = dailyMatches.length
+          ? dailyMatches
+          : await fetchTodayMatches(todayRange.startISO, todayRange.endISO, nextMatchCache, upcomingMatches);
         todayMatchesCache = todayMatches;
         renderDailyCommand(todayMatches, nextMatchCache);
         renderTodayMatches(todayMatches, upcomingMatches);
@@ -302,6 +305,26 @@
         showToast('No se pudo cargar Inicio. Revisa vistas/RLS.');
         renderEmptyHome('No se pudo leer el motor deportivo.');
       }
+    }
+
+
+    async function fetchDailyMatchView() {
+      // Vista recomendada: sports.v_predikt_home_today_matches
+      // Debe devolver TODOS los partidos de la jornada operativa CDMX.
+      let rows = await querySportsView('v_predikt_home_today_matches', (q) => q.select('*').limit(12));
+      let normalized = rows.map(normalizeMatch).filter(Boolean).sort(sortByStart);
+      if (normalized.length) return dedupeMatches(normalized);
+
+      // Fallback: si aún no existe la vista, usar v_upcoming_events sin declarar falsamente que no hay partidos.
+      rows = await querySportsView('v_upcoming_events', (q) => q.select('*').limit(24));
+      normalized = rows.map(normalizeMatch).filter(Boolean).sort(sortByStart);
+      if (!normalized.length) return [];
+
+      // Agrupar por la fecha CDMX del primer partido pendiente. Esto permite mostrar la jornada completa aunque el servidor esté en UTC.
+      const anchorRange = getMexicoCityDayRange(normalized[0].starts_at);
+      const start = new Date(anchorRange.startISO).getTime();
+      const end = new Date(anchorRange.endISO).getTime();
+      return dedupeMatches(normalized.filter(m => inRange(m.starts_at, start, end)).sort(sortByStart));
     }
 
     async function fetchTodayMatches(startISO, endISO, anchorMatch = null, upcomingFallback = []) {
@@ -391,20 +414,25 @@
         $('dailySubtitle').textContent = pending ? `Te faltan ${pending} pronóstico${pending === 1 ? '' : 's'} de la jornada. Entra, decide y guarda.` : 'La jornada de hoy ya está cerrada. Revisa grupos y resultados.';
       } else if (nextMatch) {
         const teams = splitMatchName(nextMatch.name);
-        $('dailyTitle').textContent = 'No hay partidos hoy';
-        $('dailySubtitle').textContent = `Próximo: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(nextMatch.starts_at)}.`;
+        $('dailyTitle').textContent = 'Jornada de hoy';
+        $('dailySubtitle').textContent = `Carrusel pendiente de sincronizar. Próximo visible: ${teams.home} vs ${teams.away}, ${formatTimeCDMX(nextMatch.starts_at)}.`;
       } else {
-        $('dailyTitle').textContent = 'Calendario pendiente';
-        $('dailySubtitle').textContent = 'No hay partidos disponibles en el motor deportivo.';
+        $('dailyTitle').textContent = 'Jornada en carga';
+        $('dailySubtitle').textContent = 'Estamos preparando el calendario del día. Pulsa actualizar en unos segundos.';
       }
     }
 
     function renderTodayMatches(todayMatches, upcomingMatches) {
       const row = $('todayMatchesRow');
-      $('todayCountLabel').textContent = `${todayMatches.length} partido${todayMatches.length === 1 ? '' : 's'}`;
-      const source = todayMatches.length ? todayMatches : upcomingMatches.slice(0, 8);
-      if (!source.length) { row.innerHTML = '<div class="empty-state">No se pudo leer la jornada. Pulsa actualizar o revisa RLS/v_upcoming_events.</div>'; return; }
-      if (!todayMatches.length) $('todayCountLabel').textContent = 'Próximos partidos';
+      const fallback = upcomingMatches?.length ? upcomingMatches.slice(0, 8) : (nextMatchCache ? [nextMatchCache] : []);
+      const source = todayMatches.length ? todayMatches : fallback;
+      $('todayCountLabel').textContent = todayMatches.length
+        ? `${todayMatches.length} partido${todayMatches.length === 1 ? '' : 's'}`
+        : (source.length ? 'Próximos visibles' : 'Sin datos');
+      if (!source.length) {
+        row.innerHTML = '<div class="empty-state">Jornada en carga. Revisa que exista sports.v_predikt_home_today_matches con permisos SELECT.</div>';
+        return;
+      }
       row.innerHTML = source.map(match => renderMatchCard(match, !todayMatches.length)).join('');
     }
 
