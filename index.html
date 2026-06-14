@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.2.12_UTC_DATE_PARSE_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.3.0_RPC_HOME_DATA_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -823,7 +823,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.12_UTC_DATE_PARSE_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.0_RPC_HOME_DATA_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -1133,74 +1133,29 @@
       $('userPoints').textContent = state.points.toLocaleString('es-MX');
     }
 
+    
     async function loadEventsWindow() {
       const now = new Date();
-      // Ventana amplia certificada: incluye finalizados recientes, jornada actual, mañana y próximos para fallback.
       const min = addDays(startOfLocalDay(now), -2);
       const max = addDays(startOfLocalDay(now), 5);
 
-      const rows = await readSportsRows([
-        {
-          name: 'v_predikt_home_today_matches_v2',
-          query: (q) => q.select('*').limit(24)
-        },
-        {
-          name: 'v_predikt_home_today_matches',
-          query: (q) => q.select('*').limit(24)
-        },
-        {
-          name: 'v_upcoming_events',
-          query: (q) => q.select('*').limit(48)
-        },
-        {
-          name: 'events',
-          query: (q) => q
-            .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
-            .gte('starts_at', min.toISOString())
-            .lt('starts_at', max.toISOString())
-            .order('starts_at', { ascending: true })
-            .limit(160)
-        },
-        {
-          name: 'events',
-          query: (q) => q
-            .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
-            .eq('event_type','MATCH')
-            .gte('starts_at', min.toISOString())
-            .lt('starts_at', max.toISOString())
-            .order('starts_at', { ascending: true })
-            .limit(120)
-        },
-        {
-          name: 'events',
-          query: (q) => q
-            .select(`
-              id,
-              name,
-              starts_at,
-              event_status,
-              venue_id,
-              home_participant_id,
-              away_participant_id,
-              metadata,
-              venues:venue_id(name, city, timezone, metadata),
-              home:home_participant_id(name, short_name, country_code, flag_emoji),
-              away:away_participant_id(name, short_name, country_code, flag_emoji)
-            `)
-            .eq('event_type','MATCH')
-            .gte('starts_at', min.toISOString())
-            .lt('starts_at', max.toISOString())
-            .order('starts_at', { ascending: true })
-            .limit(80)
-        }
-      ]);
+      let rows = [];
+      try {
+        const { data, error } = await supabaseClient
+          .schema('sports')
+          .rpc('get_home_events', { p_from: min.toISOString(), p_to: max.toISOString() });
+        if (error) throw error;
+        rows = Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.warn('[PREDIKT_HOME_RPC_EVENTS_WARNING]', error);
+      }
 
-      // Las filas reales tienen prioridad; los respaldos solo completan nombres/ventanas cuando RLS/vistas no exponen todo.
       state.events = dedupeEvents([
         ...rows.map(normalizeEvent).filter(Boolean),
         ...CERTIFIED_MATCH_FALLBACKS.map(normalizeEvent).filter(Boolean)
       ]).sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
+
 
     async function readSportsRows(sources) {
       const collected = [];
@@ -1217,93 +1172,84 @@
     }
 
     
+    
     async function loadUserPredictions() {
       state.predictions = new Map();
       if (!state.user || !state.events.length) return;
 
-      const userId = state.user.id;
       const today = localDayKey(new Date());
-      const tomorrow = localDayKey(addDays(startOfLocalDay(new Date()), 1));
-
-      const candidateEventIds = state.events
-        .filter((event) => {
-          const key = localDayKey(event.startsAtDate);
-          return key === today || key === tomorrow;
-        })
+      const eventIds = state.events
+        .filter((event) => localDayKey(event.startsAtDate) === today)
         .map((event) => String(event.id))
         .filter((id) => id && !id.startsWith('fifa-'));
 
-      if (!candidateEventIds.length) return;
+      if (!eventIds.length) return;
 
-      const { data, error } = await supabaseClient
-        .schema('predictions')
-        .from('predictions')
-        .select('id, event_id, user_id, created_at, updated_at')
-        .eq('user_id', userId)
-        .in('event_id', candidateEventIds);
-
-      if (error) throw error;
-      state.predictions = new Map((data || []).map((p) => [String(p.event_id), p]));
+      try {
+        const { data, error } = await supabaseClient
+          .schema('predictions')
+          .rpc('get_user_predictions_for_events', {
+            p_user_id: state.user.id,
+            p_event_ids: eventIds
+          });
+        if (error) throw error;
+        state.predictions = new Map((data || []).map((p) => [String(p.event_id), p]));
+      } catch (error) {
+        console.warn('[PREDIKT_USER_PREDICTIONS_RPC_WARNING]', error);
+      }
     }
 
 
+
+    
     
     
     async function loadRecentOfficialResults() {
-      /*
-        Fuente certificada:
-        predictions.official_results
-        Orden correcto:
-        finalized_at DESC NULLS LAST, created_at DESC
+      try {
+        const { data, error } = await supabaseClient
+          .schema('predictions')
+          .rpc('get_latest_official_result');
+        if (error) throw error;
 
-        IMPORTANTE:
-        No usar vistas home para este bloque. El resultado oficial más reciente
-        debe venir directamente de official_results y luego enlazarse por event_id
-        contra sports.events.
-      */
-      const { data: results, error } = await supabaseClient
-        .schema('predictions')
-        .from('official_results')
-        .select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at')
-        .order('finalized_at', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false })
-        .limit(10);
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row) {
+          state.officialResults = [];
+          state.recentResultEvent = findMostRecentFinishedEvent();
+          return;
+        }
 
-      if (error) {
-        console.warn('[PREDIKT_RECENT_RESULT_QUERY_ERROR]', error);
-        state.officialResults = [];
-        return;
-      }
+        const event = normalizeEvent({
+          id: row.event_id,
+          name: row.event_name,
+          starts_at: row.starts_at || row.finalized_at || row.created_at,
+          event_status: 'FINISHED',
+          metadata: {
+            group_code: row.group_code,
+            matchday: row.matchday,
+            venue_name: row.venue_name,
+            venue_city: row.venue_city
+          },
+          venue_name: row.venue_name,
+          venue_city: row.venue_city
+        });
 
-      const rows = Array.isArray(results) ? results : [];
-      if (!rows.length) {
+        state.officialResults = [{
+          id: row.id,
+          event_id: row.event_id,
+          official_home_score: row.official_home_score,
+          official_away_score: row.official_away_score,
+          official_winner: row.official_winner,
+          finalized_at: row.finalized_at,
+          created_at: row.created_at,
+          event
+        }];
+      } catch (error) {
+        console.warn('[PREDIKT_RECENT_RESULT_RPC_WARNING]', error);
         state.officialResults = [];
         state.recentResultEvent = findMostRecentFinishedEvent();
-        return;
       }
-
-      const eventIds = [...new Set(rows.map((r) => String(r.event_id || '')).filter(Boolean))];
-
-      let eventsById = new Map();
-      if (eventIds.length) {
-        const { data: events, error: eventsError } = await supabaseClient
-          .schema('sports')
-          .from('events')
-          .select('id,name,starts_at,event_status,metadata')
-          .in('id', eventIds);
-
-        if (eventsError) {
-          console.warn('[PREDIKT_RECENT_RESULT_EVENT_QUERY_ERROR]', eventsError);
-        } else {
-          eventsById = new Map((events || []).map((event) => [String(event.id), normalizeEvent(event)]));
-        }
-      }
-
-      state.officialResults = rows.map((row) => {
-        const boundEvent = eventsById.get(String(row.event_id)) || state.events.find((event) => String(event.id) === String(row.event_id)) || null;
-        return { ...row, event: boundEvent };
-      });
     }
+
 
 
 
