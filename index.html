@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.2.10_TOMORROW_WATCHDOG_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.2.11_SAFE_DATE_TOMORROW_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -823,7 +823,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.10_TOMORROW_WATCHDOG_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.11_SAFE_DATE_TOMORROW_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -1001,6 +1001,7 @@
         window.setTimeout(forceCriticalHomeBindings, 800);
         window.setTimeout(forceCriticalHomeBindings, 1800);
         startCountdownEngine();
+        safeRender('tomorrow-list-final', renderTomorrowList);
         hideBootSplash();
       } catch (err) {
         console.error('[PREDIKT_HOME_INIT_ERROR]', err);
@@ -1533,10 +1534,13 @@
 
     
     
+    
     function renderTomorrowList() {
       const list = $('tomorrowList');
+      if (!list) return;
+
       const tomorrowEvents = getTomorrowEvents().slice(0, 4);
-      const panel = list?.closest('.panel');
+      const panel = list.closest('.panel');
       const title = panel?.querySelector('h2');
       if (title) title.textContent = tomorrowEvents.length ? `Mañana · ${tomorrowEvents.length} partidos` : 'Mañana';
 
@@ -1552,6 +1556,7 @@
         </a>
       `).join('');
     }
+
 
 
 
@@ -1705,58 +1710,15 @@
 
     
     
+    
     async function forceTomorrowSlateCard() {
-      /*
-        Regla de negocio:
-        Desde las 00:01 hrs del día local, "Mañana" debe ser el siguiente
-        día calendario local, no la próxima jornada disponible ni eventos restantes de hoy.
-      */
       try {
-        const list = $('tomorrowList');
-        if (!list) return;
-
-        const now = new Date();
-        const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-        const tomorrowKey = localDayKey(tomorrowStart);
-
-        const makeEvent = (match) => {
-          const teams = splitMatchName(match.name);
-          return {
-            id: match.id || `fifa-${match.fifa_match_number}`,
-            name: match.name,
-            startsAtDate: new Date(match.starts_at),
-            groupCode: match.group_code,
-            venueName: match.venue_name || '',
-            homeLabel: cleanTeamName(teams.home || ''),
-            awayLabel: cleanTeamName(teams.away || '')
-          };
-        };
-
-        let tomorrowEvents = CERTIFIED_MATCH_FALLBACKS
-          .map(makeEvent)
-          .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
-          .sort((a, b) => a.startsAtDate - b.startsAtDate)
-          .slice(0, 4);
-
-        const panel = list.closest('.panel');
-        const title = panel?.querySelector('h2');
-        if (title) title.textContent = tomorrowEvents.length ? `Mañana · ${tomorrowEvents.length} partidos` : 'Mañana';
-
-        if (!tomorrowEvents.length) {
-          list.innerHTML = '<p class="state-empty">Mañana aún no tiene partidos programados.</p>';
-          return;
-        }
-
-        list.innerHTML = tomorrowEvents.map((event) => `
-          <a href="./pronostico.html?event_id=${encodeURIComponent(event.id)}" aria-label="Pronosticar ${escapeHtml(event.name)}">
-            <span class="tomorrow-name">${escapeHtml(event.name)}</span>
-            <span class="tomorrow-time">${escapeHtml(formatLocalTime(event.startsAtDate))}</span>
-          </a>
-        `).join('');
+        renderTomorrowList();
       } catch (error) {
-        console.warn('[PREDIKT_FORCE_TOMORROW_ROLLOVER_WARNING]', error);
+        console.warn('[PREDIKT_FORCE_TOMORROW_SAFE_WARNING]', error);
       }
     }
+
 
 
 
@@ -1772,12 +1734,14 @@
       updateCountdowns();
     }
 
+    
     function updateCountdowns() {
       safeRender('select-hero', selectHeroEvent);
       safeRender('hero', renderHero);
       safeRender('today-list', renderTodayList);
-      window.setTimeout(forceCriticalHomeBindings, 0);
+      safeRender('tomorrow-list', renderTomorrowList);
     }
+
 
     function getCountdownStatus(event, now = new Date()) {
       const start = event.startsAtDate;
@@ -1824,18 +1788,20 @@
 
     
     
+    
     function getTomorrowEvents() {
       const now = new Date();
-      const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+      const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 1, 0, 0);
       const tomorrowKey = localDayKey(tomorrowStart);
 
       const makeEvent = (match) => {
         const teams = splitMatchName(match.name);
+        const startsAtDate = new Date(match.starts_at);
         return {
-          id: match.id || `fifa-${match.fifa_match_number}`,
+          id: match.id || `fifa-${match.fifa_match_number || match.name}`,
           name: match.name,
           starts_at: match.starts_at,
-          startsAtDate: new Date(match.starts_at),
+          startsAtDate,
           groupCode: match.group_code,
           venueName: match.venue_name || '',
           homeLabel: cleanTeamName(teams.home || ''),
@@ -1846,20 +1812,31 @@
 
       return CERTIFIED_MATCH_FALLBACKS
         .map(makeEvent)
+        .filter((event) => event.startsAtDate && !Number.isNaN(event.startsAtDate.getTime()))
         .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
 
 
 
+
+    
     function localDayKey(date) {
-      return new Intl.DateTimeFormat('en-CA', {
-        timeZone: USER_TIMEZONE,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).format(date);
+      const d = date instanceof Date ? date : new Date(date);
+      if (!d || Number.isNaN(d.getTime())) return '';
+      try {
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: USER_TIMEZONE,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).format(d);
+      } catch (error) {
+        console.warn('[PREDIKT_SAFE_LOCAL_DAY_KEY_WARNING]', error, date);
+        return '';
+      }
     }
+
 
     function startOfLocalDay(date) {
       return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
@@ -1969,116 +1946,5 @@
       $('tomorrowList').innerHTML = '<p class="state-empty">Sin datos cargados.</p>';
     }
   </script>
-
-  <script>
-    /*
-      PREDIKT™ HOME v9.2.10
-      Watchdog final para la tarjeta "Mañana".
-
-      Regla:
-      A partir de las 00:01 del día local, "Mañana" = siguiente día calendario local.
-      No depende de vistas, estado global ni funciones previas.
-    */
-    (function () {
-      const FIFA_CERTIFIED_HOME_SLATE = [
-        { name: 'Alemania vs Curazao', starts_at: '2026-06-14T17:00:00+00' },
-        { name: 'Países Bajos vs Japón', starts_at: '2026-06-14T20:00:00+00' },
-        { name: 'Costa de Marfil vs Ecuador', starts_at: '2026-06-14T23:00:00+00' },
-        { name: 'Suecia vs Túnez', starts_at: '2026-06-15T02:00:00+00' },
-
-        { name: 'España vs Cabo Verde', starts_at: '2026-06-15T16:00:00+00' },
-        { name: 'Bélgica vs Egipto', starts_at: '2026-06-15T19:00:00+00' },
-        { name: 'Arabia Saudita vs Uruguay', starts_at: '2026-06-15T22:00:00+00' },
-        { name: 'Irán vs Nueva Zelanda', starts_at: '2026-06-16T01:00:00+00' },
-
-        { name: 'Francia vs Senegal', starts_at: '2026-06-16T19:00:00+00' },
-        { name: 'Irak vs Noruega', starts_at: '2026-06-16T22:00:00+00' },
-        { name: 'Argentina vs Argelia', starts_at: '2026-06-17T01:00:00+00' },
-        { name: 'Austria vs Jordania', starts_at: '2026-06-17T04:00:00+00' },
-
-        { name: 'Portugal vs RD Congo', starts_at: '2026-06-17T17:00:00+00' },
-        { name: 'Inglaterra vs Croacia', starts_at: '2026-06-17T20:00:00+00' },
-        { name: 'Ghana vs Panamá', starts_at: '2026-06-17T23:00:00+00' },
-        { name: 'Uzbekistán vs Colombia', starts_at: '2026-06-18T02:00:00+00' }
-      ];
-
-      function localKey(date) {
-        return new Intl.DateTimeFormat('en-CA', {
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'
-        }).format(date);
-      }
-
-      function localTime(date) {
-        return new Intl.DateTimeFormat('es-MX', {
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        }).format(date);
-      }
-
-      function esc(value) {
-        return String(value ?? '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-      }
-
-      function renderPrediktTomorrowWatchdog() {
-        const list = document.getElementById('tomorrowList');
-        if (!list) return;
-
-        const now = new Date();
-        const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 1, 0, 0);
-        const tomorrowKey = localKey(tomorrow);
-
-        const matches = FIFA_CERTIFIED_HOME_SLATE
-          .map((match) => ({ ...match, date: new Date(match.starts_at) }))
-          .filter((match) => localKey(match.date) === tomorrowKey)
-          .sort((a, b) => a.date - b.date)
-          .slice(0, 4);
-
-        const title = list.closest('.panel')?.querySelector('h2');
-        if (title) title.textContent = matches.length ? `Mañana · ${matches.length} partidos` : 'Mañana';
-
-        if (!matches.length) {
-          list.innerHTML = '<p class="state-empty">Mañana aún no tiene partidos programados.</p>';
-          return;
-        }
-
-        list.innerHTML = matches.map((match) => `
-          <a href="./pronostico.html" aria-label="Pronosticar ${esc(match.name)}">
-            <span class="tomorrow-name">${esc(match.name)}</span>
-            <span class="tomorrow-time">${esc(localTime(match.date))}</span>
-          </a>
-        `).join('');
-      }
-
-      window.PREDIKT_RENDER_TOMORROW_WATCHDOG = renderPrediktTomorrowWatchdog;
-
-      document.addEventListener('DOMContentLoaded', () => {
-        renderPrediktTomorrowWatchdog();
-        setTimeout(renderPrediktTomorrowWatchdog, 250);
-        setTimeout(renderPrediktTomorrowWatchdog, 900);
-        setTimeout(renderPrediktTomorrowWatchdog, 1800);
-      });
-
-      // Si el motor principal vuelve a pintar "Cargando...", este watchdog lo corrige.
-      setInterval(() => {
-        const list = document.getElementById('tomorrowList');
-        if (!list) return;
-        const text = (list.textContent || '').toLowerCase();
-        if (text.includes('cargando') || text.includes('sin datos') || text.trim().length < 10) {
-          renderPrediktTomorrowWatchdog();
-        }
-      }, 1000);
-    })();
-  </script>
-
 </body>
 </html>
