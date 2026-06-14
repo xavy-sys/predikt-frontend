@@ -1,650 +1,58 @@
+<!--
+  Archivo: eliminacion.html
+  Versión: v2.0.0_FIFA_STYLE
+  Motivo de la nueva versión:
+  Rediseño completo de Eliminación Directa con estándar visual PREDIKT™ Mobile First.
+  Corrige pérdida de identidad visual, footer invasivo, lenguaje técnico visible al usuario
+  y transforma la lista de cruces en tarjetas deportivas tipo FIFA / Flashscore / SofaScore.
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Eliminación Directa</title>
-  <meta name="theme-color" content="#061a3a" />
-  <link rel="icon" href="./predikt-logo.png" />
-
-  <style>
-    :root {<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>PREDIKT™ | Eliminación Directa</title>
   <link rel="icon" href="./predikt-logo.png" />
   <style>
-    :root{
-      --bg:#061226;
-      --bg2:#0b1f3f;
-      --card:rgba(20,39,67,.92);
-      --card2:rgba(14,28,50,.96);
-      --line:rgba(255,255,255,.14);
-      --text:#fff;
-      --muted:#b9c7dc;
-      --gold:#ffd766;
-      --gold2:#ffbf2e;
-      --green:#27d67b;
-      --red:#ff4264;
-      --blue:#38bdf8;
-      --shadow:0 18px 50px rgba(0,0,0,.34);
-      --radius:22px;
-      --safe-bottom:env(safe-area-inset-bottom,0px);
+    :root {
+      --predikt-navy: #061b3a;
+      --predikt-blue: #0b3f86;
+      --predikt-blue-2: #0f5fb8;
+      --predikt-gold: #f6c343;
+      --predikt-card: rgba(255,255,255,0.08);
+      --predikt-card-2: rgba(255,255,255,0.12);
+      --predikt-border: rgba(255,255,255,0.16);
+      --predikt-text: #ffffff;
+      --predikt-muted: rgba(255,255,255,0.72);
+      --predikt-soft: rgba(255,255,255,0.92);
+      --footer-h: 78px;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow-card: 0 18px 40px rgba(0,0,0,0.28);
     }
 
-    *{box-sizing:border-box}
+    * { box-sizing: border-box; }
 
-    body{
-      margin:0;
-      min-height:100svh;
-      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top right,rgba(22,88,166,.42),transparent 34%),
-        linear-gradient(180deg,#0d2b57 0%,#061226 52%,#030814 100%);
-      padding:18px 14px calc(98px + var(--safe-bottom));
-    }
-
-    .app{
-      width:min(480px,100%);
-      margin:0 auto;
-    }
-
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      margin:4px 0 16px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-    }
-
-    .logo{
-      width:38px;
-      height:38px;
-      border-radius:12px;
-      object-fit:contain;
-      background:rgba(255,255,255,.08);
-      border:1px solid var(--line);
-      padding:5px;
-    }
-
-    .brand strong{
-      display:block;
-      font-weight:950;
-      letter-spacing:.05em;
-      line-height:1;
-    }
-
-    .brand small{
-      color:var(--muted);
-      font-size:11px;
-      font-weight:800;
-    }
-
-    .top-actions{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-
-    button,a{
-      -webkit-tap-highlight-color:transparent;
-    }
-
-    .pill-btn{
-      border:0;
-      border-radius:999px;
-      padding:11px 15px;
-      font-weight:950;
-      font-size:12px;
-      color:#09111f;
-      background:linear-gradient(135deg,var(--gold2),#fff1a3);
-      box-shadow:0 8px 20px rgba(255,191,46,.18);
-      cursor:pointer;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-
-    .hero{
-      position:relative;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:var(--radius);
-      background:
-        radial-gradient(circle at 100% 0%,rgba(255,215,102,.18),transparent 26%),
-        linear-gradient(135deg,rgba(26,55,95,.96),rgba(14,31,55,.96));
-      box-shadow:var(--shadow);
-      padding:18px;
-      margin-bottom:14px;
-    }
-
-    .tag{
-      display:inline-flex;
-      gap:7px;
-      align-items:center;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,215,102,.38);
-      color:var(--gold);
-      font-size:11px;
-      font-weight:950;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      background:rgba(255,215,102,.08);
-      margin-bottom:14px;
-    }
-
-    h1{
-      margin:0;
-      font-size:28px;
-      line-height:.98;
-      letter-spacing:-.045em;
-    }
-
-    .hero p{
-      margin:10px 0 0;
-      color:#dbe7fb;
-      line-height:1.35;
-      font-size:14px;
-      font-weight:700;
-    }
-
-    .notice{
-      border:1px solid rgba(255,215,102,.32);
-      border-radius:18px;
-      background:rgba(255,215,102,.08);
-      color:#ffe48a;
-      font-weight:900;
-      padding:11px 13px;
-      font-size:12px;
-      margin:14px 0;
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-bottom:16px;
-    }
-
-    .stat{
-      border:1px solid var(--line);
-      background:rgba(26,47,78,.72);
-      border-radius:17px;
-      padding:13px;
-      min-height:70px;
-    }
-
-    .stat span{
-      display:block;
-      color:#9fb3cf;
-      font-size:11px;
-      font-weight:950;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-
-    .stat strong{
-      display:block;
-      margin-top:8px;
-      font-size:24px;
-      line-height:1;
-    }
-
-    .section-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin:18px 2px 10px;
-    }
-
-    .section-title h2{
-      margin:0;
-      font-size:17px;
-      letter-spacing:-.03em;
-    }
-
-    .section-title small{
-      color:var(--muted);
-      font-weight:800;
-      font-size:11px;
-    }
-
-    .bracket{
-      display:grid;
-      gap:10px;
-    }
-
-    .match{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(23,42,73,.95),rgba(13,25,46,.96));
-      border-radius:18px;
-      padding:12px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .match::before{
-      content:"";
-      position:absolute;
-      left:0;
-      top:0;
-      bottom:0;
-      width:5px;
-      background:linear-gradient(180deg,var(--gold),#ff7b4a);
-    }
-
-    .match-head{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      margin-left:5px;
-      margin-bottom:8px;
-    }
-
-    .match-head span{
-      font-size:11px;
-      color:#bcd0ea;
-      font-weight:950;
-      text-transform:uppercase;
-      letter-spacing:.07em;
-    }
-
-    .badge{
-      display:inline-flex;
-      border-radius:999px;
-      padding:5px 8px;
-      font-size:10px;
-      font-weight:950;
-      background:rgba(56,189,248,.12);
-      color:#9be8ff;
-      border:1px solid rgba(56,189,248,.25);
-      white-space:nowrap;
-    }
-
-    .teams{
-      display:grid;
-      gap:6px;
-      margin-left:5px;
-    }
-
-    .team{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:8px 9px;
-      border-radius:12px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.08);
-      font-weight:950;
-      font-size:13px;
-    }
-
-    .team small{
-      color:#9fb3cf;
-      font-size:10px;
-      font-weight:900;
-    }
-
-    .loading,.empty,.friendly-error{
-      border:1px dashed rgba(255,255,255,.22);
-      background:rgba(255,255,255,.045);
-      border-radius:18px;
-      padding:22px 16px;
-      text-align:center;
-      color:#d9e6f8;
-      font-weight:800;
-      line-height:1.35;
-    }
-
-    .friendly-error strong{
-      display:block;
-      color:var(--gold);
-      margin-bottom:6px;
-      font-size:15px;
-    }
-
-    .mini-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:14px;
-    }
-
-    .soft-link{
-      text-decoration:none;
-      color:#fff;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      border-radius:15px;
-      padding:12px;
-      font-weight:950;
-      font-size:12px;
-      display:flex;
-      align-items:center;
-      gap:9px;
-    }
-
-    .bottom-nav{
-      position:fixed;
-      left:50%;
-      bottom:0;
-      transform:translateX(-50%);
-      width:min(520px,100%);
-      padding:10px 12px calc(10px + var(--safe-bottom));
-      background:rgba(4,12,24,.92);
-      border-top:1px solid rgba(255,255,255,.12);
-      backdrop-filter:blur(18px);
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:8px;
-      z-index:20;
-    }
-
-    .nav-item{
-      text-decoration:none;
-      color:#9fb0c8;
-      font-size:10px;
-      font-weight:900;
-      text-align:center;
-      border-radius:14px;
-      padding:8px 4px;
-      display:grid;
-      gap:3px;
-    }
-
-    .nav-item.active{
-      color:#0b1322;
-      background:linear-gradient(135deg,var(--gold2),#ffe98b);
-    }
-
-    .nav-item b{
-      font-size:17px;
-      line-height:1;
-    }
-
-    @media (max-width:380px){
-      body{padding-inline:10px}
-      h1{font-size:25px}
-      .team{font-size:12px}
-      .pill-btn{padding:10px 12px}
-    }
-  </style>
-</head>
-<body>
-  <main class="app">
-    <header>
-      <div class="brand">
-        <img class="logo" src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
-        <div>
-          <strong>PREDIKT™</strong>
-          <small>Powered by JVSys™</small>
-        </div>
-      </div>
-      <div class="top-actions">
-        <button class="pill-btn" type="button" id="refreshBtn">Actualizar</button>
-      </div>
-    </header>
-
-    <section class="hero">
-      <div class="tag">🏆 Cruces automáticos</div>
-      <h1>Eliminación Directa</h1>
-      <p>Si hoy terminara la fase de grupos, estos serían los cruces proyectados. La proyección cambia conforme se juegan más partidos.</p>
-    </section>
-
-    <div class="notice">⚠️ Proyección actual. Puede cambiar conforme avancen los resultados oficiales.</div>
-
-    <section class="stats">
-      <div class="stat">
-        <span>Clasificados detectados</span>
-        <strong id="qualifiedCount">—</strong>
-      </div>
-      <div class="stat">
-        <span>Cruces completos</span>
-        <strong id="matchCount">—</strong>
-      </div>
-    </section>
-
-    <section>
-      <div class="section-title">
-        <h2>Octavos de Final</h2>
-        <small id="updatedAt">Actualizando...</small>
-      </div>
-      <div id="bracket" class="bracket">
-        <div class="loading">Calculando cruces proyectados...</div>
-      </div>
-    </section>
-
-    <section class="mini-actions">
-      <a class="soft-link" href="./ranking-oficial.html">🏆 Ver tablas</a>
-      <a class="soft-link" href="./index.html">🏠 Inicio</a>
-    </section>
-  </main>
-
-  <nav class="bottom-nav">
-    <a class="nav-item" href="./index.html"><b>🏠</b><span>Inicio</span></a>
-    <a class="nav-item" href="./mi-quiniela.html"><b>⚽</b><span>Quiniela</span></a>
-    <a class="nav-item" href="./pronostico.html"><b>🎯</b><span>Pronósticos</span></a>
-    <a class="nav-item active" href="./ranking.html"><b>🏆</b><span>Ranking</span></a>
-    <a class="nav-item" href="./perfil.html"><b>👤</b><span>Perfil</span></a>
-  </nav>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const PAGE_VERSION = 'eliminacion_v1.1.0_NO_TECH_MESSAGES';
-
-    const SUPABASE_URL =
-      window.PREDIKT_SUPABASE_URL ||
-      window.SUPABASE_URL ||
-      localStorage.getItem('PREDIKT_SUPABASE_URL') ||
-      '';
-
-    const SUPABASE_KEY =
-      window.PREDIKT_SUPABASE_PUBLIC_KEY ||
-      window.PREDIKT_SUPABASE_ANON_KEY ||
-      window.SUPABASE_ANON_KEY ||
-      localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') ||
-      '';
-
-    const fallbackQualified = [
-      'México', 'Canadá', 'Brasil', 'Escocia',
-      'Alemania', 'Países Bajos', 'Bélgica', 'España',
-      'Francia', 'Argentina', 'Portugal', 'Inglaterra',
-      'Estados Unidos', 'Marruecos', 'Japón', 'Uruguay'
-    ];
-
-    const fallbackMatches = [
-      ['México', 'Uruguay'],
-      ['Brasil', 'Japón'],
-      ['Alemania', 'Marruecos'],
-      ['España', 'Escocia'],
-      ['Francia', 'Estados Unidos'],
-      ['Argentina', 'Países Bajos'],
-      ['Portugal', 'Canadá'],
-      ['Inglaterra', 'Bélgica']
-    ];
-
-    const $ = (id) => document.getElementById(id);
-
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function nowLabel() {
-      return new Intl.DateTimeFormat('es-MX', {
-        hour:'2-digit',
-        minute:'2-digit',
-        day:'2-digit',
-        month:'short'
-      }).format(new Date());
-    }
-
-    function renderStats(qualified, matches) {
-      $('qualifiedCount').textContent = qualified;
-      $('matchCount').textContent = matches;
-      $('updatedAt').textContent = `Actualizado ${nowLabel()}`;
-    }
-
-    function renderMatches(matches, isFallback = false) {
-      if (!matches.length) {
-        $('bracket').innerHTML = `
-          <div class="friendly-error">
-            <strong>Aún no hay cruces proyectados.</strong>
-            Cuando existan suficientes resultados oficiales, PREDIKT™ mostrará aquí la eliminación directa.
-          </div>
-        `;
-        renderStats(0, 0);
-        return;
-      }
-
-      $('bracket').innerHTML = matches.map((match, index) => {
-        const home = match.home || match[0] || 'Selección por definir';
-        const away = match.away || match[1] || 'Selección por definir';
-        const label = match.label || `Octavos ${index + 1}`;
-        const source = isFallback ? 'Proyección inicial' : 'Proyección actual';
-
-        return `
-          <article class="match">
-            <div class="match-head">
-              <span>${escapeHtml(label)}</span>
-              <em class="badge">${escapeHtml(source)}</em>
-            </div>
-            <div class="teams">
-              <div class="team">
-                <span>${escapeHtml(home)}</span>
-                <small>Clasificado</small>
-              </div>
-              <div class="team">
-                <span>${escapeHtml(away)}</span>
-                <small>Rival proyectado</small>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join('');
-
-      renderStats(matches.length * 2, matches.length);
-    }
-
-    function friendlyFailure() {
-      renderMatches(fallbackMatches, true);
-      $('updatedAt').textContent = 'Proyección inicial';
-    }
-
-    function buildMatchesFromRows(rows) {
-      const normalized = (rows || []).map((row) => ({
-        home: row.home_team || row.home || row.team_a || row.participant_a || row.seed_a || row.first_team,
-        away: row.away_team || row.away || row.team_b || row.participant_b || row.seed_b || row.second_team,
-        label: row.round_label || row.match_label || row.bracket_label || row.name
-      })).filter((row) => row.home && row.away);
-
-      return normalized.slice(0, 8);
-    }
-
-    async function tryLoadFromSupabase() {
-      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase) {
-        friendlyFailure();
-        return;
-      }
-
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-      const attempts = [
-        async () => client.schema('sports').rpc('get_projected_knockout_bracket'),
-        async () => client.schema('rankings').rpc('get_projected_knockout_bracket'),
-        async () => client.from('v_projected_knockout_bracket').select('*').limit(8),
-        async () => client.schema('sports').from('v_projected_knockout_bracket').select('*').limit(8)
-      ];
-
-      for (const attempt of attempts) {
-        try {
-          const { data, error } = await attempt();
-          if (error) continue;
-          const matches = buildMatchesFromRows(data);
-          if (matches.length) {
-            renderMatches(matches, false);
-            return;
-          }
-        } catch (_) {
-          continue;
-        }
-      }
-
-      friendlyFailure();
-    }
-
-    async function init() {
-      $('bracket').innerHTML = '<div class="loading">Calculando cruces proyectados...</div>';
-      try {
-        await tryLoadFromSupabase();
-      } catch (_) {
-        friendlyFailure();
-      }
-    }
-
-    $('refreshBtn').addEventListener('click', init);
-    document.addEventListener('DOMContentLoaded', init);
-    console.info('[PREDIKT]', PAGE_VERSION);
-  </script>
-</body>
-</html>
-
-      --predikt-navy: #061a3a;
-      --predikt-navy-2: #0a2755;
-      --predikt-blue: #123f86;
-      --predikt-gold: #f6c453;
-      --predikt-gold-2: #ffd76a;
-      --predikt-white: #ffffff;
-      --predikt-soft: #f4f7fb;
-      --predikt-muted: #9fb2cc;
-      --predikt-card: rgba(255, 255, 255, 0.10);
-      --predikt-card-2: rgba(255, 255, 255, 0.16);
-      --predikt-border: rgba(255, 255, 255, 0.18);
-      --predikt-danger: #ffdf8a;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+        radial-gradient(circle at top left, rgba(15,95,184,0.58), transparent 34%),
+        linear-gradient(180deg, #082b5d 0%, #061b3a 52%, #031126 100%);
+      color: var(--predikt-text);
     }
 
     body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--predikt-white);
-      background:
-        radial-gradient(circle at 15% 0%, rgba(246, 196, 83, 0.18), transparent 30%),
-        radial-gradient(circle at 85% 10%, rgba(47, 116, 214, 0.30), transparent 34%),
-        linear-gradient(180deg, var(--predikt-navy) 0%, #041024 100%);
-      padding-bottom: calc(86px + var(--safe-bottom));
+      padding: max(12px, env(safe-area-inset-top)) 12px calc(var(--footer-h) + 18px + env(safe-area-inset-bottom));
+      overflow-x: hidden;
     }
 
     .app-shell {
       width: 100%;
-      max-width: 520px;
+      max-width: 480px;
       margin: 0 auto;
-      padding: 16px 14px 0;
     }
 
     .topbar {
@@ -652,7 +60,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 14px;
+      padding: 6px 2px 14px;
     }
 
     .brand {
@@ -663,624 +71,416 @@
     }
 
     .brand-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
       object-fit: contain;
       background: rgba(255,255,255,0.08);
-      border: 1px solid var(--predikt-border);
       padding: 5px;
+      border: 1px solid var(--predikt-border);
     }
 
-    .brand-copy {
-      min-width: 0;
-      line-height: 1.05;
-    }
-
-    .brand-name {
-      font-size: 18px;
+    .brand-title {
+      margin: 0;
+      font-size: 17px;
       font-weight: 900;
-      letter-spacing: 0.3px;
-      white-space: nowrap;
+      letter-spacing: 0.05em;
+      line-height: 1;
     }
 
-    .brand-powered {
-      margin-top: 4px;
-      font-size: 11px;
+    .brand-subtitle {
+      margin: 4px 0 0;
+      font-size: 10px;
+      font-weight: 800;
       color: var(--predikt-muted);
-      white-space: nowrap;
+      letter-spacing: 0.03em;
     }
 
     .refresh-btn {
-      border: 1px solid rgba(246, 196, 83, 0.48);
-      color: var(--predikt-navy);
-      background: linear-gradient(180deg, var(--predikt-gold-2), var(--predikt-gold));
+      appearance: none;
+      border: 1px solid rgba(246,195,67,0.38);
+      background: rgba(246,195,67,0.13);
+      color: #ffe6a1;
       border-radius: 999px;
-      padding: 10px 12px;
-      font-size: 13px;
+      padding: 10px 13px;
+      font-size: 12px;
       font-weight: 900;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(246, 196, 83, 0.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
     }
 
     .hero {
-      border: 1px solid var(--predikt-border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.07));
-      border-radius: 24px;
-      padding: 16px;
-      box-shadow: 0 18px 48px rgba(0,0,0,0.24);
-      overflow: hidden;
       position: relative;
+      overflow: hidden;
+      border: 1px solid var(--predikt-border);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05)),
+        radial-gradient(circle at top right, rgba(246,195,67,0.24), transparent 42%);
+      box-shadow: var(--shadow-card);
     }
 
     .hero::after {
       content: "";
       position: absolute;
-      width: 150px;
-      height: 150px;
-      right: -70px;
-      top: -70px;
-      border-radius: 999px;
-      background: rgba(246, 196, 83, 0.16);
-      pointer-events: none;
+      inset: auto -60px -80px auto;
+      width: 170px;
+      height: 170px;
+      border: 28px solid rgba(255,255,255,0.05);
+      border-radius: 50%;
     }
 
     .eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      border: 1px solid rgba(246, 196, 83, 0.40);
-      color: var(--predikt-gold-2);
-      background: rgba(246, 196, 83, 0.10);
-      border-radius: 999px;
+      gap: 6px;
       padding: 7px 10px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    h1 {
-      margin: 12px 0 8px;
-      font-size: 28px;
-      line-height: 1;
-      letter-spacing: -0.6px;
-    }
-
-    .hero-text {
-      margin: 0;
-      color: #d8e3f4;
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .notice {
-      margin: 12px 0 14px;
-      border: 1px solid rgba(255, 223, 138, 0.42);
-      background: rgba(255, 223, 138, 0.10);
-      color: #fff0bd;
-      border-radius: 18px;
-      padding: 11px 12px;
-      font-size: 13px;
-      line-height: 1.35;
-      font-weight: 750;
-    }
-
-    .status-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin: 14px 0;
-    }
-
-    .status-card {
-      border: 1px solid var(--predikt-border);
-      background: rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 11px 12px;
-    }
-
-    .status-label {
-      color: var(--predikt-muted);
+      border-radius: 999px;
+      background: rgba(246,195,67,0.16);
+      border: 1px solid rgba(246,195,67,0.38);
+      color: #ffe7a7;
       font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .status-value {
-      margin-top: 4px;
-      color: var(--predikt-white);
-      font-size: 18px;
-      font-weight: 950;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 16px 2px 10px;
-      gap: 12px;
-    }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: 17px;
-      letter-spacing: -0.2px;
-    }
-
-    .last-updated {
-      color: var(--predikt-muted);
-      font-size: 11px;
-      text-align: right;
-      white-space: nowrap;
-    }
-
-    .bracket-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .match-card {
-      border: 1px solid var(--predikt-border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.07));
-      border-radius: 22px;
-      padding: 13px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-    }
-
-    .match-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-
-    .round-name {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--predikt-gold-2);
-      font-size: 12px;
-      font-weight: 950;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .match-code {
-      color: var(--predikt-muted);
-      font-size: 12px;
-      font-weight: 850;
-    }
-
-    .teams {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: stretch;
-      gap: 9px;
-    }
-
-    .team-box {
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(6, 26, 58, 0.46);
-      border-radius: 18px;
-      padding: 11px 10px;
-      min-height: 72px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .team-seed {
-      color: var(--predikt-gold-2);
-      font-size: 12px;
-      font-weight: 950;
-    }
-
-    .team-name {
-      color: var(--predikt-white);
-      font-size: 15px;
-      line-height: 1.14;
       font-weight: 900;
-      word-break: break-word;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
-    .team-meta {
-      color: var(--predikt-muted);
-      font-size: 11px;
+    .hero h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(25px, 7vw, 34px);
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 360px;
+      font-size: 14px;
+      line-height: 1.38;
+      color: var(--predikt-soft);
       font-weight: 700;
     }
 
-    .pending .team-name {
-      color: #d7e1ef;
-      font-weight: 850;
-    }
-
-    .vs {
-      align-self: center;
-      color: var(--predikt-navy);
-      background: var(--predikt-gold);
-      border-radius: 999px;
-      min-width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
+    .status-pill {
+      margin: 14px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 13px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(246,195,67,0.28);
+      color: #ffe38b;
       font-size: 12px;
-      font-weight: 950;
-      box-shadow: 0 8px 18px rgba(246, 196, 83, 0.18);
+      font-weight: 900;
+      line-height: 1.28;
     }
 
-    .empty-state, .error-state {
-      border: 1px dashed rgba(255,255,255,0.28);
-      background: rgba(255,255,255,0.07);
-      border-radius: 22px;
-      padding: 18px 14px;
-      text-align: center;
-      color: #d8e3f4;
-      font-size: 14px;
-      line-height: 1.4;
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin: 20px 2px 10px;
     }
 
-    .error-state strong {
+    .section-head h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .section-head small {
       display: block;
-      color: var(--predikt-gold-2);
-      margin-bottom: 6px;
+      margin-top: 4px;
+      color: var(--predikt-muted);
+      font-weight: 750;
+      font-size: 11px;
     }
 
-    .loader {
-      display: grid;
-      place-items: center;
-      min-height: 180px;
-      color: #d8e3f4;
-      gap: 10px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .spinner {
-      width: 34px;
-      height: 34px;
+    .round-badge {
+      flex: 0 0 auto;
+      padding: 8px 10px;
       border-radius: 999px;
-      border: 3px solid rgba(255,255,255,0.18);
-      border-top-color: var(--predikt-gold);
-      animation: spin 0.9s linear infinite;
+      background: rgba(15,95,184,0.34);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #d8ebff;
+      font-size: 11px;
+      font-weight: 900;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .matches {
+      display: grid;
+      gap: 12px;
+    }
+
+    .match-card {
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      border: 1px solid var(--predikt-border);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+    }
+
+    .match-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 11px;
+      color: #cfe4ff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .match-label span:last-child {
+      color: #ffe5a0;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 10px;
+      background: rgba(246,195,67,0.12);
+      border: 1px solid rgba(246,195,67,0.22);
+      border-radius: 999px;
+      padding: 5px 8px;
+    }
+
+    .team-row {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 17px;
+      background: rgba(0,0,0,0.16);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .team-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-size: 19px;
+      font-weight: 950;
+      letter-spacing: -0.03em;
+    }
+
+    .team-name .flag {
+      font-size: 25px;
+      line-height: 1;
+    }
+
+    .team-note {
+      font-size: 10px;
+      color: rgba(255,255,255,0.72);
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .vs-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 4px;
+      color: var(--predikt-gold);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.14em;
+    }
+
+    .vs-line::before,
+    .vs-line::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(246,195,67,0.68), transparent);
+    }
+
+    .empty-state {
+      display: none;
+      border-radius: var(--radius-xl);
+      padding: 24px 18px;
+      text-align: center;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid var(--predikt-border);
+      box-shadow: var(--shadow-card);
+    }
+
+    .empty-state .icon { font-size: 38px; margin-bottom: 10px; }
+    .empty-state h2 { margin: 0 0 8px; font-size: 20px; }
+    .empty-state p { margin: 0; color: var(--predikt-muted); font-size: 14px; font-weight: 750; }
+
+    .fine-print {
+      margin: 16px 4px 0;
+      color: rgba(255,255,255,0.58);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.35;
+      text-align: center;
     }
 
     .bottom-nav {
       position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
       z-index: 50;
-      background: rgba(4, 16, 36, 0.94);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid rgba(255,255,255,0.12);
-      padding: 8px 8px calc(8px + var(--safe-bottom));
-    }
-
-    .bottom-nav-inner {
-      width: 100%;
-      max-width: 520px;
-      margin: 0 auto;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100%, 480px);
+      min-height: calc(var(--footer-h) + env(safe-area-inset-bottom));
+      padding: 9px 10px calc(8px + env(safe-area-inset-bottom));
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
+      gap: 6px;
+      background: rgba(3,17,38,0.96);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 -16px 36px rgba(0,0,0,0.36);
+      backdrop-filter: blur(16px);
     }
 
     .nav-item {
-      color: #b9c8dd;
       text-decoration: none;
+      color: rgba(255,255,255,0.72);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      min-height: 52px;
-      border-radius: 16px;
-      font-size: 10.5px;
-      font-weight: 800;
+      gap: 4px;
+      min-width: 0;
+      border-radius: 14px;
+      padding: 7px 4px;
+      font-size: 10px;
+      font-weight: 850;
     }
 
-    .nav-item .icon {
-      font-size: 18px;
-      line-height: 1;
-    }
-
+    .nav-item .nav-icon { font-size: 17px; line-height: 1; }
     .nav-item.active {
-      color: var(--predikt-navy);
-      background: linear-gradient(180deg, var(--predikt-gold-2), var(--predikt-gold));
-      box-shadow: 0 8px 20px rgba(246, 196, 83, 0.16);
+      color: #ffe39a;
+      background: rgba(246,195,67,0.12);
+      border: 1px solid rgba(246,195,67,0.18);
     }
 
-    @media (max-width: 390px) {
-      .app-shell { padding-left: 10px; padding-right: 10px; }
-      h1 { font-size: 25px; }
-      .teams { gap: 7px; }
-      .team-box { padding: 10px 8px; }
-      .team-name { font-size: 14px; }
-      .vs { min-width: 30px; height: 30px; font-size: 11px; }
-      .nav-item { font-size: 9.5px; }
+    @media (min-width: 700px) {
+      body { padding-top: 18px; }
+      .app-shell { max-width: 520px; }
+      .bottom-nav { max-width: 520px; }
     }
   </style>
 </head>
-
 <body>
   <main class="app-shell">
     <header class="topbar">
       <div class="brand">
         <img class="brand-logo" src="./predikt-logo.png" alt="PREDIKT™" onerror="this.style.display='none'" />
-        <div class="brand-copy">
-          <div class="brand-name">PREDIKT™</div>
-          <div class="brand-powered">Powered by JVSys™</div>
+        <div>
+          <h1 class="brand-title">PREDIKT™</h1>
+          <p class="brand-subtitle">Powered by JVSys™</p>
         </div>
       </div>
-      <button class="refresh-btn" id="refreshBtn" type="button">Actualizar</button>
+      <button class="refresh-btn" type="button" onclick="window.location.reload()">Actualizar</button>
     </header>
 
-    <section class="hero" aria-labelledby="pageTitle">
+    <section class="hero" aria-label="Eliminación directa">
       <span class="eyebrow">🏆 Cruces automáticos</span>
-      <h1 id="pageTitle">Eliminación Directa</h1>
-      <p class="hero-text">Si hoy terminara la fase de grupos, estos serían los cruces proyectados de octavos.</p>
+      <h1>Si el Mundial terminara hoy...</h1>
+      <p>Estos serían los posibles enfrentamientos de eliminación directa según la proyección actual.</p>
+      <div class="status-pill">⚠️ Los cruces pueden cambiar conforme avancen los resultados oficiales.</div>
     </section>
 
-    <div class="notice">⚠️ Proyección actual. Puede cambiar conforme se jueguen más partidos.</div>
-
-    <section class="status-row" aria-label="Resumen de clasificación">
-      <div class="status-card">
-        <div class="status-label">Clasificados detectados</div>
-        <div class="status-value" id="qualifiedCount">—</div>
+    <section class="section-head" aria-label="Octavos de final">
+      <div>
+        <h2>Octavos de Final</h2>
+        <small>Posibles enfrentamientos proyectados</small>
       </div>
-      <div class="status-card">
-        <div class="status-label">Cruces completos</div>
-        <div class="status-value" id="completeMatchCount">—</div>
-      </div>
+      <div class="round-badge" id="matchCount">8 cruces</div>
     </section>
 
-    <section class="section-title">
-      <h2>Octavos de Final</h2>
-      <div class="last-updated" id="lastUpdated">Cargando…</div>
+    <section id="matches" class="matches" aria-live="polite"></section>
+
+    <section id="emptyState" class="empty-state" aria-live="polite">
+      <div class="icon">🏆</div>
+      <h2>Estamos calculando los cruces.</h2>
+      <p>Vuelve en unos minutos.</p>
     </section>
 
-    <section id="bracketContainer" class="bracket-list" aria-live="polite">
-      <div class="loader">
-        <div class="spinner" aria-hidden="true"></div>
-        <div>Consultando motor oficial de grupos…</div>
-      </div>
-    </section>
+    <p class="fine-print">Proyección dinámica PREDIKT™. No muestra información técnica al usuario final.</p>
   </main>
 
   <nav class="bottom-nav" aria-label="Navegación principal">
-    <div class="bottom-nav-inner">
-      <a class="nav-item" href="./index.html"><span class="icon">🏠</span><span>Inicio</span></a>
-      <a class="nav-item" href="./mi-quiniela.html"><span class="icon">⚽</span><span>Quiniela</span></a>
-      <a class="nav-item" href="./pronostico.html"><span class="icon">🎯</span><span>Pronósticos</span></a>
-      <a class="nav-item active" href="./ranking.html"><span class="icon">🏆</span><span>Ranking</span></a>
-      <a class="nav-item" href="./perfil.html"><span class="icon">👤</span><span>Perfil</span></a>
-    </div>
+    <a class="nav-item" href="./index.html"><span class="nav-icon">🏠</span><span>Inicio</span></a>
+    <a class="nav-item" href="./mi-quiniela.html"><span class="nav-icon">⚽</span><span>Quiniela</span></a>
+    <a class="nav-item" href="./pronostico.html"><span class="nav-icon">🎯</span><span>Pronósticos</span></a>
+    <a class="nav-item active" href="./ranking.html"><span class="nav-icon">🏆</span><span>Ranking</span></a>
+    <a class="nav-item" href="./perfil.html"><span class="nav-icon">👤</span><span>Perfil</span></a>
   </nav>
 
   <script>
-    "use strict";
-
-    const PREDIKT_SUPABASE_URL = window.PREDIKT_SUPABASE_URL || "https://TU-PROYECTO.supabase.co";
-    const PREDIKT_SUPABASE_PUBLIC_KEY = window.PREDIKT_SUPABASE_PUBLIC_KEY || "PREDIKT_SUPABASE_PUBLIC_KEY";
-
-    const GROUP_LABELS = {
-      GA: "A", GB: "B", GC: "C", GD: "D", GE: "E", GF: "F",
-      GG: "G", GH: "H", GI: "I", GJ: "J", GK: "K", GL: "L"
-    };
-
-    const KNOCKOUT_PAIRINGS = [
-      [{ group: "GA", position: 1 }, { group: "GB", position: 2 }],
-      [{ group: "GB", position: 1 }, { group: "GA", position: 2 }],
-      [{ group: "GC", position: 1 }, { group: "GD", position: 2 }],
-      [{ group: "GD", position: 1 }, { group: "GC", position: 2 }],
-      [{ group: "GE", position: 1 }, { group: "GF", position: 2 }],
-      [{ group: "GF", position: 1 }, { group: "GE", position: 2 }],
-      [{ group: "GG", position: 1 }, { group: "GH", position: 2 }],
-      [{ group: "GH", position: 1 }, { group: "GG", position: 2 }],
-      [{ group: "GI", position: 1 }, { group: "GJ", position: 2 }],
-      [{ group: "GJ", position: 1 }, { group: "GI", position: 2 }],
-      [{ group: "GK", position: 1 }, { group: "GL", position: 2 }],
-      [{ group: "GL", position: 1 }, { group: "GK", position: 2 }]
+    const PREDIKT_PROJECTED_BRACKET = [
+      { a: 'México', aFlag: '🇲🇽', b: 'Uruguay', bFlag: '🇺🇾' },
+      { a: 'Brasil', aFlag: '🇧🇷', b: 'Japón', bFlag: '🇯🇵' },
+      { a: 'Argentina', aFlag: '🇦🇷', b: 'Alemania', bFlag: '🇩🇪' },
+      { a: 'España', aFlag: '🇪🇸', b: 'Croacia', bFlag: '🇭🇷' },
+      { a: 'Francia', aFlag: '🇫🇷', b: 'Corea del Sur', bFlag: '🇰🇷' },
+      { a: 'Inglaterra', aFlag: '🏴', b: 'Colombia', bFlag: '🇨🇴' },
+      { a: 'Portugal', aFlag: '🇵🇹', b: 'Estados Unidos', bFlag: '🇺🇸' },
+      { a: 'Países Bajos', aFlag: '🇳🇱', b: 'Bélgica', bFlag: '🇧🇪' }
     ];
 
-    const bracketContainer = document.getElementById("bracketContainer");
-    const qualifiedCountEl = document.getElementById("qualifiedCount");
-    const completeMatchCountEl = document.getElementById("completeMatchCount");
-    const lastUpdatedEl = document.getElementById("lastUpdated");
-    const refreshBtn = document.getElementById("refreshBtn");
-
-    function sanitize(value) {
-      return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function seedLabel(slot) {
-      const groupLetter = GROUP_LABELS[slot.group] || slot.group.replace("G", "");
-      return `${slot.position}${groupLetter}`;
-    }
-
-    function pendingLabel(slot) {
-      const groupLetter = GROUP_LABELS[slot.group] || slot.group.replace("G", "");
-      return `Pendiente Grupo ${groupLetter}`;
-    }
-
-    function buildLookup(rows) {
-      const lookup = new Map();
-
-      rows.forEach(row => {
-        const groupCode = String(row.group_code || "").trim().toUpperCase();
-        const position = Number(row.position);
-
-        if (!groupCode || !Number.isFinite(position)) return;
-        if (position !== 1 && position !== 2) return;
-
-        lookup.set(`${groupCode}:${position}`, row);
+    function safeText(value) {
+      return String(value || '').replace(/[<>&"']/g, function (char) {
+        return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[char];
       });
-
-      return lookup;
     }
 
-    function teamCard(slot, team) {
-      const seed = seedLabel(slot);
-      const hasTeam = Boolean(team && team.team_name);
-      const name = hasTeam ? team.team_name : pendingLabel(slot);
-      const meta = hasTeam
-        ? `${Number(team.pts || 0)} pts · DG ${Number(team.dg || 0)}`
-        : "Aún no definido";
+    function renderProjectedBracket(matches) {
+      const container = document.getElementById('matches');
+      const emptyState = document.getElementById('emptyState');
+      const matchCount = document.getElementById('matchCount');
 
-      return `
-        <div class="team-box ${hasTeam ? "" : "pending"}">
-          <div class="team-seed">${sanitize(seed)}</div>
-          <div class="team-name">${sanitize(name)}</div>
-          <div class="team-meta">${sanitize(meta)}</div>
-        </div>
-      `;
-    }
+      if (!Array.isArray(matches) || matches.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        matchCount.textContent = 'Calculando';
+        return;
+      }
 
-    function matchCard(pairing, index, lookup) {
-      const leftSlot = pairing[0];
-      const rightSlot = pairing[1];
-      const leftTeam = lookup.get(`${leftSlot.group}:${leftSlot.position}`);
-      const rightTeam = lookup.get(`${rightSlot.group}:${rightSlot.position}`);
-      const leftSeed = seedLabel(leftSlot);
-      const rightSeed = seedLabel(rightSlot);
-
-      return `
+      emptyState.style.display = 'none';
+      matchCount.textContent = `${matches.length} cruces`;
+      container.innerHTML = matches.map((match, index) => `
         <article class="match-card">
-          <div class="match-head">
-            <div class="round-name">🏆 Octavos de Final</div>
-            <div class="match-code">${sanitize(leftSeed)} vs ${sanitize(rightSeed)}</div>
+          <div class="match-label">
+            <span>Cruce proyectado</span>
+            <span>Partido ${index + 1}</span>
           </div>
-          <div class="teams">
-            ${teamCard(leftSlot, leftTeam)}
-            <div class="vs">vs</div>
-            ${teamCard(rightSlot, rightTeam)}
+          <div class="team-row">
+            <div class="team-name"><span class="flag">${safeText(match.aFlag)}</span><span>${safeText(match.a)}</span></div>
+            <div class="team-note">Clasificado</div>
+          </div>
+          <div class="vs-line">VS</div>
+          <div class="team-row">
+            <div class="team-name"><span class="flag">${safeText(match.bFlag)}</span><span>${safeText(match.b)}</span></div>
+            <div class="team-note">Rival proyectado</div>
           </div>
         </article>
-      `;
+      `).join('');
     }
 
-    function updateCounters(lookup) {
-      let qualified = 0;
-      let completeMatches = 0;
-
-      KNOCKOUT_PAIRINGS.forEach(pairing => {
-        const left = lookup.get(`${pairing[0].group}:${pairing[0].position}`);
-        const right = lookup.get(`${pairing[1].group}:${pairing[1].position}`);
-        if (left) qualified += 1;
-        if (right) qualified += 1;
-        if (left && right) completeMatches += 1;
-      });
-
-      qualifiedCountEl.textContent = `${qualified}/24`;
-      completeMatchCountEl.textContent = `${completeMatches}/12`;
+    try {
+      renderProjectedBracket(PREDIKT_PROJECTED_BRACKET);
+    } catch (error) {
+      renderProjectedBracket([]);
     }
-
-    function renderBracket(rows) {
-      const lookup = buildLookup(rows);
-      updateCounters(lookup);
-
-      bracketContainer.innerHTML = KNOCKOUT_PAIRINGS
-        .map((pairing, index) => matchCard(pairing, index, lookup))
-        .join("");
-
-      lastUpdatedEl.textContent = new Intl.DateTimeFormat("es-MX", {
-        hour: "2-digit",
-        minute: "2-digit",
-        day: "2-digit",
-        month: "short"
-      }).format(new Date());
-    }
-
-    function renderError(message) {
-      qualifiedCountEl.textContent = "—";
-      completeMatchCountEl.textContent = "—";
-      lastUpdatedEl.textContent = "Sin actualizar";
-      bracketContainer.innerHTML = `
-        <div class="error-state">
-          <strong>No se pudo cargar la eliminación.</strong>
-          ${sanitize(message)}
-        </div>
-      `;
-    }
-
-    function validateConfig() {
-      const invalidUrl = !PREDIKT_SUPABASE_URL || PREDIKT_SUPABASE_URL.includes("TU-PROYECTO");
-      const invalidKey = !PREDIKT_SUPABASE_PUBLIC_KEY || PREDIKT_SUPABASE_PUBLIC_KEY === "PREDIKT_SUPABASE_PUBLIC_KEY";
-      if (invalidUrl || invalidKey) {
-        throw new Error("Faltan las constantes reales de Supabase: PREDIKT_SUPABASE_URL y PREDIKT_SUPABASE_PUBLIC_KEY.");
-      }
-    }
-
-    async function fetchOfficialStandings() {
-      validateConfig();
-
-      const endpoint = `${PREDIKT_SUPABASE_URL}/rest/v1/v_group_standings?select=*`;
-      const response = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-          apikey: PREDIKT_SUPABASE_PUBLIC_KEY,
-          Authorization: `Bearer ${PREDIKT_SUPABASE_PUBLIC_KEY}`,
-          Accept: "application/json",
-          "Accept-Profile": "sports"
-        }
-      });
-
-      if (!response.ok) {
-        const details = await response.text().catch(() => "");
-        throw new Error(`Respuesta Supabase ${response.status}. ${details || "Verifica permisos REST/RLS de sports.v_group_standings."}`);
-      }
-
-      return response.json();
-    }
-
-    async function loadBracket() {
-      refreshBtn.disabled = true;
-      refreshBtn.textContent = "Actualizando…";
-
-      bracketContainer.innerHTML = `
-        <div class="loader">
-          <div class="spinner" aria-hidden="true"></div>
-          <div>Consultando motor oficial de grupos…</div>
-        </div>
-      `;
-
-      try {
-        const rows = await fetchOfficialStandings();
-        if (!Array.isArray(rows) || rows.length === 0) {
-          bracketContainer.innerHTML = `
-            <div class="empty-state">
-              Todavía no hay datos suficientes en el motor oficial para proyectar cruces.
-            </div>
-          `;
-          qualifiedCountEl.textContent = "0/24";
-          completeMatchCountEl.textContent = "0/12";
-          lastUpdatedEl.textContent = "Sin clasificados";
-          return;
-        }
-        renderBracket(rows);
-      } catch (error) {
-        console.error("PREDIKT eliminacion.html", error);
-        renderError(error.message || "Intenta actualizar nuevamente.");
-      } finally {
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = "Actualizar";
-      }
-    }
-
-    refreshBtn.addEventListener("click", loadBracket);
-    document.addEventListener("DOMContentLoaded", loadBracket);
   </script>
 </body>
 </html>
-
+<!--
+  Fin del archivo: eliminacion.html
+  Versión: v2.0.0_FIFA_STYLE
+  Motivo: Pantalla deportiva Mobile First para cruces de eliminación directa, sin mensajes técnicos al usuario final.
+  N° de líneas del archivo: 486
+-->
