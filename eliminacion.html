@@ -9,7 +9,950 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><!--
+  Archivo: eliminacion.html
+  Versión: v2.2.2_FIX_MAPA_COMPLETO_MOBILE
+  Motivo de la nueva versión:
+  Corrige la vista Mapa completo en celular.
+  En mobile ya no queda vacío: muestra un mapa vertical resumido y conserva Hasta cuartos como primera vista.
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>PREDIKT™ | Eliminación Directa</title>
+  <link rel="icon" href="./predikt-logo.png" />
+  <style>
+    :root {
+      --predikt-navy: #061b3a;
+      --predikt-deep: #031126;
+      --predikt-blue: #0b3f86;
+      --predikt-blue-2: #0f5fb8;
+      --predikt-gold: #f6c343;
+      --predikt-green: #33d17a;
+      --predikt-red: #ff4f4f;
+      --predikt-card: rgba(255,255,255,0.08);
+      --predikt-card-2: rgba(255,255,255,0.12);
+      --predikt-border: rgba(255,255,255,0.16);
+      --predikt-text: #ffffff;
+      --predikt-muted: rgba(255,255,255,0.72);
+      --predikt-soft: rgba(255,255,255,0.92);
+      --footer-h: 78px;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow-card: 0 18px 40px rgba(0,0,0,0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(15,95,184,0.58), transparent 34%),
+        linear-gradient(180deg, #082b5d 0%, #061b3a 52%, #031126 100%);
+      color: var(--predikt-text);
+    }
+
+    body {
+      padding: max(12px, env(safe-area-inset-top)) 12px calc(var(--footer-h) + 22px + env(safe-area-inset-bottom));
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: min(100%, 520px);
+      margin: 0 auto;
+      padding: 6px 2px 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.08);
+      padding: 5px;
+      border: 1px solid var(--predikt-border);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 950;
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .brand-subtitle {
+      margin: 4px 0 0;
+      font-size: 10px;
+      font-weight: 850;
+      color: var(--predikt-muted);
+      letter-spacing: 0.03em;
+    }
+
+    .refresh-btn {
+      appearance: none;
+      border: 1px solid rgba(246,195,67,0.38);
+      background: rgba(246,195,67,0.13);
+      color: #ffe6a1;
+      border-radius: 999px;
+      padding: 10px 13px;
+      font-size: 12px;
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      width: min(100%, 620px);
+      margin: 0 auto 16px;
+      border: 1px solid var(--predikt-border);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05)),
+        radial-gradient(circle at top right, rgba(246,195,67,0.24), transparent 42%);
+      box-shadow: var(--shadow-card);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -80px auto;
+      width: 170px;
+      height: 170px;
+      border: 28px solid rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(246,195,67,0.16);
+      border: 1px solid rgba(246,195,67,0.38);
+      color: #ffe7a7;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(27px, 7vw, 40px);
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 440px;
+      font-size: 14px;
+      line-height: 1.38;
+      color: var(--predikt-soft);
+      font-weight: 750;
+    }
+
+    .status-pill {
+      margin: 14px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 13px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(246,195,67,0.28);
+      color: #ffe38b;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.28;
+    }
+
+    .bracket-shell {
+      border-radius: 28px;
+      padding: 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: var(--shadow-card);
+    }
+
+    .bracket-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 4px 12px;
+    }
+
+    .bracket-title h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .bracket-title small {
+      display: block;
+      color: var(--predikt-muted);
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .round-badge {
+      flex: 0 0 auto;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(15,95,184,0.34);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #d8ebff;
+      font-size: 11px;
+      font-weight: 950;
+    }
+
+
+
+    .view-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 4px 4px 14px;
+      padding: 5px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .view-tab {
+      appearance: none;
+      border: 0;
+      min-height: 44px;
+      border-radius: 14px;
+      background: transparent;
+      color: rgba(255,255,255,0.72);
+      font-weight: 950;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .view-tab.active {
+      background: linear-gradient(135deg, rgba(246,195,67,0.92), rgba(199,139,28,0.92));
+      color: #07142a;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+
+    .quarters-view {
+      display: grid;
+      gap: 16px;
+    }
+
+    .quarters-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .path-card {
+      border-radius: 22px;
+      padding: 12px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+
+    .path-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #ffe38b;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .path-vs {
+      display: grid;
+      place-items: center;
+      margin: 8px 0;
+      color: var(--predikt-gold);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.10em;
+    }
+
+    .path-arrow {
+      display: grid;
+      place-items: center;
+      margin: 12px 0;
+      color: var(--predikt-gold);
+      font-weight: 950;
+    }
+
+    .quarter-card {
+      border-radius: 18px;
+      padding: 10px;
+      background: linear-gradient(135deg, rgba(246,195,67,0.22), rgba(15,95,184,0.28));
+      border: 1px solid rgba(246,195,67,0.24);
+    }
+
+    .quarter-label {
+      color: #ffe38b;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    .map-hint {
+      margin: 0 4px;
+      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .hidden-view { display: none !important; }
+
+    .bracket-scroll {
+      overflow-x: auto;
+      padding: 4px 2px 8px;
+      scrollbar-width: thin;
+    }
+
+    .bracket-grid {
+      min-width: 1050px;
+      display: grid;
+      grid-template-columns: 210px 210px 170px 150px 170px 210px 210px;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .round {
+      display: grid;
+      gap: 14px;
+      align-content: center;
+    }
+
+    .round-title {
+      text-align: center;
+      color: rgba(255,255,255,0.76);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .game {
+      position: relative;
+      border-radius: 18px;
+      padding: 8px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.13);
+    }
+
+    .game.blue { background: linear-gradient(135deg, rgba(15,95,184,0.48), rgba(7,29,62,0.72)); }
+    .game.aqua { background: linear-gradient(135deg, rgba(45,212,191,0.34), rgba(7,29,62,0.72)); }
+    .game.green { background: linear-gradient(135deg, rgba(51,209,122,0.40), rgba(7,29,62,0.72)); }
+    .game.red { background: linear-gradient(135deg, rgba(255,79,79,0.36), rgba(7,29,62,0.72)); }
+    .game.gold { background: linear-gradient(135deg, rgba(246,195,67,0.40), rgba(7,29,62,0.72)); }
+
+    .game-code {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
+      color: #ffe6a1;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 34px;
+      padding: 8px 9px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .team + .team { margin-top: 6px; }
+
+    .team span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .seed {
+      color: rgba(255,255,255,0.66);
+      font-size: 9px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+    }
+
+    .connector-right::after,
+    .connector-left::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 2px;
+      background: rgba(246,195,67,0.54);
+    }
+
+    .connector-right::after { right: -17px; }
+    .connector-left::before { left: -17px; }
+
+    .stack-4 { grid-template-rows: repeat(4, auto); }
+    .stack-2 { grid-template-rows: repeat(2, auto); gap: 58px; }
+    .stack-1 { grid-template-rows: auto; }
+
+    .cup-stage {
+      min-height: 350px;
+      display: grid;
+      place-items: center;
+      gap: 12px;
+    }
+
+    .cup-card {
+      width: 100%;
+      border-radius: 24px;
+      padding: 18px 12px;
+      text-align: center;
+      background:
+        radial-gradient(circle at top, rgba(246,195,67,0.36), transparent 44%),
+        rgba(0,0,0,0.20);
+      border: 1px solid rgba(246,195,67,0.28);
+    }
+
+    .cup-icon { font-size: 54px; line-height: 1; margin-bottom: 8px; }
+    .cup-card h3 { margin: 0; font-size: 17px; }
+    .cup-card p { margin: 6px 0 0; color: var(--predikt-muted); font-size: 11px; font-weight: 800; }
+
+    .third-place {
+      border-radius: 20px;
+      padding: 12px;
+      background: rgba(246,195,67,0.14);
+      border: 1px solid rgba(246,195,67,0.28);
+      text-align: center;
+    }
+
+    .third-place strong { display: block; color: #ffe6a1; font-size: 12px; }
+    .third-place span { display: block; margin-top: 3px; color: var(--predikt-muted); font-size: 10px; font-weight: 800; }
+
+    .mobile-list,
+    .mobile-full-map {
+      display: none;
+      gap: 12px;
+    }
+
+    .mobile-full-map {
+      margin-top: 12px;
+    }
+
+    .mobile-card {
+      border-radius: 22px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      border: 1px solid var(--predikt-border);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+    }
+
+    .mobile-card .game-code { margin-bottom: 9px; }
+
+    .mobile-route-card {
+      border-radius: 22px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
+      border: 1px solid var(--predikt-border);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+    }
+
+    .mobile-route-title {
+      margin: 0 0 10px;
+      color: #ffe38b;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mobile-stage-label {
+      margin: 10px 0 7px;
+      color: rgba(255,255,255,0.70);
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .mobile-final-card {
+      border-radius: 22px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(246,195,67,0.30), rgba(15,95,184,0.20));
+      border: 1px solid rgba(246,195,67,0.34);
+      box-shadow: 0 16px 34px rgba(0,0,0,0.25);
+    }
+
+    .mobile-cup {
+      display: grid;
+      place-items: center;
+      min-height: 82px;
+      margin: 8px 0 10px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.20);
+      border: 1px solid rgba(246,195,67,0.22);
+      font-size: 36px;
+    }
+
+    .vs-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 4px;
+      color: var(--predikt-gold);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.14em;
+    }
+
+    .vs-line::before,
+    .vs-line::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(246,195,67,0.68), transparent);
+    }
+
+    .empty-state {
+      display: none;
+      border-radius: var(--radius-xl);
+      padding: 24px 18px;
+      text-align: center;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid var(--predikt-border);
+      box-shadow: var(--shadow-card);
+    }
+
+    .empty-state .icon { font-size: 38px; margin-bottom: 10px; }
+    .empty-state h2 { margin: 0 0 8px; font-size: 20px; }
+    .empty-state p { margin: 0; color: var(--predikt-muted); font-size: 14px; font-weight: 750; }
+
+    .fine-print {
+      margin: 16px 4px 0;
+      color: rgba(255,255,255,0.58);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100%, 520px);
+      min-height: calc(var(--footer-h) + env(safe-area-inset-bottom));
+      padding: 9px 10px calc(8px + env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      background: rgba(3,17,38,0.96);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 -16px 36px rgba(0,0,0,0.36);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav-item {
+      text-decoration: none;
+      color: rgba(255,255,255,0.72);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-width: 0;
+      border-radius: 14px;
+      padding: 7px 4px;
+      font-size: 10px;
+      font-weight: 850;
+    }
+
+    .nav-item .nav-icon { font-size: 17px; line-height: 1; }
+    .nav-item.active {
+      color: #ffe39a;
+      background: rgba(246,195,67,0.12);
+      border: 1px solid rgba(246,195,67,0.18);
+    }
+
+    @media (max-width: 760px) {
+      .app-shell { max-width: 520px; }
+      .bracket-shell { padding: 12px; }
+      .quarters-grid { grid-template-columns: 1fr; }
+      .bracket-scroll { display: none; }
+      .mobile-list, .mobile-full-map { display: grid; }
+      .bracket-title { padding-bottom: 10px; }
+      .bracket-title h2 { font-size: 17px; }
+      .hero { margin-bottom: 14px; }
+    }
+
+    @media (min-width: 761px) {
+      body { padding-top: 18px; }
+      .fine-print { max-width: 620px; margin-left: auto; margin-right: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo" src="./predikt-logo.png" alt="PREDIKT™" onerror="this.style.display='none'" />
+        <div>
+          <h1 class="brand-title">PREDIKT™</h1>
+          <p class="brand-subtitle">Powered by JVSys™</p>
+        </div>
+      </div>
+      <button class="refresh-btn" type="button" onclick="window.location.reload()">Actualizar</button>
+    </header>
+
+    <section class="hero" aria-label="Eliminación directa proyectada">
+      <span class="eyebrow">🏆 Eliminación proyectada</span>
+      <h1>En este momento así quedaría la eliminación</h1>
+      <p>Antes de llegar a esta fase, PREDIKT™ proyecta los cruces posibles según la clasificación actual.</p>
+      <div class="status-pill">⚠️ Es un pronóstico vivo. Cambia conforme avanzan los resultados oficiales.</div>
+    </section>
+
+    <section class="bracket-shell" aria-label="Mecánica visual de eliminación">
+      <div class="bracket-title">
+        <div>
+          <h2>Camino proyectado</h2>
+          <small>Octavos y Cuartos primero · Mapa completo aparte</small>
+        </div>
+        <div class="round-badge" id="matchCount">8 cruces</div>
+      </div>
+
+      <div class="view-switch" role="tablist" aria-label="Vistas de eliminación">
+        <button id="tabQuarters" class="view-tab active" type="button">Hasta cuartos</button>
+        <button id="tabFull" class="view-tab" type="button">Mapa completo</button>
+      </div>
+
+      <div id="quartersView" class="quarters-view" aria-live="polite"></div>
+      <div id="bracketScroll" class="bracket-scroll hidden-view" aria-live="polite"></div>
+      <p id="mapHint" class="map-hint hidden-view">Vista panorámica PREDIKT™: muestra la percepción completa del camino al título. En celular puede desplazarse horizontalmente.</p>
+      <div id="mobileList" class="mobile-list" aria-live="polite"></div>
+      <div id="mobileFullMap" class="mobile-full-map hidden-view" aria-live="polite"></div>
+
+      <section id="emptyState" class="empty-state" aria-live="polite">
+        <div class="icon">🏆</div>
+        <h2>Estamos calculando los cruces.</h2>
+        <p>Vuelve en unos minutos.</p>
+      </section>
+    </section>
+
+    <p class="fine-print">Proyección dinámica PREDIKT™. El objetivo es visualizar la posible ruta, no confirmar resultados finales.</p>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <a class="nav-item" href="./index.html"><span class="nav-icon">🏠</span><span>Inicio</span></a>
+    <a class="nav-item" href="./mi-quiniela.html"><span class="nav-icon">⚽</span><span>Quiniela</span></a>
+    <a class="nav-item" href="./pronostico.html"><span class="nav-icon">🎯</span><span>Pronósticos</span></a>
+    <a class="nav-item active" href="./ranking.html"><span class="nav-icon">🏆</span><span>Ranking</span></a>
+    <a class="nav-item" href="./perfil.html"><span class="nav-icon">👤</span><span>Perfil</span></a>
+  </nav>
+
+  <script>
+    const PREDIKT_PROJECTED_BRACKET = [
+      { a: 'México', aFlag: '🇲🇽', aSeed: '1A', b: 'Uruguay', bFlag: '🇺🇾', bSeed: '2B', color: 'blue' },
+      { a: 'Brasil', aFlag: '🇧🇷', aSeed: '1C', b: 'Japón', bFlag: '🇯🇵', bSeed: '2D', color: 'blue' },
+      { a: 'Argentina', aFlag: '🇦🇷', aSeed: '1E', b: 'Alemania', bFlag: '🇩🇪', bSeed: '2F', color: 'aqua' },
+      { a: 'España', aFlag: '🇪🇸', aSeed: '1G', b: 'Croacia', bFlag: '🇭🇷', bSeed: '2H', color: 'aqua' },
+      { a: 'Francia', aFlag: '🇫🇷', aSeed: '1I', b: 'Corea del Sur', bFlag: '🇰🇷', bSeed: '2J', color: 'green' },
+      { a: 'Inglaterra', aFlag: '🏴', aSeed: '1K', b: 'Colombia', bFlag: '🇨🇴', bSeed: '2L', color: 'green' },
+      { a: 'Portugal', aFlag: '🇵🇹', aSeed: '1B', b: 'Estados Unidos', bFlag: '🇺🇸', bSeed: '2A', color: 'red' },
+      { a: 'Países Bajos', aFlag: '🇳🇱', aSeed: '1D', b: 'Bélgica', bFlag: '🇧🇪', bSeed: '2C', color: 'red' }
+    ];
+
+    const PROJECTED_NEXT_ROUNDS = {
+      quarterLeft: [
+        { a: 'México', aFlag: '🇲🇽', b: 'Brasil', bFlag: '🇧🇷', code: 'Cuartos', color: 'blue' },
+        { a: 'Argentina', aFlag: '🇦🇷', b: 'España', bFlag: '🇪🇸', code: 'Cuartos', color: 'aqua' }
+      ],
+      semiLeft: [{ a: 'México', aFlag: '🇲🇽', b: 'Argentina', bFlag: '🇦🇷', code: 'Semifinal', color: 'gold' }],
+      final: { a: 'México', aFlag: '🇲🇽', b: 'Francia', bFlag: '🇫🇷', code: 'Final proyectada', color: 'gold' },
+      semiRight: [{ a: 'Francia', aFlag: '🇫🇷', b: 'Portugal', bFlag: '🇵🇹', code: 'Semifinal', color: 'gold' }],
+      quarterRight: [
+        { a: 'Francia', aFlag: '🇫🇷', b: 'Inglaterra', bFlag: '🏴', code: 'Cuartos', color: 'green' },
+        { a: 'Portugal', aFlag: '🇵🇹', b: 'Países Bajos', bFlag: '🇳🇱', code: 'Cuartos', color: 'red' }
+      ]
+    };
+
+    function safeText(value) {
+      return String(value || '').replace(/[<>&"']/g, function (char) {
+        return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[char];
+      });
+    }
+
+    function teamLine(flag, name, seed) {
+      return `<div class="team"><span>${safeText(flag)} ${safeText(name)}</span><span class="seed">${safeText(seed || '')}</span></div>`;
+    }
+
+    function gameCard(match, index, sideClass) {
+      return `
+        <article class="game ${safeText(match.color || 'blue')} ${sideClass || ''}">
+          <div class="game-code"><span>${safeText(match.code || 'Cruce proyectado')}</span><span>${index ? 'P' + index : ''}</span></div>
+          ${teamLine(match.aFlag, match.a, match.aSeed)}
+          ${teamLine(match.bFlag, match.b, match.bSeed)}
+        </article>
+      `;
+    }
+
+    function mobileCard(match, index) {
+      return `
+        <article class="mobile-card">
+          <div class="game-code"><span>Cruce proyectado</span><span>Partido ${index + 1}</span></div>
+          ${teamLine(match.aFlag, match.a, match.aSeed)}
+          <div class="vs-line">VS</div>
+          ${teamLine(match.bFlag, match.b, match.bSeed)}
+        </article>
+      `;
+    }
+
+
+    function mobileQuarterBlock(quarter, label) {
+      return `
+        <div>
+          <p class="mobile-stage-label">${safeText(label)}</p>
+          ${teamLine(quarter.aFlag, quarter.a, '')}
+          <div class="vs-line">VS</div>
+          ${teamLine(quarter.bFlag, quarter.b, '')}
+        </div>
+      `;
+    }
+
+    function renderMobileFullMap() {
+      const q = PROJECTED_NEXT_ROUNDS.quarterLeft.concat(PROJECTED_NEXT_ROUNDS.quarterRight);
+      return `
+        <article class="mobile-route-card">
+          <p class="mobile-route-title">Ruta proyectada hasta cuartos</p>
+          ${q.map((item, index) => mobileQuarterBlock(item, 'Cuartos ' + (index + 1))).join('')}
+        </article>
+        <article class="mobile-route-card">
+          <p class="mobile-route-title">Semifinales proyectadas</p>
+          ${mobileQuarterBlock(PROJECTED_NEXT_ROUNDS.semiLeft[0], 'Semifinal 1')}
+          ${mobileQuarterBlock(PROJECTED_NEXT_ROUNDS.semiRight[0], 'Semifinal 2')}
+        </article>
+        <article class="mobile-final-card">
+          <p class="mobile-route-title">Final proyectada PREDIKT™</p>
+          <div class="mobile-cup">🏆</div>
+          ${teamLine(PROJECTED_NEXT_ROUNDS.final.aFlag, PROJECTED_NEXT_ROUNDS.final.a, '')}
+          <div class="vs-line">VS</div>
+          ${teamLine(PROJECTED_NEXT_ROUNDS.final.bFlag, PROJECTED_NEXT_ROUNDS.final.b, '')}
+        </article>
+      `;
+    }
+
+
+    function quarterPathCard(matchA, matchB, quarter, index) {
+      return `
+        <article class="path-card">
+          <div class="path-head"><span>Posible enfrentamiento ${index}</span><span>Octavos → Cuartos</span></div>
+          <div class="game ${safeText(matchA.color || 'blue')}">
+            <div class="game-code"><span>Cruce proyectado</span><span>P${74 + ((index - 1) * 2)}</span></div>
+            ${teamLine(matchA.aFlag, matchA.a, matchA.aSeed)}
+            <div class="path-vs">VS</div>
+            ${teamLine(matchA.bFlag, matchA.b, matchA.bSeed)}
+          </div>
+          <div class="path-arrow">↓</div>
+          <div class="game ${safeText(matchB.color || 'blue')}">
+            <div class="game-code"><span>Cruce proyectado</span><span>P${75 + ((index - 1) * 2)}</span></div>
+            ${teamLine(matchB.aFlag, matchB.a, matchB.aSeed)}
+            <div class="path-vs">VS</div>
+            ${teamLine(matchB.bFlag, matchB.b, matchB.bSeed)}
+          </div>
+          <div class="path-arrow">↓</div>
+          <div class="quarter-card">
+            <p class="quarter-label">Así quedaría cuartos</p>
+            ${teamLine(quarter.aFlag, quarter.a, '')}
+            <div class="path-vs">VS</div>
+            ${teamLine(quarter.bFlag, quarter.b, '')}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderQuartersView(matches) {
+      const quartersView = document.getElementById('quartersView');
+      const q = PROJECTED_NEXT_ROUNDS.quarterLeft.concat(PROJECTED_NEXT_ROUNDS.quarterRight);
+      quartersView.innerHTML = `
+        <section class="quarters-grid">
+          ${quarterPathCard(matches[0], matches[1], q[0], 1)}
+          ${quarterPathCard(matches[2], matches[3], q[1], 2)}
+          ${quarterPathCard(matches[4], matches[5], q[2], 3)}
+          ${quarterPathCard(matches[6], matches[7], q[3], 4)}
+        </section>
+      `;
+    }
+
+    function setupViewTabs() {
+      const tabQuarters = document.getElementById('tabQuarters');
+      const tabFull = document.getElementById('tabFull');
+      const quartersView = document.getElementById('quartersView');
+      const bracketScroll = document.getElementById('bracketScroll');
+      const mobileList = document.getElementById('mobileList');
+      const mobileFullMap = document.getElementById('mobileFullMap');
+      const mapHint = document.getElementById('mapHint');
+
+      function showQuarters() {
+        tabQuarters.classList.add('active');
+        tabFull.classList.remove('active');
+        quartersView.classList.remove('hidden-view');
+        bracketScroll.classList.add('hidden-view');
+        mapHint.classList.add('hidden-view');
+        mobileList.classList.add('hidden-view');
+        mobileFullMap.classList.add('hidden-view');
+      }
+
+      function showFull() {
+        tabFull.classList.add('active');
+        tabQuarters.classList.remove('active');
+        quartersView.classList.add('hidden-view');
+        bracketScroll.classList.remove('hidden-view');
+        mapHint.classList.remove('hidden-view');
+        mobileFullMap.classList.remove('hidden-view');
+        mobileList.classList.add('hidden-view');
+      }
+
+      tabQuarters.addEventListener('click', showQuarters);
+      tabFull.addEventListener('click', showFull);
+      showQuarters();
+    }
+
+    function renderProjectedBracket(matches) {
+      const bracketScroll = document.getElementById('bracketScroll');
+      const mobileList = document.getElementById('mobileList');
+      const emptyState = document.getElementById('emptyState');
+      const matchCount = document.getElementById('matchCount');
+
+      if (!Array.isArray(matches) || matches.length === 0) {
+        bracketScroll.innerHTML = '';
+        quartersView.innerHTML = '';
+        mobileList.innerHTML = '';
+        document.getElementById('mobileFullMap').innerHTML = '';
+        emptyState.style.display = 'block';
+        matchCount.textContent = 'Calculando';
+        return;
+      }
+
+      const leftOctavos = matches.slice(0, 4);
+      const rightOctavos = matches.slice(4, 8);
+
+      emptyState.style.display = 'none';
+      matchCount.textContent = `${matches.length} cruces`;
+      mobileList.innerHTML = matches.map(mobileCard).join('');
+      document.getElementById('mobileFullMap').innerHTML = renderMobileFullMap();
+      renderQuartersView(matches);
+
+      bracketScroll.innerHTML = `
+        <div class="bracket-grid">
+          <section class="round stack-4">
+            <div class="round-title">Octavos</div>
+            ${leftOctavos.map((m, i) => gameCard(m, 74 + i, 'connector-right')).join('')}
+          </section>
+
+          <section class="round stack-2">
+            <div class="round-title">Cuartos</div>
+            ${PROJECTED_NEXT_ROUNDS.quarterLeft.map((m, i) => gameCard(m, 89 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="round stack-1">
+            <div class="round-title">Semifinal</div>
+            ${PROJECTED_NEXT_ROUNDS.semiLeft.map((m, i) => gameCard(m, 101 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="cup-stage">
+            <div class="cup-card">
+              <div class="cup-icon">🏆</div>
+              <h3>PREDIKT™</h3>
+              <p>Ruta viva al título</p>
+            </div>
+            ${gameCard(PROJECTED_NEXT_ROUNDS.final, 104, 'connector-left connector-right')}
+            <div class="third-place"><strong>Partido por tercer lugar</strong><span>Se proyecta después de semifinales</span></div>
+          </section>
+
+          <section class="round stack-1">
+            <div class="round-title">Semifinal</div>
+            ${PROJECTED_NEXT_ROUNDS.semiRight.map((m, i) => gameCard(m, 102 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="round stack-2">
+            <div class="round-title">Cuartos</div>
+            ${PROJECTED_NEXT_ROUNDS.quarterRight.map((m, i) => gameCard(m, 99 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="round stack-4">
+            <div class="round-title">Octavos</div>
+            ${rightOctavos.map((m, i) => gameCard(m, 79 + i, 'connector-left')).join('')}
+          </section>
+        </div>
+      `;
+      setupViewTabs();
+    }
+
+    try {
+      renderProjectedBracket(PREDIKT_PROJECTED_BRACKET);
+    } catch (error) {
+      renderProjectedBracket([]);
+    }
+  </script>
+</body>
+</html>
+<!--
+  Fin del archivo: eliminacion.html
+  Versión: v2.2.2_FIX_MAPA_COMPLETO_MOBILE
+  Motivo: Corrige la vista de celular para que el botón Mapa completo muestre una percepción vertical de la ruta y no quede vacío.
+  N° de líneas del archivo: 943
+-->
+
   <title>PREDIKT™ | Eliminación Directa</title>
   <link rel="icon" href="./predikt-logo.png" />
   <style>
