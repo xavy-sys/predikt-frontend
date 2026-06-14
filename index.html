@@ -1002,6 +1002,7 @@
           name: 'events',
           query: (q) => q
             .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
+            .eq('event_type','MATCH')
             .gte('starts_at', min.toISOString())
             .lt('starts_at', max.toISOString())
             .order('starts_at', { ascending: true })
@@ -1023,6 +1024,7 @@
               home:home_participant_id(name, short_name, country_code, flag_emoji),
               away:away_participant_id(name, short_name, country_code, flag_emoji)
             `)
+            .eq('event_type','MATCH')
             .gte('starts_at', min.toISOString())
             .lt('starts_at', max.toISOString())
             .order('starts_at', { ascending: true })
@@ -1077,7 +1079,7 @@
           .select('event_id, home_score, away_score, is_final, finalized_at, created_at, events:event_id(id, name, metadata, home:home_participant_id(name, short_name, flag_emoji), away:away_participant_id(name, short_name, flag_emoji))')
           .eq('is_final', true)
           .order('finalized_at', { ascending: false, nullsFirst: false })
-          .limit(1);
+          .limit(5);
 
         if (!error && Array.isArray(data) && data.length) {
           state.officialResults = data;
@@ -1095,7 +1097,7 @@
           .select('event_id, home_score, away_score, is_final, finalized_at, created_at')
           .eq('is_final', true)
           .order('finalized_at', { ascending: false, nullsFirst: false })
-          .limit(1);
+          .limit(5);
 
         if (!error && Array.isArray(data) && data.length) {
           state.officialResults = data;
@@ -1354,19 +1356,8 @@
 
       const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
       if (!recentEvent) {
-        const elapsedEvent = state.events
-          .filter((event) => event.startsAtDate < new Date())
-          .sort((a, b) => b.startsAtDate - a.startsAtDate)[0] || null;
-
-        if (elapsedEvent) {
-          $('recentScore').textContent = shortMatchLabel(elapsedEvent);
-          $('recentMeta').textContent = `${labelGroup(elapsedEvent.groupCode)} · ${timeAgo(elapsedEvent.startsAtDate)} · marcador pendiente`;
-          $('recentBadge').textContent = 'Pendiente';
-          return;
-        }
-
         $('recentScore').textContent = 'Sin resultado oficial';
-        $('recentMeta').textContent = 'Aparecerá aquí al cerrar el primer marcador oficial.';
+        $('recentMeta').textContent = 'Aparecerá aquí al registrar o cerrar el último marcador oficial.';
         $('recentBadge').textContent = 'Pendiente';
         return;
       }
@@ -1422,9 +1413,29 @@
     }
 
     function getTomorrowEvents() {
-      const start = addDays(startOfLocalDay(new Date()), 1);
-      const end = addDays(start, 1);
-      return state.events.filter((event) => event.startsAtDate >= start && event.startsAtDate < end);
+      const tomorrowStart = addDays(startOfLocalDay(new Date()), 1);
+      const tomorrowEnd = addDays(tomorrowStart, 1);
+      const strictTomorrow = state.events.filter((event) => event.startsAtDate >= tomorrowStart && event.startsAtDate < tomorrowEnd);
+      if (strictTomorrow.length > 1) return strictTomorrow;
+
+      // Fallback operativo: si la base sólo cargó parcialmente mañana, muestra la siguiente fecha con jornada disponible.
+      const afterToday = state.events
+        .filter((event) => event.startsAtDate >= tomorrowStart)
+        .sort((a, b) => a.startsAtDate - b.startsAtDate);
+      if (!afterToday.length) return strictTomorrow;
+
+      const dayKey = localDayKey(afterToday[0].startsAtDate);
+      const nextOperationalDay = afterToday.filter((event) => localDayKey(event.startsAtDate) === dayKey);
+      return nextOperationalDay.length ? nextOperationalDay : strictTomorrow;
+    }
+
+    function localDayKey(date) {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: USER_TIMEZONE,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(date);
     }
 
     function startOfLocalDay(date) {
