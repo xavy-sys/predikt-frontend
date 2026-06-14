@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.3.0_RPC_HOME_DATA_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.3.1_RECENT_RESULT_RPC_RENDER_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -823,7 +823,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.0_RPC_HOME_DATA_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.1_RECENT_RESULT_RPC_RENDER_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -1204,11 +1204,13 @@
     
     
     
+    
     async function loadRecentOfficialResults() {
       try {
         const { data, error } = await supabaseClient
           .schema('predictions')
           .rpc('get_latest_official_result');
+
         if (error) throw error;
 
         const row = Array.isArray(data) ? data[0] : data;
@@ -1218,29 +1220,32 @@
           return;
         }
 
-        const event = normalizeEvent({
+        const event = {
           id: row.event_id,
           name: row.event_name,
-          starts_at: row.starts_at || row.finalized_at || row.created_at,
-          event_status: 'FINISHED',
-          metadata: {
-            group_code: row.group_code,
-            matchday: row.matchday,
-            venue_name: row.venue_name,
-            venue_city: row.venue_city
-          },
-          venue_name: row.venue_name,
-          venue_city: row.venue_city
-        });
+          startsAtDate: parseUtcDate(row.starts_at || row.finalized_at || row.created_at),
+          groupCode: row.group_code || 'GROUP',
+          venueName: row.venue_name || '',
+          venueCity: row.venue_city || '',
+          homeLabel: cleanTeamName(splitMatchName(row.event_name || '').home || ''),
+          awayLabel: cleanTeamName(splitMatchName(row.event_name || '').away || ''),
+          matchLabel: row.event_name || ''
+        };
 
         state.officialResults = [{
           id: row.id,
           event_id: row.event_id,
+          event_name: row.event_name,
           official_home_score: row.official_home_score,
           official_away_score: row.official_away_score,
           official_winner: row.official_winner,
           finalized_at: row.finalized_at,
           created_at: row.created_at,
+          starts_at: row.starts_at,
+          group_code: row.group_code,
+          matchday: row.matchday,
+          venue_name: row.venue_name,
+          venue_city: row.venue_city,
           event
         }];
       } catch (error) {
@@ -1249,6 +1254,7 @@
         state.recentResultEvent = findMostRecentFinishedEvent();
       }
     }
+
 
 
 
@@ -1522,6 +1528,7 @@
 
     
     
+    
     function renderRecentResult() {
       const result = Array.isArray(state.officialResults) ? state.officialResults[0] : null;
 
@@ -1540,42 +1547,30 @@
         return;
       }
 
-      let event = result.event || state.events.find((item) => String(item.id) === String(result.event_id)) || null;
-
-      // Fallback por nombre para evitar Local/Visitante si Supabase no enlaza evento por relación.
-      if (!event) {
-        const fallbackByTime = CERTIFIED_MATCH_FALLBACKS
-          .map(normalizeEvent)
-          .filter(Boolean)
-          .find((item) => String(item.id) === String(result.event_id));
-        event = fallbackByTime || null;
-      }
-
-      const rawName = event?.name || '';
-      const teams = splitMatchName(rawName);
-      const homeName = cleanTeamName(teams.home || event?.homeLabel || 'Local');
-      const awayName = cleanTeamName(teams.away || event?.awayLabel || 'Visitante');
+      const eventName = result.event_name || result.event?.name || result.event?.matchLabel || '';
+      const teams = splitMatchName(eventName);
+      const homeName = cleanTeamName(teams.home || 'Local');
+      const awayName = cleanTeamName(teams.away || 'Visitante');
       const homeScore = Number(result.official_home_score);
       const awayScore = Number(result.official_away_score);
-      const group = event?.groupCode ? labelGroup(event.groupCode) : 'Grupo';
-      const venue = event?.venueName && event.venueName !== 'Sede por confirmar' ? event.venueName : '';
 
-      let displayScore;
+      let displayScore = eventName || 'Resultado oficial';
       if (Number.isFinite(homeScore) && Number.isFinite(awayScore)) {
-        // Si ganó el visitante, presentar primero al ganador: Escocia 1-0 Haití.
         if (awayScore > homeScore) {
           displayScore = `${awayName} ${awayScore}-${homeScore} ${homeName}`;
         } else {
           displayScore = `${homeName} ${homeScore}-${awayScore} ${awayName}`;
         }
-      } else {
-        displayScore = rawName || 'Resultado oficial';
       }
+
+      const group = labelGroup(result.group_code || result.event?.groupCode || 'GROUP');
+      const venue = result.venue_name || result.event?.venueName || '';
 
       $('recentScore').textContent = displayScore;
       $('recentMeta').textContent = `${group}${venue ? ' · ' + venue : ''} · ${timeAgo(result.finalized_at || result.created_at)}`;
       $('recentBadge').textContent = '✅ Oficial';
     }
+
 
 
 
