@@ -1,37 +1,34 @@
 <!--
   Archivo: eliminacion.html
-  Versión: v2.4.1_FIX_MOBILE_PRIORIDAD_CONTENIDO
+  Versión: v2.5.0_RUTAS_HACIA_LA_COPA
+  Proyecto: PREDIKT™
   Motivo de la nueva versión:
-  Corrige comportamiento Mobile First: las pestañas vuelven a una sola fila, el contenido aparece inmediatamente debajo de los botones y la explicación del motor pasa al cierre para no ocultar los cruces en celular.
-  Mantiene mapa completo funcional en PC y vista digerible en móvil.
+  Rediseña la pantalla de eliminación como experiencia visual Mobile First: Ruta de México, rutas destacadas, bracket panorámico y Motor Enriquecido PREDIKT™ sin lenguaje técnico.
 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>PREDIKT™ | Eliminación Directa</title>
+  <title>PREDIKT™ | Ruta hacia la Copa</title>
   <link rel="icon" href="./predikt-logo.png" />
   <style>
     :root {
-      --predikt-navy: #061b3a;
-      --predikt-deep: #031126;
-      --predikt-blue: #0b3f86;
-      --predikt-blue-2: #0f5fb8;
-      --predikt-gold: #f6c343;
-      --predikt-green: #33d17a;
-      --predikt-red: #ff4f4f;
-      --predikt-card: rgba(255,255,255,0.08);
-      --predikt-card-2: rgba(255,255,255,0.12);
-      --predikt-border: rgba(255,255,255,0.16);
-      --predikt-text: #ffffff;
-      --predikt-muted: rgba(255,255,255,0.72);
-      --predikt-soft: rgba(255,255,255,0.92);
+      --navy: #061b3a;
+      --deep: #031126;
+      --blue: #0b3f86;
+      --blue2: #0f5fb8;
+      --gold: #f6c343;
+      --green: #33d17a;
+      --red: #ff5a5a;
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.72);
+      --soft: rgba(255,255,255,0.92);
+      --card: rgba(255,255,255,0.09);
+      --card2: rgba(255,255,255,0.14);
+      --border: rgba(255,255,255,0.16);
+      --shadow: 0 18px 42px rgba(0,0,0,0.30);
       --footer-h: 78px;
-      --radius-xl: 24px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --shadow-card: 0 18px 40px rgba(0,0,0,0.28);
     }
 
     * { box-sizing: border-box; }
@@ -40,10 +37,11 @@
       margin: 0;
       min-height: 100%;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(15,95,184,0.58), transparent 34%),
+        radial-gradient(circle at top left, rgba(15,95,184,0.58), transparent 33%),
+        radial-gradient(circle at bottom right, rgba(246,195,67,0.13), transparent 28%),
         linear-gradient(180deg, #082b5d 0%, #061b3a 52%, #031126 100%);
-      color: var(--predikt-text);
     }
 
     body {
@@ -62,7 +60,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      width: min(100%, 520px);
+      width: min(100%, 540px);
       margin: 0 auto;
       padding: 6px 2px 14px;
     }
@@ -79,62 +77,60 @@
       height: 38px;
       border-radius: 12px;
       object-fit: contain;
-      background: rgba(255,255,255,0.08);
-      padding: 5px;
-      border: 1px solid var(--predikt-border);
+      background: rgba(255,255,255,0.10);
+      border: 1px solid var(--border);
+      padding: 4px;
     }
 
     .brand-title {
       margin: 0;
-      font-size: 17px;
-      font-weight: 950;
-      letter-spacing: 0.05em;
-      line-height: 1;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      line-height: 1.05;
     }
 
     .brand-subtitle {
-      margin: 4px 0 0;
+      margin: 2px 0 0;
+      color: var(--muted);
       font-size: 10px;
-      font-weight: 850;
-      color: var(--predikt-muted);
-      letter-spacing: 0.03em;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
     }
 
     .refresh-btn {
-      appearance: none;
-      border: 1px solid rgba(246,195,67,0.38);
-      background: rgba(246,195,67,0.13);
-      color: #ffe6a1;
+      border: 1px solid rgba(246,195,67,0.45);
+      background: rgba(246,195,67,0.12);
+      color: var(--gold);
       border-radius: 999px;
-      padding: 10px 13px;
+      padding: 9px 12px;
+      font-weight: 900;
       font-size: 12px;
-      font-weight: 950;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
     }
 
     .hero {
+      width: min(100%, 760px);
+      margin: 0 auto 12px;
+      padding: 18px;
+      border-radius: 26px;
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
+      box-shadow: var(--shadow);
       position: relative;
       overflow: hidden;
-      width: min(100%, 620px);
-      margin: 0 auto 16px;
-      border: 1px solid var(--predikt-border);
-      border-radius: var(--radius-xl);
-      padding: 18px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05)),
-        radial-gradient(circle at top right, rgba(246,195,67,0.24), transparent 42%);
-      box-shadow: var(--shadow-card);
     }
 
-    .hero::after {
+    .hero:after {
       content: "";
       position: absolute;
-      inset: auto -60px -80px auto;
-      width: 170px;
-      height: 170px;
-      border: 28px solid rgba(255,255,255,0.05);
+      width: 140px;
+      height: 140px;
+      right: -48px;
+      top: -48px;
       border-radius: 50%;
+      background: rgba(246,195,67,0.12);
     }
 
     .eyebrow {
@@ -143,786 +139,612 @@
       gap: 6px;
       padding: 7px 10px;
       border-radius: 999px;
-      background: rgba(246,195,67,0.16);
-      border: 1px solid rgba(246,195,67,0.38);
-      color: #ffe7a7;
+      background: rgba(246,195,67,0.14);
+      border: 1px solid rgba(246,195,67,0.36);
+      color: var(--gold);
       font-size: 11px;
       font-weight: 950;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.55px;
       text-transform: uppercase;
     }
 
-    .hero h1 {
-      margin: 14px 0 8px;
-      font-size: clamp(27px, 7vw, 40px);
+    h1 {
+      margin: 12px 0 8px;
+      font-size: clamp(25px, 7vw, 46px);
       line-height: 0.96;
-      letter-spacing: -0.045em;
+      letter-spacing: -1px;
+      max-width: 680px;
     }
 
     .hero p {
       margin: 0;
-      max-width: 440px;
+      color: var(--soft);
       font-size: 14px;
-      line-height: 1.38;
-      color: var(--predikt-soft);
-      font-weight: 750;
+      line-height: 1.45;
+      max-width: 620px;
     }
 
-    .status-pill {
-      margin: 14px 0 0;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 11px 13px;
-      border-radius: 16px;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(246,195,67,0.28);
-      color: #ffe38b;
-      font-size: 12px;
-      font-weight: 900;
-      line-height: 1.28;
-    }
-
-    .bracket-shell {
-      border-radius: 28px;
-      padding: 14px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.14);
-      box-shadow: var(--shadow-card);
-    }
-
-    .bracket-title {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 4px 4px 12px;
-    }
-
-    .bracket-title h2 {
-      margin: 0;
-      font-size: 18px;
-      letter-spacing: -0.02em;
-    }
-
-    .bracket-title small {
-      display: block;
-      color: var(--predikt-muted);
-      margin-top: 4px;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .round-badge {
-      flex: 0 0 auto;
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(15,95,184,0.34);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #d8ebff;
-      font-size: 11px;
-      font-weight: 950;
-    }
-
-
-
-    .view-switch {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin: 4px 4px 14px;
-      padding: 5px;
-      border-radius: 18px;
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .view-tab {
-      appearance: none;
-      border: 0;
-      min-height: 44px;
-      border-radius: 14px;
-      background: transparent;
-      color: rgba(255,255,255,0.72);
-      font-weight: 950;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .view-tab.active {
-      background: linear-gradient(135deg, rgba(246,195,67,0.92), rgba(199,139,28,0.92));
-      color: #07142a;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
-    }
-
-
-    .engine-note {
-      display: grid;
-      gap: 8px;
-      margin: 0 4px 14px;
-      padding: 12px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, rgba(246,195,67,0.14), rgba(15,95,184,0.18));
-      border: 1px solid rgba(246,195,67,0.22);
-    }
-
-    .engine-note strong {
-      color: #ffe38b;
-      font-size: 12px;
-      font-weight: 950;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .engine-note p {
-      margin: 0;
-      color: rgba(255,255,255,0.78);
-      font-size: 12px;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .engine-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-
-    .engine-chip {
-      border-radius: 999px;
-      padding: 6px 9px;
-      background: rgba(0,0,0,0.20);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.84);
-      font-size: 10px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .scroll-guidance {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 0 4px 10px;
-      color: rgba(255,255,255,0.72);
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .scroll-pill {
+    .live-pill {
       display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      margin-top: 12px;
+      padding: 9px 11px;
       border-radius: 999px;
-      padding: 7px 10px;
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #ffe38b;
-      white-space: nowrap;
+      background: rgba(51,209,122,0.14);
+      border: 1px solid rgba(51,209,122,0.34);
+      color: #a7f3c4;
+      font-size: 12px;
+      font-weight: 900;
     }
 
-
-    .origin-view {
-      display: grid;
-      gap: 14px;
-    }
-
-    .origin-intro {
-      margin: 0 4px;
-      color: rgba(255,255,255,0.78);
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .origin-carousel {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(290px, 360px);
-      gap: 14px;
-      overflow-x: auto;
-      padding: 4px 4px 12px;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(246,195,67,0.80) rgba(255,255,255,0.08);
-    }
-
-    .origin-carousel::-webkit-scrollbar,
-    .bracket-scroll::-webkit-scrollbar { height: 10px; }
-
-    .origin-carousel::-webkit-scrollbar-track,
-    .bracket-scroll::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.07);
-      border-radius: 999px;
-    }
-
-    .origin-carousel::-webkit-scrollbar-thumb,
-    .bracket-scroll::-webkit-scrollbar-thumb {
-      background: linear-gradient(90deg, rgba(246,195,67,0.95), rgba(15,95,184,0.95));
-      border-radius: 999px;
-      border: 2px solid rgba(6,27,58,0.95);
-    }
-
-    .origin-card {
-      scroll-snap-align: start;
-      border-radius: 24px;
+    .section-card {
+      width: min(100%, 960px);
+      margin: 12px auto;
       padding: 14px;
-      background:
-        radial-gradient(circle at top right, rgba(246,195,67,0.20), transparent 38%),
-        linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
-      border: 1px solid rgba(255,255,255,0.16);
-      box-shadow: 0 16px 36px rgba(0,0,0,0.24);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.075);
+      box-shadow: 0 12px 34px rgba(0,0,0,0.22);
     }
 
-    .origin-card-head {
+    .section-head {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 10px;
       margin-bottom: 12px;
-      color: #ffe38b;
-      font-size: 10px;
-      font-weight: 950;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
     }
 
-    .group-pair {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 8px;
-      align-items: stretch;
+    .section-head h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.12;
     }
 
-    .source-group {
-      min-width: 0;
-      border-radius: 18px;
-      padding: 10px;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .source-group h3 {
-      margin: 0 0 8px;
-      color: rgba(255,255,255,0.90);
+    .section-head small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
       font-size: 12px;
-      font-weight: 950;
+      line-height: 1.25;
     }
 
-    .source-team {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      min-height: 31px;
-      margin-top: 6px;
-      padding: 7px 8px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.09);
-      font-size: 12px;
-      font-weight: 900;
+    .badge {
+      flex: 0 0 auto;
+      border: 1px solid rgba(246,195,67,0.42);
+      background: rgba(246,195,67,0.14);
+      color: var(--gold);
+      border-radius: 999px;
+      padding: 7px 9px;
+      font-size: 11px;
+      font-weight: 950;
       white-space: nowrap;
     }
 
-    .source-team.projected {
-      background: linear-gradient(135deg, rgba(246,195,67,0.24), rgba(15,95,184,0.16));
-      border-color: rgba(246,195,67,0.28);
-      color: #fff7dc;
+    .route-carousel,
+    .featured-carousel {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(248px, 78%);
+      gap: 12px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scroll-snap-type: x mandatory;
+      padding: 2px 2px 12px;
+      scrollbar-color: var(--gold) rgba(255,255,255,0.10);
+      scrollbar-width: thin;
     }
 
-    .source-team span:first-child { overflow: hidden; text-overflow: ellipsis; }
+    .route-carousel::-webkit-scrollbar,
+    .featured-carousel::-webkit-scrollbar,
+    .bracket-scroll::-webkit-scrollbar { height: 9px; }
 
-    .origin-versus {
-      display: grid;
-      place-items: center;
-      color: var(--predikt-gold);
+    .route-carousel::-webkit-scrollbar-track,
+    .featured-carousel::-webkit-scrollbar-track,
+    .bracket-scroll::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.10);
+      border-radius: 99px;
+    }
+
+    .route-carousel::-webkit-scrollbar-thumb,
+    .featured-carousel::-webkit-scrollbar-thumb,
+    .bracket-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, var(--gold), #ffe28a);
+      border-radius: 99px;
+    }
+
+    .route-step {
+      scroll-snap-align: start;
+      min-height: 242px;
+      padding: 14px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background:
+        linear-gradient(160deg, rgba(15,95,184,0.42), rgba(255,255,255,0.08)),
+        rgba(255,255,255,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .route-step.gold {
+      background: linear-gradient(160deg, rgba(246,195,67,0.25), rgba(255,255,255,0.08));
+    }
+
+    .route-step.green {
+      background: linear-gradient(160deg, rgba(51,209,122,0.20), rgba(255,255,255,0.08));
+    }
+
+    .step-kicker {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
       font-size: 11px;
       font-weight: 950;
-      letter-spacing: 0.10em;
-    }
-
-    .origin-result {
-      margin-top: 12px;
-      border-radius: 18px;
-      padding: 11px;
-      background: rgba(15,95,184,0.24);
-      border: 1px solid rgba(246,195,67,0.22);
-    }
-
-    .origin-result small {
-      display: block;
-      color: rgba(255,255,255,0.66);
-      font-size: 10px;
-      font-weight: 900;
+      letter-spacing: 0.35px;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 7px;
     }
 
-    .origin-match {
+    .big-team {
+      margin: 12px 0 10px;
+      font-size: 30px;
+      font-weight: 950;
+      letter-spacing: -0.7px;
+      line-height: 1.02;
+    }
+
+    .group-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .group-row,
+    .team-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 11px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-weight: 850;
+    }
+
+    .group-row.active,
+    .team-row.active {
+      background: rgba(246,195,67,0.16);
+      border-color: rgba(246,195,67,0.45);
+      color: #fff4c8;
+    }
+
+    .seed {
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 950;
+    }
+
+    .vs-center {
+      display: grid;
+      place-items: center;
+      margin: 12px 0;
+      color: var(--gold);
+      font-weight: 950;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    .vs-center:before,
+    .vs-center:after {
+      content: "";
+      width: 100%;
+      max-width: 220px;
+      height: 1px;
+      background: rgba(246,195,67,0.48);
+      margin: 7px 0;
+    }
+
+    .hint-line {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      color: #fff;
-      font-size: 17px;
+      margin: 8px 0 0;
+      color: var(--gold);
       font-weight: 950;
-      text-align: center;
-    }
-
-    .origin-next {
-      margin: 10px 0 0;
-      color: rgba(255,255,255,0.72);
-      font-size: 11px;
-      font-weight: 800;
-      line-height: 1.35;
-      text-align: center;
-    }
-
-    .quarters-view {
-      display: grid;
-      gap: 16px;
-    }
-
-    .quarters-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .path-card {
-      border-radius: 22px;
-      padding: 12px;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,255,255,0.14);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-    }
-
-    .path-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #ffe38b;
-      font-size: 11px;
-      font-weight: 950;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .path-vs {
-      display: grid;
-      place-items: center;
-      margin: 8px 0;
-      color: var(--predikt-gold);
       font-size: 12px;
-      font-weight: 950;
-      letter-spacing: 0.10em;
+      text-align: center;
     }
 
-    .path-arrow {
+    .featured-card {
+      scroll-snap-align: start;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.17);
+      background: rgba(255,255,255,0.09);
+      min-height: 220px;
+    }
+
+    .featured-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 950;
+    }
+
+    .mini-path {
       display: grid;
-      place-items: center;
-      margin: 12px 0;
-      color: var(--predikt-gold);
-      font-weight: 950;
+      gap: 8px;
     }
 
-    .quarter-card {
-      border-radius: 18px;
+    .mini-node {
       padding: 10px;
-      background: linear-gradient(135deg, rgba(246,195,67,0.22), rgba(15,95,184,0.28));
-      border: 1px solid rgba(246,195,67,0.24);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.11);
     }
 
-    .quarter-label {
-      color: #ffe38b;
+    .mini-node small {
+      display: block;
+      color: var(--muted);
       font-size: 10px;
       font-weight: 950;
-      letter-spacing: 0.07em;
       text-transform: uppercase;
-      margin: 0 0 8px;
+      margin-bottom: 4px;
     }
 
-    .map-hint {
-      margin: 0 4px;
-      color: rgba(255,255,255,0.72);
-      font-size: 12px;
-      font-weight: 800;
-      line-height: 1.35;
+    .bracket-wrap {
+      position: relative;
     }
-
-    .hidden-view { display: none !important; }
 
     .bracket-scroll {
       overflow-x: auto;
-      overflow-y: hidden;
-      padding: 4px 2px 18px;
+      padding: 4px 4px 14px;
+      scrollbar-color: var(--gold) rgba(255,255,255,0.10);
       scrollbar-width: thin;
-      scrollbar-color: rgba(246,195,67,0.80) rgba(255,255,255,0.08);
-      overscroll-behavior-x: contain;
     }
 
     .bracket-grid {
-      min-width: 1050px;
+      min-width: 1080px;
       display: grid;
-      grid-template-columns: 210px 210px 170px 150px 170px 210px 210px;
-      gap: 16px;
+      grid-template-columns: 180px 170px 160px 190px 160px 170px 180px;
+      gap: 14px;
       align-items: center;
+      padding: 8px;
     }
 
     .round {
       display: grid;
-      gap: 14px;
-      align-content: center;
+      gap: 12px;
     }
+
+    .stack-4 { grid-template-rows: repeat(4, 1fr); }
+    .stack-2 { grid-template-rows: repeat(2, 1fr); gap: 54px; }
+    .stack-1 { grid-template-rows: 1fr; }
 
     .round-title {
-      text-align: center;
-      color: rgba(255,255,255,0.76);
-      font-size: 11px;
+      color: var(--gold);
+      font-size: 12px;
       font-weight: 950;
-      letter-spacing: 0.09em;
       text-transform: uppercase;
-      margin-bottom: 2px;
+      letter-spacing: 0.45px;
+      text-align: center;
     }
 
-    .game {
-      position: relative;
+    .match-card {
+      padding: 10px;
       border-radius: 18px;
-      padding: 8px;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,255,255,0.13);
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
     }
 
-    .game.blue { background: linear-gradient(135deg, rgba(15,95,184,0.48), rgba(7,29,62,0.72)); }
-    .game.aqua { background: linear-gradient(135deg, rgba(45,212,191,0.34), rgba(7,29,62,0.72)); }
-    .game.green { background: linear-gradient(135deg, rgba(51,209,122,0.40), rgba(7,29,62,0.72)); }
-    .game.red { background: linear-gradient(135deg, rgba(255,79,79,0.36), rgba(7,29,62,0.72)); }
-    .game.gold { background: linear-gradient(135deg, rgba(246,195,67,0.40), rgba(7,29,62,0.72)); }
+    .match-card.gold {
+      border-color: rgba(246,195,67,0.44);
+      background: rgba(246,195,67,0.13);
+    }
 
-    .game-code {
+    .match-label {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 7px;
-      color: #ffe6a1;
+      margin-bottom: 8px;
+      color: var(--muted);
       font-size: 10px;
       font-weight: 950;
-      letter-spacing: 0.04em;
       text-transform: uppercase;
     }
 
-    .team {
+    .match-team {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      min-height: 34px;
-      padding: 8px 9px;
+      padding: 8px;
       border-radius: 12px;
       background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.10);
-      font-size: 14px;
-      font-weight: 950;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 900;
     }
 
-    .team + .team { margin-top: 6px; }
-
-    .team span:first-child {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .seed {
-      color: rgba(255,255,255,0.66);
-      font-size: 9px;
-      font-weight: 950;
-      letter-spacing: 0.04em;
-    }
-
-    .connector-right::after,
-    .connector-left::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      width: 16px;
-      height: 2px;
-      background: rgba(246,195,67,0.54);
-    }
-
-    .connector-right::after { right: -17px; }
-    .connector-left::before { left: -17px; }
-
-    .stack-4 { grid-template-rows: repeat(4, auto); }
-    .stack-2 { grid-template-rows: repeat(2, auto); gap: 58px; }
-    .stack-1 { grid-template-rows: auto; }
-
-    .cup-stage {
-      min-height: 350px;
-      display: grid;
-      place-items: center;
-      gap: 12px;
-    }
+    .match-team + .match-team { margin-top: 6px; }
 
     .cup-card {
-      width: 100%;
+      text-align: center;
+      padding: 14px;
       border-radius: 24px;
-      padding: 18px 12px;
-      text-align: center;
-      background:
-        radial-gradient(circle at top, rgba(246,195,67,0.36), transparent 44%),
-        rgba(0,0,0,0.20);
-      border: 1px solid rgba(246,195,67,0.28);
+      background: linear-gradient(160deg, rgba(246,195,67,0.22), rgba(255,255,255,0.09));
+      border: 1px solid rgba(246,195,67,0.45);
     }
 
-    .cup-icon { font-size: 54px; line-height: 1; margin-bottom: 8px; }
-    .cup-card h3 { margin: 0; font-size: 17px; }
-    .cup-card p { margin: 6px 0 0; color: var(--predikt-muted); font-size: 11px; font-weight: 800; }
-
-    .third-place {
-      border-radius: 20px;
-      padding: 12px;
-      background: rgba(246,195,67,0.14);
-      border: 1px solid rgba(246,195,67,0.28);
-      text-align: center;
+    .cup-card .cup {
+      font-size: 42px;
+      line-height: 1;
     }
 
-    .third-place strong { display: block; color: #ffe6a1; font-size: 12px; }
-    .third-place span { display: block; margin-top: 3px; color: var(--predikt-muted); font-size: 10px; font-weight: 800; }
+    .cup-card h3 {
+      margin: 7px 0 2px;
+      font-size: 18px;
+    }
 
-    .mobile-list,
-    .mobile-full-map {
-      display: none;
+    .cup-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .favorites-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .favorite-row {
+      display: grid;
+      grid-template-columns: 34px 1fr 54px;
+      align-items: center;
+      gap: 10px;
+      padding: 11px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-weight: 900;
+    }
+
+    .favorite-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .favorite-fill {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), #ffe79a);
+    }
+
+    .engine-card {
+      display: grid;
       gap: 12px;
     }
 
-    .mobile-full-map {
-      margin-top: 12px;
+    .engine-card h2 {
+      margin: 0;
+      font-size: 18px;
     }
 
-    .mobile-card {
-      border-radius: 22px;
-      padding: 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
-      border: 1px solid var(--predikt-border);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+    .engine-card p {
+      margin: 0;
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.42;
     }
 
-    .mobile-card .game-code { margin-bottom: 9px; }
-
-    .mobile-route-card {
-      border-radius: 22px;
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
-      border: 1px solid var(--predikt-border);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+    .engine-chips {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
     }
 
-    .mobile-route-title {
-      margin: 0 0 10px;
-      color: #ffe38b;
-      font-size: 11px;
-      font-weight: 950;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .mobile-stage-label {
-      margin: 10px 0 7px;
-      color: rgba(255,255,255,0.70);
-      font-size: 10px;
-      font-weight: 950;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-    }
-
-    .mobile-final-card {
-      border-radius: 22px;
-      padding: 14px;
-      background: linear-gradient(135deg, rgba(246,195,67,0.30), rgba(15,95,184,0.20));
-      border: 1px solid rgba(246,195,67,0.34);
-      box-shadow: 0 16px 34px rgba(0,0,0,0.25);
-    }
-
-    .mobile-cup {
+    .engine-chip {
+      min-height: 54px;
       display: grid;
       place-items: center;
-      min-height: 82px;
-      margin: 8px 0 10px;
-      border-radius: 18px;
-      background: rgba(0,0,0,0.20);
-      border: 1px solid rgba(246,195,67,0.22);
-      font-size: 36px;
-    }
-
-    .vs-line {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 10px 4px;
-      color: var(--predikt-gold);
-      font-size: 11px;
-      font-weight: 950;
-      letter-spacing: 0.14em;
-    }
-
-    .vs-line::before,
-    .vs-line::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(246,195,67,0.68), transparent);
+      text-align: center;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 900;
     }
 
     .empty-state {
       display: none;
-      border-radius: var(--radius-xl);
-      padding: 24px 18px;
       text-align: center;
-      background: rgba(255,255,255,0.09);
-      border: 1px solid var(--predikt-border);
-      box-shadow: var(--shadow-card);
+      padding: 30px 14px;
     }
 
-    .empty-state .icon { font-size: 38px; margin-bottom: 10px; }
-    .empty-state h2 { margin: 0 0 8px; font-size: 20px; }
-    .empty-state p { margin: 0; color: var(--predikt-muted); font-size: 14px; font-weight: 750; }
+    .empty-state .icon { font-size: 44px; }
+
+    .empty-state h2 { margin: 10px 0 6px; }
+
+    .empty-state p { margin: 0; color: var(--muted); }
 
     .fine-print {
-      margin: 16px 4px 0;
-      color: rgba(255,255,255,0.58);
+      width: min(100%, 760px);
+      margin: 12px auto 0;
+      color: var(--muted);
       font-size: 11px;
-      font-weight: 750;
-      line-height: 1.35;
       text-align: center;
+      line-height: 1.35;
     }
 
     .bottom-nav {
       position: fixed;
-      z-index: 50;
       left: 50%;
-      bottom: 0;
+      bottom: max(10px, env(safe-area-inset-bottom));
       transform: translateX(-50%);
-      width: min(100%, 520px);
-      min-height: calc(var(--footer-h) + env(safe-area-inset-bottom));
-      padding: 9px 10px calc(8px + env(safe-area-inset-bottom));
+      z-index: 50;
+      width: min(94%, 520px);
+      min-height: 64px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
-      background: rgba(3,17,38,0.96);
-      border-top: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 -16px 36px rgba(0,0,0,0.36);
+      gap: 4px;
+      padding: 7px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(3,17,38,0.92);
       backdrop-filter: blur(16px);
+      box-shadow: 0 18px 38px rgba(0,0,0,0.42);
     }
 
     .nav-item {
+      min-width: 0;
       text-decoration: none;
       color: rgba(255,255,255,0.72);
+      border-radius: 17px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      min-width: 0;
-      border-radius: 14px;
-      padding: 7px 4px;
+      gap: 2px;
       font-size: 10px;
       font-weight: 850;
     }
 
-    .nav-item .nav-icon { font-size: 17px; line-height: 1; }
+    .nav-icon { font-size: 18px; line-height: 1; }
+
     .nav-item.active {
-      color: #ffe39a;
+      color: var(--gold);
       background: rgba(246,195,67,0.12);
-      border: 1px solid rgba(246,195,67,0.18);
     }
 
-    @media (max-width: 760px) {
-      .app-shell { max-width: 520px; }
-      .bracket-shell { padding: 12px; }
-      .quarters-grid { grid-template-columns: 1fr; }
-      .view-switch { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; margin-bottom: 10px; }
-      .view-tab { min-height: 42px; padding: 0 6px; font-size: 10px; line-height: 1.12; }
-      .origin-carousel { grid-auto-columns: minmax(88%, 1fr); }
-      .group-pair { grid-template-columns: 1fr; }
-      .origin-versus { min-height: 26px; }
-      .bracket-scroll { display: none; }
-      .mobile-list, .mobile-full-map { display: grid; }
-      .bracket-title { padding-bottom: 10px; }
-      .bracket-title h2 { font-size: 17px; }
-      .hero { margin-bottom: 14px; padding: 22px 18px; }
-      .hero h1 { font-size: clamp(28px, 9vw, 40px); line-height: 0.96; }
+    @media (min-width: 760px) {
+      body { padding-left: 22px; padding-right: 22px; }
+      .route-carousel,
+      .featured-carousel { grid-auto-columns: minmax(300px, 32%); }
+      .section-card { padding: 18px; }
+      .hero { padding: 24px; }
+    }
+
+    @media (max-width: 520px) {
+      .topbar { width: 100%; }
+      .brand-title { font-size: 15px; }
+      .refresh-btn { padding: 8px 10px; font-size: 11px; }
+      .hero { padding: 16px; border-radius: 24px; }
       .hero p { font-size: 13px; }
-      .status-pill { font-size: 11px; padding: 10px 12px; }
-      .engine-note { margin-top: 16px; }
-      .mobile-full-map { margin-top: 10px; }
-    }
-
-    @media (min-width: 761px) {
-      body { padding-top: 18px; }
-      .fine-print { max-width: 620px; margin-left: auto; margin-right: auto; }
+      .section-card { padding: 12px; border-radius: 22px; }
+      .section-head { display: block; }
+      .badge { display: inline-flex; margin-top: 8px; }
+      .route-carousel,
+      .featured-carousel { grid-auto-columns: 86%; }
+      .route-step { min-height: 236px; }
+      .big-team { font-size: 27px; }
+      .engine-chips { grid-template-columns: 1fr 1fr; }
+      .bracket-grid { min-width: 980px; grid-template-columns: 160px 150px 140px 170px 140px 150px 160px; gap: 10px; }
+      .match-team { font-size: 12px; }
+      .bottom-nav { width: min(96%, 520px); }
+      .nav-item { font-size: 9px; }
     }
   </style>
 </head>
 <body>
   <main class="app-shell">
-    <header class="topbar">
+    <header class="topbar" aria-label="Encabezado PREDIKT">
       <div class="brand">
-        <img class="brand-logo" src="./predikt-logo.png" alt="PREDIKT™" onerror="this.style.display='none'" />
+        <img class="brand-logo" src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
         <div>
-          <h1 class="brand-title">PREDIKT™</h1>
+          <p class="brand-title">PREDIKT™</p>
           <p class="brand-subtitle">Powered by JVSys™</p>
         </div>
       </div>
       <button class="refresh-btn" type="button" onclick="window.location.reload()">Actualizar</button>
     </header>
 
-    <section class="hero" aria-label="Eliminación directa proyectada">
+    <section class="hero" aria-label="Ruta hacia la Copa">
       <span class="eyebrow">🏆 Eliminación proyectada</span>
       <h1>En este momento así quedaría la eliminación</h1>
-      <p>Antes de llegar a esta fase, PREDIKT™ proyecta los cruces posibles según la clasificación actual.</p>
-      <div class="status-pill">⚠️ Es un pronóstico vivo. Cambia conforme avanzan los resultados oficiales.</div>
+      <p>Antes de pasar a esta fase, PREDIKT™ proyecta rutas posibles con los cruces que podrían nacer desde los grupos.</p>
+      <div class="live-pill">Pronóstico vivo: cambia con los resultados oficiales</div>
     </section>
 
-    <section class="bracket-shell" aria-label="Mecánica visual de eliminación">
-      <div class="bracket-title">
+    <section class="section-card" aria-label="Ruta de México">
+      <div class="section-head">
         <div>
-          <h2>Camino proyectado</h2>
-          <small>Primero entiende de qué grupos salen los cruces</small>
+          <h2>🇲🇽 Ruta de México hacia la Copa</h2>
+          <small>Desliza para ver cómo se formaría el camino: grupo, octavos, cuartos y semifinal.</small>
         </div>
-        <div class="round-badge" id="matchCount">8 cruces</div>
+        <span class="badge">Ruta destacada</span>
       </div>
 
-      <div class="view-switch" role="tablist" aria-label="Vistas de eliminación">
-        <button id="tabOrigin" class="view-tab active" type="button">Grupos origen</button>
-        <button id="tabQuarters" class="view-tab" type="button">Hasta cuartos</button>
-        <button id="tabFull" class="view-tab" type="button">Mapa completo</button>
+      <div class="route-carousel" aria-label="Carrusel ruta México">
+        <article class="route-step gold">
+          <div class="step-kicker"><span>Grupo A</span><span>Origen</span></div>
+          <div class="big-team">🇲🇽 México</div>
+          <div class="group-list">
+            <div class="group-row active"><span>🇲🇽 México</span><span class="seed">1°</span></div>
+            <div class="group-row"><span>🇨🇦 Canadá</span><span></span></div>
+            <div class="group-row"><span>🇧🇦 Bosnia</span><span></span></div>
+            <div class="group-row"><span>🇿🇦 Sudáfrica</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="route-step">
+          <div class="step-kicker"><span>Octavos</span><span>Posible rival</span></div>
+          <div class="big-team">🇲🇽 México</div>
+          <div class="vs-center">VS</div>
+          <div class="big-team">🇺🇾 Uruguay</div>
+          <div class="team-row"><span>Sale de Grupo B</span><span class="seed">2B</span></div>
+        </article>
+
+        <article class="route-step green">
+          <div class="step-kicker"><span>Cuartos</span><span>Si avanza</span></div>
+          <div class="big-team">🇲🇽 México</div>
+          <div class="vs-center">VS</div>
+          <div class="big-team">🇧🇷 Brasil</div>
+          <div class="team-row"><span>Ruta Brasil/Japón</span><span class="seed">Proyección</span></div>
+        </article>
+
+        <article class="route-step">
+          <div class="step-kicker"><span>Semifinal</span><span>Camino alto</span></div>
+          <div class="big-team">🇲🇽 México</div>
+          <div class="vs-center">VS</div>
+          <div class="big-team">🇦🇷 Argentina</div>
+          <div class="team-row"><span>Ruta Argentina/España</span><span class="seed">Escenario</span></div>
+        </article>
       </div>
+      <div class="hint-line">👈 Desliza la ruta 👉</div>
+    </section>
 
-      <div id="originView" class="origin-view" aria-live="polite"></div>
-      <div id="quartersView" class="quarters-view hidden-view" aria-live="polite"></div>
-      <div id="bracketScroll" class="bracket-scroll hidden-view" aria-live="polite"></div>
-      <p id="mapHint" class="map-hint hidden-view">Vista panorámica PREDIKT™: usa la barra dorada inferior para moverte de izquierda a derecha sin perder el cuadro completo.</p>
-      <div id="mobileList" class="mobile-list" aria-live="polite"></div>
-      <div id="mobileFullMap" class="mobile-full-map hidden-view" aria-live="polite"></div>
-
-      <aside class="engine-note" aria-label="Criterio de proyección">
-        <strong>Motor enriquecido, no localista</strong>
-        <p>La ruta combina clasificación actual, fuerza deportiva, forma reciente y probabilidad PREDIKT™. No confirma campeones ni favorece automáticamente a México.</p>
-        <div class="engine-chips">
-          <span class="engine-chip">Clasificación actual</span>
-          <span class="engine-chip">Fuerza de selección</span>
-          <span class="engine-chip">Momento deportivo</span>
-          <span class="engine-chip">Probabilidad PREDIKT™</span>
+    <section class="section-card" aria-label="Rutas destacadas">
+      <div class="section-head">
+        <div>
+          <h2>🌎 Rutas destacadas</h2>
+          <small>Explora los caminos de selecciones fuertes sin convertir la final en una predicción absoluta.</small>
         </div>
-      </aside>
+        <span class="badge">Escenarios</span>
+      </div>
+      <div id="featuredRoutes" class="featured-carousel" aria-label="Carrusel rutas destacadas"></div>
+      <div class="hint-line">👈 Desliza para comparar selecciones 👉</div>
+    </section>
 
+    <section class="section-card" aria-label="Bracket completo PREDIKT">
+      <div class="section-head">
+        <div>
+          <h2>🏆 Así quedarían los cruces hoy</h2>
+          <small>Mapa panorámico PREDIKT™. En celular, desliza horizontalmente para ver el cuadro completo.</small>
+        </div>
+        <span class="badge">Vista global</span>
+      </div>
+      <div class="bracket-wrap">
+        <div id="bracketScroll" class="bracket-scroll" aria-live="polite"></div>
+        <div class="hint-line">👈 Desliza para explorar los cruces 👉</div>
+      </div>
       <section id="emptyState" class="empty-state" aria-live="polite">
         <div class="icon">🏆</div>
         <h2>Estamos calculando los cruces.</h2>
@@ -930,7 +752,29 @@
       </section>
     </section>
 
-    <p class="fine-print">Proyección dinámica enriquecida PREDIKT™. Sirve para entender rutas posibles; no confirma resultados finales ni campeones.</p>
+    <section class="section-card" aria-label="Favoritos PREDIKT">
+      <div class="section-head">
+        <div>
+          <h2>🏆 Favoritos PREDIKT™</h2>
+          <small>No es una final definida. Es una lectura de fortaleza para llegar lejos.</small>
+        </div>
+        <span class="badge">Top 5</span>
+      </div>
+      <div id="favoritesGrid" class="favorites-grid"></div>
+    </section>
+
+    <section class="section-card engine-card" aria-label="Motor Enriquecido PREDIKT">
+      <h2>🧠 MOTOR ENRIQUECIDO PREDIKT™</h2>
+      <p>La proyección considera clasificación actual, rendimiento reciente, fortaleza deportiva y ventaja de local cuando aplica.</p>
+      <div class="engine-chips">
+        <span class="engine-chip">⚽ Clasificación actual</span>
+        <span class="engine-chip">📈 Rendimiento reciente</span>
+        <span class="engine-chip">🏆 Fortaleza deportiva</span>
+        <span class="engine-chip">🏟️ Ventaja de local</span>
+      </div>
+    </section>
+
+    <p class="fine-print">Proyección dinámica PREDIKT™. Sirve para entender rutas posibles; no confirma resultados finales ni campeones.</p>
   </main>
 
   <nav class="bottom-nav" aria-label="Navegación principal">
@@ -942,324 +786,129 @@
   </nav>
 
   <script>
-    const PREDIKT_PROJECTED_BRACKET = [
-      { a: 'México', aFlag: '🇲🇽', aSeed: '1A', b: 'Uruguay', bFlag: '🇺🇾', bSeed: '2B', color: 'blue' },
-      { a: 'Brasil', aFlag: '🇧🇷', aSeed: '1C', b: 'Japón', bFlag: '🇯🇵', bSeed: '2D', color: 'blue' },
-      { a: 'Argentina', aFlag: '🇦🇷', aSeed: '1E', b: 'Alemania', bFlag: '🇩🇪', bSeed: '2F', color: 'aqua' },
-      { a: 'España', aFlag: '🇪🇸', aSeed: '1G', b: 'Croacia', bFlag: '🇭🇷', bSeed: '2H', color: 'aqua' },
-      { a: 'Francia', aFlag: '🇫🇷', aSeed: '1I', b: 'Corea del Sur', bFlag: '🇰🇷', bSeed: '2J', color: 'green' },
-      { a: 'Inglaterra', aFlag: '🏴', aSeed: '1K', b: 'Colombia', bFlag: '🇨🇴', bSeed: '2L', color: 'green' },
-      { a: 'Portugal', aFlag: '🇵🇹', aSeed: '1B', b: 'Estados Unidos', bFlag: '🇺🇸', bSeed: '2A', color: 'red' },
-      { a: 'Países Bajos', aFlag: '🇳🇱', aSeed: '1D', b: 'Bélgica', bFlag: '🇧🇪', bSeed: '2C', color: 'red' }
+    const OCTAVOS = [
+      { a: 'México', af: '🇲🇽', as: '1A', b: 'Uruguay', bf: '🇺🇾', bs: '2B' },
+      { a: 'Brasil', af: '🇧🇷', as: '1C', b: 'Japón', bf: '🇯🇵', bs: '2D' },
+      { a: 'Argentina', af: '🇦🇷', as: '1E', b: 'Alemania', bf: '🇩🇪', bs: '2F' },
+      { a: 'España', af: '🇪🇸', as: '1G', b: 'Croacia', bf: '🇭🇷', bs: '2H' },
+      { a: 'Francia', af: '🇫🇷', as: '1I', b: 'Corea del Sur', bf: '🇰🇷', bs: '2J' },
+      { a: 'Inglaterra', af: '🏴', as: '1K', b: 'Colombia', bf: '🇨🇴', bs: '2L' },
+      { a: 'Portugal', af: '🇵🇹', as: '1B', b: 'Estados Unidos', bf: '🇺🇸', bs: '2A' },
+      { a: 'Países Bajos', af: '🇳🇱', as: '1D', b: 'Bélgica', bf: '🇧🇪', bs: '2C' }
     ];
 
-
-
-    const PROJECTED_SOURCE_GROUPS = [
-      { title: 'Ruta México → Brasil', code: 'Grupos A, B, C y D', groupA: 'Grupo A', groupB: 'Grupo B', teamsA: [['🇲🇽','México','1A',true], ['🇿🇦','Sudáfrica',''], ['🇨🇦','Canadá',''], ['🇧🇦','Bosnia','']], teamsB: [['🏆','Líder Grupo B',''], ['🇺🇾','Uruguay','2B',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇲🇽 México vs 🇺🇾 Uruguay', next: 'El ganador se cruzaría con la ruta Brasil/Japón para formar cuartos.' },
-      { title: 'Ruta Brasil → México', code: 'Grupos C y D', groupA: 'Grupo C', groupB: 'Grupo D', teamsA: [['🇧🇷','Brasil','1C',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🏆','Líder Grupo D',''], ['🇯🇵','Japón','2D',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇧🇷 Brasil vs 🇯🇵 Japón', next: 'Este cruce alimenta un posible cuartos México vs Brasil; no implica que México avance automáticamente.' },
-      { title: 'Ruta Argentina → España', code: 'Grupos E, F, G y H', groupA: 'Grupo E', groupB: 'Grupo F', teamsA: [['🇦🇷','Argentina','1E',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🇩🇪','Alemania','2F',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇦🇷 Argentina vs 🇩🇪 Alemania', next: 'El ganador se proyecta hacia cuartos contra la ruta España/Croacia.' },
-      { title: 'Ruta Francia → Portugal', code: 'Lado derecho del mapa', groupA: 'Grupo I', groupB: 'Grupo J', teamsA: [['🇫🇷','Francia','1I',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🇰🇷','Corea del Sur','2J',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇫🇷 Francia vs 🇰🇷 Corea del Sur', next: 'Este lado del cuadro se calcula con mayor peso de fuerza deportiva y forma reciente.' }
+    const CUARTOS_IZQ = [
+      { a: 'México', af: '🇲🇽', b: 'Brasil', bf: '🇧🇷' },
+      { a: 'Argentina', af: '🇦🇷', b: 'España', bf: '🇪🇸' }
     ];
 
-    const PROJECTED_NEXT_ROUNDS = {
-      quarterLeft: [
-        { a: 'México', aFlag: '🇲🇽', b: 'Brasil', bFlag: '🇧🇷', code: 'Cuartos', color: 'blue' },
-        { a: 'Argentina', aFlag: '🇦🇷', b: 'España', bFlag: '🇪🇸', code: 'Cuartos', color: 'aqua' }
-      ],
-      semiLeft: [{ a: 'Brasil', aFlag: '🇧🇷', b: 'Argentina', bFlag: '🇦🇷', code: 'Semifinal', color: 'gold' }],
-      final: { a: 'Brasil', aFlag: '🇧🇷', b: 'Francia', bFlag: '🇫🇷', code: 'Final enriquecida', color: 'gold' },
-      semiRight: [{ a: 'Francia', aFlag: '🇫🇷', b: 'Portugal', bFlag: '🇵🇹', code: 'Semifinal', color: 'gold' }],
-      quarterRight: [
-        { a: 'Francia', aFlag: '🇫🇷', b: 'Inglaterra', bFlag: '🏴', code: 'Cuartos', color: 'green' },
-        { a: 'Portugal', aFlag: '🇵🇹', b: 'Países Bajos', bFlag: '🇳🇱', code: 'Cuartos', color: 'red' }
-      ]
-    };
+    const CUARTOS_DER = [
+      { a: 'Francia', af: '🇫🇷', b: 'Inglaterra', bf: '🏴' },
+      { a: 'Portugal', af: '🇵🇹', b: 'Países Bajos', bf: '🇳🇱' }
+    ];
 
-    function safeText(value) {
-      return String(value || '').replace(/[<>&"']/g, function (char) {
+    const SEMIS = [
+      { a: 'Brasil', af: '🇧🇷', b: 'Argentina', bf: '🇦🇷' },
+      { a: 'Francia', af: '🇫🇷', b: 'Portugal', bf: '🇵🇹' }
+    ];
+
+    const FINAL = { a: 'Brasil', af: '🇧🇷', b: 'Francia', bf: '🇫🇷' };
+
+    const FEATURED = [
+      { team: 'Brasil', flag: '🇧🇷', steps: ['Grupo C: líder proyectado', 'Octavos: Japón', 'Cuartos: México', 'Semifinal: Argentina'] },
+      { team: 'Argentina', flag: '🇦🇷', steps: ['Grupo E: líder proyectado', 'Octavos: Alemania', 'Cuartos: España', 'Semifinal: Brasil'] },
+      { team: 'Francia', flag: '🇫🇷', steps: ['Grupo I: líder proyectado', 'Octavos: Corea del Sur', 'Cuartos: Inglaterra', 'Semifinal: Portugal'] },
+      { team: 'Inglaterra', flag: '🏴', steps: ['Grupo K: líder proyectado', 'Octavos: Colombia', 'Cuartos: Francia', 'Escenario abierto'] },
+      { team: 'México', flag: '🇲🇽', steps: ['Grupo A: líder proyectado', 'Octavos: Uruguay', 'Cuartos: Brasil', 'Semifinal: Argentina'] }
+    ];
+
+    const FAVORITES = [
+      { rank: 1, team: '🇧🇷 Brasil', value: 78 },
+      { rank: 2, team: '🇫🇷 Francia', value: 74 },
+      { rank: 3, team: '🇦🇷 Argentina', value: 71 },
+      { rank: 4, team: '🏴 Inglaterra', value: 66 },
+      { rank: 5, team: '🇲🇽 México', value: 59 }
+    ];
+
+    function esc(value) {
+      return String(value || '').replace(/[<>&"']/g, function(char) {
         return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[char];
       });
     }
 
-    function teamLine(flag, name, seed) {
-      return `<div class="team"><span>${safeText(flag)} ${safeText(name)}</span><span class="seed">${safeText(seed || '')}</span></div>`;
+    function teamHTML(flag, name, seed) {
+      return '<div class="match-team"><span>' + esc(flag) + ' ' + esc(name) + '</span><span class="seed">' + esc(seed || '') + '</span></div>';
     }
 
-    function gameCard(match, index, sideClass) {
-      return `
-        <article class="game ${safeText(match.color || 'blue')} ${sideClass || ''}">
-          <div class="game-code"><span>${safeText(match.code || 'Cruce proyectado')}</span><span>${index ? 'P' + index : ''}</span></div>
-          ${teamLine(match.aFlag, match.a, match.aSeed)}
-          ${teamLine(match.bFlag, match.b, match.bSeed)}
-        </article>
-      `;
+    function matchHTML(match, label, className) {
+      return '<article class="match-card ' + esc(className || '') + '">' +
+        '<div class="match-label"><span>' + esc(label) + '</span><span>VS</span></div>' +
+        teamHTML(match.af, match.a, match.as || '') +
+        teamHTML(match.bf, match.b, match.bs || '') +
+        '</article>';
     }
 
-    function mobileCard(match, index) {
-      return `
-        <article class="mobile-card">
-          <div class="game-code"><span>Cruce proyectado</span><span>Partido ${index + 1}</span></div>
-          ${teamLine(match.aFlag, match.a, match.aSeed)}
-          <div class="vs-line">VS</div>
-          ${teamLine(match.bFlag, match.b, match.bSeed)}
-        </article>
-      `;
-    }
-
-
-    function sourceTeamLine(team) {
-      return `<div class="source-team ${team[3] ? 'projected' : ''}"><span>${safeText(team[0])} ${safeText(team[1])}</span><span class="seed">${safeText(team[2] || '')}</span></div>`;
-    }
-
-    function sourceGroupCard(item) {
-      return `
-        <article class="origin-card">
-          <div class="origin-card-head"><span>${safeText(item.title)}</span><span>${safeText(item.code)}</span></div>
-          <div class="group-pair">
-            <section class="source-group">
-              <h3>${safeText(item.groupA)}</h3>
-              ${item.teamsA.map(sourceTeamLine).join('')}
-            </section>
-            <div class="origin-versus">VS</div>
-            <section class="source-group">
-              <h3>${safeText(item.groupB)}</h3>
-              ${item.teamsB.map(sourceTeamLine).join('')}
-            </section>
-          </div>
-          <div class="origin-result">
-            <small>Así nace el posible cruce</small>
-            <div class="origin-match">${safeText(item.result)}</div>
-            <p class="origin-next">${safeText(item.next)}</p>
-          </div>
-        </article>
-      `;
-    }
-
-    function renderOriginView() {
-      const originView = document.getElementById('originView');
-      originView.innerHTML = `
-        <p class="origin-intro">Antes de ver el bracket, PREDIKT™ muestra de qué grupos saldrían los equipos. Desliza para entender la ruta de cada posible enfrentamiento.</p>
-        <div class="scroll-guidance"><span>Rutas por grupos</span><span class="scroll-pill">Desliza →</span></div>
-        <section class="origin-carousel" aria-label="Carrusel de grupos origen">
-          ${PROJECTED_SOURCE_GROUPS.map(sourceGroupCard).join('')}
-        </section>
-      `;
-    }
-
-
-    function mobileQuarterBlock(quarter, label) {
-      return `
-        <div>
-          <p class="mobile-stage-label">${safeText(label)}</p>
-          ${teamLine(quarter.aFlag, quarter.a, '')}
-          <div class="vs-line">VS</div>
-          ${teamLine(quarter.bFlag, quarter.b, '')}
-        </div>
-      `;
-    }
-
-    function renderMobileFullMap() {
-      const q = PROJECTED_NEXT_ROUNDS.quarterLeft.concat(PROJECTED_NEXT_ROUNDS.quarterRight);
-      return `
-        <article class="mobile-route-card">
-          <p class="mobile-route-title">Ruta proyectada hasta cuartos</p>
-          ${q.map((item, index) => mobileQuarterBlock(item, 'Cuartos ' + (index + 1))).join('')}
-        </article>
-        <article class="mobile-route-card">
-          <p class="mobile-route-title">Semifinales proyectadas</p>
-          ${mobileQuarterBlock(PROJECTED_NEXT_ROUNDS.semiLeft[0], 'Semifinal 1')}
-          ${mobileQuarterBlock(PROJECTED_NEXT_ROUNDS.semiRight[0], 'Semifinal 2')}
-        </article>
-        <article class="mobile-final-card">
-          <p class="mobile-route-title">Final proyectada PREDIKT™</p>
-          <div class="mobile-cup">🏆</div>
-          ${teamLine(PROJECTED_NEXT_ROUNDS.final.aFlag, PROJECTED_NEXT_ROUNDS.final.a, '')}
-          <div class="vs-line">VS</div>
-          ${teamLine(PROJECTED_NEXT_ROUNDS.final.bFlag, PROJECTED_NEXT_ROUNDS.final.b, '')}
-        </article>
-      `;
-    }
-
-
-    function quarterPathCard(matchA, matchB, quarter, index) {
-      return `
-        <article class="path-card">
-          <div class="path-head"><span>Posible enfrentamiento ${index}</span><span>Octavos → Cuartos</span></div>
-          <div class="game ${safeText(matchA.color || 'blue')}">
-            <div class="game-code"><span>Cruce proyectado</span><span>P${74 + ((index - 1) * 2)}</span></div>
-            ${teamLine(matchA.aFlag, matchA.a, matchA.aSeed)}
-            <div class="path-vs">VS</div>
-            ${teamLine(matchA.bFlag, matchA.b, matchA.bSeed)}
-          </div>
-          <div class="path-arrow">↓</div>
-          <div class="game ${safeText(matchB.color || 'blue')}">
-            <div class="game-code"><span>Cruce proyectado</span><span>P${75 + ((index - 1) * 2)}</span></div>
-            ${teamLine(matchB.aFlag, matchB.a, matchB.aSeed)}
-            <div class="path-vs">VS</div>
-            ${teamLine(matchB.bFlag, matchB.b, matchB.bSeed)}
-          </div>
-          <div class="path-arrow">↓</div>
-          <div class="quarter-card">
-            <p class="quarter-label">Así quedaría cuartos</p>
-            ${teamLine(quarter.aFlag, quarter.a, '')}
-            <div class="path-vs">VS</div>
-            ${teamLine(quarter.bFlag, quarter.b, '')}
-          </div>
-        </article>
-      `;
-    }
-
-    function renderQuartersView(matches) {
-      const quartersView = document.getElementById('quartersView');
-      const q = PROJECTED_NEXT_ROUNDS.quarterLeft.concat(PROJECTED_NEXT_ROUNDS.quarterRight);
-      quartersView.innerHTML = `
-        <section class="quarters-grid">
-          ${quarterPathCard(matches[0], matches[1], q[0], 1)}
-          ${quarterPathCard(matches[2], matches[3], q[1], 2)}
-          ${quarterPathCard(matches[4], matches[5], q[2], 3)}
-          ${quarterPathCard(matches[6], matches[7], q[3], 4)}
-        </section>
-      `;
-    }
-
-    function setupViewTabs() {
-      const tabOrigin = document.getElementById('tabOrigin');
-      const tabQuarters = document.getElementById('tabQuarters');
-      const tabFull = document.getElementById('tabFull');
-      const originView = document.getElementById('originView');
-      const quartersView = document.getElementById('quartersView');
-      const bracketScroll = document.getElementById('bracketScroll');
-      const mobileList = document.getElementById('mobileList');
-      const mobileFullMap = document.getElementById('mobileFullMap');
-      const mapHint = document.getElementById('mapHint');
-
-      function showOrigin() {
-        tabOrigin.classList.add('active');
-        tabQuarters.classList.remove('active');
-        tabFull.classList.remove('active');
-        originView.classList.remove('hidden-view');
-        quartersView.classList.add('hidden-view');
-        bracketScroll.classList.add('hidden-view');
-        mapHint.classList.add('hidden-view');
-        mobileList.classList.add('hidden-view');
-        mobileFullMap.classList.add('hidden-view');
-      }
-
-      function showQuarters() {
-        tabOrigin.classList.remove('active');
-        tabQuarters.classList.add('active');
-        tabFull.classList.remove('active');
-        originView.classList.add('hidden-view');
-        quartersView.classList.remove('hidden-view');
-        bracketScroll.classList.add('hidden-view');
-        mapHint.classList.add('hidden-view');
-        mobileList.classList.add('hidden-view');
-        mobileFullMap.classList.add('hidden-view');
-      }
-
-      function showFull() {
-        tabFull.classList.add('active');
-        tabOrigin.classList.remove('active');
-        tabQuarters.classList.remove('active');
-        originView.classList.add('hidden-view');
-        quartersView.classList.add('hidden-view');
-        bracketScroll.classList.remove('hidden-view');
-        mapHint.classList.remove('hidden-view');
-        mobileFullMap.classList.remove('hidden-view');
-        mobileList.classList.add('hidden-view');
-      }
-
-      tabOrigin.addEventListener('click', showOrigin);
-      tabQuarters.addEventListener('click', showQuarters);
-      tabFull.addEventListener('click', showFull);
-      showOrigin();
-    }
-
-    function renderProjectedBracket(matches) {
-      const bracketScroll = document.getElementById('bracketScroll');
-      const mobileList = document.getElementById('mobileList');
-      const emptyState = document.getElementById('emptyState');
-      const matchCount = document.getElementById('matchCount');
-
-      if (!Array.isArray(matches) || matches.length === 0) {
-        bracketScroll.innerHTML = '';
-        quartersView.innerHTML = '';
-        mobileList.innerHTML = '';
-        document.getElementById('mobileFullMap').innerHTML = '';
-        document.getElementById('originView').innerHTML = '';
-        emptyState.style.display = 'block';
-        matchCount.textContent = 'Calculando';
+    function renderBracket() {
+      const target = document.getElementById('bracketScroll');
+      const empty = document.getElementById('emptyState');
+      if (!Array.isArray(OCTAVOS) || OCTAVOS.length === 0) {
+        target.innerHTML = '';
+        empty.style.display = 'block';
         return;
       }
+      empty.style.display = 'none';
+      const left = OCTAVOS.slice(0, 4).map(function(m) { return matchHTML(m, 'Posible enfrentamiento'); }).join('');
+      const right = OCTAVOS.slice(4, 8).map(function(m) { return matchHTML(m, 'Posible enfrentamiento'); }).join('');
+      const qLeft = CUARTOS_IZQ.map(function(m) { return matchHTML(m, 'Cuartos'); }).join('');
+      const qRight = CUARTOS_DER.map(function(m) { return matchHTML(m, 'Cuartos'); }).join('');
+      const semiLeft = matchHTML(SEMIS[0], 'Semifinal', 'gold');
+      const semiRight = matchHTML(SEMIS[1], 'Semifinal', 'gold');
+      const final = matchHTML(FINAL, 'Final proyectada', 'gold');
 
-      const leftOctavos = matches.slice(0, 4);
-      const rightOctavos = matches.slice(4, 8);
+      target.innerHTML = '<div class="bracket-grid">' +
+        '<section class="round stack-4"><div class="round-title">Octavos</div>' + left + '</section>' +
+        '<section class="round stack-2"><div class="round-title">Cuartos</div>' + qLeft + '</section>' +
+        '<section class="round stack-1"><div class="round-title">Semifinal</div>' + semiLeft + '</section>' +
+        '<section class="cup-card"><div class="cup">🏆</div><h3>PREDIKT™</h3><p>Ruta viva al título</p>' + final + '</section>' +
+        '<section class="round stack-1"><div class="round-title">Semifinal</div>' + semiRight + '</section>' +
+        '<section class="round stack-2"><div class="round-title">Cuartos</div>' + qRight + '</section>' +
+        '<section class="round stack-4"><div class="round-title">Octavos</div>' + right + '</section>' +
+        '</div>';
+    }
 
-      emptyState.style.display = 'none';
-      matchCount.textContent = `${matches.length} cruces`;
-      mobileList.innerHTML = matches.map(mobileCard).join('');
-      document.getElementById('mobileFullMap').innerHTML = renderMobileFullMap();
-      renderOriginView();
-      renderQuartersView(matches);
+    function renderFeatured() {
+      document.getElementById('featuredRoutes').innerHTML = FEATURED.map(function(item) {
+        return '<article class="featured-card">' +
+          '<div class="featured-title"><span>' + esc(item.flag) + ' ' + esc(item.team) + '</span><span class="seed">Ruta</span></div>' +
+          '<div class="mini-path">' + item.steps.map(function(step) {
+            return '<div class="mini-node"><small>Camino proyectado</small>' + esc(step) + '</div>';
+          }).join('') + '</div>' +
+          '</article>';
+      }).join('');
+    }
 
-      bracketScroll.innerHTML = `
-        <div class="bracket-grid">
-          <section class="round stack-4">
-            <div class="round-title">Octavos</div>
-            ${leftOctavos.map((m, i) => gameCard(m, 74 + i, 'connector-right')).join('')}
-          </section>
-
-          <section class="round stack-2">
-            <div class="round-title">Cuartos</div>
-            ${PROJECTED_NEXT_ROUNDS.quarterLeft.map((m, i) => gameCard(m, 89 + i, 'connector-left connector-right')).join('')}
-          </section>
-
-          <section class="round stack-1">
-            <div class="round-title">Semifinal</div>
-            ${PROJECTED_NEXT_ROUNDS.semiLeft.map((m, i) => gameCard(m, 101 + i, 'connector-left connector-right')).join('')}
-          </section>
-
-          <section class="cup-stage">
-            <div class="cup-card">
-              <div class="cup-icon">🏆</div>
-              <h3>PREDIKT™</h3>
-              <p>Ruta viva al título</p>
-            </div>
-            ${gameCard(PROJECTED_NEXT_ROUNDS.final, 104, 'connector-left connector-right')}
-            <div class="third-place"><strong>Partido por tercer lugar</strong><span>Se proyecta después de semifinales</span></div>
-          </section>
-
-          <section class="round stack-1">
-            <div class="round-title">Semifinal</div>
-            ${PROJECTED_NEXT_ROUNDS.semiRight.map((m, i) => gameCard(m, 102 + i, 'connector-left connector-right')).join('')}
-          </section>
-
-          <section class="round stack-2">
-            <div class="round-title">Cuartos</div>
-            ${PROJECTED_NEXT_ROUNDS.quarterRight.map((m, i) => gameCard(m, 99 + i, 'connector-left connector-right')).join('')}
-          </section>
-
-          <section class="round stack-4">
-            <div class="round-title">Octavos</div>
-            ${rightOctavos.map((m, i) => gameCard(m, 79 + i, 'connector-left')).join('')}
-          </section>
-        </div>
-      `;
-      setupViewTabs();
+    function renderFavorites() {
+      document.getElementById('favoritesGrid').innerHTML = FAVORITES.map(function(item) {
+        return '<div class="favorite-row">' +
+          '<span>#' + esc(item.rank) + '</span>' +
+          '<span>' + esc(item.team) + '<span class="favorite-bar"><span class="favorite-fill" style="width:' + esc(item.value) + '%"></span></span></span>' +
+          '<span>' + esc(item.value) + '%</span>' +
+          '</div>';
+      }).join('');
     }
 
     try {
-      renderProjectedBracket(PREDIKT_PROJECTED_BRACKET);
+      renderBracket();
+      renderFeatured();
+      renderFavorites();
     } catch (error) {
-      renderProjectedBracket([]);
+      document.getElementById('emptyState').style.display = 'block';
     }
   </script>
 </body>
 </html>
 <!--
-  Fin del archivo: eliminacion.html
-  Versión: v2.4.1_FIX_MOBILE_PRIORIDAD_CONTENIDO
-  Motivo final: corrige la experiencia en celular priorizando cruces visibles inmediatamente después de las pestañas y dejando el motor enriquecido como explicación secundaria.
-  Total de líneas: 1265
+  Fin de archivo: eliminacion.html
+  Versión: v2.5.0_RUTAS_HACIA_LA_COPA
+  Total líneas: 915
 -->
