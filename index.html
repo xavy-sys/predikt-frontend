@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME-R2_DAILY_CAROUSEL_v1.0.5 -->
+  <!-- version: index_HOME_DASHBOARD_v9.2.6_DIRECT_BINDING_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -799,7 +799,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.5_OFFICIAL_RESULT_AND_TOMORROW_FINAL_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.6_DIRECT_BINDING_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -956,6 +956,7 @@
         await safeRun('timezone', persistUserTimezone);
         selectHeroEvent();
         safeRenderAll();
+        await forceCriticalHomeBindings();
         startCountdownEngine();
       } catch (err) {
         console.error('[PREDIKT_HOME_INIT_ERROR]', err);
@@ -1537,6 +1538,159 @@
 
 
 
+
+    const CERTIFIED_EVENT_OVERRIDES = {
+      'ed8ef7f1-1562-496d-a93f-f2118318665b': {
+        id: 'ed8ef7f1-1562-496d-a93f-f2118318665b',
+        name: 'Haití vs Escocia',
+        groupCode: 'GROUP_C',
+        venueName: 'Gillette Stadium',
+        venueCity: 'Foxborough'
+      },
+      'b38155b7-26f6-4a99-a054-d1bf3ef4bc5b': {
+        id: 'b38155b7-26f6-4a99-a054-d1bf3ef4bc5b',
+        name: 'Brasil vs Marruecos',
+        groupCode: 'GROUP_C',
+        venueName: 'MetLife Stadium',
+        venueCity: 'East Rutherford'
+      },
+      '4ae68e89-a147-4877-95cf-4b4600eeadad': {
+        id: '4ae68e89-a147-4877-95cf-4b4600eeadad',
+        name: 'Qatar vs Suiza',
+        groupCode: 'GROUP_B',
+        venueName: "Levi's Stadium",
+        venueCity: 'Santa Clara'
+      },
+      '1f0f6f92-578e-4b43-a16a-409d058fa817': {
+        id: '1f0f6f92-578e-4b43-a16a-409d058fa817',
+        name: 'Estados Unidos vs Paraguay',
+        groupCode: 'GROUP_D',
+        venueName: 'SoFi Stadium',
+        venueCity: 'Inglewood'
+      }
+    };
+
+    function buildResultDisplay(result, event) {
+      const eventName = event?.name || '';
+      const teams = splitMatchName(eventName);
+      const homeName = cleanTeamName(teams.home || 'Local');
+      const awayName = cleanTeamName(teams.away || 'Visitante');
+      const homeScore = Number(result.official_home_score);
+      const awayScore = Number(result.official_away_score);
+
+      if (Number.isFinite(homeScore) && Number.isFinite(awayScore)) {
+        if (awayScore > homeScore) return `${awayName} ${awayScore}-${homeScore} ${homeName}`;
+        return `${homeName} ${homeScore}-${awayScore} ${awayName}`;
+      }
+      return eventName || 'Resultado oficial';
+    }
+
+    async function forceLatestOfficialResultCard() {
+      try {
+        const { data: rows, error } = await supabaseClient
+          .schema('predictions')
+          .from('official_results')
+          .select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at')
+          .order('finalized_at', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (error || !rows || !rows.length) return;
+
+        const result = rows[0];
+        let event = null;
+
+        const { data: eventRow } = await supabaseClient
+          .schema('sports')
+          .from('events')
+          .select('id,name,starts_at,event_status,metadata')
+          .eq('id', result.event_id)
+          .maybeSingle();
+
+        if (eventRow) {
+          event = normalizeEvent(eventRow);
+        }
+
+        if (!event && CERTIFIED_EVENT_OVERRIDES[String(result.event_id)]) {
+          event = CERTIFIED_EVENT_OVERRIDES[String(result.event_id)];
+        }
+
+        const score = buildResultDisplay(result, event);
+        const groupCode = event?.groupCode || event?.metadata?.group_code || 'GROUP_C';
+        const venue = event?.venueName || event?.metadata?.venue_name || '';
+
+        $('recentScore').textContent = score;
+        $('recentMeta').textContent = `${labelGroup(groupCode)}${venue ? ' · ' + venue : ''} · ${timeAgo(result.finalized_at || result.created_at)}`;
+        $('recentBadge').textContent = '✅ Oficial';
+      } catch (error) {
+        console.warn('[PREDIKT_FORCE_RECENT_RESULT_WARNING]', error);
+      }
+    }
+
+    async function forceTomorrowSlateCard() {
+      try {
+        const tomorrowStart = addDays(startOfLocalDay(new Date()), 1);
+        const dayAfterTomorrow = addDays(tomorrowStart, 1);
+        const min = new Date(tomorrowStart.getTime() - 6 * 60 * 60 * 1000);
+        const max = new Date(dayAfterTomorrow.getTime() + 6 * 60 * 60 * 1000);
+        const tomorrowKey = localDayKey(tomorrowStart);
+
+        const { data, error } = await supabaseClient
+          .schema('sports')
+          .from('events')
+          .select('id,name,starts_at,event_status,metadata')
+          .gte('starts_at', min.toISOString())
+          .lt('starts_at', max.toISOString())
+          .order('starts_at', { ascending: true })
+          .limit(20);
+
+        let tomorrowEvents = [];
+        if (!error && Array.isArray(data)) {
+          tomorrowEvents = data.map(normalizeEvent)
+            .filter(Boolean)
+            .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
+            .sort((a, b) => a.startsAtDate - b.startsAtDate);
+        }
+
+        if (tomorrowEvents.length < 4) {
+          const certified = CERTIFIED_MATCH_FALLBACKS.map(normalizeEvent)
+            .filter(Boolean)
+            .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
+            .sort((a, b) => a.startsAtDate - b.startsAtDate);
+          tomorrowEvents = dedupeEvents([...tomorrowEvents, ...certified])
+            .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
+            .sort((a, b) => a.startsAtDate - b.startsAtDate);
+        }
+
+        tomorrowEvents = tomorrowEvents.slice(0, 4);
+
+        const list = $('tomorrowList');
+        const panel = list?.closest('.panel');
+        const title = panel?.querySelector('h2');
+        if (title) title.textContent = tomorrowEvents.length ? `Mañana · ${tomorrowEvents.length} partidos` : 'Mañana';
+
+        if (!tomorrowEvents.length) {
+          list.innerHTML = '<p class="state-empty">Mañana aún no tiene partidos programados.</p>';
+          return;
+        }
+
+        list.innerHTML = tomorrowEvents.map((event) => `
+          <a href="./pronostico.html?event_id=${encodeURIComponent(event.id || '')}" aria-label="Pronosticar ${escapeHtml(shortMatchLabel(event))}">
+            <span class="tomorrow-name">${escapeHtml(shortMatchLabel(event))}</span>
+            <span class="tomorrow-time">${escapeHtml(formatLocalTime(event.startsAtDate))}</span>
+          </a>
+        `).join('');
+      } catch (error) {
+        console.warn('[PREDIKT_FORCE_TOMORROW_WARNING]', error);
+      }
+    }
+
+    async function forceCriticalHomeBindings() {
+      await forceLatestOfficialResultCard();
+      await forceTomorrowSlateCard();
+    }
+
+
     function startCountdownEngine() {
       if (state.ticker) window.clearInterval(state.ticker);
       state.ticker = window.setInterval(updateCountdowns, 1000);
@@ -1548,6 +1702,7 @@
       safeRender('hero', renderHero);
       safeRender('today-list', renderTodayList);
       safeRender('tomorrow-list', renderTomorrowList);
+      window.setTimeout(forceCriticalHomeBindings, 0);
     }
 
     function getCountdownStatus(event, now = new Date()) {
