@@ -1080,43 +1080,28 @@
     async function loadRecentOfficialResults() {
       state.officialResults = [];
 
-      // Primero intentamos la consulta enriquecida con relación a sports.events.
+      // Esquema certificado 2026-06-13:
+      // predictions.official_results usa official_home_score / official_away_score.
+      // No existe home_score, away_score ni is_final.
       try {
         const { data, error } = await supabaseClient
           .schema('predictions')
           .from('official_results')
-          .select('event_id, home_score, away_score, is_final, finalized_at, created_at, events:event_id(id, name, metadata, home:home_participant_id(name, short_name, flag_emoji), away:away_participant_id(name, short_name, flag_emoji))')
-          .eq('is_final', true)
+          .select('event_id, official_home_score, official_away_score, official_winner, finalized_at, created_at')
           .order('finalized_at', { ascending: false, nullsFirst: false })
-          .limit(5);
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-        if (!error && Array.isArray(data) && data.length) {
-          state.officialResults = data;
-          return;
-        }
+        if (error) throw error;
+        state.officialResults = Array.isArray(data) ? data : [];
       } catch (error) {
-        console.warn('[PREDIKT_RECENT_RESULT_ENRICHED_WARNING]', error);
+        console.warn('[PREDIKT_RECENT_RESULT_SCHEMA_WARNING]', error);
+        state.officialResults = [];
       }
 
-      // Fallback seguro: resultado oficial plano, sin joins.
-      try {
-        const { data, error } = await supabaseClient
-          .schema('predictions')
-          .from('official_results')
-          .select('event_id, home_score, away_score, is_final, finalized_at, created_at')
-          .eq('is_final', true)
-          .order('finalized_at', { ascending: false, nullsFirst: false })
-          .limit(5);
-
-        if (!error && Array.isArray(data) && data.length) {
-          state.officialResults = data;
-          return;
-        }
-      } catch (error) {
-        console.warn('[PREDIKT_RECENT_RESULT_PLAIN_WARNING]', error);
+      if (!state.officialResults.length) {
+        state.recentResultEvent = findMostRecentFinishedEvent();
       }
-
-      state.recentResultEvent = findMostRecentFinishedEvent();
     }
 
     function findMostRecentFinishedEvent() {
@@ -1349,15 +1334,15 @@
       const result = state.officialResults[0];
 
       if (result) {
-        const matchedEvent = result.events || state.events.find((event) => String(event.id) === String(result.event_id));
-        const home = matchedEvent?.home?.short_name || matchedEvent?.home?.name || matchedEvent?.homeLabel?.replace(/\s+[🇦-🇿🏴]+$/u, '') || 'Local';
-        const away = matchedEvent?.away?.short_name || matchedEvent?.away?.name || matchedEvent?.awayLabel?.replace(/\s+[🇦-🇿🏴]+$/u, '') || 'Visitante';
-        const homeFlag = matchedEvent?.home?.flag_emoji ? ` ${matchedEvent.home.flag_emoji}` : '';
-        const awayFlag = matchedEvent?.away?.flag_emoji ? ` ${matchedEvent.away.flag_emoji}` : '';
+        const matchedEvent = state.events.find((event) => String(event.id) === String(result.event_id));
+        const home = matchedEvent?.homeLabel || matchedEvent?.home?.short_name || matchedEvent?.home?.name || 'Local';
+        const away = matchedEvent?.awayLabel || matchedEvent?.away?.short_name || matchedEvent?.away?.name || 'Visitante';
         const group = labelGroup(matchedEvent?.metadata?.group_code || matchedEvent?.groupCode || 'Grupo');
         const finalized = result.finalized_at || result.created_at;
+        const homeScore = result.official_home_score ?? result.home_score ?? '-';
+        const awayScore = result.official_away_score ?? result.away_score ?? '-';
 
-        $('recentScore').textContent = `${home}${homeFlag} ${result.home_score}-${result.away_score} ${away}${awayFlag}`;
+        $('recentScore').textContent = `${home} ${homeScore}-${awayScore} ${away}`;
         $('recentMeta').textContent = `${group} · ${timeAgo(finalized)}`;
         $('recentBadge').textContent = '✅ Oficial';
         return;
@@ -1366,7 +1351,7 @@
       const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
       if (!recentEvent) {
         $('recentScore').textContent = 'Sin resultado oficial';
-        $('recentMeta').textContent = 'Aparecerá aquí al registrar o cerrar el último marcador oficial.';
+        $('recentMeta').textContent = 'Aparecerá aquí al registrar el marcador oficial.';
         $('recentBadge').textContent = 'Pendiente';
         return;
       }
@@ -1418,24 +1403,39 @@
     function getTodayEvents() {
       const start = startOfLocalDay(new Date());
       const end = addDays(start, 1);
-      return state.events.filter((event) => event.startsAtDate >= start && event.startsAtDate < end);
+      const guardStart = new Date(start.getTime() - 6 * 60 * 60 * 1000);
+      const guardEnd = new Date(end.getTime() + 6 * 60 * 60 * 1000);
+
+      // Jornada operativa: partidos del día local, más margen para horarios FIFA en UTC.
+      // Después se filtra por la fecha local real para evitar mezclar demasiados días.
+      const localTodayKey = localDayKey(new Date());
+      const strict = state.events.filter((event) => localDayKey(event.startsAtDate) === localTodayKey);
+      if (strict.length >= 2) return strict.sort((a, b) => a.startsAtDate - b.startsAtDate);
+
+      return state.events
+        .filter((event) => event.startsAtDate >= guardStart && event.startsAtDate < guardEnd)
+        .sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
 
     function getTomorrowEvents() {
       const tomorrowStart = addDays(startOfLocalDay(new Date()), 1);
       const tomorrowEnd = addDays(tomorrowStart, 1);
-      const strictTomorrow = state.events.filter((event) => event.startsAtDate >= tomorrowStart && event.startsAtDate < tomorrowEnd);
-      if (strictTomorrow.length > 1) return strictTomorrow;
+      const tomorrowKey = localDayKey(tomorrowStart);
 
-      // Fallback operativo: si la base sólo cargó parcialmente mañana, muestra la siguiente fecha con jornada disponible.
+      const strictTomorrow = state.events
+        .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
+        .sort((a, b) => a.startsAtDate - b.startsAtDate);
+
+      if (strictTomorrow.length) return strictTomorrow;
+
+      // Fallback operativo: próxima fecha con partidos disponibles.
       const afterToday = state.events
         .filter((event) => event.startsAtDate >= tomorrowStart)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
-      if (!afterToday.length) return strictTomorrow;
+      if (!afterToday.length) return [];
 
       const dayKey = localDayKey(afterToday[0].startsAtDate);
-      const nextOperationalDay = afterToday.filter((event) => localDayKey(event.startsAtDate) === dayKey);
-      return nextOperationalDay.length ? nextOperationalDay : strictTomorrow;
+      return afterToday.filter((event) => localDayKey(event.startsAtDate) === dayKey);
     }
 
     function localDayKey(date) {
