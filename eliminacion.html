@@ -1,9 +1,9 @@
 <!--
   Archivo: eliminacion.html
-  Versión: v2.5.0_RUTAS_HACIA_LA_COPA
+  Versión: v2.5.1_GRUPOS_OFICIALES_CORREGIDOS
   Proyecto: PREDIKT™
   Motivo de la nueva versión:
-  Rediseña la pantalla de eliminación como experiencia visual Mobile First: Ruta de México, rutas destacadas, bracket panorámico y Motor Enriquecido PREDIKT™ sin lenguaje técnico.
+  Corrige composición de grupos conforme al sorteo/base oficial indicada: Grupo A México, Sudáfrica, Corea del Sur y República Checa; actualiza semillas de rutas y elimina miembros incorrectos.
 -->
 <!DOCTYPE html>
 <html lang="es">
@@ -688,9 +688,9 @@
           <div class="big-team">🇲🇽 México</div>
           <div class="group-list">
             <div class="group-row active"><span>🇲🇽 México</span><span class="seed">1°</span></div>
-            <div class="group-row"><span>🇨🇦 Canadá</span><span></span></div>
-            <div class="group-row"><span>🇧🇦 Bosnia</span><span></span></div>
             <div class="group-row"><span>🇿🇦 Sudáfrica</span><span></span></div>
+            <div class="group-row"><span>🇰🇷 Corea del Sur</span><span></span></div>
+            <div class="group-row"><span>🇨🇿 República Checa</span><span></span></div>
           </div>
         </article>
 
@@ -699,7 +699,7 @@
           <div class="big-team">🇲🇽 México</div>
           <div class="vs-center">VS</div>
           <div class="big-team">🇺🇾 Uruguay</div>
-          <div class="team-row"><span>Sale de Grupo B</span><span class="seed">2B</span></div>
+          <div class="team-row"><span>Sale de Grupo H</span><span class="seed">2H</span></div>
         </article>
 
         <article class="route-step green">
@@ -787,14 +787,14 @@
 
   <script>
     const OCTAVOS = [
-      { a: 'México', af: '🇲🇽', as: '1A', b: 'Uruguay', bf: '🇺🇾', bs: '2B' },
-      { a: 'Brasil', af: '🇧🇷', as: '1C', b: 'Japón', bf: '🇯🇵', bs: '2D' },
-      { a: 'Argentina', af: '🇦🇷', as: '1E', b: 'Alemania', bf: '🇩🇪', bs: '2F' },
-      { a: 'España', af: '🇪🇸', as: '1G', b: 'Croacia', bf: '🇭🇷', bs: '2H' },
-      { a: 'Francia', af: '🇫🇷', as: '1I', b: 'Corea del Sur', bf: '🇰🇷', bs: '2J' },
-      { a: 'Inglaterra', af: '🏴', as: '1K', b: 'Colombia', bf: '🇨🇴', bs: '2L' },
-      { a: 'Portugal', af: '🇵🇹', as: '1B', b: 'Estados Unidos', bf: '🇺🇸', bs: '2A' },
-      { a: 'Países Bajos', af: '🇳🇱', as: '1D', b: 'Bélgica', bf: '🇧🇪', bs: '2C' }
+      { a: 'México', af: '🇲🇽', as: '1A', b: 'Uruguay', bf: '🇺🇾', bs: '2H' },
+      { a: 'Brasil', af: '🇧🇷', as: '1C', b: 'Japón', bf: '🇯🇵', bs: '2F' },
+      { a: 'Argentina', af: '🇦🇷', as: '1J', b: 'Alemania', bf: '🇩🇪', bs: '2E' },
+      { a: 'España', af: '🇪🇸', as: '1H', b: 'Croacia', bf: '🇭🇷', bs: '2L' },
+      { a: 'Francia', af: '🇫🇷', as: '1I', b: 'Corea del Sur', bf: '🇰🇷', bs: '2A' },
+      { a: 'Inglaterra', af: '🏴', as: '1L', b: 'Colombia', bf: '🇨🇴', bs: '2K' },
+      { a: 'Portugal', af: '🇵🇹', as: '1K', b: 'Estados Unidos', bf: '🇺🇸', bs: '2D' },
+      { a: 'Países Bajos', af: '🇳🇱', as: '1F', b: 'Bélgica', bf: '🇧🇪', bs: '2G' }
     ];
 
     const CUARTOS_IZQ = [
@@ -816,9 +816,9 @@
 
     const FEATURED = [
       { team: 'Brasil', flag: '🇧🇷', steps: ['Grupo C: líder proyectado', 'Octavos: Japón', 'Cuartos: México', 'Semifinal: Argentina'] },
-      { team: 'Argentina', flag: '🇦🇷', steps: ['Grupo E: líder proyectado', 'Octavos: Alemania', 'Cuartos: España', 'Semifinal: Brasil'] },
+      { team: 'Argentina', flag: '🇦🇷', steps: ['Grupo J: líder proyectado', 'Octavos: Alemania', 'Cuartos: España', 'Semifinal: Brasil'] },
       { team: 'Francia', flag: '🇫🇷', steps: ['Grupo I: líder proyectado', 'Octavos: Corea del Sur', 'Cuartos: Inglaterra', 'Semifinal: Portugal'] },
-      { team: 'Inglaterra', flag: '🏴', steps: ['Grupo K: líder proyectado', 'Octavos: Colombia', 'Cuartos: Francia', 'Escenario abierto'] },
+      { team: 'Inglaterra', flag: '🏴', steps: ['Grupo L: líder proyectado', 'Octavos: Colombia', 'Cuartos: Francia', 'Escenario abierto'] },
       { team: 'México', flag: '🇲🇽', steps: ['Grupo A: líder proyectado', 'Octavos: Uruguay', 'Cuartos: Brasil', 'Semifinal: Argentina'] }
     ];
 
@@ -909,6 +909,11 @@
 </html>
 <!--
   Fin de archivo: eliminacion.html
-  Versión: v2.5.0_RUTAS_HACIA_LA_COPA
+  Versión: v2.5.1_GRUPOS_OFICIALES_CORREGIDOS
   Total líneas: 915
+-->
+<!--
+  Fin de archivo: eliminacion.html
+  Versión: v2.5.1_GRUPOS_OFICIALES_CORREGIDOS
+  Total líneas: 919
 -->
