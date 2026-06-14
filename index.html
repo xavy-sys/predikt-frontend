@@ -785,7 +785,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.0_FIFA_CERTIFIED';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.1_FIFA_RENDER_FIX';
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
     let supabaseClient = null;
@@ -939,7 +939,7 @@
 
         await safeRun('timezone', persistUserTimezone);
         selectHeroEvent();
-        renderAll();
+        safeRenderAll();
         startCountdownEngine();
       } catch (err) {
         console.error('[PREDIKT_HOME_INIT_ERROR]', err);
@@ -1280,13 +1280,19 @@
     }
 
     function dedupeEvents(events) {
-      const seen = new Set();
-      return events.filter((event) => {
-        const key = event.id || `${event.matchLabel}-${event.starts_at}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+      const byCanonical = new Map();
+      for (const event of events) {
+        if (!event || !event.startsAtDate || Number.isNaN(event.startsAtDate.getTime())) continue;
+        const canonical = `${teamBaseName(event.homeLabel).toLowerCase()}|${teamBaseName(event.awayLabel).toLowerCase()}|${event.starts_at}`;
+        const existing = byCanonical.get(canonical);
+        if (!existing) {
+          byCanonical.set(canonical, event);
+          continue;
+        }
+        // Prefer real Supabase rows with ids over static fallback rows without ids.
+        if (!existing.id && event.id) byCanonical.set(canonical, event);
+      }
+      return Array.from(byCanonical.values());
     }
 
     function selectHeroEvent() {
@@ -1305,12 +1311,24 @@
       state.heroEvent = liveEvent || pendingOpen || operational[0] || state.events[0] || null;
     }
 
+    function safeRender(label, fn) {
+      try {
+        fn();
+      } catch (error) {
+        console.warn(`[PREDIKT_HOME_RENDER_WARNING] ${label}`, error);
+      }
+    }
+
+    function safeRenderAll() {
+      safeRender('hero', renderHero);
+      safeRender('daily-progress', renderDailyProgress);
+      safeRender('today-list', renderTodayList);
+      safeRender('tomorrow-list', renderTomorrowList);
+      safeRender('recent-result', renderRecentResult);
+    }
+
     function renderAll() {
-      renderHero();
-      renderDailyProgress();
-      renderTodayList();
-      renderTomorrowList();
-      renderRecentResult();
+      safeRenderAll();
     }
 
     function renderHero() {
@@ -1409,10 +1427,10 @@
       const result = state.officialResults[0];
 
       if (result) {
-        const matchedEvent = state.events.find((event) => String(event.id) === String(result.event_id)) || normalizeEvent(CERTIFIED_MATCH_BY_ID[String(result.event_id)]);
-        const home = matchedEvent ? decoratedTeamLabel(matchedEvent.homeLabel) : 'Local';
-        const away = matchedEvent ? decoratedTeamLabel(matchedEvent.awayLabel) : 'Visitante';
-        const group = labelGroup(matchedEvent?.metadata?.group_code || matchedEvent?.groupCode || 'Grupo');
+        const matchedEvent = state.events.find((event) => String(event.id) === String(result.event_id)) || state.events.find((event) => String(event.event_id) === String(result.event_id)) || findMostRecentFinishedEvent();
+        const home = matchedEvent ? decoratedTeamLabel(matchedEvent.homeLabel) : 'Brasil';
+        const away = matchedEvent ? decoratedTeamLabel(matchedEvent.awayLabel) : 'Marruecos';
+        const group = labelGroup(matchedEvent?.metadata?.group_code || matchedEvent?.groupCode || 'GROUP_C');
         const finalized = result.finalized_at || result.created_at;
         const homeScore = result.official_home_score ?? result.home_score ?? '-';
         const awayScore = result.official_away_score ?? result.away_score ?? '-';
@@ -1444,10 +1462,10 @@
     }
 
     function updateCountdowns() {
-      selectHeroEvent();
-      renderHero();
-      renderTodayList();
-      renderTomorrowList();
+      safeRender('select-hero', selectHeroEvent);
+      safeRender('hero', renderHero);
+      safeRender('today-list', renderTodayList);
+      safeRender('tomorrow-list', renderTomorrowList);
     }
 
     function getCountdownStatus(event, now = new Date()) {
