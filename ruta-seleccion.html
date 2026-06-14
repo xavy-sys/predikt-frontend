@@ -1,1 +1,134 @@
+<!--
+  Archivo: ruta-seleccion.html
+  Versión: v1.0.0_RUTA_POR_EQUIPO
+  Proyecto: PREDIKT™
+  Motivo de la nueva versión:
+  Nueva pantalla Mobile First para que el usuario elija una selección y visualice su grupo, posible clasificación y ruta proyectada hacia la Copa sin saturar eliminacion.html.
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>PREDIKT™ | Ruta por Selección</title>
+  <link rel="icon" href="./predikt-logo.png" />
+  <style>
+    :root {
+      --navy:#061b3a; --deep:#031126; --blue:#0b3f86; --gold:#f6c343;
+      --text:#fff; --muted:rgba(255,255,255,.72); --card:rgba(255,255,255,.10);
+      --card2:rgba(255,255,255,.15); --border:rgba(255,255,255,.17); --footer-h:78px;
+      --shadow:0 18px 42px rgba(0,0,0,.30);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at top left,#0f5fb8 0,#082b5d 28%,#031126 78%);}
+    body{padding-bottom:calc(var(--footer-h) + env(safe-area-inset-bottom) + 18px);}
+    .app-shell{width:min(100%,720px);margin:0 auto;padding:18px 14px 24px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:38px;height:38px;object-fit:contain}.brand-title{margin:0;font-size:18px;font-weight:1000;letter-spacing:.03em}.brand-subtitle{margin:2px 0 0;color:var(--muted);font-size:11px;font-weight:900}
+    .top-actions{display:flex;gap:8px;align-items:center}.ghost-btn,.refresh-btn{border:1px solid rgba(246,195,67,.55);border-radius:999px;background:rgba(255,255,255,.09);color:#fff;text-decoration:none;font-weight:1000;font-size:12px;padding:10px 13px}.refresh-btn{cursor:pointer}
+    .hero,.section-card{border:1px solid var(--border);border-radius:26px;background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.06));box-shadow:var(--shadow);padding:18px;margin-bottom:14px;overflow:hidden;}
+    .eyebrow{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(246,195,67,.45);background:rgba(246,195,67,.16);color:#ffe891;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:1000;text-transform:uppercase;letter-spacing:.06em}.hero h1{font-size:30px;line-height:.98;margin:14px 0 8px}.hero p{margin:0;color:rgba(255,255,255,.88);font-weight:800;line-height:1.35}.live-pill{margin-top:14px;border:1px solid rgba(246,195,67,.38);border-radius:18px;padding:11px 13px;color:#ffe891;font-weight:1000;background:rgba(0,0,0,.16)}
+    .selector-card{display:grid;gap:10px}.selector-label{font-weight:1000;color:#ffe891;text-transform:uppercase;font-size:12px;letter-spacing:.05em}select{width:100%;border:1px solid rgba(246,195,67,.5);border-radius:18px;padding:15px 14px;background:#0b274e;color:#fff;font-weight:1000;font-size:16px;outline:none}.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}.quick-btn{border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(255,255,255,.10);color:#fff;padding:11px 8px;font-weight:1000;cursor:pointer}.quick-btn.active{background:linear-gradient(135deg,#f7cf55,#c99015);color:#061b3a;border-color:rgba(246,195,67,.8)}
+    .section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.section-head h2{margin:0;font-size:20px}.section-head small{display:block;margin-top:3px;color:var(--muted);font-weight:800}.badge{border:1px solid rgba(246,195,67,.55);border-radius:999px;padding:7px 10px;color:#ffe891;background:rgba(246,195,67,.12);font-size:11px;font-weight:1000;white-space:nowrap}
+    .group-grid{display:grid;gap:8px}.group-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(255,255,255,.10);padding:12px 13px;font-weight:900}.group-row.active{border-color:rgba(246,195,67,.72);background:linear-gradient(135deg,rgba(246,195,67,.22),rgba(255,255,255,.10));color:#ffe891}.seed{font-size:11px;color:#ffe891;font-weight:1000}
+    .route-carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 12px;scrollbar-color:#f6c343 rgba(255,255,255,.10);scrollbar-width:thin}.route-card{flex:0 0 min(84vw,310px);scroll-snap-align:start;border:1px solid var(--border);border-radius:22px;background:linear-gradient(135deg,rgba(15,95,184,.36),rgba(255,255,255,.08));padding:16px;min-height:184px}.route-card.gold{background:linear-gradient(135deg,rgba(246,195,67,.26),rgba(255,255,255,.08))}.kicker{display:flex;justify-content:space-between;gap:8px;color:#ffe891;font-size:11px;font-weight:1000;text-transform:uppercase;letter-spacing:.05em}.big-team{font-size:24px;font-weight:1000;margin:16px 0}.vs{display:flex;align-items:center;gap:12px;color:#ffe891;font-weight:1000;margin:12px 0}.vs:before,.vs:after{content:"";height:1px;background:rgba(246,195,67,.55);flex:1}.note{color:rgba(255,255,255,.78);font-weight:800;line-height:1.35}.hint{text-align:center;color:#ffe891;font-weight:1000;font-size:12px;margin-top:4px}
+    .engine-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}.engine-chip{border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(0,0,0,.18);padding:10px;font-weight:900;text-align:center;color:rgba(255,255,255,.9)}.fine-print{text-align:center;color:rgba(255,255,255,.62);font-size:12px;font-weight:800;line-height:1.35;margin:12px 8px}
+    .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,520px);height:calc(var(--footer-h) + env(safe-area-inset-bottom));padding:8px 10px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);gap:6px;background:rgba(3,17,38,.96);border-top:1px solid rgba(255,255,255,.16);z-index:10}.nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:rgba(255,255,255,.68);font-size:11px;font-weight:1000}.nav-icon{font-size:23px}.nav-item.active{color:#ffe891;background:rgba(246,195,67,.11);border:1px solid rgba(246,195,67,.32);border-radius:18px}
+    @media(max-width:520px){.app-shell{padding:16px 12px 24px}.hero h1{font-size:28px}.quick-grid{grid-template-columns:repeat(2,1fr)}.section-head{align-items:flex-start}.badge{font-size:10px}.route-card{flex-basis:86vw}.engine-chips{grid-template-columns:1fr}.top-actions{gap:5px}.ghost-btn,.refresh-btn{font-size:11px;padding:9px 10px}}
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar" aria-label="Encabezado PREDIKT">
+      <div class="brand">
+        <img class="brand-logo" src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
+        <div><p class="brand-title">PREDIKT™</p><p class="brand-subtitle">Powered by JVSys™</p></div>
+      </div>
+      <div class="top-actions"><a class="ghost-btn" href="./eliminacion.html">Volver</a><button class="refresh-btn" type="button" onclick="window.location.reload()">Actualizar</button></div>
+    </header>
+    <section class="hero">
+      <span class="eyebrow">🔎 Ruta por selección</span>
+      <h1>Elige tu equipo y mira su camino</h1>
+      <p>PREDIKT™ muestra el grupo de origen y una ruta proyectada. La trayectoria cambia con resultados oficiales.</p>
+      <div class="live-pill">Pronóstico vivo: no confirma resultados finales</div>
+    </section>
+    <section class="section-card selector-card">
+      <label class="selector-label" for="teamSelect">Selecciona una selección</label>
+      <select id="teamSelect" aria-label="Seleccionar selección"></select>
+      <div id="quickGrid" class="quick-grid" aria-label="Selecciones rápidas"></div>
+    </section>
+    <section class="section-card">
+      <div class="section-head"><div><h2 id="routeTitle">Ruta proyectada</h2><small id="routeSub">Grupo, octavos, cuartos y semifinal.</small></div><span class="badge" id="routeBadge">Escenario</span></div>
+      <div class="route-carousel" id="routeCarousel" aria-label="Carrusel de ruta"></div>
+      <div class="hint">👈 Desliza la ruta 👉</div>
+    </section>
+    <section class="section-card">
+      <div class="section-head"><div><h2 id="groupTitle">Grupo</h2><small>Composición oficial del grupo de origen.</small></div><span class="badge">Grupo origen</span></div>
+      <div class="group-grid" id="groupGrid"></div>
+    </section>
+    <section class="section-card">
+      <div class="section-head"><div><h2>🧠 MOTOR ENRIQUECIDO PREDIKT™</h2><small>La localía cuenta cuando aplica, pero no domina la proyección.</small></div><span class="badge">Factores</span></div>
+      <div class="engine-chips"><span class="engine-chip">⚽ Clasificación actual</span><span class="engine-chip">📈 Rendimiento reciente</span><span class="engine-chip">🏆 Fortaleza deportiva</span><span class="engine-chip">🏟️ Ventaja de local</span></div>
+    </section>
+    <p class="fine-print">Proyección dinámica PREDIKT™. Sirve para entender rutas posibles; no confirma resultados finales ni campeones.</p>
+  </main>
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <a class="nav-item" href="./index.html"><span class="nav-icon">🏠</span><span>Inicio</span></a>
+    <a class="nav-item" href="./mi-quiniela.html"><span class="nav-icon">⚽</span><span>Quiniela</span></a>
+    <a class="nav-item" href="./pronostico.html"><span class="nav-icon">🎯</span><span>Pronósticos</span></a>
+    <a class="nav-item active" href="./ranking.html"><span class="nav-icon">🏆</span><span>Ranking</span></a>
+    <a class="nav-item" href="./perfil.html"><span class="nav-icon">👤</span><span>Perfil</span></a>
+  </nav>
+  <script>
+    const GROUPS = [
+      { id:'A', teams:[['México','🇲🇽'],['Sudáfrica','🇿🇦'],['Corea del Sur','🇰🇷'],['República Checa','🇨🇿']] },
+      { id:'B', teams:[['Canadá','🇨🇦'],['Suiza','🇨🇭'],['Catar','🇶🇦'],['Bosnia y Herzegovina','🇧🇦']] },
+      { id:'C', teams:[['Brasil','🇧🇷'],['Marruecos','🇲🇦'],['Haití','🇭🇹'],['Escocia','🏴']] },
+      { id:'D', teams:[['Estados Unidos','🇺🇸'],['Paraguay','🇵🇾'],['Australia','🇦🇺'],['Turquía','🇹🇷']] },
+      { id:'E', teams:[['Alemania','🇩🇪'],['Curazao','🇨🇼'],['Costa de Marfil','🇨🇮'],['Ecuador','🇪🇨']] },
+      { id:'F', teams:[['Países Bajos','🇳🇱'],['Japón','🇯🇵'],['Túnez','🇹🇳'],['Suecia','🇸🇪']] },
+      { id:'G', teams:[['Bélgica','🇧🇪'],['Egipto','🇪🇬'],['Irán','🇮🇷'],['Nueva Zelanda','🇳🇿']] },
+      { id:'H', teams:[['España','🇪🇸'],['Cabo Verde','🇨🇻'],['Arabia Saudí','🇸🇦'],['Uruguay','🇺🇾']] },
+      { id:'I', teams:[['Francia','🇫🇷'],['Senegal','🇸🇳'],['Irak','🇮🇶'],['Noruega','🇳🇴']] },
+      { id:'J', teams:[['Argentina','🇦🇷'],['Argelia','🇩🇿'],['Austria','🇦🇹'],['Jordania','🇯🇴']] },
+      { id:'K', teams:[['Portugal','🇵🇹'],['RD Congo','🇨🇩'],['Uzbekistán','🇺🇿'],['Colombia','🇨🇴']] },
+      { id:'L', teams:[['Inglaterra','🏴'],['Croacia','🇭🇷'],['Ghana','🇬🇭'],['Panamá','🇵🇦']] }
+    ];
+    const ROUTES = {
+      'México':['Octavos: Uruguay','Cuartos: Brasil','Semifinal: Argentina'],
+      'Brasil':['Octavos: Japón','Cuartos: México','Semifinal: Argentina'],
+      'Argentina':['Octavos: Alemania','Cuartos: España','Semifinal: Brasil'],
+      'Francia':['Octavos: Corea del Sur','Cuartos: Inglaterra','Semifinal: Portugal'],
+      'Inglaterra':['Octavos: Colombia','Cuartos: Francia','Semifinal: Portugal'],
+      'Portugal':['Octavos: Estados Unidos','Cuartos: Países Bajos','Semifinal: Francia'],
+      'España':['Octavos: Croacia','Cuartos: Argentina','Semifinal: Brasil'],
+      'Países Bajos':['Octavos: Bélgica','Cuartos: Portugal','Semifinal: Francia'],
+      'Uruguay':['Octavos: México','Cuartos: Brasil','Semifinal: Argentina'],
+      'Alemania':['Octavos: Argentina','Cuartos: España','Semifinal: Brasil'],
+      'Japón':['Octavos: Brasil','Cuartos: México','Semifinal: Argentina'],
+      'Croacia':['Octavos: España','Cuartos: Argentina','Semifinal: Brasil'],
+      'Estados Unidos':['Octavos: Portugal','Cuartos: Países Bajos','Semifinal: Francia'],
+      'Colombia':['Octavos: Inglaterra','Cuartos: Francia','Semifinal: Portugal'],
+      'Bélgica':['Octavos: Países Bajos','Cuartos: Portugal','Semifinal: Francia'],
+      'Corea del Sur':['Octavos: Francia','Cuartos: Inglaterra','Semifinal: Portugal']
+    };
+    const QUICK = ['México','Brasil','Argentina','Francia','Inglaterra','España'];
+    function esc(v){return String(v||'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
+    function allTeams(){return GROUPS.flatMap(g=>g.teams.map(t=>({name:t[0],flag:t[1],group:g.id}))).sort((a,b)=>a.name.localeCompare(b.name,'es'));}
+    function findTeam(name){for(const g of GROUPS){for(const t of g.teams){if(t[0]===name)return {name:t[0],flag:t[1],group:g.id,teams:g.teams};}}return null;}
+    function renderSelect(){const select=document.getElementById('teamSelect');select.innerHTML=allTeams().map(t=>`<option value="${esc(t.name)}">${esc(t.flag)} ${esc(t.name)} · Grupo ${esc(t.group)}</option>`).join('');select.value='México';select.addEventListener('change',()=>renderTeam(select.value));document.getElementById('quickGrid').innerHTML=QUICK.map(q=>`<button class="quick-btn" type="button" data-team="${esc(q)}">${esc(findTeam(q).flag)} ${esc(q)}</button>`).join('');document.querySelectorAll('.quick-btn').forEach(btn=>btn.addEventListener('click',()=>{select.value=btn.dataset.team;renderTeam(btn.dataset.team);}));}
+    function groupRows(team){return team.teams.map((t,i)=>`<div class="group-row ${t[0]===team.name?'active':''}"><span>${esc(t[1])} ${esc(t[0])}</span><span class="seed">${i+1}</span></div>`).join('');}
+    function renderTeam(name){const team=findTeam(name)||findTeam('México');const route=ROUTES[team.name]||['Octavos: se define con resultados del grupo','Cuartos: escenario abierto','Semifinal: escenario abierto'];document.getElementById('routeTitle').textContent=team.flag+' Ruta de '+team.name+' hacia la Copa';document.getElementById('routeSub').textContent='Grupo '+team.group+' · trayectoria proyectada según el motor PREDIKT™.';document.getElementById('routeBadge').textContent=ROUTES[team.name]?'Ruta proyectada':'Escenario abierto';document.getElementById('groupTitle').textContent='Grupo '+team.group;document.getElementById('groupGrid').innerHTML=groupRows(team);document.querySelectorAll('.quick-btn').forEach(b=>b.classList.toggle('active',b.dataset.team===team.name));
+      document.getElementById('routeCarousel').innerHTML=`<article class="route-card gold"><div class="kicker"><span>Grupo ${esc(team.group)}</span><span>Origen</span></div><div class="big-team">${esc(team.flag)} ${esc(team.name)}</div><div class="note">Primero debe avanzar desde su grupo. La posición final puede cambiar el rival.</div></article>`+
+      route.map((step,idx)=>{const parts=step.split(':');return `<article class="route-card"><div class="kicker"><span>${esc(parts[0])}</span><span>${idx===0?'Posible rival':idx===1?'Si avanza':'Camino alto'}</span></div><div class="big-team">${esc(team.flag)} ${esc(team.name)}</div><div class="vs">VS</div><div class="big-team">${esc(parts.slice(1).join(':').trim())}</div><div class="note">Proyección viva. Puede cambiar con resultados oficiales.</div></article>`;}).join('');}
+    renderSelect();renderTeam('México');
+  </script>
+</body>
+</html>
+
+<!--
+  Fin de archivo: ruta-seleccion.html
+  Versión: v1.0.0_RUTA_POR_EQUIPO
+  Total líneas: 133
+-->
 
