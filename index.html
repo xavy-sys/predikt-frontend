@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME-R1_RETENTION_ENGINE_v1.0.1 -->
+  <!-- version: index_HOME-R1_RETENTION_ENGINE_v1.0.2 -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -380,13 +380,38 @@
       color: var(--muted);
     }
 
-    .tomorrow-list div {
+    .tomorrow-list a {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
       padding: 8px 9px;
       border-radius: 13px;
       background: rgba(0,0,0,.15);
+      border: 1px solid rgba(255,255,255,.06);
+      color: var(--muted);
+      min-width: 0;
+    }
+
+    .tomorrow-list a:hover {
+      border-color: rgba(245,200,75,.24);
+      background: rgba(245,200,75,.08);
+    }
+
+    .tomorrow-name {
+      min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .tomorrow-time {
+      color: var(--gold-2);
+      font-weight: 900;
+      font-size: 11px;
+      white-space: nowrap;
     }
 
     .recent-result {
@@ -642,7 +667,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME-R1_RETENTION_ENGINE_v1.0.1';
+    const HOME_BUILD_VERSION = 'index_HOME-R1_RETENTION_ENGINE_v1.0.2';
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - retention engine hotfix');
 
     let supabaseClient = null;
@@ -936,13 +961,19 @@
       const startsAt = firstValue(row, ['starts_at','start_at','kickoff_at','kickoff_time','match_datetime','event_starts_at','date_time']);
       if (!startsAt) return null;
 
-      const homeName = row.home?.short_name || row.home?.name || firstValue(row, ['home_short_name','home_team','home_name','home_participant','home_team_name','home_selection_name']) || 'Local';
-      const awayName = row.away?.short_name || row.away?.name || firstValue(row, ['away_short_name','away_team','away_name','away_participant','away_team_name','away_selection_name']) || 'Visitante';
-      const homeFlag = row.home?.flag_emoji || firstValue(row, ['home_flag_emoji','home_flag']) || '';
-      const awayFlag = row.away?.flag_emoji || firstValue(row, ['away_flag_emoji','away_flag']) || '';
+      const rawName = firstValue(row, ['name','event_name','match_name','fixture_name','title','match_title']) || '';
+      const parsedTeams = splitMatchName(rawName);
+      const homeRaw = row.home?.short_name || row.home?.name || firstValue(row, ['home_short_name','home_team','home_name','home_participant','home_team_name','home_selection_name']);
+      const awayRaw = row.away?.short_name || row.away?.name || firstValue(row, ['away_short_name','away_team','away_name','away_participant','away_team_name','away_selection_name']);
+      const homeName = cleanTeamName(homeRaw || parsedTeams.home || 'Local');
+      const awayName = cleanTeamName(awayRaw || parsedTeams.away || 'Visitante');
+      const homeFlag = row.home?.flag_emoji || firstValue(row, ['home_flag_emoji','home_flag']) || flagForTeam(homeName);
+      const awayFlag = row.away?.flag_emoji || firstValue(row, ['away_flag_emoji','away_flag']) || flagForTeam(awayName);
       const groupCode = normalizeGroupCode(firstValue(row, ['group_code','group']) || metadata.group_code || row.venues?.metadata?.group_code || metadata.group);
-      const id = firstValue(row, ['id','event_id','match_id']);
-      const name = firstValue(row, ['name','event_name','match_name','fixture_name','title','match_title']) || `${homeName} vs ${awayName}`;
+      const id = firstValue(row, ['id','event_id','match_id']) || `${homeName}-${awayName}-${startsAt}`;
+      const name = rawName || `${homeName} vs ${awayName}`;
+      const homeLabel = `${homeName}${homeFlag ? ' ' + homeFlag : ''}`;
+      const awayLabel = `${awayName}${awayFlag ? ' ' + awayFlag : ''}`;
 
       return {
         ...row,
@@ -951,14 +982,42 @@
         starts_at: startsAt,
         startsAtDate: new Date(startsAt),
         event_status: firstValue(row, ['event_status','status','match_status']) || 'SCHEDULED',
-        homeLabel: `${homeName}${homeFlag ? ' ' + homeFlag : ''}`,
-        awayLabel: `${awayName}${awayFlag ? ' ' + awayFlag : ''}`,
-        matchLabel: `${homeName}${homeFlag ? ' ' + homeFlag : ''} vs ${awayName}${awayFlag ? ' ' + awayFlag : ''}`,
+        homeLabel,
+        awayLabel,
+        matchLabel: `${homeLabel} vs ${awayLabel}`,
         venueName: row.venues?.name || firstValue(row, ['venue_name','stadium','venue']) || metadata.venue_name || 'Sede por confirmar',
         venueCity: row.venues?.city || firstValue(row, ['venue_city','city']) || metadata.venue_city || '',
         groupCode,
         matchday: metadata.matchday || firstValue(row, ['matchday']) || ''
       };
+    }
+
+    function splitMatchName(name) {
+      const value = String(name || '').trim();
+      if (!value) return { home: '', away: '' };
+      const parts = value.split(/\s+(?:vs\.?|v\.?|VS)\s+/i).map((part) => part.trim()).filter(Boolean);
+      if (parts.length >= 2) return { home: parts[0], away: parts.slice(1).join(' vs ') };
+      return { home: '', away: '' };
+    }
+
+    function cleanTeamName(value) {
+      return String(value || '')
+        .replace(/^[\s\-–—]+|[\s\-–—]+$/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function flagForTeam(teamName) {
+      const flags = {
+        'México': '🇲🇽', 'Mexico': '🇲🇽', 'Sudáfrica': '🇿🇦', 'South Africa': '🇿🇦',
+        'Corea del Sur': '🇰🇷', 'South Korea': '🇰🇷', 'Canadá': '🇨🇦', 'Canada': '🇨🇦',
+        'Bosnia': '🇧🇦', 'Bosnia y Herzegovina': '🇧🇦', 'Estados Unidos': '🇺🇸', 'USA': '🇺🇸', 'United States': '🇺🇸',
+        'Paraguay': '🇵🇾', 'Brasil': '🇧🇷', 'Brazil': '🇧🇷', 'Marruecos': '🇲🇦', 'Morocco': '🇲🇦',
+        'Escocia': '🏴', 'Scotland': '🏴', 'Haití': '🇭🇹', 'Haiti': '🇭🇹',
+        'Australia': '🇦🇺', 'Turquía': '🇹🇷', 'Turkey': '🇹🇷', 'Alemania': '🇩🇪', 'Germany': '🇩🇪',
+        'Curazao': '🇨🇼', 'Curacao': '🇨🇼', 'Curaçao': '🇨🇼'
+      };
+      return flags[String(teamName || '').trim()] || '';
     }
 
     function firstValue(row, keys) {
@@ -989,18 +1048,18 @@
 
     function selectHeroEvent() {
       const now = new Date();
-      const candidates = state.events
-        .filter((event) => {
-          const status = getCountdownStatus(event, now);
-          const hasPrediction = state.predictions.has(String(event.id));
-          return !hasPrediction && ['upcoming', 'soon', 'closing'].includes(status.key);
-        })
+      const operational = state.events
+        .filter((event) => ['live', 'closing', 'soon', 'upcoming'].includes(getCountdownStatus(event, now).key))
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
 
-      state.heroEvent = candidates[0]
-        || state.events.filter((event) => ['upcoming', 'soon', 'closing', 'live'].includes(getCountdownStatus(event, now).key))[0]
-        || state.events[0]
-        || null;
+      const liveEvent = operational.find((event) => getCountdownStatus(event, now).key === 'live');
+      const pendingOpen = operational.find((event) => {
+        const status = getCountdownStatus(event, now);
+        const hasPrediction = state.predictions.has(String(event.id));
+        return !hasPrediction && ['closing', 'soon', 'upcoming'].includes(status.key);
+      });
+
+      state.heroEvent = liveEvent || pendingOpen || operational[0] || state.events[0] || null;
     }
 
     function renderAll() {
@@ -1085,7 +1144,10 @@
       }
 
       list.innerHTML = tomorrowEvents.map((event) => `
-        <div>${escapeHtml(shortMatchLabel(event))}</div>
+        <a href="./pronostico.html?event_id=${encodeURIComponent(event.id)}" aria-label="Pronosticar ${escapeHtml(shortMatchLabel(event))}">
+          <span class="tomorrow-name">${escapeHtml(shortMatchLabel(event))}</span>
+          <span class="tomorrow-time">${escapeHtml(formatLocalTime(event.startsAtDate))}</span>
+        </a>
       `).join('');
     }
 
@@ -1113,8 +1175,10 @@
     }
 
     function updateCountdowns() {
+      selectHeroEvent();
       renderHero();
       renderTodayList();
+      renderTomorrowList();
     }
 
     function getCountdownStatus(event, now = new Date()) {
@@ -1122,13 +1186,16 @@
       const diffMs = start.getTime() - now.getTime();
       const diffMin = Math.floor(diffMs / 60000);
       const liveEnds = new Date(start.getTime() + LIVE_WINDOW_MINUTES * 60000);
-      const isFinal = String(event.event_status || '').toLowerCase().includes('final') || now > liveEnds;
-      const isLive = diffMs <= 0 && now <= liveEnds && !isFinal;
+      const rawStatus = String(event.event_status || '').toUpperCase();
+      const explicitlyFinal = ['FINISHED', 'FINAL', 'COMPLETED', 'ENDED'].includes(rawStatus) || rawStatus.includes('FINAL');
+      const explicitlyLive = ['LIVE', 'IN_PLAY', 'IN_PROGRESS', 'PLAYING', 'HALFTIME', 'HT'].includes(rawStatus);
+      const windowLive = diffMs <= 0 && now <= liveEnds && !explicitlyFinal;
+      const expiredByWindow = now > liveEnds && !explicitlyLive;
 
-      if (isFinal) {
+      if (explicitlyFinal || expiredByWindow) {
         return { key: 'final', label: 'Finalizado', text: `Finalizado ${timeAgo(start)}`, short: 'Finalizado', eyebrow: '⚫ Partido finalizado' };
       }
-      if (isLive) {
+      if (explicitlyLive || windowLive) {
         return { key: 'live', label: 'Estado del partido', text: '🔴 EN VIVO', short: 'EN VIVO', eyebrow: '🔴 Partido en vivo' };
       }
       if (diffMin <= CLOSE_CRITICAL_MINUTES) {
