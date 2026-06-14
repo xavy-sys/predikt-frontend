@@ -779,13 +779,13 @@
 
   <script>
     /*****************************************************************
-     * PREDIKT™ HOME-R2 v1.0.5
+     * PREDIKT™ HOME-R2 v1.0.9
      * Daily Action Carousel + Countdown Multi-Timezone Engine
      * Powered by JVSys™
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME-R2_DAILY_CAROUSEL_v1.0.5';
+    const HOME_BUILD_VERSION = 'index_HOME-R2_DAILY_CAROUSEL_v1.0.9_DATA_BINDING_FIX';
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - daily carousel engine');
 
     let supabaseClient = null;
@@ -809,6 +809,22 @@
       GROUP_K: { label:'Grupo K', color:'#8b95a7' },
       GROUP_L: { label:'Grupo L', color:'#8b5e34' }
     };
+
+
+    // Respaldo controlado con IDs reales certificados desde sports.events en producción.
+    // Solo completa datos visuales cuando las vistas públicas no exponen relaciones home/away/venue.
+    const CERTIFIED_MATCH_FALLBACKS = [
+      { id:'b38155b7-26f6-4a99-a054-d1bf3ef4bc5b', name:'Brasil vs Marruecos', starts_at:'2026-06-13T22:00:00+00:00', event_status:'FINISHED', group_code:'GROUP_C' },
+      { id:'ed8ef7f1-1562-496d-a93f-f2118318665b', name:'Haití vs Escocia', starts_at:'2026-06-14T01:00:00+00:00', event_status:'SCHEDULED', group_code:'GROUP_C' },
+      { id:'1f0f6f92-578e-4b43-a16a-409d058fa817', name:'Estados Unidos vs Paraguay', starts_at:'2026-06-14T19:00:00+00:00', event_status:'FINISHED', group_code:'GROUP_D' },
+      { id:'68532c24-1801-4c61-9682-cf24b7515eae', name:'Australia vs Turquía', starts_at:'2026-06-14T22:00:00+00:00', event_status:'SCHEDULED', group_code:'GROUP_D' },
+      { id:'7c7f6091-6721-4d86-a73a-f9762e966b49', name:'México vs Corea del Sur', starts_at:'2026-06-15T19:00:00+00:00', event_status:'SCHEDULED', group_code:'GROUP_A' },
+      { id:'173983d9-81bb-41a5-9030-d2f3bc9c7aa9', name:'Alemania vs Curazao', starts_at:'2026-06-15T19:00:00+00:00', event_status:'SCHEDULED', group_code:'GROUP_E' },
+      { id:'5599e376-a1fe-4e6c-9cdc-79be0ff713b0', name:'Sudáfrica vs Chequia', starts_at:'2026-06-15T22:00:00+00:00', event_status:'SCHEDULED', group_code:'GROUP_A' },
+      { id:'b95dda06-d030-46de-bfef-41a28bb43e2f', name:'Costa de Marfil vs Ecuador', starts_at:'2026-06-15T22:00:00+00:00', event_status:'SCHEDULED', group_code:'GROUP_E' }
+    ];
+
+    const CERTIFIED_MATCH_BY_ID = Object.fromEntries(CERTIFIED_MATCH_FALLBACKS.map((match) => [match.id, match]));
 
     const state = {
       session: null,
@@ -1041,8 +1057,11 @@
         }
       ]);
 
-      state.events = dedupeEvents(rows.map(normalizeEvent).filter(Boolean))
-        .sort((a, b) => a.startsAtDate - b.startsAtDate);
+      // Las filas reales tienen prioridad; los respaldos solo completan nombres/ventanas cuando RLS/vistas no exponen todo.
+      state.events = dedupeEvents([
+        ...rows.map(normalizeEvent).filter(Boolean),
+        ...CERTIFIED_MATCH_FALLBACKS.map(normalizeEvent).filter(Boolean)
+      ]).sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
 
     async function readSportsRows(sources) {
@@ -1120,23 +1139,25 @@
       const startsAt = firstValue(row, ['starts_at','start_at','kickoff_at','kickoff_time','match_datetime','event_starts_at','date_time']);
       if (!startsAt) return null;
 
-      const rawName = firstValue(row, ['name','event_name','match_name','fixture_name','title','match_title']) || '';
+      const id = firstValue(row, ['id','event_id','match_id']) || '';
+      const fallback = CERTIFIED_MATCH_BY_ID[id] || null;
+      const rawName = firstValue(row, ['name','event_name','match_name','fixture_name','title','match_title']) || fallback?.name || '';
       const parsedTeams = splitMatchName(rawName);
       const homeRaw = row.home?.short_name || row.home?.name || firstValue(row, ['home_short_name','home_team','home_name','home_participant','home_team_name','home_selection_name']);
       const awayRaw = row.away?.short_name || row.away?.name || firstValue(row, ['away_short_name','away_team','away_name','away_participant','away_team_name','away_selection_name']);
-      const homeName = cleanTeamName(homeRaw || parsedTeams.home || 'Local');
-      const awayName = cleanTeamName(awayRaw || parsedTeams.away || 'Visitante');
+      const homeName = cleanTeamName(homeRaw || parsedTeams.home || fallback?.name?.split(/\s+vs\s+/i)?.[0] || 'Local');
+      const awayName = cleanTeamName(awayRaw || parsedTeams.away || fallback?.name?.split(/\s+vs\s+/i)?.[1] || 'Visitante');
       const homeFlag = row.home?.flag_emoji || firstValue(row, ['home_flag_emoji','home_flag']) || flagForTeam(homeName);
       const awayFlag = row.away?.flag_emoji || firstValue(row, ['away_flag_emoji','away_flag']) || flagForTeam(awayName);
-      const groupCode = normalizeGroupCode(firstValue(row, ['group_code','group']) || metadata.group_code || row.venues?.metadata?.group_code || metadata.group);
-      const id = firstValue(row, ['id','event_id','match_id']) || `${homeName}-${awayName}-${startsAt}`;
+      const groupCode = normalizeGroupCode(firstValue(row, ['group_code','group']) || metadata.group_code || row.venues?.metadata?.group_code || metadata.group || fallback?.group_code);
+      const safeId = id || `${homeName}-${awayName}-${startsAt}`;
       const name = rawName || `${homeName} vs ${awayName}`;
       const homeLabel = `${homeName}${homeFlag ? ' ' + homeFlag : ''}`;
       const awayLabel = `${awayName}${awayFlag ? ' ' + awayFlag : ''}`;
 
       return {
         ...row,
-        id,
+        id: safeId,
         name,
         starts_at: startsAt,
         startsAtDate: new Date(startsAt),
@@ -1306,16 +1327,11 @@
 
     function renderTomorrowList() {
       const list = $('tomorrowList');
-      let tomorrowEvents = getTomorrowEvents().slice(0, 6);
-
-      if (!tomorrowEvents.length) {
-        // Fallback discreto: próximos partidos después de hoy para que el usuario siempre tenga acción.
-        const endToday = addDays(startOfLocalDay(new Date()), 1);
-        tomorrowEvents = state.events
-          .filter((event) => event.startsAtDate >= endToday)
-          .sort((a, b) => a.startsAtDate - b.startsAtDate)
-          .slice(0, 6);
-      }
+      const endToday = addDays(startOfLocalDay(new Date()), 1);
+      let tomorrowEvents = state.events
+        .filter((event) => event.startsAtDate >= endToday)
+        .sort((a, b) => a.startsAtDate - b.startsAtDate)
+        .slice(0, 6);
 
       if (!tomorrowEvents.length) {
         list.innerHTML = '<p class="state-empty">Aún no hay partidos posteriores cargados.</p>';
@@ -1334,9 +1350,9 @@
       const result = state.officialResults[0];
 
       if (result) {
-        const matchedEvent = state.events.find((event) => String(event.id) === String(result.event_id));
-        const home = matchedEvent?.homeLabel || matchedEvent?.home?.short_name || matchedEvent?.home?.name || 'Local';
-        const away = matchedEvent?.awayLabel || matchedEvent?.away?.short_name || matchedEvent?.away?.name || 'Visitante';
+        const matchedEvent = state.events.find((event) => String(event.id) === String(result.event_id)) || normalizeEvent(CERTIFIED_MATCH_BY_ID[String(result.event_id)]);
+        const home = matchedEvent?.homeLabel || 'Local';
+        const away = matchedEvent?.awayLabel || 'Visitante';
         const group = labelGroup(matchedEvent?.metadata?.group_code || matchedEvent?.groupCode || 'Grupo');
         const finalized = result.finalized_at || result.created_at;
         const homeScore = result.official_home_score ?? result.home_score ?? '-';
