@@ -1,10 +1,9 @@
 <!--
   Archivo: eliminacion.html
-  Versión: v2.4.0_SCROLL_Y_MOTOR_ENRIQUECIDO
+  Versión: v2.4.1_FIX_MOBILE_PRIORIDAD_CONTENIDO
   Motivo de la nueva versión:
-  Ajusta barras de desplazamiento para que sean claras, no invasivas y coherentes con Mobile First.
-  Agrega explicación de motor enriquecido para evitar sesgo localista y elevar credibilidad.
-  Mantiene carrusel de grupos origen, vista hasta cuartos y mapa completo separado.
+  Corrige comportamiento Mobile First: las pestañas vuelven a una sola fila, el contenido aparece inmediatamente debajo de los botones y la explicación del motor pasa al cierre para no ocultar los cruces en celular.
+  Mantiene mapa completo funcional en PC y vista digerible en móvil.
 -->
 <!DOCTYPE html>
 <html lang="es">
@@ -848,7 +847,8 @@
       .app-shell { max-width: 520px; }
       .bracket-shell { padding: 12px; }
       .quarters-grid { grid-template-columns: 1fr; }
-      .view-switch { grid-template-columns: 1fr; }
+      .view-switch { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; margin-bottom: 10px; }
+      .view-tab { min-height: 42px; padding: 0 6px; font-size: 10px; line-height: 1.12; }
       .origin-carousel { grid-auto-columns: minmax(88%, 1fr); }
       .group-pair { grid-template-columns: 1fr; }
       .origin-versus { min-height: 26px; }
@@ -856,7 +856,12 @@
       .mobile-list, .mobile-full-map { display: grid; }
       .bracket-title { padding-bottom: 10px; }
       .bracket-title h2 { font-size: 17px; }
-      .hero { margin-bottom: 14px; }
+      .hero { margin-bottom: 14px; padding: 22px 18px; }
+      .hero h1 { font-size: clamp(28px, 9vw, 40px); line-height: 0.96; }
+      .hero p { font-size: 13px; }
+      .status-pill { font-size: 11px; padding: 10px 12px; }
+      .engine-note { margin-top: 16px; }
+      .mobile-full-map { margin-top: 10px; }
     }
 
     @media (min-width: 761px) {
@@ -900,6 +905,13 @@
         <button id="tabFull" class="view-tab" type="button">Mapa completo</button>
       </div>
 
+      <div id="originView" class="origin-view" aria-live="polite"></div>
+      <div id="quartersView" class="quarters-view hidden-view" aria-live="polite"></div>
+      <div id="bracketScroll" class="bracket-scroll hidden-view" aria-live="polite"></div>
+      <p id="mapHint" class="map-hint hidden-view">Vista panorámica PREDIKT™: usa la barra dorada inferior para moverte de izquierda a derecha sin perder el cuadro completo.</p>
+      <div id="mobileList" class="mobile-list" aria-live="polite"></div>
+      <div id="mobileFullMap" class="mobile-full-map hidden-view" aria-live="polite"></div>
+
       <aside class="engine-note" aria-label="Criterio de proyección">
         <strong>Motor enriquecido, no localista</strong>
         <p>La ruta combina clasificación actual, fuerza deportiva, forma reciente y probabilidad PREDIKT™. No confirma campeones ni favorece automáticamente a México.</p>
@@ -910,13 +922,6 @@
           <span class="engine-chip">Probabilidad PREDIKT™</span>
         </div>
       </aside>
-
-      <div id="originView" class="origin-view" aria-live="polite"></div>
-      <div id="quartersView" class="quarters-view hidden-view" aria-live="polite"></div>
-      <div id="bracketScroll" class="bracket-scroll hidden-view" aria-live="polite"></div>
-      <p id="mapHint" class="map-hint hidden-view">Vista panorámica PREDIKT™: usa la barra dorada inferior para moverte de izquierda a derecha sin perder el cuadro completo.</p>
-      <div id="mobileList" class="mobile-list" aria-live="polite"></div>
-      <div id="mobileFullMap" class="mobile-full-map hidden-view" aria-live="polite"></div>
 
       <section id="emptyState" class="empty-state" aria-live="polite">
         <div class="icon">🏆</div>
@@ -1254,7 +1259,7 @@
 </html>
 <!--
   Fin del archivo: eliminacion.html
-  Versión: v2.4.0_SCROLL_Y_MOTOR_ENRIQUECIDO
-  Motivo final: corrige desplazamiento visual y agrega motor enriquecido para evitar sesgo localista.
-  Total de líneas: 1260
+  Versión: v2.4.1_FIX_MOBILE_PRIORIDAD_CONTENIDO
+  Motivo final: corrige la experiencia en celular priorizando cruces visibles inmediatamente después de las pestañas y dejando el motor enriquecido como explicación secundaria.
+  Total de líneas: 1265
 -->
