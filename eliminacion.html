@@ -1,9 +1,10 @@
 <!--
   Archivo: eliminacion.html
-  Versión: v2.3.0_GRUPOS_ORIGEN_CARRUSEL
+  Versión: v2.4.0_SCROLL_Y_MOTOR_ENRIQUECIDO
   Motivo de la nueva versión:
-  Rediseña la vista principal para explicar de dónde salen los cruces de eliminación.
-  Agrega carrusel visual de grupos origen antes del bracket hasta cuartos y conserva mapa completo aparte.
+  Ajusta barras de desplazamiento para que sean claras, no invasivas y coherentes con Mobile First.
+  Agrega explicación de motor enriquecido para evitar sesgo localista y elevar credibilidad.
+  Mantiene carrusel de grupos origen, vista hasta cuartos y mapa completo separado.
 -->
 <!DOCTYPE html>
 <html lang="es">
@@ -256,6 +257,73 @@
     }
 
 
+    .engine-note {
+      display: grid;
+      gap: 8px;
+      margin: 0 4px 14px;
+      padding: 12px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(246,195,67,0.14), rgba(15,95,184,0.18));
+      border: 1px solid rgba(246,195,67,0.22);
+    }
+
+    .engine-note strong {
+      color: #ffe38b;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .engine-note p {
+      margin: 0;
+      color: rgba(255,255,255,0.78);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .engine-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .engine-chip {
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: rgba(0,0,0,0.20);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.84);
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .scroll-guidance {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 4px 10px;
+      color: rgba(255,255,255,0.72);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .scroll-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #ffe38b;
+      white-space: nowrap;
+    }
+
+
     .origin-view {
       display: grid;
       gap: 14px;
@@ -278,6 +346,23 @@
       padding: 4px 4px 12px;
       scroll-snap-type: x mandatory;
       scrollbar-width: thin;
+      scrollbar-color: rgba(246,195,67,0.80) rgba(255,255,255,0.08);
+    }
+
+    .origin-carousel::-webkit-scrollbar,
+    .bracket-scroll::-webkit-scrollbar { height: 10px; }
+
+    .origin-carousel::-webkit-scrollbar-track,
+    .bracket-scroll::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.07);
+      border-radius: 999px;
+    }
+
+    .origin-carousel::-webkit-scrollbar-thumb,
+    .bracket-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, rgba(246,195,67,0.95), rgba(15,95,184,0.95));
+      border-radius: 999px;
+      border: 2px solid rgba(6,27,58,0.95);
     }
 
     .origin-card {
@@ -475,8 +560,11 @@
 
     .bracket-scroll {
       overflow-x: auto;
-      padding: 4px 2px 8px;
+      overflow-y: hidden;
+      padding: 4px 2px 18px;
       scrollbar-width: thin;
+      scrollbar-color: rgba(246,195,67,0.80) rgba(255,255,255,0.08);
+      overscroll-behavior-x: contain;
     }
 
     .bracket-grid {
@@ -812,10 +900,21 @@
         <button id="tabFull" class="view-tab" type="button">Mapa completo</button>
       </div>
 
+      <aside class="engine-note" aria-label="Criterio de proyección">
+        <strong>Motor enriquecido, no localista</strong>
+        <p>La ruta combina clasificación actual, fuerza deportiva, forma reciente y probabilidad PREDIKT™. No confirma campeones ni favorece automáticamente a México.</p>
+        <div class="engine-chips">
+          <span class="engine-chip">Clasificación actual</span>
+          <span class="engine-chip">Fuerza de selección</span>
+          <span class="engine-chip">Momento deportivo</span>
+          <span class="engine-chip">Probabilidad PREDIKT™</span>
+        </div>
+      </aside>
+
       <div id="originView" class="origin-view" aria-live="polite"></div>
       <div id="quartersView" class="quarters-view hidden-view" aria-live="polite"></div>
       <div id="bracketScroll" class="bracket-scroll hidden-view" aria-live="polite"></div>
-      <p id="mapHint" class="map-hint hidden-view">Vista panorámica PREDIKT™: muestra la percepción completa del camino al título. En celular puede desplazarse horizontalmente.</p>
+      <p id="mapHint" class="map-hint hidden-view">Vista panorámica PREDIKT™: usa la barra dorada inferior para moverte de izquierda a derecha sin perder el cuadro completo.</p>
       <div id="mobileList" class="mobile-list" aria-live="polite"></div>
       <div id="mobileFullMap" class="mobile-full-map hidden-view" aria-live="polite"></div>
 
@@ -826,7 +925,7 @@
       </section>
     </section>
 
-    <p class="fine-print">Proyección dinámica PREDIKT™. El objetivo es visualizar la posible ruta, no confirmar resultados finales.</p>
+    <p class="fine-print">Proyección dinámica enriquecida PREDIKT™. Sirve para entender rutas posibles; no confirma resultados finales ni campeones.</p>
   </main>
 
   <nav class="bottom-nav" aria-label="Navegación principal">
@@ -853,9 +952,9 @@
 
     const PROJECTED_SOURCE_GROUPS = [
       { title: 'Ruta México → Brasil', code: 'Grupos A, B, C y D', groupA: 'Grupo A', groupB: 'Grupo B', teamsA: [['🇲🇽','México','1A',true], ['🇿🇦','Sudáfrica',''], ['🇨🇦','Canadá',''], ['🇧🇦','Bosnia','']], teamsB: [['🏆','Líder Grupo B',''], ['🇺🇾','Uruguay','2B',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇲🇽 México vs 🇺🇾 Uruguay', next: 'El ganador se cruzaría con la ruta Brasil/Japón para formar cuartos.' },
-      { title: 'Ruta Brasil → México', code: 'Grupos C y D', groupA: 'Grupo C', groupB: 'Grupo D', teamsA: [['🇧🇷','Brasil','1C',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🏆','Líder Grupo D',''], ['🇯🇵','Japón','2D',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇧🇷 Brasil vs 🇯🇵 Japón', next: 'Este cruce alimenta el posible México vs Brasil en cuartos.' },
+      { title: 'Ruta Brasil → México', code: 'Grupos C y D', groupA: 'Grupo C', groupB: 'Grupo D', teamsA: [['🇧🇷','Brasil','1C',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🏆','Líder Grupo D',''], ['🇯🇵','Japón','2D',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇧🇷 Brasil vs 🇯🇵 Japón', next: 'Este cruce alimenta un posible cuartos México vs Brasil; no implica que México avance automáticamente.' },
       { title: 'Ruta Argentina → España', code: 'Grupos E, F, G y H', groupA: 'Grupo E', groupB: 'Grupo F', teamsA: [['🇦🇷','Argentina','1E',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🇩🇪','Alemania','2F',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇦🇷 Argentina vs 🇩🇪 Alemania', next: 'El ganador se proyecta hacia cuartos contra la ruta España/Croacia.' },
-      { title: 'Ruta Francia → Portugal', code: 'Lado derecho del mapa', groupA: 'Grupo I', groupB: 'Grupo J', teamsA: [['🇫🇷','Francia','1I',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🇰🇷','Corea del Sur','2J',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇫🇷 Francia vs 🇰🇷 Corea del Sur', next: 'Este lado del cuadro alimenta la posible final proyectada por PREDIKT™.' }
+      { title: 'Ruta Francia → Portugal', code: 'Lado derecho del mapa', groupA: 'Grupo I', groupB: 'Grupo J', teamsA: [['🇫🇷','Francia','1I',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], teamsB: [['🇰🇷','Corea del Sur','2J',true], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo',''], ['🏆','Resto del grupo','']], result: '🇫🇷 Francia vs 🇰🇷 Corea del Sur', next: 'Este lado del cuadro se calcula con mayor peso de fuerza deportiva y forma reciente.' }
     ];
 
     const PROJECTED_NEXT_ROUNDS = {
@@ -863,8 +962,8 @@
         { a: 'México', aFlag: '🇲🇽', b: 'Brasil', bFlag: '🇧🇷', code: 'Cuartos', color: 'blue' },
         { a: 'Argentina', aFlag: '🇦🇷', b: 'España', bFlag: '🇪🇸', code: 'Cuartos', color: 'aqua' }
       ],
-      semiLeft: [{ a: 'México', aFlag: '🇲🇽', b: 'Argentina', bFlag: '🇦🇷', code: 'Semifinal', color: 'gold' }],
-      final: { a: 'México', aFlag: '🇲🇽', b: 'Francia', bFlag: '🇫🇷', code: 'Final proyectada', color: 'gold' },
+      semiLeft: [{ a: 'Brasil', aFlag: '🇧🇷', b: 'Argentina', bFlag: '🇦🇷', code: 'Semifinal', color: 'gold' }],
+      final: { a: 'Brasil', aFlag: '🇧🇷', b: 'Francia', bFlag: '🇫🇷', code: 'Final enriquecida', color: 'gold' },
       semiRight: [{ a: 'Francia', aFlag: '🇫🇷', b: 'Portugal', bFlag: '🇵🇹', code: 'Semifinal', color: 'gold' }],
       quarterRight: [
         { a: 'Francia', aFlag: '🇫🇷', b: 'Inglaterra', bFlag: '🏴', code: 'Cuartos', color: 'green' },
@@ -936,6 +1035,7 @@
       const originView = document.getElementById('originView');
       originView.innerHTML = `
         <p class="origin-intro">Antes de ver el bracket, PREDIKT™ muestra de qué grupos saldrían los equipos. Desliza para entender la ruta de cada posible enfrentamiento.</p>
+        <div class="scroll-guidance"><span>Rutas por grupos</span><span class="scroll-pill">Desliza →</span></div>
         <section class="origin-carousel" aria-label="Carrusel de grupos origen">
           ${PROJECTED_SOURCE_GROUPS.map(sourceGroupCard).join('')}
         </section>
@@ -1154,7 +1254,7 @@
 </html>
 <!--
   Fin del archivo: eliminacion.html
-  Versión: v2.3.0_GRUPOS_ORIGEN_CARRUSEL
-  Motivo final: vista principal con carrusel de grupos origen, vista hasta cuartos y mapa completo separado.
-  Total de líneas: 1161
+  Versión: v2.4.0_SCROLL_Y_MOTOR_ENRIQUECIDO
+  Motivo final: corrige desplazamiento visual y agrega motor enriquecido para evitar sesgo localista.
+  Total de líneas: 1260
 -->
