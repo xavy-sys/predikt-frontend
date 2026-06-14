@@ -1,10 +1,10 @@
 <!--
   Archivo: eliminacion.html
-  Versión: v2.0.0_FIFA_STYLE
+  Versión: v2.1.0_BRACKET_VISUAL
   Motivo de la nueva versión:
-  Rediseño completo de Eliminación Directa con estándar visual PREDIKT™ Mobile First.
-  Corrige pérdida de identidad visual, footer invasivo, lenguaje técnico visible al usuario
-  y transforma la lista de cruces en tarjetas deportivas tipo FIFA / Flashscore / SofaScore.
+  Convierte la pantalla de Eliminación Directa en una mecánica visual tipo bracket FIFA.
+  Mantiene identidad PREDIKT™, elimina lectura tipo lista y comunica claramente:
+  "En este momento así quedaría la eliminación".
 -->
 <!DOCTYPE html>
 <html lang="es">
@@ -16,9 +16,12 @@
   <style>
     :root {
       --predikt-navy: #061b3a;
+      --predikt-deep: #031126;
       --predikt-blue: #0b3f86;
       --predikt-blue-2: #0f5fb8;
       --predikt-gold: #f6c343;
+      --predikt-green: #33d17a;
+      --predikt-red: #ff4f4f;
       --predikt-card: rgba(255,255,255,0.08);
       --predikt-card-2: rgba(255,255,255,0.12);
       --predikt-border: rgba(255,255,255,0.16);
@@ -45,13 +48,13 @@
     }
 
     body {
-      padding: max(12px, env(safe-area-inset-top)) 12px calc(var(--footer-h) + 18px + env(safe-area-inset-bottom));
+      padding: max(12px, env(safe-area-inset-top)) 12px calc(var(--footer-h) + 22px + env(safe-area-inset-bottom));
       overflow-x: hidden;
     }
 
     .app-shell {
       width: 100%;
-      max-width: 480px;
+      max-width: 1180px;
       margin: 0 auto;
     }
 
@@ -60,6 +63,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      width: min(100%, 520px);
+      margin: 0 auto;
       padding: 6px 2px 14px;
     }
 
@@ -83,7 +88,7 @@
     .brand-title {
       margin: 0;
       font-size: 17px;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: 0.05em;
       line-height: 1;
     }
@@ -91,7 +96,7 @@
     .brand-subtitle {
       margin: 4px 0 0;
       font-size: 10px;
-      font-weight: 800;
+      font-weight: 850;
       color: var(--predikt-muted);
       letter-spacing: 0.03em;
     }
@@ -104,7 +109,7 @@
       border-radius: 999px;
       padding: 10px 13px;
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 950;
       cursor: pointer;
       box-shadow: 0 10px 24px rgba(0,0,0,0.18);
     }
@@ -112,6 +117,8 @@
     .hero {
       position: relative;
       overflow: hidden;
+      width: min(100%, 620px);
+      margin: 0 auto 16px;
       border: 1px solid var(--predikt-border);
       border-radius: var(--radius-xl);
       padding: 18px;
@@ -141,25 +148,25 @@
       border: 1px solid rgba(246,195,67,0.38);
       color: #ffe7a7;
       font-size: 11px;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
 
     .hero h1 {
       margin: 14px 0 8px;
-      font-size: clamp(25px, 7vw, 34px);
+      font-size: clamp(27px, 7vw, 40px);
       line-height: 0.96;
       letter-spacing: -0.045em;
     }
 
     .hero p {
       margin: 0;
-      max-width: 360px;
+      max-width: 440px;
       font-size: 14px;
       line-height: 1.38;
       color: var(--predikt-soft);
-      font-weight: 700;
+      font-weight: 750;
     }
 
     .status-pill {
@@ -177,27 +184,34 @@
       line-height: 1.28;
     }
 
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 12px;
-      margin: 20px 2px 10px;
+    .bracket-shell {
+      border-radius: 28px;
+      padding: 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: var(--shadow-card);
     }
 
-    .section-head h2 {
+    .bracket-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 4px 12px;
+    }
+
+    .bracket-title h2 {
       margin: 0;
-      font-size: 17px;
-      line-height: 1.05;
+      font-size: 18px;
       letter-spacing: -0.02em;
     }
 
-    .section-head small {
+    .bracket-title small {
       display: block;
-      margin-top: 4px;
       color: var(--predikt-muted);
-      font-weight: 750;
+      margin-top: 4px;
       font-size: 11px;
+      font-weight: 800;
     }
 
     .round-badge {
@@ -208,80 +222,159 @@
       border: 1px solid rgba(255,255,255,0.15);
       color: #d8ebff;
       font-size: 11px;
-      font-weight: 900;
+      font-weight: 950;
     }
 
-    .matches {
+    .bracket-scroll {
+      overflow-x: auto;
+      padding: 4px 2px 8px;
+      scrollbar-width: thin;
+    }
+
+    .bracket-grid {
+      min-width: 1050px;
       display: grid;
-      gap: 12px;
+      grid-template-columns: 210px 210px 170px 150px 170px 210px 210px;
+      gap: 16px;
+      align-items: center;
     }
 
-    .match-card {
-      border-radius: var(--radius-xl);
-      padding: 14px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
-      border: 1px solid var(--predikt-border);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+    .round {
+      display: grid;
+      gap: 14px;
+      align-content: center;
     }
 
-    .match-label {
+    .round-title {
+      text-align: center;
+      color: rgba(255,255,255,0.76);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .game {
+      position: relative;
+      border-radius: 18px;
+      padding: 8px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.13);
+    }
+
+    .game.blue { background: linear-gradient(135deg, rgba(15,95,184,0.48), rgba(7,29,62,0.72)); }
+    .game.aqua { background: linear-gradient(135deg, rgba(45,212,191,0.34), rgba(7,29,62,0.72)); }
+    .game.green { background: linear-gradient(135deg, rgba(51,209,122,0.40), rgba(7,29,62,0.72)); }
+    .game.red { background: linear-gradient(135deg, rgba(255,79,79,0.36), rgba(7,29,62,0.72)); }
+    .game.gold { background: linear-gradient(135deg, rgba(246,195,67,0.40), rgba(7,29,62,0.72)); }
+
+    .game-code {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 11px;
-      color: #cfe4ff;
-      font-size: 11px;
-      font-weight: 900;
+      margin-bottom: 7px;
+      color: #ffe6a1;
+      font-size: 10px;
+      font-weight: 950;
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
 
-    .match-label span:last-child {
-      color: #ffe5a0;
-      text-transform: none;
-      letter-spacing: 0;
-      font-size: 10px;
-      background: rgba(246,195,67,0.12);
-      border: 1px solid rgba(246,195,67,0.22);
-      border-radius: 999px;
-      padding: 5px 8px;
-    }
-
-    .team-row {
-      min-height: 54px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 17px;
-      background: rgba(0,0,0,0.16);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .team-name {
+    .team {
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-width: 0;
-      font-size: 19px;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 34px;
+      padding: 8px 9px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 14px;
       font-weight: 950;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
     }
 
-    .team-name .flag {
-      font-size: 25px;
-      line-height: 1;
+    .team + .team { margin-top: 6px; }
+
+    .team span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .team-note {
-      font-size: 10px;
-      color: rgba(255,255,255,0.72);
-      font-weight: 900;
-      text-align: right;
+    .seed {
+      color: rgba(255,255,255,0.66);
+      font-size: 9px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
     }
+
+    .connector-right::after,
+    .connector-left::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 2px;
+      background: rgba(246,195,67,0.54);
+    }
+
+    .connector-right::after { right: -17px; }
+    .connector-left::before { left: -17px; }
+
+    .stack-4 { grid-template-rows: repeat(4, auto); }
+    .stack-2 { grid-template-rows: repeat(2, auto); gap: 58px; }
+    .stack-1 { grid-template-rows: auto; }
+
+    .cup-stage {
+      min-height: 350px;
+      display: grid;
+      place-items: center;
+      gap: 12px;
+    }
+
+    .cup-card {
+      width: 100%;
+      border-radius: 24px;
+      padding: 18px 12px;
+      text-align: center;
+      background:
+        radial-gradient(circle at top, rgba(246,195,67,0.36), transparent 44%),
+        rgba(0,0,0,0.20);
+      border: 1px solid rgba(246,195,67,0.28);
+    }
+
+    .cup-icon { font-size: 54px; line-height: 1; margin-bottom: 8px; }
+    .cup-card h3 { margin: 0; font-size: 17px; }
+    .cup-card p { margin: 6px 0 0; color: var(--predikt-muted); font-size: 11px; font-weight: 800; }
+
+    .third-place {
+      border-radius: 20px;
+      padding: 12px;
+      background: rgba(246,195,67,0.14);
+      border: 1px solid rgba(246,195,67,0.28);
+      text-align: center;
+    }
+
+    .third-place strong { display: block; color: #ffe6a1; font-size: 12px; }
+    .third-place span { display: block; margin-top: 3px; color: var(--predikt-muted); font-size: 10px; font-weight: 800; }
+
+    .mobile-list {
+      display: none;
+      gap: 12px;
+    }
+
+    .mobile-card {
+      border-radius: 22px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      border: 1px solid var(--predikt-border);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+    }
+
+    .mobile-card .game-code { margin-bottom: 9px; }
 
     .vs-line {
       display: flex;
@@ -331,7 +424,7 @@
       left: 50%;
       bottom: 0;
       transform: translateX(-50%);
-      width: min(100%, 480px);
+      width: min(100%, 520px);
       min-height: calc(var(--footer-h) + env(safe-area-inset-bottom));
       padding: 9px 10px calc(8px + env(safe-area-inset-bottom));
       display: grid;
@@ -365,10 +458,19 @@
       border: 1px solid rgba(246,195,67,0.18);
     }
 
-    @media (min-width: 700px) {
-      body { padding-top: 18px; }
+    @media (max-width: 760px) {
       .app-shell { max-width: 520px; }
-      .bottom-nav { max-width: 520px; }
+      .bracket-shell { padding: 12px; }
+      .bracket-scroll { display: none; }
+      .mobile-list { display: grid; }
+      .bracket-title { padding-bottom: 10px; }
+      .bracket-title h2 { font-size: 17px; }
+      .hero { margin-bottom: 14px; }
+    }
+
+    @media (min-width: 761px) {
+      body { padding-top: 18px; }
+      .fine-print { max-width: 620px; margin-left: auto; margin-right: auto; }
     }
   </style>
 </head>
@@ -385,30 +487,33 @@
       <button class="refresh-btn" type="button" onclick="window.location.reload()">Actualizar</button>
     </header>
 
-    <section class="hero" aria-label="Eliminación directa">
-      <span class="eyebrow">🏆 Cruces automáticos</span>
-      <h1>Si el Mundial terminara hoy...</h1>
-      <p>Estos serían los posibles enfrentamientos de eliminación directa según la proyección actual.</p>
-      <div class="status-pill">⚠️ Los cruces pueden cambiar conforme avancen los resultados oficiales.</div>
+    <section class="hero" aria-label="Eliminación directa proyectada">
+      <span class="eyebrow">🏆 Eliminación proyectada</span>
+      <h1>En este momento así quedaría la eliminación</h1>
+      <p>Antes de llegar a esta fase, PREDIKT™ proyecta los cruces posibles según la clasificación actual.</p>
+      <div class="status-pill">⚠️ Es un pronóstico vivo. Cambia conforme avanzan los resultados oficiales.</div>
     </section>
 
-    <section class="section-head" aria-label="Octavos de final">
-      <div>
-        <h2>Octavos de Final</h2>
-        <small>Posibles enfrentamientos proyectados</small>
+    <section class="bracket-shell" aria-label="Mecánica visual de eliminación">
+      <div class="bracket-title">
+        <div>
+          <h2>Ruta proyectada al título</h2>
+          <small>Octavos · Cuartos · Semifinal · Final</small>
+        </div>
+        <div class="round-badge" id="matchCount">8 cruces</div>
       </div>
-      <div class="round-badge" id="matchCount">8 cruces</div>
+
+      <div id="bracketScroll" class="bracket-scroll" aria-live="polite"></div>
+      <div id="mobileList" class="mobile-list" aria-live="polite"></div>
+
+      <section id="emptyState" class="empty-state" aria-live="polite">
+        <div class="icon">🏆</div>
+        <h2>Estamos calculando los cruces.</h2>
+        <p>Vuelve en unos minutos.</p>
+      </section>
     </section>
 
-    <section id="matches" class="matches" aria-live="polite"></section>
-
-    <section id="emptyState" class="empty-state" aria-live="polite">
-      <div class="icon">🏆</div>
-      <h2>Estamos calculando los cruces.</h2>
-      <p>Vuelve en unos minutos.</p>
-    </section>
-
-    <p class="fine-print">Proyección dinámica PREDIKT™. No muestra información técnica al usuario final.</p>
+    <p class="fine-print">Proyección dinámica PREDIKT™. El objetivo es visualizar la posible ruta, no confirmar resultados finales.</p>
   </main>
 
   <nav class="bottom-nav" aria-label="Navegación principal">
@@ -421,15 +526,29 @@
 
   <script>
     const PREDIKT_PROJECTED_BRACKET = [
-      { a: 'México', aFlag: '🇲🇽', b: 'Uruguay', bFlag: '🇺🇾' },
-      { a: 'Brasil', aFlag: '🇧🇷', b: 'Japón', bFlag: '🇯🇵' },
-      { a: 'Argentina', aFlag: '🇦🇷', b: 'Alemania', bFlag: '🇩🇪' },
-      { a: 'España', aFlag: '🇪🇸', b: 'Croacia', bFlag: '🇭🇷' },
-      { a: 'Francia', aFlag: '🇫🇷', b: 'Corea del Sur', bFlag: '🇰🇷' },
-      { a: 'Inglaterra', aFlag: '🏴', b: 'Colombia', bFlag: '🇨🇴' },
-      { a: 'Portugal', aFlag: '🇵🇹', b: 'Estados Unidos', bFlag: '🇺🇸' },
-      { a: 'Países Bajos', aFlag: '🇳🇱', b: 'Bélgica', bFlag: '🇧🇪' }
+      { a: 'México', aFlag: '🇲🇽', aSeed: '1A', b: 'Uruguay', bFlag: '🇺🇾', bSeed: '2B', color: 'blue' },
+      { a: 'Brasil', aFlag: '🇧🇷', aSeed: '1C', b: 'Japón', bFlag: '🇯🇵', bSeed: '2D', color: 'blue' },
+      { a: 'Argentina', aFlag: '🇦🇷', aSeed: '1E', b: 'Alemania', bFlag: '🇩🇪', bSeed: '2F', color: 'aqua' },
+      { a: 'España', aFlag: '🇪🇸', aSeed: '1G', b: 'Croacia', bFlag: '🇭🇷', bSeed: '2H', color: 'aqua' },
+      { a: 'Francia', aFlag: '🇫🇷', aSeed: '1I', b: 'Corea del Sur', bFlag: '🇰🇷', bSeed: '2J', color: 'green' },
+      { a: 'Inglaterra', aFlag: '🏴', aSeed: '1K', b: 'Colombia', bFlag: '🇨🇴', bSeed: '2L', color: 'green' },
+      { a: 'Portugal', aFlag: '🇵🇹', aSeed: '1B', b: 'Estados Unidos', bFlag: '🇺🇸', bSeed: '2A', color: 'red' },
+      { a: 'Países Bajos', aFlag: '🇳🇱', aSeed: '1D', b: 'Bélgica', bFlag: '🇧🇪', bSeed: '2C', color: 'red' }
     ];
+
+    const PROJECTED_NEXT_ROUNDS = {
+      quarterLeft: [
+        { a: 'México', aFlag: '🇲🇽', b: 'Brasil', bFlag: '🇧🇷', code: 'Cuartos', color: 'blue' },
+        { a: 'Argentina', aFlag: '🇦🇷', b: 'España', bFlag: '🇪🇸', code: 'Cuartos', color: 'aqua' }
+      ],
+      semiLeft: [{ a: 'México', aFlag: '🇲🇽', b: 'Argentina', bFlag: '🇦🇷', code: 'Semifinal', color: 'gold' }],
+      final: { a: 'México', aFlag: '🇲🇽', b: 'Francia', bFlag: '🇫🇷', code: 'Final proyectada', color: 'gold' },
+      semiRight: [{ a: 'Francia', aFlag: '🇫🇷', b: 'Portugal', bFlag: '🇵🇹', code: 'Semifinal', color: 'gold' }],
+      quarterRight: [
+        { a: 'Francia', aFlag: '🇫🇷', b: 'Inglaterra', bFlag: '🏴', code: 'Cuartos', color: 'green' },
+        { a: 'Portugal', aFlag: '🇵🇹', b: 'Países Bajos', bFlag: '🇳🇱', code: 'Cuartos', color: 'red' }
+      ]
+    };
 
     function safeText(value) {
       return String(value || '').replace(/[<>&"']/g, function (char) {
@@ -437,37 +556,95 @@
       });
     }
 
+    function teamLine(flag, name, seed) {
+      return `<div class="team"><span>${safeText(flag)} ${safeText(name)}</span><span class="seed">${safeText(seed || '')}</span></div>`;
+    }
+
+    function gameCard(match, index, sideClass) {
+      return `
+        <article class="game ${safeText(match.color || 'blue')} ${sideClass || ''}">
+          <div class="game-code"><span>${safeText(match.code || 'Cruce proyectado')}</span><span>${index ? 'P' + index : ''}</span></div>
+          ${teamLine(match.aFlag, match.a, match.aSeed)}
+          ${teamLine(match.bFlag, match.b, match.bSeed)}
+        </article>
+      `;
+    }
+
+    function mobileCard(match, index) {
+      return `
+        <article class="mobile-card">
+          <div class="game-code"><span>Cruce proyectado</span><span>Partido ${index + 1}</span></div>
+          ${teamLine(match.aFlag, match.a, match.aSeed)}
+          <div class="vs-line">VS</div>
+          ${teamLine(match.bFlag, match.b, match.bSeed)}
+        </article>
+      `;
+    }
+
     function renderProjectedBracket(matches) {
-      const container = document.getElementById('matches');
+      const bracketScroll = document.getElementById('bracketScroll');
+      const mobileList = document.getElementById('mobileList');
       const emptyState = document.getElementById('emptyState');
       const matchCount = document.getElementById('matchCount');
 
       if (!Array.isArray(matches) || matches.length === 0) {
-        container.innerHTML = '';
+        bracketScroll.innerHTML = '';
+        mobileList.innerHTML = '';
         emptyState.style.display = 'block';
         matchCount.textContent = 'Calculando';
         return;
       }
 
+      const leftOctavos = matches.slice(0, 4);
+      const rightOctavos = matches.slice(4, 8);
+
       emptyState.style.display = 'none';
       matchCount.textContent = `${matches.length} cruces`;
-      container.innerHTML = matches.map((match, index) => `
-        <article class="match-card">
-          <div class="match-label">
-            <span>Cruce proyectado</span>
-            <span>Partido ${index + 1}</span>
-          </div>
-          <div class="team-row">
-            <div class="team-name"><span class="flag">${safeText(match.aFlag)}</span><span>${safeText(match.a)}</span></div>
-            <div class="team-note">Clasificado</div>
-          </div>
-          <div class="vs-line">VS</div>
-          <div class="team-row">
-            <div class="team-name"><span class="flag">${safeText(match.bFlag)}</span><span>${safeText(match.b)}</span></div>
-            <div class="team-note">Rival proyectado</div>
-          </div>
-        </article>
-      `).join('');
+      mobileList.innerHTML = matches.map(mobileCard).join('');
+
+      bracketScroll.innerHTML = `
+        <div class="bracket-grid">
+          <section class="round stack-4">
+            <div class="round-title">Octavos</div>
+            ${leftOctavos.map((m, i) => gameCard(m, 74 + i, 'connector-right')).join('')}
+          </section>
+
+          <section class="round stack-2">
+            <div class="round-title">Cuartos</div>
+            ${PROJECTED_NEXT_ROUNDS.quarterLeft.map((m, i) => gameCard(m, 89 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="round stack-1">
+            <div class="round-title">Semifinal</div>
+            ${PROJECTED_NEXT_ROUNDS.semiLeft.map((m, i) => gameCard(m, 101 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="cup-stage">
+            <div class="cup-card">
+              <div class="cup-icon">🏆</div>
+              <h3>PREDIKT™</h3>
+              <p>Ruta viva al título</p>
+            </div>
+            ${gameCard(PROJECTED_NEXT_ROUNDS.final, 104, 'connector-left connector-right')}
+            <div class="third-place"><strong>Partido por tercer lugar</strong><span>Se proyecta después de semifinales</span></div>
+          </section>
+
+          <section class="round stack-1">
+            <div class="round-title">Semifinal</div>
+            ${PROJECTED_NEXT_ROUNDS.semiRight.map((m, i) => gameCard(m, 102 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="round stack-2">
+            <div class="round-title">Cuartos</div>
+            ${PROJECTED_NEXT_ROUNDS.quarterRight.map((m, i) => gameCard(m, 99 + i, 'connector-left connector-right')).join('')}
+          </section>
+
+          <section class="round stack-4">
+            <div class="round-title">Octavos</div>
+            ${rightOctavos.map((m, i) => gameCard(m, 79 + i, 'connector-left')).join('')}
+          </section>
+        </div>
+      `;
     }
 
     try {
@@ -480,7 +657,7 @@
 </html>
 <!--
   Fin del archivo: eliminacion.html
-  Versión: v2.0.0_FIFA_STYLE
-  Motivo: Pantalla deportiva Mobile First para cruces de eliminación directa, sin mensajes técnicos al usuario final.
-  N° de líneas del archivo: 486
+  Versión: v2.1.0_BRACKET_VISUAL
+  Motivo: Mecánica visual tipo bracket FIFA para mostrar cómo quedaría la eliminación en este momento.
+  N° de líneas del archivo: 663
 -->
