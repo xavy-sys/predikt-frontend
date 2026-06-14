@@ -792,7 +792,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.3_RECENT_RESULT_BINDING_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.4_LATEST_OFFICIAL_RESULT_FIX';
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
     let supabaseClient = null;
@@ -1167,53 +1167,61 @@
       state.predictions = new Map((data || []).map((p) => [String(p.event_id), p]));
     }
 
+    
     async function loadRecentOfficialResults() {
-      state.officialResults = [];
-      state.officialResultEvents = new Map();
+      const query = supabaseClient
+        .schema('predictions')
+        .from('official_results')
+        .select(`
+          id,
+          event_id,
+          official_home_score,
+          official_away_score,
+          official_winner,
+          finalized_at,
+          created_at
+        `)
+        .order('finalized_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .limit(5);
 
-      try {
-        const { data, error } = await supabaseClient
-          .schema('predictions')
-          .from('official_results')
-          .select('event_id, official_home_score, official_away_score, official_winner, finalized_at, created_at')
-          .order('finalized_at', { ascending: false, nullsFirst: false })
-          .order('created_at', { ascending: false })
-          .limit(20);
+      const { data, error } = await query;
 
-        if (error) throw error;
-        const rows = Array.isArray(data) ? data : [];
-        state.officialResults = rows.sort((a, b) => {
-          const aTime = new Date(a.finalized_at || a.created_at || 0).getTime();
-          const bTime = new Date(b.finalized_at || b.created_at || 0).getTime();
-          return bTime - aTime;
-        });
-
-        const eventIds = [...new Set(state.officialResults.map((row) => row.event_id).filter(Boolean).map(String))];
-        if (eventIds.length) {
-          const { data: eventsData, error: eventsError } = await supabaseClient
-            .schema('sports')
-            .from('events')
-            .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
-            .in('id', eventIds);
-
-          if (eventsError) throw eventsError;
-          state.officialResultEvents = new Map(
-            (eventsData || []).map((eventRow) => {
-              const normalized = normalizeEvent(eventRow);
-              return [String(eventRow.id), normalized];
-            }).filter((entry) => entry[1])
-          );
-        }
-      } catch (error) {
-        console.warn('[PREDIKT_RECENT_RESULT_SCHEMA_WARNING]', error);
+      if (error) {
+        console.warn('[PREDIKT_RECENT_RESULT_WARNING]', error);
         state.officialResults = [];
-        state.officialResultEvents = new Map();
+        return;
       }
+
+      const rows = Array.isArray(data) ? data : [];
+      state.officialResults = rows;
 
       if (!state.officialResults.length) {
         state.recentResultEvent = findMostRecentFinishedEvent();
+        return;
       }
+
+      const ids = [...new Set(rows.map((r) => String(r.event_id)).filter(Boolean))];
+      if (!ids.length) return;
+
+      const { data: events, error: eventError } = await supabaseClient
+        .schema('sports')
+        .from('events')
+        .select('id, name, starts_at, event_status, metadata, venues:venue_id(name, city, timezone, metadata)')
+        .in('id', ids);
+
+      if (eventError) {
+        console.warn('[PREDIKT_RECENT_RESULT_EVENT_BINDING_WARNING]', eventError);
+        return;
+      }
+
+      const eventMap = new Map((events || []).map((event) => [String(event.id), normalizeEvent(event)]));
+      state.officialResults = rows.map((row) => ({
+        ...row,
+        event: eventMap.get(String(row.event_id)) || null
+      }));
     }
+
 
     function findMostRecentFinishedEvent() {
       const now = new Date();
@@ -1438,7 +1446,7 @@
 
     function renderTomorrowList() {
       const list = $('tomorrowList');
-      const tomorrowEvents = getTomorrowEvents().slice(0, 6);
+      const tomorrowEvents = getTomorrowEvents().slice(0, 4);
       const panel = list?.closest('.panel');
       const title = panel?.querySelector('h2');
       if (title) title.textContent = tomorrowEvents.length ? `Mañana · ${tomorrowEvents.length} partidos` : 'Mañana';
@@ -1456,21 +1464,27 @@
       `).join('');
     }
 
+    
     function renderRecentResult() {
-      const result = state.officialResults[0];
+      const result = state.officialResults && state.officialResults[0];
 
       if (result) {
-        const matchedEvent = state.officialResultEvents.get(String(result.event_id)) || state.events.find((event) => String(event.id) === String(result.event_id)) || state.events.find((event) => String(event.event_id) === String(result.event_id)) || findMostRecentFinishedEvent();
-        const home = matchedEvent ? decoratedTeamLabel(matchedEvent.homeLabel) : 'Local';
-        const away = matchedEvent ? decoratedTeamLabel(matchedEvent.awayLabel) : 'Visitante';
-        const group = labelGroup(matchedEvent?.metadata?.group_code || matchedEvent?.groupCode || 'GROUP_C');
-        const finalized = result.finalized_at || result.created_at;
-        const homeScore = result.official_home_score ?? result.home_score ?? '-';
-        const awayScore = result.official_away_score ?? result.away_score ?? '-';
-        const venue = matchedEvent?.venueName && matchedEvent.venueName !== 'Sede por confirmar' ? ` · ${matchedEvent.venueName}` : '';
+        const event = result.event || state.events.find((item) => String(item.id) === String(result.event_id)) || null;
+        const rawName = event?.name || '';
+        const teams = splitMatchName(rawName);
+        const homeName = cleanTeamName(teams.home || event?.homeLabel?.replace(/\s+[A-Z]{2}$|\s+[🇦-🇿🏴]+$/gu, '') || 'Local');
+        const awayName = cleanTeamName(teams.away || event?.awayLabel?.replace(/\s+[A-Z]{2}$|\s+[🇦-🇿🏴]+$/gu, '') || 'Visitante');
+        const homeScore = Number(result.official_home_score);
+        const awayScore = Number(result.official_away_score);
+        const group = event?.groupCode ? labelGroup(event.groupCode) : labelGroup(event?.metadata?.group_code || 'Grupo');
+        const venue = event?.venueName || event?.metadata?.venue_name || '';
 
-        $('recentScore').textContent = `${home} ${homeScore}-${awayScore} ${away}`;
-        $('recentMeta').textContent = `${group}${venue} · ${timeAgo(finalized)}`;
+        let displayScore = `${homeName} ${homeScore}-${awayScore} ${awayName}`;
+        if (awayScore > homeScore) displayScore = `${awayName} ${awayScore}-${homeScore} ${homeName}`;
+        if (homeScore > awayScore) displayScore = `${homeName} ${homeScore}-${awayScore} ${awayName}`;
+
+        $('recentScore').textContent = displayScore;
+        $('recentMeta').textContent = `${group}${venue ? ' · ' + venue : ''} · ${timeAgo(result.finalized_at || result.created_at)}`;
         $('recentBadge').textContent = '✅ Oficial';
         return;
       }
@@ -1478,15 +1492,16 @@
       const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
       if (!recentEvent) {
         $('recentScore').textContent = 'Sin resultado oficial';
-        $('recentMeta').textContent = 'Aparecerá aquí al registrar el marcador oficial.';
-        $('recentBadge').textContent = 'Pendiente';
+        $('recentMeta').textContent = 'Cuando termine un partido aparecerá aquí.';
+        $('recentBadge').textContent = 'Oficial';
         return;
       }
 
       $('recentScore').textContent = shortMatchLabel(recentEvent);
-      $('recentMeta').textContent = `${labelGroup(recentEvent.groupCode)} · ${recentEvent.venueName} · marcador pendiente`;
+      $('recentMeta').textContent = `${labelGroup(recentEvent.groupCode)} · ${timeAgo(recentEvent.startsAtDate)} · marcador pendiente`;
       $('recentBadge').textContent = 'Finalizado';
     }
+
 
     function startCountdownEngine() {
       if (state.ticker) window.clearInterval(state.ticker);
