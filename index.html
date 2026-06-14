@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.2.11_SAFE_DATE_TOMORROW_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.2.12_UTC_DATE_PARSE_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -823,7 +823,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.11_SAFE_DATE_TOMORROW_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.12_UTC_DATE_PARSE_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -852,78 +852,78 @@
 
     // Respaldo certificado FIFA: solo se usa si RLS/vistas no devuelven suficientes eventos.
     const CERTIFIED_MATCH_FALLBACKS = [
-      { id:null, fifa_match_number:1, name:'México vs Sudáfrica', starts_at:'2026-06-11T19:00:00+00', event_status:'FINISHED', group_code:'GROUP_A', matchday:'1', venue_name:'Estadio Azteca', venue_city:'Ciudad de México' },
-      { id:null, fifa_match_number:2, name:'Corea del Sur vs Chequia', starts_at:'2026-06-12T02:00:00+00', event_status:'FINISHED', group_code:'GROUP_A', matchday:'1', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
-      { id:null, fifa_match_number:3, name:'Canadá vs Bosnia y Herzegovina', starts_at:'2026-06-12T19:00:00+00', event_status:'FINISHED', group_code:'GROUP_B', matchday:'1', venue_name:'BMO Field', venue_city:'Toronto' },
-      { id:null, fifa_match_number:4, name:'Estados Unidos vs Paraguay', starts_at:'2026-06-13T01:00:00+00', event_status:'FINISHED', group_code:'GROUP_D', matchday:'1', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
-      { id:null, fifa_match_number:5, name:'Qatar vs Suiza', starts_at:'2026-06-13T19:00:00+00', event_status:'FINISHED', group_code:'GROUP_B', matchday:'1', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
-      { id:null, fifa_match_number:6, name:'Brasil vs Marruecos', starts_at:'2026-06-13T22:00:00+00', event_status:'FINISHED', group_code:'GROUP_C', matchday:'1', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
-      { id:null, fifa_match_number:7, name:'Haití vs Escocia', starts_at:'2026-06-14T01:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'1', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
-      { id:null, fifa_match_number:8, name:'Australia vs Turquía', starts_at:'2026-06-14T04:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'1', venue_name:'BC Place', venue_city:'Vancouver' },
-      { id:null, fifa_match_number:9, name:'Alemania vs Curazao', starts_at:'2026-06-14T17:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'1', venue_name:'NRG Stadium', venue_city:'Houston' },
-      { id:null, fifa_match_number:10, name:'Países Bajos vs Japón', starts_at:'2026-06-14T20:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'1', venue_name:'AT&T Stadium', venue_city:'Arlington' },
-      { id:null, fifa_match_number:11, name:'Costa de Marfil vs Ecuador', starts_at:'2026-06-14T23:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'1', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
-      { id:null, fifa_match_number:12, name:'Suecia vs Túnez', starts_at:'2026-06-15T02:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'1', venue_name:'Estadio BBVA', venue_city:'Guadalupe' },
-      { id:null, fifa_match_number:13, name:'España vs Cabo Verde', starts_at:'2026-06-15T16:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'1', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
-      { id:null, fifa_match_number:14, name:'Bélgica vs Egipto', starts_at:'2026-06-15T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'1', venue_name:'Lumen Field', venue_city:'Seattle' },
-      { id:null, fifa_match_number:15, name:'Arabia Saudita vs Uruguay', starts_at:'2026-06-15T22:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'1', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
-      { id:null, fifa_match_number:16, name:'Irán vs Nueva Zelanda', starts_at:'2026-06-16T01:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'1', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
-      { id:null, fifa_match_number:17, name:'Francia vs Senegal', starts_at:'2026-06-16T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'1', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
-      { id:null, fifa_match_number:18, name:'Irak vs Noruega', starts_at:'2026-06-16T22:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'1', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
-      { id:null, fifa_match_number:19, name:'Argentina vs Argelia', starts_at:'2026-06-17T01:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'1', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' },
-      { id:null, fifa_match_number:20, name:'Austria vs Jordania', starts_at:'2026-06-17T04:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'1', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
-      { id:null, fifa_match_number:21, name:'Portugal vs RD Congo', starts_at:'2026-06-17T17:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'1', venue_name:'NRG Stadium', venue_city:'Houston' },
-      { id:null, fifa_match_number:22, name:'Inglaterra vs Croacia', starts_at:'2026-06-17T20:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'1', venue_name:'AT&T Stadium', venue_city:'Arlington' },
-      { id:null, fifa_match_number:23, name:'Ghana vs Panamá', starts_at:'2026-06-17T23:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'1', venue_name:'BMO Field', venue_city:'Toronto' },
-      { id:null, fifa_match_number:24, name:'Uzbekistán vs Colombia', starts_at:'2026-06-18T02:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'1', venue_name:'Estadio Azteca', venue_city:'Ciudad de México' },
-      { id:null, fifa_match_number:25, name:'Chequia vs Sudáfrica', starts_at:'2026-06-18T16:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'2', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
-      { id:null, fifa_match_number:26, name:'Suiza vs Bosnia y Herzegovina', starts_at:'2026-06-18T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'2', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
-      { id:null, fifa_match_number:27, name:'Canadá vs Qatar', starts_at:'2026-06-18T22:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'2', venue_name:'BC Place', venue_city:'Vancouver' },
-      { id:null, fifa_match_number:28, name:'México vs Corea del Sur', starts_at:'2026-06-19T01:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'2', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
-      { id:null, fifa_match_number:29, name:'Estados Unidos vs Australia', starts_at:'2026-06-19T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'2', venue_name:'Lumen Field', venue_city:'Seattle' },
-      { id:null, fifa_match_number:30, name:'Escocia vs Marruecos', starts_at:'2026-06-19T22:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'2', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
-      { id:null, fifa_match_number:31, name:'Brasil vs Haití', starts_at:'2026-06-20T00:30:00+00', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'2', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
-      { id:null, fifa_match_number:32, name:'Turquía vs Paraguay', starts_at:'2026-06-20T03:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'2', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
-      { id:null, fifa_match_number:33, name:'Países Bajos vs Suecia', starts_at:'2026-06-20T17:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'3', venue_name:'NRG Stadium', venue_city:'Houston' },
-      { id:null, fifa_match_number:34, name:'Alemania vs Costa de Marfil', starts_at:'2026-06-20T20:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'2', venue_name:'BMO Field', venue_city:'Toronto' },
-      { id:null, fifa_match_number:35, name:'Ecuador vs Curazao', starts_at:'2026-06-21T00:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'2', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' },
-      { id:null, fifa_match_number:36, name:'Túnez vs Japón', starts_at:'2026-06-21T04:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'3', venue_name:'Estadio BBVA', venue_city:'Guadalupe' },
-      { id:null, fifa_match_number:37, name:'España vs Arabia Saudita', starts_at:'2026-06-21T16:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'2', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
-      { id:null, fifa_match_number:38, name:'Bélgica vs Irán', starts_at:'2026-06-21T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'2', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
-      { id:null, fifa_match_number:39, name:'Uruguay vs Cabo Verde', starts_at:'2026-06-21T22:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'2', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
-      { id:null, fifa_match_number:40, name:'Nueva Zelanda vs Egipto', starts_at:'2026-06-22T01:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'2', venue_name:'BC Place', venue_city:'Vancouver' },
-      { id:null, fifa_match_number:41, name:'Argentina vs Austria', starts_at:'2026-06-22T17:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'2', venue_name:'AT&T Stadium', venue_city:'Arlington' },
-      { id:null, fifa_match_number:42, name:'Francia vs Irak', starts_at:'2026-06-22T21:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'3', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
-      { id:null, fifa_match_number:43, name:'Noruega vs Senegal', starts_at:'2026-06-23T00:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'3', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
-      { id:null, fifa_match_number:44, name:'Jordania vs Argelia', starts_at:'2026-06-23T03:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'2', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
-      { id:null, fifa_match_number:45, name:'Portugal vs Uzbekistán', starts_at:'2026-06-23T17:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'2', venue_name:'NRG Stadium', venue_city:'Houston' },
-      { id:null, fifa_match_number:46, name:'Inglaterra vs Ghana', starts_at:'2026-06-23T20:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'2', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
-      { id:null, fifa_match_number:47, name:'Panamá vs Croacia', starts_at:'2026-06-23T23:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'2', venue_name:'BMO Field', venue_city:'Toronto' },
-      { id:null, fifa_match_number:48, name:'Colombia vs RD Congo', starts_at:'2026-06-24T02:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'2', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
-      { id:null, fifa_match_number:49, name:'Suiza vs Canadá', starts_at:'2026-06-24T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'3', venue_name:'BC Place', venue_city:'Vancouver' },
-      { id:null, fifa_match_number:50, name:'Bosnia y Herzegovina vs Qatar', starts_at:'2026-06-24T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'3', venue_name:'Lumen Field', venue_city:'Seattle' },
-      { id:null, fifa_match_number:51, name:'Escocia vs Brasil', starts_at:'2026-06-24T22:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'3', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
-      { id:null, fifa_match_number:52, name:'Marruecos vs Haití', starts_at:'2026-06-24T22:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'3', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
-      { id:null, fifa_match_number:53, name:'Chequia vs México', starts_at:'2026-06-25T01:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'3', venue_name:'Estadio Azteca', venue_city:'Ciudad de México' },
-      { id:null, fifa_match_number:54, name:'Sudáfrica vs Corea del Sur', starts_at:'2026-06-25T01:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'3', venue_name:'Estadio BBVA', venue_city:'Guadalupe' },
-      { id:null, fifa_match_number:55, name:'Ecuador vs Alemania', starts_at:'2026-06-25T20:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'3', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
-      { id:null, fifa_match_number:56, name:'Curazao vs Costa de Marfil', starts_at:'2026-06-25T20:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'3', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
-      { id:null, fifa_match_number:57, name:'Túnez vs Países Bajos', starts_at:'2026-06-25T23:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'2', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' },
-      { id:null, fifa_match_number:58, name:'Japón vs Suecia', starts_at:'2026-06-25T23:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'2', venue_name:'AT&T Stadium', venue_city:'Arlington' },
-      { id:null, fifa_match_number:59, name:'Turquía vs Estados Unidos', starts_at:'2026-06-26T02:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'3', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
-      { id:null, fifa_match_number:60, name:'Paraguay vs Australia', starts_at:'2026-06-26T02:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'3', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
-      { id:null, fifa_match_number:61, name:'Noruega vs Francia', starts_at:'2026-06-26T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'2', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
-      { id:null, fifa_match_number:62, name:'Senegal vs Irak', starts_at:'2026-06-26T19:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'2', venue_name:'BMO Field', venue_city:'Toronto' },
-      { id:null, fifa_match_number:63, name:'Uruguay vs España', starts_at:'2026-06-27T00:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'3', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
-      { id:null, fifa_match_number:64, name:'Cabo Verde vs Arabia Saudita', starts_at:'2026-06-27T00:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'3', venue_name:'NRG Stadium', venue_city:'Houston' },
-      { id:null, fifa_match_number:65, name:'Nueva Zelanda vs Bélgica', starts_at:'2026-06-27T03:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'3', venue_name:'BC Place', venue_city:'Vancouver' },
-      { id:null, fifa_match_number:66, name:'Egipto vs Irán', starts_at:'2026-06-27T03:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'3', venue_name:'Lumen Field', venue_city:'Seattle' },
-      { id:null, fifa_match_number:67, name:'Panamá vs Inglaterra', starts_at:'2026-06-27T21:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'3', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
-      { id:null, fifa_match_number:68, name:'Croacia vs Ghana', starts_at:'2026-06-27T21:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'3', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
-      { id:null, fifa_match_number:69, name:'Colombia vs Portugal', starts_at:'2026-06-27T23:30:00+00', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'3', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
-      { id:null, fifa_match_number:70, name:'RD Congo vs Uzbekistán', starts_at:'2026-06-27T23:30:00+00', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'3', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
-      { id:null, fifa_match_number:71, name:'Jordania vs Argentina', starts_at:'2026-06-28T03:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'3', venue_name:'AT&T Stadium', venue_city:'Arlington' },
-      { id:null, fifa_match_number:72, name:'Argelia vs Austria', starts_at:'2026-06-28T03:00:00+00', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'3', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' }
+      { id:null, fifa_match_number:1, name:'México vs Sudáfrica', starts_at:'2026-06-11T19:00:00Z', event_status:'FINISHED', group_code:'GROUP_A', matchday:'1', venue_name:'Estadio Azteca', venue_city:'Ciudad de México' },
+      { id:null, fifa_match_number:2, name:'Corea del Sur vs Chequia', starts_at:'2026-06-12T02:00:00Z', event_status:'FINISHED', group_code:'GROUP_A', matchday:'1', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
+      { id:null, fifa_match_number:3, name:'Canadá vs Bosnia y Herzegovina', starts_at:'2026-06-12T19:00:00Z', event_status:'FINISHED', group_code:'GROUP_B', matchday:'1', venue_name:'BMO Field', venue_city:'Toronto' },
+      { id:null, fifa_match_number:4, name:'Estados Unidos vs Paraguay', starts_at:'2026-06-13T01:00:00Z', event_status:'FINISHED', group_code:'GROUP_D', matchday:'1', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
+      { id:null, fifa_match_number:5, name:'Qatar vs Suiza', starts_at:'2026-06-13T19:00:00Z', event_status:'FINISHED', group_code:'GROUP_B', matchday:'1', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
+      { id:null, fifa_match_number:6, name:'Brasil vs Marruecos', starts_at:'2026-06-13T22:00:00Z', event_status:'FINISHED', group_code:'GROUP_C', matchday:'1', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
+      { id:null, fifa_match_number:7, name:'Haití vs Escocia', starts_at:'2026-06-14T01:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'1', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
+      { id:null, fifa_match_number:8, name:'Australia vs Turquía', starts_at:'2026-06-14T04:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'1', venue_name:'BC Place', venue_city:'Vancouver' },
+      { id:null, fifa_match_number:9, name:'Alemania vs Curazao', starts_at:'2026-06-14T17:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'1', venue_name:'NRG Stadium', venue_city:'Houston' },
+      { id:null, fifa_match_number:10, name:'Países Bajos vs Japón', starts_at:'2026-06-14T20:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'1', venue_name:'AT&T Stadium', venue_city:'Arlington' },
+      { id:null, fifa_match_number:11, name:'Costa de Marfil vs Ecuador', starts_at:'2026-06-14T23:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'1', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
+      { id:null, fifa_match_number:12, name:'Suecia vs Túnez', starts_at:'2026-06-15T02:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'1', venue_name:'Estadio BBVA', venue_city:'Guadalupe' },
+      { id:null, fifa_match_number:13, name:'España vs Cabo Verde', starts_at:'2026-06-15T16:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'1', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
+      { id:null, fifa_match_number:14, name:'Bélgica vs Egipto', starts_at:'2026-06-15T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'1', venue_name:'Lumen Field', venue_city:'Seattle' },
+      { id:null, fifa_match_number:15, name:'Arabia Saudita vs Uruguay', starts_at:'2026-06-15T22:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'1', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
+      { id:null, fifa_match_number:16, name:'Irán vs Nueva Zelanda', starts_at:'2026-06-16T01:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'1', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
+      { id:null, fifa_match_number:17, name:'Francia vs Senegal', starts_at:'2026-06-16T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'1', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
+      { id:null, fifa_match_number:18, name:'Irak vs Noruega', starts_at:'2026-06-16T22:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'1', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
+      { id:null, fifa_match_number:19, name:'Argentina vs Argelia', starts_at:'2026-06-17T01:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'1', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' },
+      { id:null, fifa_match_number:20, name:'Austria vs Jordania', starts_at:'2026-06-17T04:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'1', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
+      { id:null, fifa_match_number:21, name:'Portugal vs RD Congo', starts_at:'2026-06-17T17:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'1', venue_name:'NRG Stadium', venue_city:'Houston' },
+      { id:null, fifa_match_number:22, name:'Inglaterra vs Croacia', starts_at:'2026-06-17T20:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'1', venue_name:'AT&T Stadium', venue_city:'Arlington' },
+      { id:null, fifa_match_number:23, name:'Ghana vs Panamá', starts_at:'2026-06-17T23:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'1', venue_name:'BMO Field', venue_city:'Toronto' },
+      { id:null, fifa_match_number:24, name:'Uzbekistán vs Colombia', starts_at:'2026-06-18T02:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'1', venue_name:'Estadio Azteca', venue_city:'Ciudad de México' },
+      { id:null, fifa_match_number:25, name:'Chequia vs Sudáfrica', starts_at:'2026-06-18T16:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'2', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
+      { id:null, fifa_match_number:26, name:'Suiza vs Bosnia y Herzegovina', starts_at:'2026-06-18T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'2', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
+      { id:null, fifa_match_number:27, name:'Canadá vs Qatar', starts_at:'2026-06-18T22:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'2', venue_name:'BC Place', venue_city:'Vancouver' },
+      { id:null, fifa_match_number:28, name:'México vs Corea del Sur', starts_at:'2026-06-19T01:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'2', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
+      { id:null, fifa_match_number:29, name:'Estados Unidos vs Australia', starts_at:'2026-06-19T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'2', venue_name:'Lumen Field', venue_city:'Seattle' },
+      { id:null, fifa_match_number:30, name:'Escocia vs Marruecos', starts_at:'2026-06-19T22:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'2', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
+      { id:null, fifa_match_number:31, name:'Brasil vs Haití', starts_at:'2026-06-20T00:30:00Z', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'2', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
+      { id:null, fifa_match_number:32, name:'Turquía vs Paraguay', starts_at:'2026-06-20T03:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'2', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
+      { id:null, fifa_match_number:33, name:'Países Bajos vs Suecia', starts_at:'2026-06-20T17:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'3', venue_name:'NRG Stadium', venue_city:'Houston' },
+      { id:null, fifa_match_number:34, name:'Alemania vs Costa de Marfil', starts_at:'2026-06-20T20:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'2', venue_name:'BMO Field', venue_city:'Toronto' },
+      { id:null, fifa_match_number:35, name:'Ecuador vs Curazao', starts_at:'2026-06-21T00:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'2', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' },
+      { id:null, fifa_match_number:36, name:'Túnez vs Japón', starts_at:'2026-06-21T04:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'3', venue_name:'Estadio BBVA', venue_city:'Guadalupe' },
+      { id:null, fifa_match_number:37, name:'España vs Arabia Saudita', starts_at:'2026-06-21T16:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'2', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
+      { id:null, fifa_match_number:38, name:'Bélgica vs Irán', starts_at:'2026-06-21T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'2', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
+      { id:null, fifa_match_number:39, name:'Uruguay vs Cabo Verde', starts_at:'2026-06-21T22:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'2', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
+      { id:null, fifa_match_number:40, name:'Nueva Zelanda vs Egipto', starts_at:'2026-06-22T01:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'2', venue_name:'BC Place', venue_city:'Vancouver' },
+      { id:null, fifa_match_number:41, name:'Argentina vs Austria', starts_at:'2026-06-22T17:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'2', venue_name:'AT&T Stadium', venue_city:'Arlington' },
+      { id:null, fifa_match_number:42, name:'Francia vs Irak', starts_at:'2026-06-22T21:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'3', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
+      { id:null, fifa_match_number:43, name:'Noruega vs Senegal', starts_at:'2026-06-23T00:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'3', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
+      { id:null, fifa_match_number:44, name:'Jordania vs Argelia', starts_at:'2026-06-23T03:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'2', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
+      { id:null, fifa_match_number:45, name:'Portugal vs Uzbekistán', starts_at:'2026-06-23T17:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'2', venue_name:'NRG Stadium', venue_city:'Houston' },
+      { id:null, fifa_match_number:46, name:'Inglaterra vs Ghana', starts_at:'2026-06-23T20:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'2', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
+      { id:null, fifa_match_number:47, name:'Panamá vs Croacia', starts_at:'2026-06-23T23:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'2', venue_name:'BMO Field', venue_city:'Toronto' },
+      { id:null, fifa_match_number:48, name:'Colombia vs RD Congo', starts_at:'2026-06-24T02:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'2', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
+      { id:null, fifa_match_number:49, name:'Suiza vs Canadá', starts_at:'2026-06-24T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'3', venue_name:'BC Place', venue_city:'Vancouver' },
+      { id:null, fifa_match_number:50, name:'Bosnia y Herzegovina vs Qatar', starts_at:'2026-06-24T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_B', matchday:'3', venue_name:'Lumen Field', venue_city:'Seattle' },
+      { id:null, fifa_match_number:51, name:'Escocia vs Brasil', starts_at:'2026-06-24T22:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'3', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
+      { id:null, fifa_match_number:52, name:'Marruecos vs Haití', starts_at:'2026-06-24T22:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_C', matchday:'3', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
+      { id:null, fifa_match_number:53, name:'Chequia vs México', starts_at:'2026-06-25T01:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'3', venue_name:'Estadio Azteca', venue_city:'Ciudad de México' },
+      { id:null, fifa_match_number:54, name:'Sudáfrica vs Corea del Sur', starts_at:'2026-06-25T01:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_A', matchday:'3', venue_name:'Estadio BBVA', venue_city:'Guadalupe' },
+      { id:null, fifa_match_number:55, name:'Ecuador vs Alemania', starts_at:'2026-06-25T20:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'3', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
+      { id:null, fifa_match_number:56, name:'Curazao vs Costa de Marfil', starts_at:'2026-06-25T20:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_E', matchday:'3', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
+      { id:null, fifa_match_number:57, name:'Túnez vs Países Bajos', starts_at:'2026-06-25T23:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'2', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' },
+      { id:null, fifa_match_number:58, name:'Japón vs Suecia', starts_at:'2026-06-25T23:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_F', matchday:'2', venue_name:'AT&T Stadium', venue_city:'Arlington' },
+      { id:null, fifa_match_number:59, name:'Turquía vs Estados Unidos', starts_at:'2026-06-26T02:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'3', venue_name:'SoFi Stadium', venue_city:'Inglewood' },
+      { id:null, fifa_match_number:60, name:'Paraguay vs Australia', starts_at:'2026-06-26T02:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_D', matchday:'3', venue_name:"Levi's Stadium", venue_city:'Santa Clara' },
+      { id:null, fifa_match_number:61, name:'Noruega vs Francia', starts_at:'2026-06-26T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'2', venue_name:'Gillette Stadium', venue_city:'Foxborough' },
+      { id:null, fifa_match_number:62, name:'Senegal vs Irak', starts_at:'2026-06-26T19:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_I', matchday:'2', venue_name:'BMO Field', venue_city:'Toronto' },
+      { id:null, fifa_match_number:63, name:'Uruguay vs España', starts_at:'2026-06-27T00:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'3', venue_name:'Estadio Akron', venue_city:'Guadalajara' },
+      { id:null, fifa_match_number:64, name:'Cabo Verde vs Arabia Saudita', starts_at:'2026-06-27T00:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_H', matchday:'3', venue_name:'NRG Stadium', venue_city:'Houston' },
+      { id:null, fifa_match_number:65, name:'Nueva Zelanda vs Bélgica', starts_at:'2026-06-27T03:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'3', venue_name:'BC Place', venue_city:'Vancouver' },
+      { id:null, fifa_match_number:66, name:'Egipto vs Irán', starts_at:'2026-06-27T03:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_G', matchday:'3', venue_name:'Lumen Field', venue_city:'Seattle' },
+      { id:null, fifa_match_number:67, name:'Panamá vs Inglaterra', starts_at:'2026-06-27T21:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'3', venue_name:'MetLife Stadium', venue_city:'East Rutherford' },
+      { id:null, fifa_match_number:68, name:'Croacia vs Ghana', starts_at:'2026-06-27T21:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_L', matchday:'3', venue_name:'Lincoln Financial Field', venue_city:'Philadelphia' },
+      { id:null, fifa_match_number:69, name:'Colombia vs Portugal', starts_at:'2026-06-27T23:30:00Z', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'3', venue_name:'Hard Rock Stadium', venue_city:'Miami Gardens' },
+      { id:null, fifa_match_number:70, name:'RD Congo vs Uzbekistán', starts_at:'2026-06-27T23:30:00Z', event_status:'SCHEDULED', group_code:'GROUP_K', matchday:'3', venue_name:'Mercedes-Benz Stadium', venue_city:'Atlanta' },
+      { id:null, fifa_match_number:71, name:'Jordania vs Argentina', starts_at:'2026-06-28T03:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'3', venue_name:'AT&T Stadium', venue_city:'Arlington' },
+      { id:null, fifa_match_number:72, name:'Argelia vs Austria', starts_at:'2026-06-28T03:00:00Z', event_status:'SCHEDULED', group_code:'GROUP_J', matchday:'3', venue_name:'Arrowhead Stadium', venue_city:'Kansas City' }
     ];
 
     const CERTIFIED_MATCH_BY_ID = Object.fromEntries(CERTIFIED_MATCH_FALLBACKS.filter((match) => match.id).map((match) => [match.id, match]));
@@ -947,6 +947,18 @@
     document.addEventListener('DOMContentLoaded', initHome);
     window.setTimeout(hideBootSplash, 2600);
 
+
+
+    function parseUtcDate(value) {
+      if (value instanceof Date) return value;
+      const raw = String(value || '').trim();
+      if (!raw) return new Date(NaN);
+      const normalized = raw
+        .replace(/\+00$/, 'Z')
+        .replace(/\+0000$/, 'Z')
+        .replace(/\+00:00$/, 'Z');
+      return new Date(normalized);
+    }
 
     function scheduleLocalMidnightRollover() {
       const now = new Date();
@@ -1332,7 +1344,7 @@
         id: safeId,
         name,
         starts_at: startsAt,
-        startsAtDate: new Date(startsAt),
+        startsAtDate: parseUtcDate(startsAt),
         event_status: firstValue(row, ['event_status','status','match_status']) || 'SCHEDULED',
         homeLabel,
         awayLabel,
@@ -1535,6 +1547,7 @@
     
     
     
+    
     function renderTomorrowList() {
       const list = $('tomorrowList');
       if (!list) return;
@@ -1556,6 +1569,7 @@
         </a>
       `).join('');
     }
+
 
 
 
@@ -1711,6 +1725,7 @@
     
     
     
+    
     async function forceTomorrowSlateCard() {
       try {
         renderTomorrowList();
@@ -1718,6 +1733,7 @@
         console.warn('[PREDIKT_FORCE_TOMORROW_SAFE_WARNING]', error);
       }
     }
+
 
 
 
@@ -1789,6 +1805,7 @@
     
     
     
+    
     function getTomorrowEvents() {
       const now = new Date();
       const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 1, 0, 0);
@@ -1796,7 +1813,7 @@
 
       const makeEvent = (match) => {
         const teams = splitMatchName(match.name);
-        const startsAtDate = new Date(match.starts_at);
+        const startsAtDate = parseUtcDate(match.starts_at);
         return {
           id: match.id || `fifa-${match.fifa_match_number || match.name}`,
           name: match.name,
@@ -1816,6 +1833,7 @@
         .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
+
 
 
 
