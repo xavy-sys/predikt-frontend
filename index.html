@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.3.1_RECENT_RESULT_RPC_RENDER_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.3.2_REMOVE_OLD_RESULT_OVERRIDE_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -823,7 +823,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.1_RECENT_RESULT_RPC_RENDER_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.2_REMOVE_OLD_RESULT_OVERRIDE_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -1205,6 +1205,7 @@
     
     
     
+    
     async function loadRecentOfficialResults() {
       try {
         const { data, error } = await supabaseClient
@@ -1220,22 +1221,25 @@
           return;
         }
 
+        const eventName = row.event_name || '';
+        const teams = splitMatchName(eventName);
+
         const event = {
           id: row.event_id,
-          name: row.event_name,
+          name: eventName,
+          matchLabel: eventName,
           startsAtDate: parseUtcDate(row.starts_at || row.finalized_at || row.created_at),
           groupCode: row.group_code || 'GROUP',
           venueName: row.venue_name || '',
           venueCity: row.venue_city || '',
-          homeLabel: cleanTeamName(splitMatchName(row.event_name || '').home || ''),
-          awayLabel: cleanTeamName(splitMatchName(row.event_name || '').away || ''),
-          matchLabel: row.event_name || ''
+          homeLabel: cleanTeamName(teams.home || ''),
+          awayLabel: cleanTeamName(teams.away || '')
         };
 
         state.officialResults = [{
           id: row.id,
           event_id: row.event_id,
-          event_name: row.event_name,
+          event_name: eventName,
           official_home_score: row.official_home_score,
           official_away_score: row.official_away_score,
           official_winner: row.official_winner,
@@ -1254,6 +1258,7 @@
         state.recentResultEvent = findMostRecentFinishedEvent();
       }
     }
+
 
 
 
@@ -1529,21 +1534,14 @@
     
     
     
+    
     function renderRecentResult() {
       const result = Array.isArray(state.officialResults) ? state.officialResults[0] : null;
 
       if (!result) {
-        const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
-        if (!recentEvent) {
-          $('recentScore').textContent = 'Sin resultado oficial';
-          $('recentMeta').textContent = 'Cuando termine un partido aparecerá aquí.';
-          $('recentBadge').textContent = 'Oficial';
-          return;
-        }
-
-        $('recentScore').textContent = shortMatchLabel(recentEvent);
-        $('recentMeta').textContent = `${labelGroup(recentEvent.groupCode)} · ${timeAgo(recentEvent.startsAtDate)} · marcador pendiente`;
-        $('recentBadge').textContent = 'Finalizado';
+        $('recentScore').textContent = 'Sin resultado oficial';
+        $('recentMeta').textContent = 'Cuando termine un partido aparecerá aquí.';
+        $('recentBadge').textContent = 'Oficial';
         return;
       }
 
@@ -1556,11 +1554,9 @@
 
       let displayScore = eventName || 'Resultado oficial';
       if (Number.isFinite(homeScore) && Number.isFinite(awayScore)) {
-        if (awayScore > homeScore) {
-          displayScore = `${awayName} ${awayScore}-${homeScore} ${homeName}`;
-        } else {
-          displayScore = `${homeName} ${homeScore}-${awayScore} ${awayName}`;
-        }
+        displayScore = awayScore > homeScore
+          ? `${awayName} ${awayScore}-${homeScore} ${homeName}`
+          : `${homeName} ${homeScore}-${awayScore} ${awayName}`;
       }
 
       const group = labelGroup(result.group_code || result.event?.groupCode || 'GROUP');
@@ -1571,43 +1567,9 @@
       $('recentBadge').textContent = '✅ Oficial';
     }
 
-
-
-
-
-    const CERTIFIED_EVENT_OVERRIDES = {
-      'ed8ef7f1-1562-496d-a93f-f2118318665b': {
-        id: 'ed8ef7f1-1562-496d-a93f-f2118318665b',
-        name: 'Haití vs Escocia',
-        groupCode: 'GROUP_C',
-        venueName: 'Gillette Stadium',
-        venueCity: 'Foxborough'
-      },
-      'b38155b7-26f6-4a99-a054-d1bf3ef4bc5b': {
-        id: 'b38155b7-26f6-4a99-a054-d1bf3ef4bc5b',
-        name: 'Brasil vs Marruecos',
-        groupCode: 'GROUP_C',
-        venueName: 'MetLife Stadium',
-        venueCity: 'East Rutherford'
-      },
-      '4ae68e89-a147-4877-95cf-4b4600eeadad': {
-        id: '4ae68e89-a147-4877-95cf-4b4600eeadad',
-        name: 'Qatar vs Suiza',
-        groupCode: 'GROUP_B',
-        venueName: "Levi's Stadium",
-        venueCity: 'Santa Clara'
-      },
-      '1f0f6f92-578e-4b43-a16a-409d058fa817': {
-        id: '1f0f6f92-578e-4b43-a16a-409d058fa817',
-        name: 'Estados Unidos vs Paraguay',
-        groupCode: 'GROUP_D',
-        venueName: 'SoFi Stadium',
-        venueCity: 'Inglewood'
-      }
-    };
-
+    
     function buildResultDisplay(result, event) {
-      const eventName = event?.name || '';
+      const eventName = result?.event_name || event?.name || event?.matchLabel || '';
       const teams = splitMatchName(eventName);
       const homeName = cleanTeamName(teams.home || 'Local');
       const awayName = cleanTeamName(teams.away || 'Visitante');
@@ -1621,47 +1583,17 @@
       return eventName || 'Resultado oficial';
     }
 
+
+    
     async function forceLatestOfficialResultCard() {
       try {
-        const { data: rows, error } = await supabaseClient
-          .schema('predictions')
-          .from('official_results')
-          .select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at')
-          .order('finalized_at', { ascending: false, nullsFirst: false })
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (error || !rows || !rows.length) return;
-
-        const result = rows[0];
-        let event = null;
-
-        const { data: eventRow } = await supabaseClient
-          .schema('sports')
-          .from('events')
-          .select('id,name,starts_at,event_status,metadata')
-          .eq('id', result.event_id)
-          .maybeSingle();
-
-        if (eventRow) {
-          event = normalizeEvent(eventRow);
-        }
-
-        if (!event && CERTIFIED_EVENT_OVERRIDES[String(result.event_id)]) {
-          event = CERTIFIED_EVENT_OVERRIDES[String(result.event_id)];
-        }
-
-        const score = buildResultDisplay(result, event);
-        const groupCode = event?.groupCode || event?.metadata?.group_code || 'GROUP_C';
-        const venue = event?.venueName || event?.metadata?.venue_name || '';
-
-        $('recentScore').textContent = score;
-        $('recentMeta').textContent = `${labelGroup(groupCode)}${venue ? ' · ' + venue : ''} · ${timeAgo(result.finalized_at || result.created_at)}`;
-        $('recentBadge').textContent = '✅ Oficial';
+        await loadRecentOfficialResults();
+        renderRecentResult();
       } catch (error) {
-        console.warn('[PREDIKT_FORCE_RECENT_RESULT_WARNING]', error);
+        console.warn('[PREDIKT_FORCE_RECENT_RESULT_RPC_RENDER_WARNING]', error);
       }
     }
+
 
     
     
