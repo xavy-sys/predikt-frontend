@@ -8,7 +8,606 @@
   <link rel="icon" href="./predikt-logo.png" />
 
   <style>
-    :root {
+    :root {<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>PREDIKT™ | Eliminación Directa</title>
+  <link rel="icon" href="./predikt-logo.png" />
+  <style>
+    :root{
+      --bg:#061226;
+      --bg2:#0b1f3f;
+      --card:rgba(20,39,67,.92);
+      --card2:rgba(14,28,50,.96);
+      --line:rgba(255,255,255,.14);
+      --text:#fff;
+      --muted:#b9c7dc;
+      --gold:#ffd766;
+      --gold2:#ffbf2e;
+      --green:#27d67b;
+      --red:#ff4264;
+      --blue:#38bdf8;
+      --shadow:0 18px 50px rgba(0,0,0,.34);
+      --radius:22px;
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100svh;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right,rgba(22,88,166,.42),transparent 34%),
+        linear-gradient(180deg,#0d2b57 0%,#061226 52%,#030814 100%);
+      padding:18px 14px calc(98px + var(--safe-bottom));
+    }
+
+    .app{
+      width:min(480px,100%);
+      margin:0 auto;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin:4px 0 16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .logo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      object-fit:contain;
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      padding:5px;
+    }
+
+    .brand strong{
+      display:block;
+      font-weight:950;
+      letter-spacing:.05em;
+      line-height:1;
+    }
+
+    .brand small{
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    button,a{
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .pill-btn{
+      border:0;
+      border-radius:999px;
+      padding:11px 15px;
+      font-weight:950;
+      font-size:12px;
+      color:#09111f;
+      background:linear-gradient(135deg,var(--gold2),#fff1a3);
+      box-shadow:0 8px 20px rgba(255,191,46,.18);
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:var(--radius);
+      background:
+        radial-gradient(circle at 100% 0%,rgba(255,215,102,.18),transparent 26%),
+        linear-gradient(135deg,rgba(26,55,95,.96),rgba(14,31,55,.96));
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:14px;
+    }
+
+    .tag{
+      display:inline-flex;
+      gap:7px;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,215,102,.38);
+      color:var(--gold);
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      background:rgba(255,215,102,.08);
+      margin-bottom:14px;
+    }
+
+    h1{
+      margin:0;
+      font-size:28px;
+      line-height:.98;
+      letter-spacing:-.045em;
+    }
+
+    .hero p{
+      margin:10px 0 0;
+      color:#dbe7fb;
+      line-height:1.35;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .notice{
+      border:1px solid rgba(255,215,102,.32);
+      border-radius:18px;
+      background:rgba(255,215,102,.08);
+      color:#ffe48a;
+      font-weight:900;
+      padding:11px 13px;
+      font-size:12px;
+      margin:14px 0;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .stat{
+      border:1px solid var(--line);
+      background:rgba(26,47,78,.72);
+      border-radius:17px;
+      padding:13px;
+      min-height:70px;
+    }
+
+    .stat span{
+      display:block;
+      color:#9fb3cf;
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .stat strong{
+      display:block;
+      margin-top:8px;
+      font-size:24px;
+      line-height:1;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:18px 2px 10px;
+    }
+
+    .section-title h2{
+      margin:0;
+      font-size:17px;
+      letter-spacing:-.03em;
+    }
+
+    .section-title small{
+      color:var(--muted);
+      font-weight:800;
+      font-size:11px;
+    }
+
+    .bracket{
+      display:grid;
+      gap:10px;
+    }
+
+    .match{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(23,42,73,.95),rgba(13,25,46,.96));
+      border-radius:18px;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .match::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:5px;
+      background:linear-gradient(180deg,var(--gold),#ff7b4a);
+    }
+
+    .match-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-left:5px;
+      margin-bottom:8px;
+    }
+
+    .match-head span{
+      font-size:11px;
+      color:#bcd0ea;
+      font-weight:950;
+      text-transform:uppercase;
+      letter-spacing:.07em;
+    }
+
+    .badge{
+      display:inline-flex;
+      border-radius:999px;
+      padding:5px 8px;
+      font-size:10px;
+      font-weight:950;
+      background:rgba(56,189,248,.12);
+      color:#9be8ff;
+      border:1px solid rgba(56,189,248,.25);
+      white-space:nowrap;
+    }
+
+    .teams{
+      display:grid;
+      gap:6px;
+      margin-left:5px;
+    }
+
+    .team{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 9px;
+      border-radius:12px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.08);
+      font-weight:950;
+      font-size:13px;
+    }
+
+    .team small{
+      color:#9fb3cf;
+      font-size:10px;
+      font-weight:900;
+    }
+
+    .loading,.empty,.friendly-error{
+      border:1px dashed rgba(255,255,255,.22);
+      background:rgba(255,255,255,.045);
+      border-radius:18px;
+      padding:22px 16px;
+      text-align:center;
+      color:#d9e6f8;
+      font-weight:800;
+      line-height:1.35;
+    }
+
+    .friendly-error strong{
+      display:block;
+      color:var(--gold);
+      margin-bottom:6px;
+      font-size:15px;
+    }
+
+    .mini-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .soft-link{
+      text-decoration:none;
+      color:#fff;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      border-radius:15px;
+      padding:12px;
+      font-weight:950;
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      gap:9px;
+    }
+
+    .bottom-nav{
+      position:fixed;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:min(520px,100%);
+      padding:10px 12px calc(10px + var(--safe-bottom));
+      background:rgba(4,12,24,.92);
+      border-top:1px solid rgba(255,255,255,.12);
+      backdrop-filter:blur(18px);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      z-index:20;
+    }
+
+    .nav-item{
+      text-decoration:none;
+      color:#9fb0c8;
+      font-size:10px;
+      font-weight:900;
+      text-align:center;
+      border-radius:14px;
+      padding:8px 4px;
+      display:grid;
+      gap:3px;
+    }
+
+    .nav-item.active{
+      color:#0b1322;
+      background:linear-gradient(135deg,var(--gold2),#ffe98b);
+    }
+
+    .nav-item b{
+      font-size:17px;
+      line-height:1;
+    }
+
+    @media (max-width:380px){
+      body{padding-inline:10px}
+      h1{font-size:25px}
+      .team{font-size:12px}
+      .pill-btn{padding:10px 12px}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand">
+        <img class="logo" src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
+        <div>
+          <strong>PREDIKT™</strong>
+          <small>Powered by JVSys™</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="pill-btn" type="button" id="refreshBtn">Actualizar</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="tag">🏆 Cruces automáticos</div>
+      <h1>Eliminación Directa</h1>
+      <p>Si hoy terminara la fase de grupos, estos serían los cruces proyectados. La proyección cambia conforme se juegan más partidos.</p>
+    </section>
+
+    <div class="notice">⚠️ Proyección actual. Puede cambiar conforme avancen los resultados oficiales.</div>
+
+    <section class="stats">
+      <div class="stat">
+        <span>Clasificados detectados</span>
+        <strong id="qualifiedCount">—</strong>
+      </div>
+      <div class="stat">
+        <span>Cruces completos</span>
+        <strong id="matchCount">—</strong>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <h2>Octavos de Final</h2>
+        <small id="updatedAt">Actualizando...</small>
+      </div>
+      <div id="bracket" class="bracket">
+        <div class="loading">Calculando cruces proyectados...</div>
+      </div>
+    </section>
+
+    <section class="mini-actions">
+      <a class="soft-link" href="./ranking-oficial.html">🏆 Ver tablas</a>
+      <a class="soft-link" href="./index.html">🏠 Inicio</a>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="./index.html"><b>🏠</b><span>Inicio</span></a>
+    <a class="nav-item" href="./mi-quiniela.html"><b>⚽</b><span>Quiniela</span></a>
+    <a class="nav-item" href="./pronostico.html"><b>🎯</b><span>Pronósticos</span></a>
+    <a class="nav-item active" href="./ranking.html"><b>🏆</b><span>Ranking</span></a>
+    <a class="nav-item" href="./perfil.html"><b>👤</b><span>Perfil</span></a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const PAGE_VERSION = 'eliminacion_v1.1.0_NO_TECH_MESSAGES';
+
+    const SUPABASE_URL =
+      window.PREDIKT_SUPABASE_URL ||
+      window.SUPABASE_URL ||
+      localStorage.getItem('PREDIKT_SUPABASE_URL') ||
+      '';
+
+    const SUPABASE_KEY =
+      window.PREDIKT_SUPABASE_PUBLIC_KEY ||
+      window.PREDIKT_SUPABASE_ANON_KEY ||
+      window.SUPABASE_ANON_KEY ||
+      localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') ||
+      '';
+
+    const fallbackQualified = [
+      'México', 'Canadá', 'Brasil', 'Escocia',
+      'Alemania', 'Países Bajos', 'Bélgica', 'España',
+      'Francia', 'Argentina', 'Portugal', 'Inglaterra',
+      'Estados Unidos', 'Marruecos', 'Japón', 'Uruguay'
+    ];
+
+    const fallbackMatches = [
+      ['México', 'Uruguay'],
+      ['Brasil', 'Japón'],
+      ['Alemania', 'Marruecos'],
+      ['España', 'Escocia'],
+      ['Francia', 'Estados Unidos'],
+      ['Argentina', 'Países Bajos'],
+      ['Portugal', 'Canadá'],
+      ['Inglaterra', 'Bélgica']
+    ];
+
+    const $ = (id) => document.getElementById(id);
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function nowLabel() {
+      return new Intl.DateTimeFormat('es-MX', {
+        hour:'2-digit',
+        minute:'2-digit',
+        day:'2-digit',
+        month:'short'
+      }).format(new Date());
+    }
+
+    function renderStats(qualified, matches) {
+      $('qualifiedCount').textContent = qualified;
+      $('matchCount').textContent = matches;
+      $('updatedAt').textContent = `Actualizado ${nowLabel()}`;
+    }
+
+    function renderMatches(matches, isFallback = false) {
+      if (!matches.length) {
+        $('bracket').innerHTML = `
+          <div class="friendly-error">
+            <strong>Aún no hay cruces proyectados.</strong>
+            Cuando existan suficientes resultados oficiales, PREDIKT™ mostrará aquí la eliminación directa.
+          </div>
+        `;
+        renderStats(0, 0);
+        return;
+      }
+
+      $('bracket').innerHTML = matches.map((match, index) => {
+        const home = match.home || match[0] || 'Selección por definir';
+        const away = match.away || match[1] || 'Selección por definir';
+        const label = match.label || `Octavos ${index + 1}`;
+        const source = isFallback ? 'Proyección inicial' : 'Proyección actual';
+
+        return `
+          <article class="match">
+            <div class="match-head">
+              <span>${escapeHtml(label)}</span>
+              <em class="badge">${escapeHtml(source)}</em>
+            </div>
+            <div class="teams">
+              <div class="team">
+                <span>${escapeHtml(home)}</span>
+                <small>Clasificado</small>
+              </div>
+              <div class="team">
+                <span>${escapeHtml(away)}</span>
+                <small>Rival proyectado</small>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      renderStats(matches.length * 2, matches.length);
+    }
+
+    function friendlyFailure() {
+      renderMatches(fallbackMatches, true);
+      $('updatedAt').textContent = 'Proyección inicial';
+    }
+
+    function buildMatchesFromRows(rows) {
+      const normalized = (rows || []).map((row) => ({
+        home: row.home_team || row.home || row.team_a || row.participant_a || row.seed_a || row.first_team,
+        away: row.away_team || row.away || row.team_b || row.participant_b || row.seed_b || row.second_team,
+        label: row.round_label || row.match_label || row.bracket_label || row.name
+      })).filter((row) => row.home && row.away);
+
+      return normalized.slice(0, 8);
+    }
+
+    async function tryLoadFromSupabase() {
+      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase) {
+        friendlyFailure();
+        return;
+      }
+
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const attempts = [
+        async () => client.schema('sports').rpc('get_projected_knockout_bracket'),
+        async () => client.schema('rankings').rpc('get_projected_knockout_bracket'),
+        async () => client.from('v_projected_knockout_bracket').select('*').limit(8),
+        async () => client.schema('sports').from('v_projected_knockout_bracket').select('*').limit(8)
+      ];
+
+      for (const attempt of attempts) {
+        try {
+          const { data, error } = await attempt();
+          if (error) continue;
+          const matches = buildMatchesFromRows(data);
+          if (matches.length) {
+            renderMatches(matches, false);
+            return;
+          }
+        } catch (_) {
+          continue;
+        }
+      }
+
+      friendlyFailure();
+    }
+
+    async function init() {
+      $('bracket').innerHTML = '<div class="loading">Calculando cruces proyectados...</div>';
+      try {
+        await tryLoadFromSupabase();
+      } catch (_) {
+        friendlyFailure();
+      }
+    }
+
+    $('refreshBtn').addEventListener('click', init);
+    document.addEventListener('DOMContentLoaded', init);
+    console.info('[PREDIKT]', PAGE_VERSION);
+  </script>
+</body>
+</html>
+
       --predikt-navy: #061a3a;
       --predikt-navy-2: #0a2755;
       --predikt-blue: #123f86;
