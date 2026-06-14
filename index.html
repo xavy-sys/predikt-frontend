@@ -1002,6 +1002,15 @@
           name: 'events',
           query: (q) => q
             .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
+            .gte('starts_at', min.toISOString())
+            .lt('starts_at', max.toISOString())
+            .order('starts_at', { ascending: true })
+            .limit(160)
+        },
+        {
+          name: 'events',
+          query: (q) => q
+            .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
             .eq('event_type','MATCH')
             .gte('starts_at', min.toISOString())
             .lt('starts_at', max.toISOString())
