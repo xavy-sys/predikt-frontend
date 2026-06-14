@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME-R1_RETENTION_ENGINE_v1.0.2 -->
+  <!-- version: index_HOME-R1_RETENTION_ENGINE_v1.0.3 -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -667,7 +667,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME-R1_RETENTION_ENGINE_v1.0.2';
+    const HOME_BUILD_VERSION = 'index_HOME-R1_RETENTION_ENGINE_v1.0.3';
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - retention engine hotfix');
 
     let supabaseClient = null;
@@ -700,6 +700,7 @@
       events: [],
       predictions: new Map(),
       officialResults: [],
+      recentResultEvent: null,
       heroEvent: null,
       ticker: null
     };
@@ -953,6 +954,19 @@
       }
 
       state.officialResults = data || [];
+      if (!state.officialResults.length) {
+        state.recentResultEvent = findMostRecentFinishedEvent();
+      }
+    }
+
+    function findMostRecentFinishedEvent() {
+      const now = new Date();
+      return state.events
+        .filter((event) => {
+          const status = getCountdownStatus(event, now);
+          return status.key === 'final' || String(event.event_status || '').toUpperCase().includes('FINISH') || String(event.event_status || '').toUpperCase().includes('FINAL');
+        })
+        .sort((a, b) => b.startsAtDate - a.startsAtDate)[0] || null;
     }
 
     function normalizeEvent(row) {
@@ -1153,19 +1167,28 @@
 
     function renderRecentResult() {
       const result = state.officialResults[0];
-      if (!result) return;
 
-      const event = result.events || {};
-      const home = event.home?.short_name || event.home?.name || 'Local';
-      const away = event.away?.short_name || event.away?.name || 'Visitante';
-      const homeFlag = event.home?.flag_emoji ? ` ${event.home.flag_emoji}` : '';
-      const awayFlag = event.away?.flag_emoji ? ` ${event.away.flag_emoji}` : '';
-      const group = labelGroup(event.metadata?.group_code || 'Grupo');
-      const finalized = result.finalized_at || result.created_at;
+      if (result) {
+        const event = result.events || {};
+        const home = event.home?.short_name || event.home?.name || 'Local';
+        const away = event.away?.short_name || event.away?.name || 'Visitante';
+        const homeFlag = event.home?.flag_emoji ? ` ${event.home.flag_emoji}` : '';
+        const awayFlag = event.away?.flag_emoji ? ` ${event.away.flag_emoji}` : '';
+        const group = labelGroup(event.metadata?.group_code || 'Grupo');
+        const finalized = result.finalized_at || result.created_at;
 
-      $('recentScore').textContent = `${home}${homeFlag} ${result.home_score}-${result.away_score} ${away}${awayFlag}`;
-      $('recentMeta').textContent = `${group} · ${timeAgo(finalized)}`;
-      $('recentBadge').textContent = '✅ Oficial';
+        $('recentScore').textContent = `${home}${homeFlag} ${result.home_score}-${result.away_score} ${away}${awayFlag}`;
+        $('recentMeta').textContent = `${group} · ${timeAgo(finalized)}`;
+        $('recentBadge').textContent = '✅ Oficial';
+        return;
+      }
+
+      const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
+      if (!recentEvent) return;
+
+      $('recentScore').textContent = shortMatchLabel(recentEvent);
+      $('recentMeta').textContent = `${labelGroup(recentEvent.groupCode)} · ${timeAgo(recentEvent.startsAtDate)} · marcador pendiente`;
+      $('recentBadge').textContent = 'Finalizado';
     }
 
     function startCountdownEngine() {
