@@ -1,10 +1,9 @@
 <!--
   Archivo: eliminacion.html
-  Versión: v2.2.0_DOBLE_VISTA_CUARTOS_Y_MAPA
+  Versión: v2.2.1_FIX_BOTONES_DOBLE_VISTA
   Motivo de la nueva versión:
-  Corrige la experiencia visual dividiendo la eliminación en dos vistas:
-  1) Camino proyectado hasta cuartos de final sin scroll horizontal.
-  2) Mapa completo PREDIKT™ para percepción global del torneo.
+  Corrige la activación de los botones Hasta cuartos y Mapa completo.
+  Mantiene la doble vista visual: camino a cuartos y mapa completo PREDIKT™.
 -->
 <!DOCTYPE html>
 <html lang="es">
@@ -744,7 +743,6 @@
       const tabFull = document.getElementById('tabFull');
       const quartersView = document.getElementById('quartersView');
       const bracketScroll = document.getElementById('bracketScroll');
-      const quartersView = document.getElementById('quartersView');
       const mobileList = document.getElementById('mobileList');
       const mapHint = document.getElementById('mapHint');
 
@@ -773,7 +771,6 @@
 
     function renderProjectedBracket(matches) {
       const bracketScroll = document.getElementById('bracketScroll');
-      const quartersView = document.getElementById('quartersView');
       const mobileList = document.getElementById('mobileList');
       const emptyState = document.getElementById('emptyState');
       const matchCount = document.getElementById('matchCount');
@@ -851,7 +848,7 @@
 </html>
 <!--
   Fin del archivo: eliminacion.html
-  Versión: v2.2.0_DOBLE_VISTA_CUARTOS_Y_MAPA
-  Motivo: Mecánica visual tipo bracket FIFA para mostrar cómo quedaría la eliminación en este momento.
-  N° de líneas del archivo: 663
+  Versión: v2.2.1_FIX_BOTONES_DOBLE_VISTA
+  Motivo: Corrige el error JavaScript que impedía activar los botones de vista y conserva el bracket visual hasta cuartos/mapa completo.
+  N° de líneas del archivo: 854
 -->
