@@ -481,8 +481,8 @@
     .tomorrow-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      font-size: 12px;
+      gap: 5px;
+      font-size: 11px;
       color: var(--muted);
     }
 
@@ -491,12 +491,13 @@
       grid-template-columns: 1fr auto;
       gap: 8px;
       align-items: center;
-      padding: 8px 9px;
-      border-radius: 13px;
+      padding: 6px 8px;
+      border-radius: 12px;
       background: rgba(0,0,0,.15);
       border: 1px solid rgba(255,255,255,.06);
       color: var(--muted);
       min-width: 0;
+      min-height: 30px;
     }
 
     .tomorrow-list a:hover {
@@ -785,7 +786,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.1_FIFA_RENDER_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.2_RECENT_AND_TOMORROW_FIX';
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
     let supabaseClient = null;
@@ -1164,18 +1165,23 @@
 
       // Esquema certificado 2026-06-13:
       // predictions.official_results usa official_home_score / official_away_score.
-      // No existe home_score, away_score ni is_final.
+      // Para Home, el "más reciente" se decide por COALESCE(finalized_at, created_at),
+      // porque algunos resultados capturados desde admin pueden llegar con finalized_at nulo.
       try {
         const { data, error } = await supabaseClient
           .schema('predictions')
           .from('official_results')
           .select('event_id, official_home_score, official_away_score, official_winner, finalized_at, created_at')
-          .order('finalized_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false })
-          .limit(10);
+          .limit(20);
 
         if (error) throw error;
-        state.officialResults = Array.isArray(data) ? data : [];
+        const rows = Array.isArray(data) ? data : [];
+        state.officialResults = rows.sort((a, b) => {
+          const aTime = new Date(a.finalized_at || a.created_at || 0).getTime();
+          const bTime = new Date(b.finalized_at || b.created_at || 0).getTime();
+          return bTime - aTime;
+        });
       } catch (error) {
         console.warn('[PREDIKT_RECENT_RESULT_SCHEMA_WARNING]', error);
         state.officialResults = [];
@@ -1246,6 +1252,7 @@
     function cleanTeamName(value) {
       return String(value || '')
         .replace(/^[\s\-–—]+|[\s\-–—]+$/g, '')
+        .replace(/\b(MX|ZA|KR|CZ|CA|BA|US|PY|QA|CH|BR|MA|HT|SC|AU|TR|DE|CW|NL|JP|CI|EC|SE|TN)\b$/i, '')
         .replace(/\s+/g, ' ')
         .trim();
     }
@@ -1409,6 +1416,9 @@
     function renderTomorrowList() {
       const list = $('tomorrowList');
       const tomorrowEvents = getTomorrowEvents().slice(0, 6);
+      const panel = list?.closest('.panel');
+      const title = panel?.querySelector('h2');
+      if (title) title.textContent = tomorrowEvents.length ? `Mañana · ${tomorrowEvents.length} partidos` : 'Mañana';
 
       if (!tomorrowEvents.length) {
         list.innerHTML = '<p class="state-empty">Mañana aún no tiene partidos programados.</p>';
@@ -1513,12 +1523,25 @@
 
     function getTomorrowEvents() {
       const tomorrowStart = addDays(startOfLocalDay(new Date()), 1);
-      const tomorrowEnd = addDays(tomorrowStart, 1);
       const tomorrowKey = localDayKey(tomorrowStart);
 
-      const strictTomorrow = state.events
+      let strictTomorrow = state.events
         .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
+
+      // Candado operativo para la jornada FIFA del 14-jun CDMX: deben aparecer 4 partidos visibles.
+      // Esto evita que una vista parcial de Supabase o una deduplicación agresiva oculte Suecia vs Túnez.
+      const certifiedTomorrow = CERTIFIED_MATCH_FALLBACKS
+        .map(normalizeEvent)
+        .filter(Boolean)
+        .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
+        .sort((a, b) => a.startsAtDate - b.startsAtDate);
+
+      if (certifiedTomorrow.length > strictTomorrow.length) {
+        strictTomorrow = dedupeEvents([...strictTomorrow, ...certifiedTomorrow])
+          .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
+          .sort((a, b) => a.startsAtDate - b.startsAtDate);
+      }
 
       if (strictTomorrow.length) return strictTomorrow;
 
