@@ -654,6 +654,12 @@
       transform: translateX(-50%) translateY(0);
     }
 
+
+    /* HOME v9.2.3: mañana debe mostrar la jornada completa, no ocultar el 4º partido. */
+    .tomorrow-list { max-height: none; overflow: visible; }
+    .tomorrow-list a { min-height: 26px; padding: 5px 7px; }
+    .tomorrow-list .tomorrow-name { font-size: 11px; }
+
     @media (max-width: 390px) {
       .app { padding: 12px 10px 14px; }
       .hero { padding: 14px; border-radius: 24px; }
@@ -786,7 +792,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.2_RECENT_AND_TOMORROW_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.3_RECENT_RESULT_BINDING_FIX';
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
     let supabaseClient = null;
@@ -898,6 +904,7 @@
       events: [],
       predictions: new Map(),
       officialResults: [],
+      officialResultEvents: new Map(),
       recentResultEvent: null,
       heroEvent: null,
       ticker: null
@@ -1162,16 +1169,14 @@
 
     async function loadRecentOfficialResults() {
       state.officialResults = [];
+      state.officialResultEvents = new Map();
 
-      // Esquema certificado 2026-06-13:
-      // predictions.official_results usa official_home_score / official_away_score.
-      // Para Home, el "más reciente" se decide por COALESCE(finalized_at, created_at),
-      // porque algunos resultados capturados desde admin pueden llegar con finalized_at nulo.
       try {
         const { data, error } = await supabaseClient
           .schema('predictions')
           .from('official_results')
           .select('event_id, official_home_score, official_away_score, official_winner, finalized_at, created_at')
+          .order('finalized_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false })
           .limit(20);
 
@@ -1182,9 +1187,27 @@
           const bTime = new Date(b.finalized_at || b.created_at || 0).getTime();
           return bTime - aTime;
         });
+
+        const eventIds = [...new Set(state.officialResults.map((row) => row.event_id).filter(Boolean).map(String))];
+        if (eventIds.length) {
+          const { data: eventsData, error: eventsError } = await supabaseClient
+            .schema('sports')
+            .from('events')
+            .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
+            .in('id', eventIds);
+
+          if (eventsError) throw eventsError;
+          state.officialResultEvents = new Map(
+            (eventsData || []).map((eventRow) => {
+              const normalized = normalizeEvent(eventRow);
+              return [String(eventRow.id), normalized];
+            }).filter((entry) => entry[1])
+          );
+        }
       } catch (error) {
         console.warn('[PREDIKT_RECENT_RESULT_SCHEMA_WARNING]', error);
         state.officialResults = [];
+        state.officialResultEvents = new Map();
       }
 
       if (!state.officialResults.length) {
@@ -1437,9 +1460,9 @@
       const result = state.officialResults[0];
 
       if (result) {
-        const matchedEvent = state.events.find((event) => String(event.id) === String(result.event_id)) || state.events.find((event) => String(event.event_id) === String(result.event_id)) || findMostRecentFinishedEvent();
-        const home = matchedEvent ? decoratedTeamLabel(matchedEvent.homeLabel) : 'Brasil';
-        const away = matchedEvent ? decoratedTeamLabel(matchedEvent.awayLabel) : 'Marruecos';
+        const matchedEvent = state.officialResultEvents.get(String(result.event_id)) || state.events.find((event) => String(event.id) === String(result.event_id)) || state.events.find((event) => String(event.event_id) === String(result.event_id)) || findMostRecentFinishedEvent();
+        const home = matchedEvent ? decoratedTeamLabel(matchedEvent.homeLabel) : 'Local';
+        const away = matchedEvent ? decoratedTeamLabel(matchedEvent.awayLabel) : 'Visitante';
         const group = labelGroup(matchedEvent?.metadata?.group_code || matchedEvent?.groupCode || 'GROUP_C');
         const finalized = result.finalized_at || result.created_at;
         const homeScore = result.official_home_score ?? result.home_score ?? '-';
