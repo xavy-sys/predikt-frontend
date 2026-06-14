@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.2.8_SPLASH_ROLLOVER_PREDICTIONS_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.2.9_TOMORROW_ROLLOVER_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -823,7 +823,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.8_SPLASH_ROLLOVER_PREDICTIONS_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.9_TOMORROW_ROLLOVER_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -999,6 +999,7 @@
         safeRenderAll();
         await forceCriticalHomeBindings();
         window.setTimeout(forceCriticalHomeBindings, 800);
+        window.setTimeout(forceCriticalHomeBindings, 1800);
         startCountdownEngine();
         hideBootSplash();
       } catch (err) {
@@ -1470,6 +1471,7 @@
     }
 
     
+    
     function renderDailyProgress() {
       const todayEvents = getTodayEvents();
       const actionableToday = todayEvents.filter((event) => {
@@ -1494,6 +1496,7 @@
         $('dailyProgressText').textContent = total ? 'Pronósticos del día completos' : 'Sin pronósticos pendientes hoy';
       }
     }
+
 
 
     function renderTodayList() {
@@ -1529,6 +1532,7 @@
     }
 
     
+    
     function renderTomorrowList() {
       const list = $('tomorrowList');
       const tomorrowEvents = getTomorrowEvents().slice(0, 4);
@@ -1542,12 +1546,13 @@
       }
 
       list.innerHTML = tomorrowEvents.map((event) => `
-        <a href="./pronostico.html?event_id=${encodeURIComponent(event.id || '')}" aria-label="Pronosticar ${escapeHtml(shortMatchLabel(event))}">
-          <span class="tomorrow-name">${escapeHtml(shortMatchLabel(event))}</span>
+        <a href="./pronostico.html?event_id=${encodeURIComponent(event.id || '')}" aria-label="Pronosticar ${escapeHtml(event.name || shortMatchLabel(event))}">
+          <span class="tomorrow-name">${escapeHtml(event.name || shortMatchLabel(event))}</span>
           <span class="tomorrow-time">${escapeHtml(formatLocalTime(event.startsAtDate))}</span>
         </a>
       `).join('');
     }
+
 
 
     
@@ -1699,52 +1704,39 @@
     }
 
     
+    
     async function forceTomorrowSlateCard() {
       /*
-        Render directo y determinístico.
-        No depende de vistas, RLS, state.events ni del carrusel.
-        Usa el calendario certificado FIFA ya embebido en CERTIFIED_MATCH_FALLBACKS.
+        Regla de negocio:
+        Desde las 00:01 hrs del día local, "Mañana" debe ser el siguiente
+        día calendario local, no la próxima jornada disponible ni eventos restantes de hoy.
       */
       try {
         const list = $('tomorrowList');
         if (!list) return;
 
-        const tomorrowStart = addDays(startOfLocalDay(new Date()), 1);
+        const now = new Date();
+        const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
         const tomorrowKey = localDayKey(tomorrowStart);
 
-        let tomorrowEvents = CERTIFIED_MATCH_FALLBACKS
-          .map((match) => ({
+        const makeEvent = (match) => {
+          const teams = splitMatchName(match.name);
+          return {
             id: match.id || `fifa-${match.fifa_match_number}`,
             name: match.name,
             startsAtDate: new Date(match.starts_at),
             groupCode: match.group_code,
             venueName: match.venue_name || '',
-            homeLabel: cleanTeamName(splitMatchName(match.name).home || ''),
-            awayLabel: cleanTeamName(splitMatchName(match.name).away || '')
-          }))
+            homeLabel: cleanTeamName(teams.home || ''),
+            awayLabel: cleanTeamName(teams.away || '')
+          };
+        };
+
+        let tomorrowEvents = CERTIFIED_MATCH_FALLBACKS
+          .map(makeEvent)
           .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
-          .sort((a, b) => a.startsAtDate - b.startsAtDate);
-
-        // Caso operativo actual certificado: 14-jun CDMX debe mostrar 4 partidos.
-        if (!tomorrowEvents.length) {
-          tomorrowEvents = CERTIFIED_MATCH_FALLBACKS
-            .map((match) => ({
-              id: match.id || `fifa-${match.fifa_match_number}`,
-              name: match.name,
-              startsAtDate: new Date(match.starts_at),
-              groupCode: match.group_code,
-              venueName: match.venue_name || '',
-              homeLabel: cleanTeamName(splitMatchName(match.name).home || ''),
-              awayLabel: cleanTeamName(splitMatchName(match.name).away || '')
-            }))
-            .filter((event) => event.startsAtDate > new Date())
-            .sort((a, b) => a.startsAtDate - b.startsAtDate);
-
-          const firstKey = tomorrowEvents[0] ? localDayKey(tomorrowEvents[0].startsAtDate) : null;
-          tomorrowEvents = firstKey ? tomorrowEvents.filter((event) => localDayKey(event.startsAtDate) === firstKey) : [];
-        }
-
-        tomorrowEvents = tomorrowEvents.slice(0, 4);
+          .sort((a, b) => a.startsAtDate - b.startsAtDate)
+          .slice(0, 4);
 
         const panel = list.closest('.panel');
         const title = panel?.querySelector('h2');
@@ -1762,20 +1754,10 @@
           </a>
         `).join('');
       } catch (error) {
-        console.warn('[PREDIKT_FORCE_TOMORROW_DIRECT_WARNING]', error);
-        const list = $('tomorrowList');
-        if (list) {
-          list.innerHTML = `
-            <a href="./pronostico.html"><span class="tomorrow-name">Alemania vs Curazao</span><span class="tomorrow-time">11:00</span></a>
-            <a href="./pronostico.html"><span class="tomorrow-name">Países Bajos vs Japón</span><span class="tomorrow-time">14:00</span></a>
-            <a href="./pronostico.html"><span class="tomorrow-name">Costa de Marfil vs Ecuador</span><span class="tomorrow-time">17:00</span></a>
-            <a href="./pronostico.html"><span class="tomorrow-name">Suecia vs Túnez</span><span class="tomorrow-time">20:00</span></a>
-          `;
-          const title = list.closest('.panel')?.querySelector('h2');
-          if (title) title.textContent = 'Mañana · 4 partidos';
-        }
+        console.warn('[PREDIKT_FORCE_TOMORROW_ROLLOVER_WARNING]', error);
       }
     }
+
 
 
     async function forceCriticalHomeBindings() {
@@ -1841,37 +1823,33 @@
     }
 
     
+    
     function getTomorrowEvents() {
-      const tomorrowStart = addDays(startOfLocalDay(new Date()), 1);
+      const now = new Date();
+      const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
       const tomorrowKey = localDayKey(tomorrowStart);
 
-      const fromState = state.events
+      const makeEvent = (match) => {
+        const teams = splitMatchName(match.name);
+        return {
+          id: match.id || `fifa-${match.fifa_match_number}`,
+          name: match.name,
+          starts_at: match.starts_at,
+          startsAtDate: new Date(match.starts_at),
+          groupCode: match.group_code,
+          venueName: match.venue_name || '',
+          homeLabel: cleanTeamName(teams.home || ''),
+          awayLabel: cleanTeamName(teams.away || ''),
+          matchLabel: match.name
+        };
+      };
+
+      return CERTIFIED_MATCH_FALLBACKS
+        .map(makeEvent)
         .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
-
-      const fromCertified = CERTIFIED_MATCH_FALLBACKS
-        .map(normalizeEvent)
-        .filter(Boolean)
-        .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
-        .sort((a, b) => a.startsAtDate - b.startsAtDate);
-
-      let merged = dedupeEvents([...fromState, ...fromCertified])
-        .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
-        .sort((a, b) => a.startsAtDate - b.startsAtDate);
-
-      if (merged.length) return merged;
-
-      // Fallback: próxima jornada disponible en calendario certificado.
-      const futureCertified = CERTIFIED_MATCH_FALLBACKS
-        .map(normalizeEvent)
-        .filter(Boolean)
-        .filter((event) => event.startsAtDate >= tomorrowStart)
-        .sort((a, b) => a.startsAtDate - b.startsAtDate);
-
-      if (!futureCertified.length) return [];
-      const nextKey = localDayKey(futureCertified[0].startsAtDate);
-      return futureCertified.filter((event) => localDayKey(event.startsAtDate) === nextKey);
     }
+
 
 
     function localDayKey(date) {
