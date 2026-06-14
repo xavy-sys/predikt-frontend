@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.2.7_TOMORROW_DIRECT_RENDER_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.2.8_SPLASH_ROLLOVER_PREDICTIONS_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -678,10 +678,34 @@
     .tomorrow-name { font-size: 10.5px !important; }
     .tomorrow-time { font-size: 10.5px !important; }
 
+  
+    /* HOME v9.2.8 Splash: balón rodando */
+    .boot-splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: grid; place-items: center; align-content: center; gap: 14px;
+      background: radial-gradient(circle at center, rgba(245,200,75,.16), transparent 34%), linear-gradient(180deg, #07162f, #030914);
+      color: var(--text); transition: opacity .28s ease, visibility .28s ease;
+    }
+    .boot-splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .splash-track { width: min(74vw, 360px); height: 42px; border-bottom: 2px solid rgba(245,200,75,.45); position: relative; overflow: hidden; }
+    .rolling-ball { position: absolute; left: -44px; bottom: 0; font-size: 36px; line-height: 1; animation: prediktBallRoll 1.18s linear infinite; filter: drop-shadow(0 8px 12px rgba(0,0,0,.32)); }
+    @keyframes prediktBallRoll { from { transform: translateX(-10px) rotate(0deg); } to { transform: translateX(calc(min(74vw, 360px) + 74px)) rotate(720deg); } }
+    .splash-brand { font-weight: 950; letter-spacing: .14em; color: var(--gold-2); font-size: 18px; }
+    .splash-copy { color: var(--muted); font-size: 12px; font-weight: 800; }
+    .tomorrow-list { gap: 6px !important; max-height: none !important; overflow: visible !important; }
+    .tomorrow-list a { min-height: 27px !important; padding: 5px 8px !important; }
+    .tomorrow-name, .tomorrow-time { font-size: 11px !important; }
+
   </style>
 </head>
 
 <body>
+
+  <div id="bootSplash" class="boot-splash" aria-label="Cargando PREDIKT">
+    <div class="splash-track"><div class="rolling-ball">⚽</div></div>
+    <div class="splash-brand">PREDIKT™</div>
+    <div class="splash-copy">Preparando tu jornada...</div>
+  </div>
   <main class="app">
     <header class="topbar">
       <a class="brand" href="./index.html" aria-label="Inicio PREDIKT">
@@ -799,7 +823,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.7_TOMORROW_DIRECT_RENDER_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.8_SPLASH_ROLLOVER_PREDICTIONS_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -921,11 +945,28 @@
     const $ = (id) => document.getElementById(id);
 
     document.addEventListener('DOMContentLoaded', initHome);
+    window.setTimeout(hideBootSplash, 2600);
+
+
+    function scheduleLocalMidnightRollover() {
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(24, 0, 5, 0);
+      window.setTimeout(() => window.location.reload(), Math.max(1000, next.getTime() - now.getTime()));
+    }
+
+    function hideBootSplash() {
+      const splash = document.getElementById('bootSplash');
+      if (!splash) return;
+      splash.classList.add('hide');
+      window.setTimeout(() => splash.remove(), 420);
+    }
 
     async function initHome() {
       try {
         bindActions();
         renderTimezone();
+        scheduleLocalMidnightRollover();
 
         if (window.prediktSupabase) {
           supabaseClient = window.prediktSupabase;
@@ -959,10 +1000,12 @@
         await forceCriticalHomeBindings();
         window.setTimeout(forceCriticalHomeBindings, 800);
         startCountdownEngine();
+        hideBootSplash();
       } catch (err) {
         console.error('[PREDIKT_HOME_INIT_ERROR]', err);
         showToast('No pudimos cargar Inicio completo. Revisa conexión o configuración.');
         renderFallback();
+        hideBootSplash();
       }
     }
 
@@ -1159,23 +1202,36 @@
       return collected;
     }
 
+    
     async function loadUserPredictions() {
-      if (!state.user) { state.predictions = new Map(); return; }
+      state.predictions = new Map();
+      if (!state.user || !state.events.length) return;
+
       const userId = state.user.id;
-      const min = startOfLocalDay(new Date());
-      const max = addDays(min, 3);
+      const today = localDayKey(new Date());
+      const tomorrow = localDayKey(addDays(startOfLocalDay(new Date()), 1));
+
+      const candidateEventIds = state.events
+        .filter((event) => {
+          const key = localDayKey(event.startsAtDate);
+          return key === today || key === tomorrow;
+        })
+        .map((event) => String(event.id))
+        .filter((id) => id && !id.startsWith('fifa-'));
+
+      if (!candidateEventIds.length) return;
 
       const { data, error } = await supabaseClient
         .schema('predictions')
         .from('predictions')
         .select('id, event_id, user_id, created_at, updated_at')
         .eq('user_id', userId)
-        .gte('created_at', addDays(min, -3).toISOString())
-        .lt('created_at', max.toISOString());
+        .in('event_id', candidateEventIds);
 
       if (error) throw error;
       state.predictions = new Map((data || []).map((p) => [String(p.event_id), p]));
     }
+
 
     
     
@@ -1413,18 +1469,32 @@
       $('heroAction').disabled = ['live', 'final'].includes(status.key) && !hasPrediction;
     }
 
+    
     function renderDailyProgress() {
       const todayEvents = getTodayEvents();
-      const done = todayEvents.filter((event) => state.predictions.has(String(event.id))).length;
-      const total = todayEvents.length;
+      const actionableToday = todayEvents.filter((event) => {
+        const status = getCountdownStatus(event);
+        return ['closing', 'soon', 'upcoming'].includes(status.key);
+      });
+
+      const done = actionableToday.filter((event) => state.predictions.has(String(event.id))).length;
+      const total = actionableToday.length;
       const pending = Math.max(total - done, 0);
       const percent = total ? Math.round((done / total) * 100) : 0;
 
       $('doneToday').textContent = done;
       $('pendingToday').textContent = pending;
       $('dailyProgressBar').style.width = `${percent}%`;
-      $('dailyProgressText').textContent = total ? `${percent}% completado` : 'Sin partidos hoy';
+
+      const nextPending = actionableToday.find((event) => !state.predictions.has(String(event.id)));
+      if (nextPending) {
+        const status = getCountdownStatus(nextPending);
+        $('dailyProgressText').textContent = `Te falta: ${shortMatchLabel(nextPending)} · ${status.text.replace('🔥 ', '').replace('⏳ ', '')}`;
+      } else {
+        $('dailyProgressText').textContent = total ? 'Pronósticos del día completos' : 'Sin pronósticos pendientes hoy';
+      }
     }
+
 
     function renderTodayList() {
       const list = $('todayList');
