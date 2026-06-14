@@ -671,6 +671,13 @@
       .today-card { flex-basis: 86%; }
       .brand-title span { max-width: 145px; }
     }
+  
+    /* HOME v9.2.5: mañana debe mostrar 4 partidos sin ocultarlos */
+    .tomorrow-list { gap: 5px !important; max-height: none !important; overflow: visible !important; }
+    .tomorrow-list a { min-height: 24px !important; padding: 4px 7px !important; }
+    .tomorrow-name { font-size: 10.5px !important; }
+    .tomorrow-time { font-size: 10.5px !important; }
+
   </style>
 </head>
 
@@ -792,7 +799,8 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.4_LATEST_OFFICIAL_RESULT_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.2.5_OFFICIAL_RESULT_AND_TOMORROW_FINAL_FIX';
+    window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
     let supabaseClient = null;
@@ -1168,59 +1176,63 @@
     }
 
     
+    
     async function loadRecentOfficialResults() {
-      const query = supabaseClient
+      /*
+        Fuente certificada:
+        predictions.official_results
+        Orden correcto:
+        finalized_at DESC NULLS LAST, created_at DESC
+
+        IMPORTANTE:
+        No usar vistas home para este bloque. El resultado oficial más reciente
+        debe venir directamente de official_results y luego enlazarse por event_id
+        contra sports.events.
+      */
+      const { data: results, error } = await supabaseClient
         .schema('predictions')
         .from('official_results')
-        .select(`
-          id,
-          event_id,
-          official_home_score,
-          official_away_score,
-          official_winner,
-          finalized_at,
-          created_at
-        `)
+        .select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at')
         .order('finalized_at', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false })
-        .limit(5);
-
-      const { data, error } = await query;
+        .limit(10);
 
       if (error) {
-        console.warn('[PREDIKT_RECENT_RESULT_WARNING]', error);
+        console.warn('[PREDIKT_RECENT_RESULT_QUERY_ERROR]', error);
         state.officialResults = [];
         return;
       }
 
-      const rows = Array.isArray(data) ? data : [];
-      state.officialResults = rows;
-
-      if (!state.officialResults.length) {
+      const rows = Array.isArray(results) ? results : [];
+      if (!rows.length) {
+        state.officialResults = [];
         state.recentResultEvent = findMostRecentFinishedEvent();
         return;
       }
 
-      const ids = [...new Set(rows.map((r) => String(r.event_id)).filter(Boolean))];
-      if (!ids.length) return;
+      const eventIds = [...new Set(rows.map((r) => String(r.event_id || '')).filter(Boolean))];
 
-      const { data: events, error: eventError } = await supabaseClient
-        .schema('sports')
-        .from('events')
-        .select('id, name, starts_at, event_status, metadata, venues:venue_id(name, city, timezone, metadata)')
-        .in('id', ids);
+      let eventsById = new Map();
+      if (eventIds.length) {
+        const { data: events, error: eventsError } = await supabaseClient
+          .schema('sports')
+          .from('events')
+          .select('id,name,starts_at,event_status,metadata')
+          .in('id', eventIds);
 
-      if (eventError) {
-        console.warn('[PREDIKT_RECENT_RESULT_EVENT_BINDING_WARNING]', eventError);
-        return;
+        if (eventsError) {
+          console.warn('[PREDIKT_RECENT_RESULT_EVENT_QUERY_ERROR]', eventsError);
+        } else {
+          eventsById = new Map((events || []).map((event) => [String(event.id), normalizeEvent(event)]));
+        }
       }
 
-      const eventMap = new Map((events || []).map((event) => [String(event.id), normalizeEvent(event)]));
-      state.officialResults = rows.map((row) => ({
-        ...row,
-        event: eventMap.get(String(row.event_id)) || null
-      }));
+      state.officialResults = rows.map((row) => {
+        const boundEvent = eventsById.get(String(row.event_id)) || state.events.find((event) => String(event.id) === String(row.event_id)) || null;
+        return { ...row, event: boundEvent };
+      });
     }
+
 
 
     function findMostRecentFinishedEvent() {
@@ -1444,6 +1456,7 @@
       }).join('');
     }
 
+    
     function renderTomorrowList() {
       const list = $('tomorrowList');
       const tomorrowEvents = getTomorrowEvents().slice(0, 4);
@@ -1457,50 +1470,71 @@
       }
 
       list.innerHTML = tomorrowEvents.map((event) => `
-        <a href="./pronostico.html?event_id=${encodeURIComponent(event.id)}" aria-label="Pronosticar ${escapeHtml(shortMatchLabel(event))}">
+        <a href="./pronostico.html?event_id=${encodeURIComponent(event.id || '')}" aria-label="Pronosticar ${escapeHtml(shortMatchLabel(event))}">
           <span class="tomorrow-name">${escapeHtml(shortMatchLabel(event))}</span>
           <span class="tomorrow-time">${escapeHtml(formatLocalTime(event.startsAtDate))}</span>
         </a>
       `).join('');
     }
 
+
+    
     
     function renderRecentResult() {
-      const result = state.officialResults && state.officialResults[0];
+      const result = Array.isArray(state.officialResults) ? state.officialResults[0] : null;
 
-      if (result) {
-        const event = result.event || state.events.find((item) => String(item.id) === String(result.event_id)) || null;
-        const rawName = event?.name || '';
-        const teams = splitMatchName(rawName);
-        const homeName = cleanTeamName(teams.home || event?.homeLabel?.replace(/\s+[A-Z]{2}$|\s+[🇦-🇿🏴]+$/gu, '') || 'Local');
-        const awayName = cleanTeamName(teams.away || event?.awayLabel?.replace(/\s+[A-Z]{2}$|\s+[🇦-🇿🏴]+$/gu, '') || 'Visitante');
-        const homeScore = Number(result.official_home_score);
-        const awayScore = Number(result.official_away_score);
-        const group = event?.groupCode ? labelGroup(event.groupCode) : labelGroup(event?.metadata?.group_code || 'Grupo');
-        const venue = event?.venueName || event?.metadata?.venue_name || '';
+      if (!result) {
+        const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
+        if (!recentEvent) {
+          $('recentScore').textContent = 'Sin resultado oficial';
+          $('recentMeta').textContent = 'Cuando termine un partido aparecerá aquí.';
+          $('recentBadge').textContent = 'Oficial';
+          return;
+        }
 
-        let displayScore = `${homeName} ${homeScore}-${awayScore} ${awayName}`;
-        if (awayScore > homeScore) displayScore = `${awayName} ${awayScore}-${homeScore} ${homeName}`;
-        if (homeScore > awayScore) displayScore = `${homeName} ${homeScore}-${awayScore} ${awayName}`;
-
-        $('recentScore').textContent = displayScore;
-        $('recentMeta').textContent = `${group}${venue ? ' · ' + venue : ''} · ${timeAgo(result.finalized_at || result.created_at)}`;
-        $('recentBadge').textContent = '✅ Oficial';
+        $('recentScore').textContent = shortMatchLabel(recentEvent);
+        $('recentMeta').textContent = `${labelGroup(recentEvent.groupCode)} · ${timeAgo(recentEvent.startsAtDate)} · marcador pendiente`;
+        $('recentBadge').textContent = 'Finalizado';
         return;
       }
 
-      const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
-      if (!recentEvent) {
-        $('recentScore').textContent = 'Sin resultado oficial';
-        $('recentMeta').textContent = 'Cuando termine un partido aparecerá aquí.';
-        $('recentBadge').textContent = 'Oficial';
-        return;
+      let event = result.event || state.events.find((item) => String(item.id) === String(result.event_id)) || null;
+
+      // Fallback por nombre para evitar Local/Visitante si Supabase no enlaza evento por relación.
+      if (!event) {
+        const fallbackByTime = CERTIFIED_MATCH_FALLBACKS
+          .map(normalizeEvent)
+          .filter(Boolean)
+          .find((item) => String(item.id) === String(result.event_id));
+        event = fallbackByTime || null;
       }
 
-      $('recentScore').textContent = shortMatchLabel(recentEvent);
-      $('recentMeta').textContent = `${labelGroup(recentEvent.groupCode)} · ${timeAgo(recentEvent.startsAtDate)} · marcador pendiente`;
-      $('recentBadge').textContent = 'Finalizado';
+      const rawName = event?.name || '';
+      const teams = splitMatchName(rawName);
+      const homeName = cleanTeamName(teams.home || event?.homeLabel || 'Local');
+      const awayName = cleanTeamName(teams.away || event?.awayLabel || 'Visitante');
+      const homeScore = Number(result.official_home_score);
+      const awayScore = Number(result.official_away_score);
+      const group = event?.groupCode ? labelGroup(event.groupCode) : 'Grupo';
+      const venue = event?.venueName && event.venueName !== 'Sede por confirmar' ? event.venueName : '';
+
+      let displayScore;
+      if (Number.isFinite(homeScore) && Number.isFinite(awayScore)) {
+        // Si ganó el visitante, presentar primero al ganador: Escocia 1-0 Haití.
+        if (awayScore > homeScore) {
+          displayScore = `${awayName} ${awayScore}-${homeScore} ${homeName}`;
+        } else {
+          displayScore = `${homeName} ${homeScore}-${awayScore} ${awayName}`;
+        }
+      } else {
+        displayScore = rawName || 'Resultado oficial';
+      }
+
+      $('recentScore').textContent = displayScore;
+      $('recentMeta').textContent = `${group}${venue ? ' · ' + venue : ''} · ${timeAgo(result.finalized_at || result.created_at)}`;
+      $('recentBadge').textContent = '✅ Oficial';
     }
+
 
 
     function startCountdownEngine() {
@@ -1559,39 +1593,39 @@
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
 
+    
     function getTomorrowEvents() {
       const tomorrowStart = addDays(startOfLocalDay(new Date()), 1);
       const tomorrowKey = localDayKey(tomorrowStart);
 
-      let strictTomorrow = state.events
+      const fromState = state.events
         .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
 
-      // Candado operativo para la jornada FIFA del 14-jun CDMX: deben aparecer 4 partidos visibles.
-      // Esto evita que una vista parcial de Supabase o una deduplicación agresiva oculte Suecia vs Túnez.
-      const certifiedTomorrow = CERTIFIED_MATCH_FALLBACKS
+      const fromCertified = CERTIFIED_MATCH_FALLBACKS
         .map(normalizeEvent)
         .filter(Boolean)
         .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
 
-      if (certifiedTomorrow.length > strictTomorrow.length) {
-        strictTomorrow = dedupeEvents([...strictTomorrow, ...certifiedTomorrow])
-          .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
-          .sort((a, b) => a.startsAtDate - b.startsAtDate);
-      }
+      let merged = dedupeEvents([...fromState, ...fromCertified])
+        .filter((event) => localDayKey(event.startsAtDate) === tomorrowKey)
+        .sort((a, b) => a.startsAtDate - b.startsAtDate);
 
-      if (strictTomorrow.length) return strictTomorrow;
+      if (merged.length) return merged;
 
-      // Fallback operativo: próxima fecha con partidos disponibles.
-      const afterToday = state.events
+      // Fallback: próxima jornada disponible en calendario certificado.
+      const futureCertified = CERTIFIED_MATCH_FALLBACKS
+        .map(normalizeEvent)
+        .filter(Boolean)
         .filter((event) => event.startsAtDate >= tomorrowStart)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
-      if (!afterToday.length) return [];
 
-      const dayKey = localDayKey(afterToday[0].startsAtDate);
-      return afterToday.filter((event) => localDayKey(event.startsAtDate) === dayKey);
+      if (!futureCertified.length) return [];
+      const nextKey = localDayKey(futureCertified[0].startsAtDate);
+      return futureCertified.filter((event) => localDayKey(event.startsAtDate) === nextKey);
     }
+
 
     function localDayKey(date) {
       return new Intl.DateTimeFormat('en-CA', {
