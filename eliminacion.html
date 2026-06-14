@@ -1,10 +1,10 @@
 <!--
   Archivo: eliminacion.html
-  Versión: v2.1.0_BRACKET_VISUAL
+  Versión: v2.2.0_DOBLE_VISTA_CUARTOS_Y_MAPA
   Motivo de la nueva versión:
-  Convierte la pantalla de Eliminación Directa en una mecánica visual tipo bracket FIFA.
-  Mantiene identidad PREDIKT™, elimina lectura tipo lista y comunica claramente:
-  "En este momento así quedaría la eliminación".
+  Corrige la experiencia visual dividiendo la eliminación en dos vistas:
+  1) Camino proyectado hasta cuartos de final sin scroll horizontal.
+  2) Mapa completo PREDIKT™ para percepción global del torneo.
 -->
 <!DOCTYPE html>
 <html lang="es">
@@ -224,6 +224,113 @@
       font-size: 11px;
       font-weight: 950;
     }
+
+
+
+    .view-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 4px 4px 14px;
+      padding: 5px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .view-tab {
+      appearance: none;
+      border: 0;
+      min-height: 44px;
+      border-radius: 14px;
+      background: transparent;
+      color: rgba(255,255,255,0.72);
+      font-weight: 950;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .view-tab.active {
+      background: linear-gradient(135deg, rgba(246,195,67,0.92), rgba(199,139,28,0.92));
+      color: #07142a;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+
+    .quarters-view {
+      display: grid;
+      gap: 16px;
+    }
+
+    .quarters-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .path-card {
+      border-radius: 22px;
+      padding: 12px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+
+    .path-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #ffe38b;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .path-vs {
+      display: grid;
+      place-items: center;
+      margin: 8px 0;
+      color: var(--predikt-gold);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.10em;
+    }
+
+    .path-arrow {
+      display: grid;
+      place-items: center;
+      margin: 12px 0;
+      color: var(--predikt-gold);
+      font-weight: 950;
+    }
+
+    .quarter-card {
+      border-radius: 18px;
+      padding: 10px;
+      background: linear-gradient(135deg, rgba(246,195,67,0.22), rgba(15,95,184,0.28));
+      border: 1px solid rgba(246,195,67,0.24);
+    }
+
+    .quarter-label {
+      color: #ffe38b;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    .map-hint {
+      margin: 0 4px;
+      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .hidden-view { display: none !important; }
 
     .bracket-scroll {
       overflow-x: auto;
@@ -461,6 +568,7 @@
     @media (max-width: 760px) {
       .app-shell { max-width: 520px; }
       .bracket-shell { padding: 12px; }
+      .quarters-grid { grid-template-columns: 1fr; }
       .bracket-scroll { display: none; }
       .mobile-list { display: grid; }
       .bracket-title { padding-bottom: 10px; }
@@ -497,13 +605,20 @@
     <section class="bracket-shell" aria-label="Mecánica visual de eliminación">
       <div class="bracket-title">
         <div>
-          <h2>Ruta proyectada al título</h2>
-          <small>Octavos · Cuartos · Semifinal · Final</small>
+          <h2>Camino proyectado</h2>
+          <small>Octavos y Cuartos primero · Mapa completo aparte</small>
         </div>
         <div class="round-badge" id="matchCount">8 cruces</div>
       </div>
 
-      <div id="bracketScroll" class="bracket-scroll" aria-live="polite"></div>
+      <div class="view-switch" role="tablist" aria-label="Vistas de eliminación">
+        <button id="tabQuarters" class="view-tab active" type="button">Hasta cuartos</button>
+        <button id="tabFull" class="view-tab" type="button">Mapa completo</button>
+      </div>
+
+      <div id="quartersView" class="quarters-view" aria-live="polite"></div>
+      <div id="bracketScroll" class="bracket-scroll hidden-view" aria-live="polite"></div>
+      <p id="mapHint" class="map-hint hidden-view">Vista panorámica PREDIKT™: muestra la percepción completa del camino al título. En celular puede desplazarse horizontalmente.</p>
       <div id="mobileList" class="mobile-list" aria-live="polite"></div>
 
       <section id="emptyState" class="empty-state" aria-live="polite">
@@ -581,14 +696,91 @@
       `;
     }
 
+
+
+    function quarterPathCard(matchA, matchB, quarter, index) {
+      return `
+        <article class="path-card">
+          <div class="path-head"><span>Posible enfrentamiento ${index}</span><span>Octavos → Cuartos</span></div>
+          <div class="game ${safeText(matchA.color || 'blue')}">
+            <div class="game-code"><span>Cruce proyectado</span><span>P${74 + ((index - 1) * 2)}</span></div>
+            ${teamLine(matchA.aFlag, matchA.a, matchA.aSeed)}
+            <div class="path-vs">VS</div>
+            ${teamLine(matchA.bFlag, matchA.b, matchA.bSeed)}
+          </div>
+          <div class="path-arrow">↓</div>
+          <div class="game ${safeText(matchB.color || 'blue')}">
+            <div class="game-code"><span>Cruce proyectado</span><span>P${75 + ((index - 1) * 2)}</span></div>
+            ${teamLine(matchB.aFlag, matchB.a, matchB.aSeed)}
+            <div class="path-vs">VS</div>
+            ${teamLine(matchB.bFlag, matchB.b, matchB.bSeed)}
+          </div>
+          <div class="path-arrow">↓</div>
+          <div class="quarter-card">
+            <p class="quarter-label">Así quedaría cuartos</p>
+            ${teamLine(quarter.aFlag, quarter.a, '')}
+            <div class="path-vs">VS</div>
+            ${teamLine(quarter.bFlag, quarter.b, '')}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderQuartersView(matches) {
+      const quartersView = document.getElementById('quartersView');
+      const q = PROJECTED_NEXT_ROUNDS.quarterLeft.concat(PROJECTED_NEXT_ROUNDS.quarterRight);
+      quartersView.innerHTML = `
+        <section class="quarters-grid">
+          ${quarterPathCard(matches[0], matches[1], q[0], 1)}
+          ${quarterPathCard(matches[2], matches[3], q[1], 2)}
+          ${quarterPathCard(matches[4], matches[5], q[2], 3)}
+          ${quarterPathCard(matches[6], matches[7], q[3], 4)}
+        </section>
+      `;
+    }
+
+    function setupViewTabs() {
+      const tabQuarters = document.getElementById('tabQuarters');
+      const tabFull = document.getElementById('tabFull');
+      const quartersView = document.getElementById('quartersView');
+      const bracketScroll = document.getElementById('bracketScroll');
+      const quartersView = document.getElementById('quartersView');
+      const mobileList = document.getElementById('mobileList');
+      const mapHint = document.getElementById('mapHint');
+
+      function showQuarters() {
+        tabQuarters.classList.add('active');
+        tabFull.classList.remove('active');
+        quartersView.classList.remove('hidden-view');
+        bracketScroll.classList.add('hidden-view');
+        mapHint.classList.add('hidden-view');
+        mobileList.classList.remove('hidden-view');
+      }
+
+      function showFull() {
+        tabFull.classList.add('active');
+        tabQuarters.classList.remove('active');
+        quartersView.classList.add('hidden-view');
+        bracketScroll.classList.remove('hidden-view');
+        mapHint.classList.remove('hidden-view');
+        mobileList.classList.add('hidden-view');
+      }
+
+      tabQuarters.addEventListener('click', showQuarters);
+      tabFull.addEventListener('click', showFull);
+      showQuarters();
+    }
+
     function renderProjectedBracket(matches) {
       const bracketScroll = document.getElementById('bracketScroll');
+      const quartersView = document.getElementById('quartersView');
       const mobileList = document.getElementById('mobileList');
       const emptyState = document.getElementById('emptyState');
       const matchCount = document.getElementById('matchCount');
 
       if (!Array.isArray(matches) || matches.length === 0) {
         bracketScroll.innerHTML = '';
+        quartersView.innerHTML = '';
         mobileList.innerHTML = '';
         emptyState.style.display = 'block';
         matchCount.textContent = 'Calculando';
@@ -601,6 +793,7 @@
       emptyState.style.display = 'none';
       matchCount.textContent = `${matches.length} cruces`;
       mobileList.innerHTML = matches.map(mobileCard).join('');
+      renderQuartersView(matches);
 
       bracketScroll.innerHTML = `
         <div class="bracket-grid">
@@ -645,6 +838,7 @@
           </section>
         </div>
       `;
+      setupViewTabs();
     }
 
     try {
@@ -657,7 +851,7 @@
 </html>
 <!--
   Fin del archivo: eliminacion.html
-  Versión: v2.1.0_BRACKET_VISUAL
+  Versión: v2.2.0_DOBLE_VISTA_CUARTOS_Y_MAPA
   Motivo: Mecánica visual tipo bracket FIFA para mostrar cómo quedaría la eliminación en este momento.
   N° de líneas del archivo: 663
 -->
