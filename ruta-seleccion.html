@@ -1,16 +1,16 @@
 <!--
   Archivo: ruta-seleccion.html
-  Versión: v1.0.0_RUTA_POR_EQUIPO
+  Versión: v1.1.0_MOTOR_Y_CAMINO_FAVORITA
   Proyecto: PREDIKT™
   Motivo de la nueva versión:
-  Nueva pantalla Mobile First para que el usuario elija una selección y visualice su grupo, posible clasificación y ruta proyectada hacia la Copa sin saturar eliminacion.html.
+  Actualiza la pantalla con el mensaje emocional “¿Cuál sería el camino de mi selección favorita hacia la Copa?” y recupera la tarjeta MOTOR ENRIQUECIDO PREDIKT™ como sello de confianza visual antes de elegir selección.
 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>PREDIKT™ | Ruta por Selección</title>
+  <title>PREDIKT™ | Camino de mi Selección</title>
   <link rel="icon" href="./predikt-logo.png" />
   <style>
     :root {
@@ -47,13 +47,26 @@
       <div class="top-actions"><a class="ghost-btn" href="./eliminacion.html">Volver</a><button class="refresh-btn" type="button" onclick="window.location.reload()">Actualizar</button></div>
     </header>
     <section class="hero">
-      <span class="eyebrow">🔎 Ruta por selección</span>
-      <h1>Elige tu equipo y mira su camino</h1>
-      <p>PREDIKT™ muestra el grupo de origen y una ruta proyectada. La trayectoria cambia con resultados oficiales.</p>
-      <div class="live-pill">Pronóstico vivo: no confirma resultados finales</div>
+      <span class="eyebrow">🏆 Ruta hacia la Copa</span>
+      <h1>¿Cuál sería el camino de mi selección favorita hacia la Copa?</h1>
+      <p>Selecciona una selección y descubre su ruta proyectada hacia la Final.</p>
+      <div class="live-pill">Pronóstico vivo: cambia con los resultados oficiales</div>
     </section>
+
+    <section class="section-card engine-card" aria-label="Motor Enriquecido PREDIKT">
+      <div class="section-head">
+        <div>
+          <h2>🧠 MOTOR ENRIQUECIDO PREDIKT™</h2>
+          <small>Escenarios vivos para explorar el camino de cada selección.</small>
+        </div>
+        <span class="badge">Factores</span>
+      </div>
+      <p class="note">La proyección considera clasificación actual, rendimiento reciente, fortaleza deportiva y ventaja de local cuando aplica.</p>
+      <div class="engine-chips"><span class="engine-chip">⚽ Clasificación actual</span><span class="engine-chip">📈 Rendimiento reciente</span><span class="engine-chip">🏆 Fortaleza deportiva</span><span class="engine-chip">🏟️ Ventaja de local</span></div>
+    </section>
+
     <section class="section-card selector-card">
-      <label class="selector-label" for="teamSelect">Selecciona una selección</label>
+      <label class="selector-label" for="teamSelect">⚽ Elegir selección</label>
       <select id="teamSelect" aria-label="Seleccionar selección"></select>
       <div id="quickGrid" class="quick-grid" aria-label="Selecciones rápidas"></div>
     </section>
@@ -65,10 +78,6 @@
     <section class="section-card">
       <div class="section-head"><div><h2 id="groupTitle">Grupo</h2><small>Composición oficial del grupo de origen.</small></div><span class="badge">Grupo origen</span></div>
       <div class="group-grid" id="groupGrid"></div>
-    </section>
-    <section class="section-card">
-      <div class="section-head"><div><h2>🧠 MOTOR ENRIQUECIDO PREDIKT™</h2><small>La localía cuenta cuando aplica, pero no domina la proyección.</small></div><span class="badge">Factores</span></div>
-      <div class="engine-chips"><span class="engine-chip">⚽ Clasificación actual</span><span class="engine-chip">📈 Rendimiento reciente</span><span class="engine-chip">🏆 Fortaleza deportiva</span><span class="engine-chip">🏟️ Ventaja de local</span></div>
     </section>
     <p class="fine-print">Proyección dinámica PREDIKT™. Sirve para entender rutas posibles; no confirma resultados finales ni campeones.</p>
   </main>
@@ -118,7 +127,7 @@
     function findTeam(name){for(const g of GROUPS){for(const t of g.teams){if(t[0]===name)return {name:t[0],flag:t[1],group:g.id,teams:g.teams};}}return null;}
     function renderSelect(){const select=document.getElementById('teamSelect');select.innerHTML=allTeams().map(t=>`<option value="${esc(t.name)}">${esc(t.flag)} ${esc(t.name)} · Grupo ${esc(t.group)}</option>`).join('');select.value='México';select.addEventListener('change',()=>renderTeam(select.value));document.getElementById('quickGrid').innerHTML=QUICK.map(q=>`<button class="quick-btn" type="button" data-team="${esc(q)}">${esc(findTeam(q).flag)} ${esc(q)}</button>`).join('');document.querySelectorAll('.quick-btn').forEach(btn=>btn.addEventListener('click',()=>{select.value=btn.dataset.team;renderTeam(btn.dataset.team);}));}
     function groupRows(team){return team.teams.map((t,i)=>`<div class="group-row ${t[0]===team.name?'active':''}"><span>${esc(t[1])} ${esc(t[0])}</span><span class="seed">${i+1}</span></div>`).join('');}
-    function renderTeam(name){const team=findTeam(name)||findTeam('México');const route=ROUTES[team.name]||['Octavos: se define con resultados del grupo','Cuartos: escenario abierto','Semifinal: escenario abierto'];document.getElementById('routeTitle').textContent=team.flag+' Ruta de '+team.name+' hacia la Copa';document.getElementById('routeSub').textContent='Grupo '+team.group+' · trayectoria proyectada según el motor PREDIKT™.';document.getElementById('routeBadge').textContent=ROUTES[team.name]?'Ruta proyectada':'Escenario abierto';document.getElementById('groupTitle').textContent='Grupo '+team.group;document.getElementById('groupGrid').innerHTML=groupRows(team);document.querySelectorAll('.quick-btn').forEach(b=>b.classList.toggle('active',b.dataset.team===team.name));
+    function renderTeam(name){const team=findTeam(name)||findTeam('México');const route=ROUTES[team.name]||['Octavos: se define con resultados del grupo','Cuartos: escenario abierto','Semifinal: escenario abierto'];document.getElementById('routeTitle').textContent=team.flag+' Camino proyectado de '+team.name+' hacia la Copa';document.getElementById('routeSub').textContent='Grupo '+team.group+' · trayectoria proyectada según el motor PREDIKT™.';document.getElementById('routeBadge').textContent=ROUTES[team.name]?'Ruta proyectada':'Escenario abierto';document.getElementById('groupTitle').textContent='Grupo '+team.group;document.getElementById('groupGrid').innerHTML=groupRows(team);document.querySelectorAll('.quick-btn').forEach(b=>b.classList.toggle('active',b.dataset.team===team.name));
       document.getElementById('routeCarousel').innerHTML=`<article class="route-card gold"><div class="kicker"><span>Grupo ${esc(team.group)}</span><span>Origen</span></div><div class="big-team">${esc(team.flag)} ${esc(team.name)}</div><div class="note">Primero debe avanzar desde su grupo. La posición final puede cambiar el rival.</div></article>`+
       route.map((step,idx)=>{const parts=step.split(':');return `<article class="route-card"><div class="kicker"><span>${esc(parts[0])}</span><span>${idx===0?'Posible rival':idx===1?'Si avanza':'Camino alto'}</span></div><div class="big-team">${esc(team.flag)} ${esc(team.name)}</div><div class="vs">VS</div><div class="big-team">${esc(parts.slice(1).join(':').trim())}</div><div class="note">Proyección viva. Puede cambiar con resultados oficiales.</div></article>`;}).join('');}
     renderSelect();renderTeam('México');
@@ -126,9 +135,10 @@
 </body>
 </html>
 
+
+
 <!--
   Fin de archivo: ruta-seleccion.html
-  Versión: v1.0.0_RUTA_POR_EQUIPO
-  Total líneas: 133
+  Versión: v1.1.0_MOTOR_Y_CAMINO_FAVORITA
+  Total líneas: 144
 -->
-
