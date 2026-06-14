@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME-R1_RETENTION_ENGINE_v1.0.3 -->
+  <!-- version: index_HOME-R2_DAILY_CAROUSEL_v1.0.5 -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -367,6 +367,112 @@
       white-space: nowrap;
     }
 
+
+    .today-hub {
+      margin-bottom: 12px;
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-title-row h2 { margin: 0; }
+
+    .section-title-row span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .today-carousel {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 1px 2px 5px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .today-carousel::-webkit-scrollbar { display: none; }
+
+    .today-card {
+      flex: 0 0 74%;
+      min-height: 128px;
+      scroll-snap-align: start;
+      border-radius: 18px;
+      padding: 11px;
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.10);
+      border-left: 7px solid var(--group-color, var(--gold));
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 9px;
+    }
+
+    .today-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .today-card-status {
+      color: var(--gold-2);
+      white-space: nowrap;
+    }
+
+    .today-card.live .today-card-status { color: #ff8792; }
+    .today-card.final .today-card-status { color: #9fb1c9; }
+
+    .today-card-title {
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.08;
+      font-weight: 950;
+      letter-spacing: -.2px;
+    }
+
+    .today-card-meta {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+      min-height: 28px;
+    }
+
+    .today-card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .tiny-action {
+      border-radius: 12px;
+      padding: 8px 7px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .tiny-action.gold {
+      color: #061225;
+      background: linear-gradient(135deg, var(--gold), #fff0a6);
+      border: 0;
+    }
+
     .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--green); }
     .dot.soon { background: var(--yellow); }
     .dot.closing, .dot.live { background: var(--red); }
@@ -555,6 +661,7 @@
       .primary-btn { width: 100%; }
       .grid-compact { grid-template-columns: 1fr; }
       .quick-actions { grid-template-columns: 1fr; }
+      .today-card { flex-basis: 86%; }
       .brand-title span { max-width: 145px; }
     }
   </style>
@@ -600,6 +707,16 @@
       </div>
     </section>
 
+    <section class="panel today-hub" aria-label="Jornada de hoy">
+      <div class="section-title-row">
+        <h2>Jornada de hoy</h2>
+        <span id="todayCountLabel">Desliza para ver todos</span>
+      </div>
+      <div class="today-carousel" id="todayList">
+        <p class="state-empty">Cargando partidos de hoy...</p>
+      </div>
+    </section>
+
     <section class="grid-compact">
       <article class="panel">
         <h2>Tus pronósticos de hoy</h2>
@@ -611,11 +728,13 @@
         <div class="progress-percent" id="dailyProgressText">0% completado</div>
       </article>
 
-      <article class="panel">
-        <h2>Hoy</h2>
-        <div class="mini-list" id="todayList">
-          <p class="state-empty">Cargando partidos de hoy...</p>
+      <article class="panel recent-result">
+        <div>
+          <h2>Resultado más reciente</h2>
+          <div class="result-score" id="recentScore">Sin resultado oficial</div>
+          <div class="result-meta" id="recentMeta">Cuando termine un partido aparecerá aquí.</div>
         </div>
+        <span class="badge" id="recentBadge">Oficial</span>
       </article>
     </section>
 
@@ -627,13 +746,12 @@
         </div>
       </article>
 
-      <article class="panel recent-result">
-        <div>
-          <h2>Resultado más reciente</h2>
-          <div class="result-score" id="recentScore">Sin resultado oficial</div>
-          <div class="result-meta" id="recentMeta">Cuando termine un partido aparecerá aquí.</div>
+      <article class="panel">
+        <h2>Acción rápida</h2>
+        <div class="tomorrow-list">
+          <a href="./pronostico.html"><span class="tomorrow-name">Ver todos los pronósticos</span><span class="tomorrow-time">🎯</span></a>
+          <a href="./partido-detalle.html"><span class="tomorrow-name">Detalle de partido</span><span class="tomorrow-time">📊</span></a>
         </div>
-        <span class="badge" id="recentBadge">Oficial</span>
       </article>
     </section>
 
@@ -661,14 +779,14 @@
 
   <script>
     /*****************************************************************
-     * PREDIKT™ INDEX v9.0.0
-     * Home Countdown Multi-Timezone Engine
+     * PREDIKT™ HOME-R2 v1.0.5
+     * Daily Action Carousel + Countdown Multi-Timezone Engine
      * Powered by JVSys™
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME-R1_RETENTION_ENGINE_v1.0.3';
-    console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - retention engine hotfix');
+    const HOME_BUILD_VERSION = 'index_HOME-R2_DAILY_CAROUSEL_v1.0.5';
+    console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - daily carousel engine');
 
     let supabaseClient = null;
 
@@ -863,8 +981,9 @@
 
     async function loadEventsWindow() {
       const now = new Date();
-      const min = addDays(startOfLocalDay(now), -1);
-      const max = addDays(startOfLocalDay(now), 3);
+      // Ventana amplia certificada: incluye finalizados recientes, jornada actual, mañana y próximos para fallback.
+      const min = addDays(startOfLocalDay(now), -2);
+      const max = addDays(startOfLocalDay(now), 5);
 
       const rows = await readSportsRows([
         {
@@ -878,6 +997,15 @@
         {
           name: 'v_upcoming_events',
           query: (q) => q.select('*').limit(48)
+        },
+        {
+          name: 'events',
+          query: (q) => q
+            .select('id,name,starts_at,event_status,metadata,venue_id,home_participant_id,away_participant_id')
+            .gte('starts_at', min.toISOString())
+            .lt('starts_at', max.toISOString())
+            .order('starts_at', { ascending: true })
+            .limit(120)
         },
         {
           name: 'events',
@@ -939,24 +1067,45 @@
     }
 
     async function loadRecentOfficialResults() {
-      const { data, error } = await supabaseClient
-        .schema('predictions')
-        .from('official_results')
-        .select('event_id, home_score, away_score, is_final, finalized_at, created_at, events:event_id(id, name, metadata, home:home_participant_id(name, short_name, flag_emoji), away:away_participant_id(name, short_name, flag_emoji))')
-        .eq('is_final', true)
-        .order('finalized_at', { ascending: false, nullsFirst: false })
-        .limit(1);
+      state.officialResults = [];
 
-      if (error) {
-        console.warn('[PREDIKT_RECENT_RESULT_WARNING]', error);
-        state.officialResults = [];
-        return;
+      // Primero intentamos la consulta enriquecida con relación a sports.events.
+      try {
+        const { data, error } = await supabaseClient
+          .schema('predictions')
+          .from('official_results')
+          .select('event_id, home_score, away_score, is_final, finalized_at, created_at, events:event_id(id, name, metadata, home:home_participant_id(name, short_name, flag_emoji), away:away_participant_id(name, short_name, flag_emoji))')
+          .eq('is_final', true)
+          .order('finalized_at', { ascending: false, nullsFirst: false })
+          .limit(1);
+
+        if (!error && Array.isArray(data) && data.length) {
+          state.officialResults = data;
+          return;
+        }
+      } catch (error) {
+        console.warn('[PREDIKT_RECENT_RESULT_ENRICHED_WARNING]', error);
       }
 
-      state.officialResults = data || [];
-      if (!state.officialResults.length) {
-        state.recentResultEvent = findMostRecentFinishedEvent();
+      // Fallback seguro: resultado oficial plano, sin joins.
+      try {
+        const { data, error } = await supabaseClient
+          .schema('predictions')
+          .from('official_results')
+          .select('event_id, home_score, away_score, is_final, finalized_at, created_at')
+          .eq('is_final', true)
+          .order('finalized_at', { ascending: false, nullsFirst: false })
+          .limit(1);
+
+        if (!error && Array.isArray(data) && data.length) {
+          state.officialResults = data;
+          return;
+        }
+      } catch (error) {
+        console.warn('[PREDIKT_RECENT_RESULT_PLAIN_WARNING]', error);
       }
+
+      state.recentResultEvent = findMostRecentFinishedEvent();
     }
 
     function findMostRecentFinishedEvent() {
@@ -1129,7 +1278,9 @@
 
     function renderTodayList() {
       const list = $('todayList');
-      const todayEvents = getTodayEvents().slice(0, 3);
+      const todayEvents = getTodayEvents();
+      const label = $('todayCountLabel');
+      if (label) label.textContent = todayEvents.length ? `${todayEvents.length} partido${todayEvents.length === 1 ? '' : 's'} hoy` : 'Sin jornada cargada';
 
       if (!todayEvents.length) {
         list.innerHTML = '<p class="state-empty">No hay partidos programados para hoy.</p>';
@@ -1138,22 +1289,40 @@
 
       list.innerHTML = todayEvents.map((event) => {
         const status = getCountdownStatus(event);
+        const disabledPrediction = ['live', 'final'].includes(status.key) && !state.predictions.has(String(event.id));
+        const predictionLabel = state.predictions.has(String(event.id)) ? 'Ver pronóstico' : (disabledPrediction ? 'Cerrado' : 'Pronosticar');
         return `
-          <a class="mini-match" style="--group-color:${getGroupColor(event.groupCode)}" href="./pronostico.html?event_id=${encodeURIComponent(event.id)}">
-            <i class="dot ${status.key}"></i>
-            <span class="name">${escapeHtml(shortMatchLabel(event))}</span>
-            <span class="time">${escapeHtml(status.short)}</span>
-          </a>
+          <article class="today-card ${status.key}" style="--group-color:${getGroupColor(event.groupCode)}">
+            <div class="today-card-top">
+              <span>${escapeHtml(labelGroup(event.groupCode))}</span>
+              <span class="today-card-status">${escapeHtml(status.short)}</span>
+            </div>
+            <div class="today-card-title">${escapeHtml(shortMatchLabel(event))}</div>
+            <div class="today-card-meta">⏰ ${escapeHtml(formatLocalTime(event.startsAtDate))}${event.venueName ? ' · 📍 ' + escapeHtml(event.venueName) : ''}</div>
+            <div class="today-card-actions">
+              <a class="tiny-action" href="./partido-detalle.html?event_id=${encodeURIComponent(event.id)}">Detalle</a>
+              <a class="tiny-action gold" href="./pronostico.html?event_id=${encodeURIComponent(event.id)}">${escapeHtml(predictionLabel)}</a>
+            </div>
+          </article>
         `;
       }).join('');
     }
 
     function renderTomorrowList() {
       const list = $('tomorrowList');
-      const tomorrowEvents = getTomorrowEvents().slice(0, 4);
+      let tomorrowEvents = getTomorrowEvents().slice(0, 6);
 
       if (!tomorrowEvents.length) {
-        list.innerHTML = '<p class="state-empty">Mañana aún no tiene partidos programados.</p>';
+        // Fallback discreto: próximos partidos después de hoy para que el usuario siempre tenga acción.
+        const endToday = addDays(startOfLocalDay(new Date()), 1);
+        tomorrowEvents = state.events
+          .filter((event) => event.startsAtDate >= endToday)
+          .sort((a, b) => a.startsAtDate - b.startsAtDate)
+          .slice(0, 6);
+      }
+
+      if (!tomorrowEvents.length) {
+        list.innerHTML = '<p class="state-empty">Aún no hay partidos posteriores cargados.</p>';
         return;
       }
 
@@ -1169,12 +1338,12 @@
       const result = state.officialResults[0];
 
       if (result) {
-        const event = result.events || {};
-        const home = event.home?.short_name || event.home?.name || 'Local';
-        const away = event.away?.short_name || event.away?.name || 'Visitante';
-        const homeFlag = event.home?.flag_emoji ? ` ${event.home.flag_emoji}` : '';
-        const awayFlag = event.away?.flag_emoji ? ` ${event.away.flag_emoji}` : '';
-        const group = labelGroup(event.metadata?.group_code || 'Grupo');
+        const matchedEvent = result.events || state.events.find((event) => String(event.id) === String(result.event_id));
+        const home = matchedEvent?.home?.short_name || matchedEvent?.home?.name || matchedEvent?.homeLabel?.replace(/\s+[🇦-🇿🏴]+$/u, '') || 'Local';
+        const away = matchedEvent?.away?.short_name || matchedEvent?.away?.name || matchedEvent?.awayLabel?.replace(/\s+[🇦-🇿🏴]+$/u, '') || 'Visitante';
+        const homeFlag = matchedEvent?.home?.flag_emoji ? ` ${matchedEvent.home.flag_emoji}` : '';
+        const awayFlag = matchedEvent?.away?.flag_emoji ? ` ${matchedEvent.away.flag_emoji}` : '';
+        const group = labelGroup(matchedEvent?.metadata?.group_code || matchedEvent?.groupCode || 'Grupo');
         const finalized = result.finalized_at || result.created_at;
 
         $('recentScore').textContent = `${home}${homeFlag} ${result.home_score}-${result.away_score} ${away}${awayFlag}`;
@@ -1184,7 +1353,23 @@
       }
 
       const recentEvent = state.recentResultEvent || findMostRecentFinishedEvent();
-      if (!recentEvent) return;
+      if (!recentEvent) {
+        const elapsedEvent = state.events
+          .filter((event) => event.startsAtDate < new Date())
+          .sort((a, b) => b.startsAtDate - a.startsAtDate)[0] || null;
+
+        if (elapsedEvent) {
+          $('recentScore').textContent = shortMatchLabel(elapsedEvent);
+          $('recentMeta').textContent = `${labelGroup(elapsedEvent.groupCode)} · ${timeAgo(elapsedEvent.startsAtDate)} · marcador pendiente`;
+          $('recentBadge').textContent = 'Pendiente';
+          return;
+        }
+
+        $('recentScore').textContent = 'Sin resultado oficial';
+        $('recentMeta').textContent = 'Aparecerá aquí al cerrar el primer marcador oficial.';
+        $('recentBadge').textContent = 'Pendiente';
+        return;
+      }
 
       $('recentScore').textContent = shortMatchLabel(recentEvent);
       $('recentMeta').textContent = `${labelGroup(recentEvent.groupCode)} · ${timeAgo(recentEvent.startsAtDate)} · marcador pendiente`;
@@ -1331,6 +1516,7 @@
       $('heroAction').textContent = 'Ir a Pronósticos';
       $('heroAction').disabled = false;
       $('todayList').innerHTML = '<p class="state-empty">Sin datos cargados.</p>';
+      if ($('todayCountLabel')) $('todayCountLabel').textContent = 'Sin datos';
       $('tomorrowList').innerHTML = '<p class="state-empty">Sin datos cargados.</p>';
     }
   </script>
