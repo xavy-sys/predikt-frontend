@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.1_OPERATOR_RESTORE_PATH_FIX
-Entrega: resultado-partido-admin_v3.0.1_OPERATOR_RESTORE_PATH_FIX.txt
+Versión: v3.0.2_OPERATOR_RESTORE_SCHEMA_FIX
+Entrega: resultado-partido-admin_v3.0.2_OPERATOR_RESTORE_SCHEMA_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1255
+Total de líneas: 1257
 
 MOTIVO DE VERSIÓN
 - Restaurar el motor funcional certificado de resultado-partido-admin_v1.4.0_DAILY_OPERATOR_VIEW.
@@ -737,7 +737,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.0_OPERATOR_RESTORE";
+    const VERSION = "v3.0.2_OPERATOR_RESTORE_SCHEMA_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -866,10 +866,12 @@ CHECKLIST DE VALIDACIÓN
     }
 
     async function loadEvents() {
-      const { data, error } = await state.supabase.rpc("get_home_events", {
-        p_from: TOURNAMENT_FROM,
-        p_to: TOURNAMENT_TO
-      });
+      const { data, error } = await state.supabase
+        .schema("sports")
+        .rpc("get_home_events", {
+          p_from: TOURNAMENT_FROM,
+          p_to: TOURNAMENT_TO
+        });
 
       if (error) throw error;
       state.events = normalizeEvents(Array.isArray(data) ? data : []);
@@ -1239,14 +1241,14 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.1_OPERATOR_RESTORE_PATH_FIX
-Total de líneas: 1255
+Versión: v3.0.2_OPERATOR_RESTORE_SCHEMA_FIX
+Total de líneas: 1257
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
 - Sin diffs.
 - Sin cliente Supabase paralelo.
-- Carga mediante sports.get_home_events().
+- Carga mediante sports.get_home_events() invocado explícitamente con schema("sports").
 - Ventana completa 2026-06-01 a 2026-08-01.
 - Paginación fija de 20 partidos por página.
 - Corrección histórica habilitada.
