@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.3_OPERATOR_RESTORE_MOBILE_FIELDS_FIX
-Entrega: resultado-partido-admin_v3.0.3_OPERATOR_RESTORE_MOBILE_FIELDS_FIX.txt
+Versión: v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX
+Entrega: resultado-partido-admin_v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1333
+Total de líneas: 1357
 
 MOTIVO DE VERSIÓN
 - Restaurar el motor funcional certificado de resultado-partido-admin_v1.4.0_DAILY_OPERATOR_VIEW.
@@ -739,7 +739,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.3_OPERATOR_RESTORE_MOBILE_FIELDS_FIX";
+    const VERSION = "v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -925,15 +925,38 @@ CHECKLIST DE VALIDACIÓN
 
         if (upsertError) throw upsertError;
 
+        const officialResult = {
+          ...payload,
+          home_score: homeScore,
+          away_score: awayScore
+        };
+
+        state.results.set(String(event.id), officialResult);
+        state.events = state.events.map((item) => {
+          if (String(item.id) !== String(event.id)) return item;
+          return {
+            ...item,
+            official_result: officialResult,
+            home_score: homeScore,
+            away_score: awayScore,
+            event_status: "completed"
+          };
+        });
+
+        applyFilters();
+        render();
+
         const { error: eventError } = await state.supabase
           .schema("sports")
           .from("events")
           .update({ event_status: "completed", updated_at: new Date().toISOString() })
           .eq("id", event.id);
 
-        if (eventError) throw eventError;
+        if (eventError) {
+          console.warn(`[${VERSION}] event_status update warning`, eventError);
+        }
 
-        showNotice("Resultado oficial guardado y sincronizado.", "ok");
+        showNotice("Resultado oficial guardado. El partido pasó a Historial.", "ok");
         await refreshAll(false);
       } catch (error) {
         console.error(`[${VERSION}] saveResult`, error);
@@ -951,7 +974,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.3_OPERATOR_RESTORE_MOBILE_FIELDS_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX",
         recorded_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -1062,7 +1085,8 @@ CHECKLIST DE VALIDACIÓN
           ...event,
           official_result: result || null,
           home_score: result ? getScore(result, "home") : getExistingScore(event, "home"),
-          away_score: result ? getScore(result, "away") : getExistingScore(event, "away")
+          away_score: result ? getScore(result, "away") : getExistingScore(event, "away"),
+          event_status: result ? "completed" : event.event_status
         };
       });
     }
@@ -1315,8 +1339,8 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.3_OPERATOR_RESTORE_MOBILE_FIELDS_FIX
-Total de líneas: 1333
+Versión: v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX
+Total de líneas: 1357
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
