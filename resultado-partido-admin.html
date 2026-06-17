@@ -2,8 +2,8 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX
-Entrega: resultado-partido-admin_v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX.txt
+Versión: v3.0.14_OPERATOR_HISTORY_OK_SAMPLE_SHAPE_SAVE_FIX
+Entrega: resultado-partido-admin_v3.0.14_OPERATOR_HISTORY_OK_SAMPLE_SHAPE_SAVE_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
@@ -27,7 +27,7 @@ DECISIONES ARQUITECTÓNICAS CERRADAS
 - El cliente Supabase debe provenir del bootstrap oficial assets/js/supabase.js.
 - Se conserva el flujo loadEvents(), loadResults(), saveResult().
 - Se conserva persistencia en predictions.official_results mediante update/insert seguro, evitando pérdida por onConflict.
-- Se conserva el Historial funcional y se corrige el guardado para columnas reales de official_results, sin usar away_score cuando no existe.
+- Se conserva el Historial funcional y se corrige el guardado usando la forma real detectada desde resultados ya existentes.
 - Se conserva actualización de sports.events.event_status.
 
 VENTANA OFICIAL DE CARGA
@@ -743,7 +743,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX";
+    const VERSION = "v3.0.14_OPERATOR_HISTORY_OK_SAMPLE_SHAPE_SAVE_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -970,7 +970,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.14_OPERATOR_HISTORY_OK_SAMPLE_SHAPE_SAVE_FIX",
         recorded_at: now,
         updated_at: now
       };
@@ -992,7 +992,7 @@ CHECKLIST DE VALIDACIÓN
       const baseMeta = {
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.14_OPERATOR_HISTORY_OK_SAMPLE_SHAPE_SAVE_FIX",
         updated_at: now
       };
 
@@ -1132,59 +1132,145 @@ CHECKLIST DE VALIDACIÓN
     }
 
     async function persistOfficialResult(event, homeScore, awayScore) {
-      const payloads = buildOfficialResultPayloads(event, homeScore, awayScore);
+      /*
+        v3.0.14 — Guardado basado en la forma REAL ya cargada en Historial.
+        No se vuelven a inventar columnas. Primero se toma una fila existente de
+        predictions.official_results, se detectan sus campos reales de marcador
+        y se guarda usando exactamente esa pareja de columnas.
+      */
+      const payloads = buildSafeOfficialResultPayloads(event, homeScore, awayScore);
       let lastError = null;
 
-      for (const payload of payloads) {
+      for (const candidate of payloads) {
         try {
-          const saved = await persistOfficialResultPayload(payload);
-          return normalizeSavedOfficialResult(saved || payload, event.id, homeScore, awayScore);
+          const saved = await persistOfficialResultPayload(candidate);
+          return normalizeSavedOfficialResult(saved || candidate.payload, event.id, homeScore, awayScore);
         } catch (error) {
           lastError = error;
           const message = `${error && error.message ? error.message : ""} ${error && error.details ? error.details : ""} ${error && error.hint ? error.hint : ""}`.toLowerCase();
-          const schemaRecoverable =
+          const recoverable =
             message.includes("column") ||
             message.includes("schema cache") ||
             message.includes("could not find") ||
-            message.includes("result_status") ||
-            message.includes("recorded_at") ||
-            message.includes("updated_at") ||
-            message.includes("source_version") ||
-            message.includes("source") ||
-            message.includes("away_score") ||
-            message.includes("visitor_score") ||
-            message.includes("local_score") ||
-            message.includes("home_goals") ||
-            message.includes("away_goals") ||
-            message.includes("home_team_score") ||
-            message.includes("away_team_score") ||
-            message.includes("team_home_score") ||
-            message.includes("team_away_score") ||
-            message.includes("home_final_score") ||
-            message.includes("away_final_score") ||
-            message.includes("sport_event_id") ||
-            message.includes("match_id") ||
-            message.includes("event_uuid");
-
-          if (!schemaRecoverable) {
-            break;
-          }
+            message.includes("bad request") ||
+            message.includes("violates") ||
+            message.includes("null value") ||
+            message.includes("duplicate key");
+          if (!recoverable) break;
         }
       }
 
       throw lastError || new Error("No fue posible persistir el resultado oficial.");
     }
 
-    async function persistOfficialResultPayload(payload) {
-      const eventId = payload.event_id;
+    function buildSafeOfficialResultPayloads(event, homeScore, awayScore) {
+      const now = new Date().toISOString();
+      const eventId = event.id;
+      const sample = getOfficialResultSample(eventId);
+      const detected = detectOfficialResultShape(sample);
+      const candidates = [];
+
+      if (detected && detected.eventKey && detected.homeKey && detected.awayKey) {
+        candidates.push(makeCandidatePayload(sample, detected.eventKey, detected.homeKey, detected.awayKey, eventId, homeScore, awayScore, now));
+      }
+
+      /* Orden seguro: primero las parejas mínimas más probables.
+         Sin source/source_version/recorded_at/updated_at salvo cuando existan en la muestra real. */
+      [
+        ["event_id", "home_score", "visitor_score"],
+        ["event_id", "local_score", "visitor_score"],
+        ["event_id", "home_score", "away_score"],
+        ["event_id", "home_goals", "away_goals"],
+        ["event_id", "home_team_score", "away_team_score"],
+        ["event_id", "team_home_score", "team_away_score"],
+        ["event_id", "home_final_score", "away_final_score"],
+        ["event_id", "goals_home", "goals_away"],
+        ["event_id", "result_home_score", "result_away_score"],
+        ["event_id", "result_home_goals", "result_away_goals"],
+        ["sport_event_id", "home_score", "visitor_score"],
+        ["match_id", "home_score", "visitor_score"],
+        ["event_uuid", "home_score", "visitor_score"]
+      ].forEach(([eventKey, homeKey, awayKey]) => {
+        candidates.push(makeCandidatePayload(sample, eventKey, homeKey, awayKey, eventId, homeScore, awayScore, now));
+      });
+
+      const unique = [];
+      const seen = new Set();
+      candidates.forEach((candidate) => {
+        const signature = `${candidate.eventKey}|${Object.keys(candidate.payload).sort().join(",")}`;
+        if (!seen.has(signature)) {
+          seen.add(signature);
+          unique.push(candidate);
+        }
+      });
+      return unique;
+    }
+
+    function getOfficialResultSample(eventId) {
+      const current = state.results.get(String(eventId));
+      if (current && Object.keys(current).length) return current;
+      for (const result of state.results.values()) {
+        if (result && isScoreValue(getScore(result, "home")) && isScoreValue(getScore(result, "away"))) {
+          return result;
+        }
+      }
+      return null;
+    }
+
+    function detectOfficialResultShape(sample) {
+      if (!sample) return null;
+      const eventKeys = ["event_id", "sport_event_id", "match_id", "event_uuid"];
+      const homeKeys = [
+        "home_score", "home_goals", "local_score", "local_goals",
+        "score_home", "home_team_score", "local_team_score",
+        "team_home_score", "goals_home", "home_final_score",
+        "local_final_score", "official_home_score", "result_home_score",
+        "result_home_goals", "home_result", "local_result"
+      ];
+      const awayKeys = [
+        "away_score", "away_goals", "visitor_score", "visitor_goals",
+        "visitante_score", "visitante_goals", "score_away",
+        "away_team_score", "visitor_team_score", "team_away_score",
+        "goals_away", "away_final_score", "visitor_final_score",
+        "official_away_score", "result_away_score", "result_away_goals",
+        "away_result", "visitor_result", "visitante_result"
+      ];
+      return {
+        eventKey: eventKeys.find((key) => Object.prototype.hasOwnProperty.call(sample, key)) || "event_id",
+        homeKey: homeKeys.find((key) => Object.prototype.hasOwnProperty.call(sample, key) && isScoreValue(sample[key])) || homeKeys.find((key) => Object.prototype.hasOwnProperty.call(sample, key)),
+        awayKey: awayKeys.find((key) => Object.prototype.hasOwnProperty.call(sample, key) && isScoreValue(sample[key])) || awayKeys.find((key) => Object.prototype.hasOwnProperty.call(sample, key))
+      };
+    }
+
+    function makeCandidatePayload(sample, eventKey, homeKey, awayKey, eventId, homeScore, awayScore, now) {
+      const payload = {};
+      payload[eventKey] = eventId;
+      payload[homeKey] = homeScore;
+      payload[awayKey] = awayScore;
+
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "result_status")) payload.result_status = "official";
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "status")) payload.status = "official";
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "is_official")) payload.is_official = true;
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "source")) payload.source = "operator_admin";
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "source_version")) payload.source_version = VERSION;
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "recorded_at")) payload.recorded_at = now;
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "updated_at")) payload.updated_at = now;
+      if (sample && Object.prototype.hasOwnProperty.call(sample, "created_at") && !sample.created_at) payload.created_at = now;
+
+      return { eventKey, payload };
+    }
+
+    async function persistOfficialResultPayload(candidate) {
+      const { eventKey, payload } = candidate;
+      const eventId = payload[eventKey];
       const updatePayload = { ...payload };
-      delete updatePayload.event_id;
+      delete updatePayload[eventKey];
 
       const updateResponse = await state.supabase
         .schema("predictions")
         .from("official_results")
         .update(updatePayload)
-        .eq("event_id", eventId)
+        .eq(eventKey, eventId)
         .select("*");
 
       if (updateResponse.error) {
@@ -1623,7 +1709,7 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX
+Versión: v3.0.14_OPERATOR_HISTORY_OK_SAMPLE_SHAPE_SAVE_FIX
 Total de líneas: 1641
 Certificación de entrega:
 - Archivo completo.
