@@ -1,957 +1,599 @@
-<!--
-  Archivo: eliminacion.html
-  Versión: v2.6.1_MOTOR_Y_CAMINO_FAVORITA
-  Proyecto: PREDIKT™
-  Motivo de la nueva versión:
-  Recupera MOTOR ENRIQUECIDO PREDIKT™ como sello visual de confianza y actualiza el acceso a Ruta por Selección con el mensaje “¿Cuál sería el camino de mi selección favorita hacia la Copa?”.
--->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>PREDIKT™ | Ruta hacia la Copa</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>PREDIKT™ | Eliminación Directa</title>
   <link rel="icon" href="./predikt-logo.png" />
   <style>
-    :root {
-      --navy: #061b3a;
-      --deep: #031126;
-      --blue: #0b3f86;
-      --blue2: #0f5fb8;
-      --gold: #f6c343;
-      --green: #33d17a;
-      --red: #ff5a5a;
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.72);
-      --soft: rgba(255,255,255,0.92);
-      --card: rgba(255,255,255,0.09);
-      --card2: rgba(255,255,255,0.14);
-      --border: rgba(255,255,255,0.16);
-      --shadow: 0 18px 42px rgba(0,0,0,0.30);
-      --footer-h: 78px;
+    :root{
+      --bg:#061226;
+      --bg2:#0b1f3f;
+      --card:rgba(20,39,67,.92);
+      --card2:rgba(14,28,50,.96);
+      --line:rgba(255,255,255,.14);
+      --text:#fff;
+      --muted:#b9c7dc;
+      --gold:#ffd766;
+      --gold2:#ffbf2e;
+      --green:#27d67b;
+      --red:#ff4264;
+      --blue:#38bdf8;
+      --shadow:0 18px 50px rgba(0,0,0,.34);
+      --radius:22px;
+      --safe-bottom:env(safe-area-inset-bottom,0px);
     }
 
-    * { box-sizing: border-box; }
+    *{box-sizing:border-box}
 
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
+    body{
+      margin:0;
+      min-height:100svh;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(15,95,184,0.58), transparent 33%),
-        radial-gradient(circle at bottom right, rgba(246,195,67,0.13), transparent 28%),
-        linear-gradient(180deg, #082b5d 0%, #061b3a 52%, #031126 100%);
+        radial-gradient(circle at top right,rgba(22,88,166,.42),transparent 34%),
+        linear-gradient(180deg,#0d2b57 0%,#061226 52%,#030814 100%);
+      padding:18px 14px calc(98px + var(--safe-bottom));
     }
 
-    body {
-      padding: max(12px, env(safe-area-inset-top)) 12px calc(var(--footer-h) + 22px + env(safe-area-inset-bottom));
-      overflow-x: hidden;
+    .app{
+      width:min(480px,100%);
+      margin:0 auto;
     }
 
-    .app-shell {
-      width: 100%;
-      max-width: 1180px;
-      margin: 0 auto;
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin:4px 0 16px;
     }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      width: min(100%, 540px);
-      margin: 0 auto;
-      padding: 6px 2px 14px;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
+    .logo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      object-fit:contain;
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      padding:5px;
     }
 
-    .brand-logo {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      object-fit: contain;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid var(--border);
-      padding: 4px;
+    .brand strong{
+      display:block;
+      font-weight:950;
+      letter-spacing:.05em;
+      line-height:1;
     }
 
-    .brand-title {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: 0.3px;
-      line-height: 1.05;
+    .brand small{
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
     }
 
-    .brand-subtitle {
-      margin: 2px 0 0;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.4px;
-      text-transform: uppercase;
+    .top-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
     }
 
-    .refresh-btn {
-      border: 1px solid rgba(246,195,67,0.45);
-      background: rgba(246,195,67,0.12);
-      color: var(--gold);
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-weight: 900;
-      font-size: 12px;
-      cursor: pointer;
+    button,a{
+      -webkit-tap-highlight-color:transparent;
     }
 
-    .hero {
-      width: min(100%, 760px);
-      margin: 0 auto 12px;
-      padding: 18px;
-      border-radius: 26px;
-      border: 1px solid var(--border);
-      background: linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
+    .pill-btn{
+      border:0;
+      border-radius:999px;
+      padding:11px 15px;
+      font-weight:950;
+      font-size:12px;
+      color:#09111f;
+      background:linear-gradient(135deg,var(--gold2),#fff1a3);
+      box-shadow:0 8px 20px rgba(255,191,46,.18);
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
     }
 
-    .hero:after {
-      content: "";
-      position: absolute;
-      width: 140px;
-      height: 140px;
-      right: -48px;
-      top: -48px;
-      border-radius: 50%;
-      background: rgba(246,195,67,0.12);
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      background: rgba(246,195,67,0.14);
-      border: 1px solid rgba(246,195,67,0.36);
-      color: var(--gold);
-      font-size: 11px;
-      font-weight: 950;
-      letter-spacing: 0.55px;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 12px 0 8px;
-      font-size: clamp(25px, 7vw, 46px);
-      line-height: 0.96;
-      letter-spacing: -1px;
-      max-width: 680px;
-    }
-
-    .hero p {
-      margin: 0;
-      color: var(--soft);
-      font-size: 14px;
-      line-height: 1.45;
-      max-width: 620px;
-    }
-
-    .live-pill {
-      display: inline-flex;
-      margin-top: 12px;
-      padding: 9px 11px;
-      border-radius: 999px;
-      background: rgba(51,209,122,0.14);
-      border: 1px solid rgba(51,209,122,0.34);
-      color: #a7f3c4;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .section-card {
-      width: min(100%, 960px);
-      margin: 12px auto;
-      padding: 14px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.075);
-      box-shadow: 0 12px 34px rgba(0,0,0,0.22);
-    }
-
-    .section-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .section-head h2 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.12;
-    }
-
-    .section-head small {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.25;
-    }
-
-    .badge {
-      flex: 0 0 auto;
-      border: 1px solid rgba(246,195,67,0.42);
-      background: rgba(246,195,67,0.14);
-      color: var(--gold);
-      border-radius: 999px;
-      padding: 7px 9px;
-      font-size: 11px;
-      font-weight: 950;
-      white-space: nowrap;
-    }
-
-    .route-carousel,
-    .featured-carousel {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(248px, 78%);
-      gap: 12px;
-      overflow-x: auto;
-      overscroll-behavior-inline: contain;
-      scroll-snap-type: x mandatory;
-      padding: 2px 2px 12px;
-      scrollbar-color: var(--gold) rgba(255,255,255,0.10);
-      scrollbar-width: thin;
-    }
-
-    .route-carousel::-webkit-scrollbar,
-    .featured-carousel::-webkit-scrollbar,
-    .bracket-scroll::-webkit-scrollbar { height: 9px; }
-
-    .route-carousel::-webkit-scrollbar-track,
-    .featured-carousel::-webkit-scrollbar-track,
-    .bracket-scroll::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.10);
-      border-radius: 99px;
-    }
-
-    .route-carousel::-webkit-scrollbar-thumb,
-    .featured-carousel::-webkit-scrollbar-thumb,
-    .bracket-scroll::-webkit-scrollbar-thumb {
-      background: linear-gradient(90deg, var(--gold), #ffe28a);
-      border-radius: 99px;
-    }
-
-    .route-step {
-      scroll-snap-align: start;
-      min-height: 242px;
-      padding: 14px;
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.18);
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:var(--radius);
       background:
-        linear-gradient(160deg, rgba(15,95,184,0.42), rgba(255,255,255,0.08)),
-        rgba(255,255,255,0.08);
-      position: relative;
-      overflow: hidden;
+        radial-gradient(circle at 100% 0%,rgba(255,215,102,.18),transparent 26%),
+        linear-gradient(135deg,rgba(26,55,95,.96),rgba(14,31,55,.96));
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:14px;
     }
 
-    .route-step.gold {
-      background: linear-gradient(160deg, rgba(246,195,67,0.25), rgba(255,255,255,0.08));
+    .tag{
+      display:inline-flex;
+      gap:7px;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,215,102,.38);
+      color:var(--gold);
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      background:rgba(255,215,102,.08);
+      margin-bottom:14px;
     }
 
-    .route-step.green {
-      background: linear-gradient(160deg, rgba(51,209,122,0.20), rgba(255,255,255,0.08));
+    h1{
+      margin:0;
+      font-size:28px;
+      line-height:.98;
+      letter-spacing:-.045em;
     }
 
-    .step-kicker {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 950;
-      letter-spacing: 0.35px;
-      text-transform: uppercase;
+    .hero p{
+      margin:10px 0 0;
+      color:#dbe7fb;
+      line-height:1.35;
+      font-size:14px;
+      font-weight:700;
     }
 
-    .big-team {
-      margin: 12px 0 10px;
-      font-size: 30px;
-      font-weight: 950;
-      letter-spacing: -0.7px;
-      line-height: 1.02;
+    .notice{
+      border:1px solid rgba(255,215,102,.32);
+      border-radius:18px;
+      background:rgba(255,215,102,.08);
+      color:#ffe48a;
+      font-weight:900;
+      padding:11px 13px;
+      font-size:12px;
+      margin:14px 0;
     }
 
-    .group-list {
-      display: grid;
-      gap: 7px;
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:16px;
     }
 
-    .group-row,
-    .team-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 11px;
-      border-radius: 15px;
-      background: rgba(255,255,255,0.09);
-      border: 1px solid rgba(255,255,255,0.10);
-      font-weight: 850;
+    .stat{
+      border:1px solid var(--line);
+      background:rgba(26,47,78,.72);
+      border-radius:17px;
+      padding:13px;
+      min-height:70px;
     }
 
-    .group-row.active,
-    .team-row.active {
-      background: rgba(246,195,67,0.16);
-      border-color: rgba(246,195,67,0.45);
-      color: #fff4c8;
+    .stat span{
+      display:block;
+      color:#9fb3cf;
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
     }
 
-    .seed {
-      color: var(--gold);
-      font-size: 11px;
-      font-weight: 950;
+    .stat strong{
+      display:block;
+      margin-top:8px;
+      font-size:24px;
+      line-height:1;
     }
 
-    .vs-center {
-      display: grid;
-      place-items: center;
-      margin: 12px 0;
-      color: var(--gold);
-      font-weight: 950;
-      letter-spacing: 2px;
-      text-align: center;
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:18px 2px 10px;
     }
 
-    .vs-center:before,
-    .vs-center:after {
-      content: "";
-      width: 100%;
-      max-width: 220px;
-      height: 1px;
-      background: rgba(246,195,67,0.48);
-      margin: 7px 0;
+    .section-title h2{
+      margin:0;
+      font-size:17px;
+      letter-spacing:-.03em;
     }
 
-    .hint-line {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 8px 0 0;
-      color: var(--gold);
-      font-weight: 950;
-      font-size: 12px;
-      text-align: center;
+    .section-title small{
+      color:var(--muted);
+      font-weight:800;
+      font-size:11px;
     }
 
-    .featured-card {
-      scroll-snap-align: start;
-      padding: 14px;
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,0.17);
-      background: rgba(255,255,255,0.09);
-      min-height: 220px;
+    .bracket{
+      display:grid;
+      gap:10px;
     }
 
-    .featured-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 18px;
-      font-weight: 950;
+    .match{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(23,42,73,.95),rgba(13,25,46,.96));
+      border-radius:18px;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
     }
 
-    .mini-path {
-      display: grid;
-      gap: 8px;
+    .match::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:5px;
+      background:linear-gradient(180deg,var(--gold),#ff7b4a);
     }
 
-    .mini-node {
-      padding: 10px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.09);
-      border: 1px solid rgba(255,255,255,0.11);
+    .match-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-left:5px;
+      margin-bottom:8px;
     }
 
-    .mini-node small {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 950;
-      text-transform: uppercase;
-      margin-bottom: 4px;
+    .match-head span{
+      font-size:11px;
+      color:#bcd0ea;
+      font-weight:950;
+      text-transform:uppercase;
+      letter-spacing:.07em;
     }
 
-    .bracket-wrap {
-      position: relative;
+    .badge{
+      display:inline-flex;
+      border-radius:999px;
+      padding:5px 8px;
+      font-size:10px;
+      font-weight:950;
+      background:rgba(56,189,248,.12);
+      color:#9be8ff;
+      border:1px solid rgba(56,189,248,.25);
+      white-space:nowrap;
     }
 
-    .bracket-scroll {
-      overflow-x: auto;
-      padding: 4px 4px 14px;
-      scrollbar-color: var(--gold) rgba(255,255,255,0.10);
-      scrollbar-width: thin;
+    .teams{
+      display:grid;
+      gap:6px;
+      margin-left:5px;
     }
 
-    .bracket-grid {
-      min-width: 1080px;
-      display: grid;
-      grid-template-columns: 180px 170px 160px 190px 160px 170px 180px;
-      gap: 14px;
-      align-items: center;
-      padding: 8px;
+    .team{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 9px;
+      border-radius:12px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.08);
+      font-weight:950;
+      font-size:13px;
     }
 
-    .round {
-      display: grid;
-      gap: 12px;
+    .team small{
+      color:#9fb3cf;
+      font-size:10px;
+      font-weight:900;
     }
 
-    .stack-4 { grid-template-rows: repeat(4, 1fr); }
-    .stack-2 { grid-template-rows: repeat(2, 1fr); gap: 54px; }
-    .stack-1 { grid-template-rows: 1fr; }
-
-    .round-title {
-      color: var(--gold);
-      font-size: 12px;
-      font-weight: 950;
-      text-transform: uppercase;
-      letter-spacing: 0.45px;
-      text-align: center;
+    .loading,.empty,.friendly-error{
+      border:1px dashed rgba(255,255,255,.22);
+      background:rgba(255,255,255,.045);
+      border-radius:18px;
+      padding:22px 16px;
+      text-align:center;
+      color:#d9e6f8;
+      font-weight:800;
+      line-height:1.35;
     }
 
-    .match-card {
-      padding: 10px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    .friendly-error strong{
+      display:block;
+      color:var(--gold);
+      margin-bottom:6px;
+      font-size:15px;
     }
 
-    .match-card.gold {
-      border-color: rgba(246,195,67,0.44);
-      background: rgba(246,195,67,0.13);
+    .mini-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
     }
 
-    .match-label {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 950;
-      text-transform: uppercase;
+    .soft-link{
+      text-decoration:none;
+      color:#fff;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      border-radius:15px;
+      padding:12px;
+      font-weight:950;
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      gap:9px;
     }
 
-    .match-team {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.08);
-      font-size: 13px;
-      font-weight: 900;
+    .bottom-nav{
+      position:fixed;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:min(520px,100%);
+      padding:10px 12px calc(10px + var(--safe-bottom));
+      background:rgba(4,12,24,.92);
+      border-top:1px solid rgba(255,255,255,.12);
+      backdrop-filter:blur(18px);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      z-index:20;
     }
 
-    .match-team + .match-team { margin-top: 6px; }
-
-    .cup-card {
-      text-align: center;
-      padding: 14px;
-      border-radius: 24px;
-      background: linear-gradient(160deg, rgba(246,195,67,0.22), rgba(255,255,255,0.09));
-      border: 1px solid rgba(246,195,67,0.45);
+    .nav-item{
+      text-decoration:none;
+      color:#9fb0c8;
+      font-size:10px;
+      font-weight:900;
+      text-align:center;
+      border-radius:14px;
+      padding:8px 4px;
+      display:grid;
+      gap:3px;
     }
 
-    .cup-card .cup {
-      font-size: 42px;
-      line-height: 1;
+    .nav-item.active{
+      color:#0b1322;
+      background:linear-gradient(135deg,var(--gold2),#ffe98b);
     }
 
-    .cup-card h3 {
-      margin: 7px 0 2px;
-      font-size: 18px;
+    .nav-item b{
+      font-size:17px;
+      line-height:1;
     }
 
-    .cup-card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .favorites-grid {
-      display: grid;
-      gap: 8px;
-    }
-
-    .favorite-row {
-      display: grid;
-      grid-template-columns: 34px 1fr 54px;
-      align-items: center;
-      gap: 10px;
-      padding: 11px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.09);
-      border: 1px solid rgba(255,255,255,0.10);
-      font-weight: 900;
-    }
-
-    .favorite-bar {
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      overflow: hidden;
-      margin-top: 6px;
-    }
-
-    .favorite-fill {
-      display: block;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--gold), #ffe79a);
-    }
-
-    .engine-card {
-      display: grid;
-      gap: 12px;
-    }
-
-    .engine-card h2 {
-      margin: 0;
-      font-size: 18px;
-    }
-
-    .engine-card p {
-      margin: 0;
-      color: var(--soft);
-      font-size: 13px;
-      line-height: 1.42;
-    }
-
-    .engine-chips {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    .engine-chip {
-      min-height: 54px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 10px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.09);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: var(--soft);
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .empty-state {
-      display: none;
-      text-align: center;
-      padding: 30px 14px;
-    }
-
-    .empty-state .icon { font-size: 44px; }
-
-    .empty-state h2 { margin: 10px 0 6px; }
-
-    .empty-state p { margin: 0; color: var(--muted); }
-
-
-    .selection-cta {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 14px;
-      align-items: center;
-      margin: 0 auto 18px;
-      padding: 16px;
-      border: 1px solid rgba(246,195,67,0.32);
-      border-radius: 24px;
-      background: linear-gradient(135deg, rgba(246,195,67,0.13), rgba(15,95,184,0.15));
-      box-shadow: var(--shadow);
-      width: min(100%, 940px);
-    }
-
-    .selection-cta h2 { margin: 0 0 4px; font-size: 20px; }
-    .selection-cta p { margin: 0; color: var(--muted); font-weight: 750; line-height: 1.35; }
-
-    .selection-btn {
-      border: 1px solid rgba(246,195,67,0.72);
-      border-radius: 18px;
-      padding: 14px 18px;
-      background: linear-gradient(135deg, #f7cf55, #c99015);
-      color: #061b3a;
-      text-decoration: none;
-      font-weight: 1000;
-      white-space: nowrap;
-      box-shadow: 0 14px 26px rgba(0,0,0,0.24);
-    }
-
-    .fine-print {
-      width: min(100%, 760px);
-      margin: 12px auto 0;
-      color: var(--muted);
-      font-size: 11px;
-      text-align: center;
-      line-height: 1.35;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      left: 50%;
-      bottom: max(10px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      z-index: 50;
-      width: min(94%, 520px);
-      min-height: 64px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
-      padding: 7px;
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(3,17,38,0.92);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 18px 38px rgba(0,0,0,0.42);
-    }
-
-    .nav-item {
-      min-width: 0;
-      text-decoration: none;
-      color: rgba(255,255,255,0.72);
-      border-radius: 17px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      font-size: 10px;
-      font-weight: 850;
-    }
-
-    .nav-icon { font-size: 18px; line-height: 1; }
-
-    .nav-item.active {
-      color: var(--gold);
-      background: rgba(246,195,67,0.12);
-    }
-
-    @media (min-width: 760px) {
-      body { padding-left: 22px; padding-right: 22px; }
-      .route-carousel,
-      .featured-carousel { grid-auto-columns: minmax(300px, 32%); }
-      .section-card { padding: 18px; }
-      .hero { padding: 24px; }
-    }
-
-    @media (max-width: 520px) {
-      .topbar { width: 100%; }
-      .brand-title { font-size: 15px; }
-      .refresh-btn { padding: 8px 10px; font-size: 11px; }
-      .hero { padding: 16px; border-radius: 24px; }
-      .hero p { font-size: 13px; }
-      .section-card { padding: 12px; border-radius: 22px; }
-      .section-head { display: block; }
-      .badge { display: inline-flex; margin-top: 8px; }
-      .route-carousel,
-      .featured-carousel { grid-auto-columns: 86%; }
-      .route-step { min-height: 236px; }
-      .big-team { font-size: 27px; }
-      .engine-chips { grid-template-columns: 1fr 1fr; }
-      .bracket-grid { min-width: 980px; grid-template-columns: 160px 150px 140px 170px 140px 150px 160px; gap: 10px; }
-      .match-team { font-size: 12px; }
-      .selection-cta { grid-template-columns: 1fr; }
-      .selection-btn { text-align:center; }
-      .bottom-nav { width: min(96%, 520px); }
-      .nav-item { font-size: 9px; }
+    @media (max-width:380px){
+      body{padding-inline:10px}
+      h1{font-size:25px}
+      .team{font-size:12px}
+      .pill-btn{padding:10px 12px}
     }
   </style>
 </head>
 <body>
-  <main class="app-shell">
-    <header class="topbar" aria-label="Encabezado PREDIKT">
+  <main class="app">
+    <header>
       <div class="brand">
-        <img class="brand-logo" src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
+        <img class="logo" src="./predikt-logo.png" alt="PREDIKT" onerror="this.style.display='none'" />
         <div>
-          <p class="brand-title">PREDIKT™</p>
-          <p class="brand-subtitle">Powered by JVSys™</p>
+          <strong>PREDIKT™</strong>
+          <small>Powered by JVSys™</small>
         </div>
       </div>
-      <button class="refresh-btn" type="button" onclick="window.location.reload()">Actualizar</button>
+      <div class="top-actions">
+        <button class="pill-btn" type="button" id="refreshBtn">Actualizar</button>
+      </div>
     </header>
 
-    <section class="hero" aria-label="Ruta hacia la Copa">
-      <span class="eyebrow">🏆 Eliminación proyectada</span>
-      <h1>En este momento así quedaría la eliminación</h1>
-      <p>Antes de pasar a esta fase, PREDIKT™ proyecta rutas posibles con los cruces que podrían nacer desde los grupos.</p>
-      <div class="live-pill">Pronóstico vivo: cambia con los resultados oficiales</div>
+    <section class="hero">
+      <div class="tag">🏆 Cruces automáticos</div>
+      <h1>Eliminación Directa</h1>
+      <p>Si hoy terminara la fase de grupos, estos serían los cruces proyectados. La proyección cambia conforme se juegan más partidos.</p>
     </section>
 
-    <section class="section-card engine-card" aria-label="Motor Enriquecido PREDIKT">
-      <h2>🧠 MOTOR ENRIQUECIDO PREDIKT™</h2>
-      <p>La proyección considera clasificación actual, rendimiento reciente, fortaleza deportiva y ventaja de local cuando aplica.</p>
-      <div class="engine-chips">
-        <span class="engine-chip">⚽ Clasificación actual</span>
-        <span class="engine-chip">📈 Rendimiento reciente</span>
-        <span class="engine-chip">🏆 Fortaleza deportiva</span>
-        <span class="engine-chip">🏟️ Ventaja de local</span>
+    <div class="notice">⚠️ Proyección actual. Puede cambiar conforme avancen los resultados oficiales.</div>
+
+    <section class="stats">
+      <div class="stat">
+        <span>Clasificados detectados</span>
+        <strong id="qualifiedCount">—</strong>
+      </div>
+      <div class="stat">
+        <span>Cruces completos</span>
+        <strong id="matchCount">—</strong>
       </div>
     </section>
 
-    <section class="selection-cta" aria-label="Camino de mi selección favorita">
-      <div>
-        <h2>🏆 ¿Cuál sería el camino de mi selección favorita hacia la Copa?</h2>
-        <p>Selecciona una selección y descubre su ruta proyectada hacia la Final.</p>
+    <section>
+      <div class="section-title">
+        <h2>Octavos de Final</h2>
+        <small id="updatedAt">Actualizando...</small>
       </div>
-      <a class="selection-btn" href="./ruta-seleccion.html">⚽ Elegir selección</a>
+      <div id="bracket" class="bracket">
+        <div class="loading">Calculando cruces proyectados...</div>
+      </div>
     </section>
 
-    <section class="section-card" aria-label="Ruta de México">
-      <div class="section-head">
-        <div>
-          <h2>🇲🇽 Ruta de México hacia la Copa</h2>
-          <small>Desliza para ver cómo se formaría el camino: grupo, octavos, cuartos y semifinal.</small>
-        </div>
-        <span class="badge">Ruta destacada</span>
-      </div>
-
-      <div class="route-carousel" aria-label="Carrusel ruta México">
-        <article class="route-step gold">
-          <div class="step-kicker"><span>Grupo A</span><span>Origen</span></div>
-          <div class="big-team">🇲🇽 México</div>
-          <div class="group-list">
-            <div class="group-row active"><span>🇲🇽 México</span><span class="seed">1°</span></div>
-            <div class="group-row"><span>🇿🇦 Sudáfrica</span><span></span></div>
-            <div class="group-row"><span>🇰🇷 Corea del Sur</span><span></span></div>
-            <div class="group-row"><span>🇨🇿 República Checa</span><span></span></div>
-          </div>
-        </article>
-
-        <article class="route-step">
-          <div class="step-kicker"><span>Octavos</span><span>Posible rival</span></div>
-          <div class="big-team">🇲🇽 México</div>
-          <div class="vs-center">VS</div>
-          <div class="big-team">🇺🇾 Uruguay</div>
-          <div class="team-row"><span>Sale de Grupo H</span><span class="seed">2H</span></div>
-        </article>
-
-        <article class="route-step green">
-          <div class="step-kicker"><span>Cuartos</span><span>Si avanza</span></div>
-          <div class="big-team">🇲🇽 México</div>
-          <div class="vs-center">VS</div>
-          <div class="big-team">🇧🇷 Brasil</div>
-          <div class="team-row"><span>Ruta Brasil/Japón</span><span class="seed">Proyección</span></div>
-        </article>
-
-        <article class="route-step">
-          <div class="step-kicker"><span>Semifinal</span><span>Camino alto</span></div>
-          <div class="big-team">🇲🇽 México</div>
-          <div class="vs-center">VS</div>
-          <div class="big-team">🇦🇷 Argentina</div>
-          <div class="team-row"><span>Ruta Argentina/España</span><span class="seed">Escenario</span></div>
-        </article>
-      </div>
-      <div class="hint-line">👈 Desliza la ruta 👉</div>
+    <section class="mini-actions">
+      <a class="soft-link" href="./ranking-oficial.html">🏆 Ver tablas</a>
+      <a class="soft-link" href="./index.html">🏠 Inicio</a>
     </section>
-
-    <section class="section-card" aria-label="Rutas destacadas">
-      <div class="section-head">
-        <div>
-          <h2>🌎 Rutas destacadas</h2>
-          <small>Explora los caminos de selecciones fuertes sin convertir la final en una predicción absoluta.</small>
-        </div>
-        <span class="badge">Escenarios</span>
-      </div>
-      <div id="featuredRoutes" class="featured-carousel" aria-label="Carrusel rutas destacadas"></div>
-      <div class="hint-line">👈 Desliza para comparar selecciones 👉</div>
-    </section>
-
-    <section class="section-card" aria-label="Bracket completo PREDIKT">
-      <div class="section-head">
-        <div>
-          <h2>🏆 Así quedarían los cruces hoy</h2>
-          <small>Mapa panorámico PREDIKT™. En celular, desliza horizontalmente para ver el cuadro completo.</small>
-        </div>
-        <span class="badge">Vista global</span>
-      </div>
-      <div class="bracket-wrap">
-        <div id="bracketScroll" class="bracket-scroll" aria-live="polite"></div>
-        <div class="hint-line">👈 Desliza para explorar los cruces 👉</div>
-      </div>
-      <section id="emptyState" class="empty-state" aria-live="polite">
-        <div class="icon">🏆</div>
-        <h2>Estamos calculando los cruces.</h2>
-        <p>Vuelve en unos minutos.</p>
-      </section>
-    </section>
-
-    <section class="section-card" aria-label="Favoritos PREDIKT">
-      <div class="section-head">
-        <div>
-          <h2>🏆 Favoritos PREDIKT™</h2>
-          <small>No es una final definida. Es una lectura de fortaleza para llegar lejos.</small>
-        </div>
-        <span class="badge">Top 5</span>
-      </div>
-      <div id="favoritesGrid" class="favorites-grid"></div>
-    </section>
-
-    <p class="fine-print">Proyección dinámica PREDIKT™. Sirve para entender rutas posibles; no confirma resultados finales ni campeones.</p>
   </main>
 
-  <nav class="bottom-nav" aria-label="Navegación principal">
-    <a class="nav-item" href="./index.html"><span class="nav-icon">🏠</span><span>Inicio</span></a>
-    <a class="nav-item" href="./mi-quiniela.html"><span class="nav-icon">⚽</span><span>Quiniela</span></a>
-    <a class="nav-item" href="./pronostico.html"><span class="nav-icon">🎯</span><span>Pronósticos</span></a>
-    <a class="nav-item active" href="./ranking.html"><span class="nav-icon">🏆</span><span>Ranking</span></a>
-    <a class="nav-item" href="./perfil.html"><span class="nav-icon">👤</span><span>Perfil</span></a>
+  <nav class="bottom-nav">
+    <a class="nav-item" href="./index.html"><b>🏠</b><span>Inicio</span></a>
+    <a class="nav-item" href="./mi-quiniela.html"><b>⚽</b><span>Quiniela</span></a>
+    <a class="nav-item" href="./pronostico.html"><b>🎯</b><span>Pronósticos</span></a>
+    <a class="nav-item active" href="./ranking.html"><b>🏆</b><span>Ranking</span></a>
+    <a class="nav-item" href="./perfil.html"><b>👤</b><span>Perfil</span></a>
   </nav>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const OCTAVOS = [
-      { a: 'México', af: '🇲🇽', as: '1A', b: 'Uruguay', bf: '🇺🇾', bs: '2H' },
-      { a: 'Brasil', af: '🇧🇷', as: '1C', b: 'Japón', bf: '🇯🇵', bs: '2F' },
-      { a: 'Argentina', af: '🇦🇷', as: '1J', b: 'Alemania', bf: '🇩🇪', bs: '2E' },
-      { a: 'España', af: '🇪🇸', as: '1H', b: 'Croacia', bf: '🇭🇷', bs: '2L' },
-      { a: 'Francia', af: '🇫🇷', as: '1I', b: 'Corea del Sur', bf: '🇰🇷', bs: '2A' },
-      { a: 'Inglaterra', af: '🏴', as: '1L', b: 'Colombia', bf: '🇨🇴', bs: '2K' },
-      { a: 'Portugal', af: '🇵🇹', as: '1K', b: 'Estados Unidos', bf: '🇺🇸', bs: '2D' },
-      { a: 'Países Bajos', af: '🇳🇱', as: '1F', b: 'Bélgica', bf: '🇧🇪', bs: '2G' }
+    const PAGE_VERSION = 'eliminacion_v1.1.0_NO_TECH_MESSAGES';
+
+    const SUPABASE_URL =
+      window.PREDIKT_SUPABASE_URL ||
+      window.SUPABASE_URL ||
+      localStorage.getItem('PREDIKT_SUPABASE_URL') ||
+      '';
+
+    const SUPABASE_KEY =
+      window.PREDIKT_SUPABASE_PUBLIC_KEY ||
+      window.PREDIKT_SUPABASE_ANON_KEY ||
+      window.SUPABASE_ANON_KEY ||
+      localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') ||
+      '';
+
+    const fallbackQualified = [
+      'México', 'Canadá', 'Brasil', 'Escocia',
+      'Alemania', 'Países Bajos', 'Bélgica', 'España',
+      'Francia', 'Argentina', 'Portugal', 'Inglaterra',
+      'Estados Unidos', 'Marruecos', 'Japón', 'Uruguay'
     ];
 
-    const CUARTOS_IZQ = [
-      { a: 'México', af: '🇲🇽', b: 'Brasil', bf: '🇧🇷' },
-      { a: 'Argentina', af: '🇦🇷', b: 'España', bf: '🇪🇸' }
+    const fallbackMatches = [
+      ['México', 'Uruguay'],
+      ['Brasil', 'Japón'],
+      ['Alemania', 'Marruecos'],
+      ['España', 'Escocia'],
+      ['Francia', 'Estados Unidos'],
+      ['Argentina', 'Países Bajos'],
+      ['Portugal', 'Canadá'],
+      ['Inglaterra', 'Bélgica']
     ];
 
-    const CUARTOS_DER = [
-      { a: 'Francia', af: '🇫🇷', b: 'Inglaterra', bf: '🏴' },
-      { a: 'Portugal', af: '🇵🇹', b: 'Países Bajos', bf: '🇳🇱' }
-    ];
+    const $ = (id) => document.getElementById(id);
 
-    const SEMIS = [
-      { a: 'Brasil', af: '🇧🇷', b: 'Argentina', bf: '🇦🇷' },
-      { a: 'Francia', af: '🇫🇷', b: 'Portugal', bf: '🇵🇹' }
-    ];
-
-    const FINAL = { a: 'Brasil', af: '🇧🇷', b: 'Francia', bf: '🇫🇷' };
-
-    const FEATURED = [
-      { team: 'Brasil', flag: '🇧🇷', steps: ['Grupo C: líder proyectado', 'Octavos: Japón', 'Cuartos: México', 'Semifinal: Argentina'] },
-      { team: 'Argentina', flag: '🇦🇷', steps: ['Grupo J: líder proyectado', 'Octavos: Alemania', 'Cuartos: España', 'Semifinal: Brasil'] },
-      { team: 'Francia', flag: '🇫🇷', steps: ['Grupo I: líder proyectado', 'Octavos: Corea del Sur', 'Cuartos: Inglaterra', 'Semifinal: Portugal'] },
-      { team: 'Inglaterra', flag: '🏴', steps: ['Grupo L: líder proyectado', 'Octavos: Colombia', 'Cuartos: Francia', 'Escenario abierto'] },
-      { team: 'México', flag: '🇲🇽', steps: ['Grupo A: líder proyectado', 'Octavos: Uruguay', 'Cuartos: Brasil', 'Semifinal: Argentina'] }
-    ];
-
-    const FAVORITES = [
-      { rank: 1, team: '🇧🇷 Brasil', value: 78 },
-      { rank: 2, team: '🇫🇷 Francia', value: 74 },
-      { rank: 3, team: '🇦🇷 Argentina', value: 71 },
-      { rank: 4, team: '🏴 Inglaterra', value: 66 },
-      { rank: 5, team: '🇲🇽 México', value: 59 }
-    ];
-
-    function esc(value) {
-      return String(value || '').replace(/[<>&"']/g, function(char) {
-        return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[char];
-      });
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
-    function teamHTML(flag, name, seed) {
-      return '<div class="match-team"><span>' + esc(flag) + ' ' + esc(name) + '</span><span class="seed">' + esc(seed || '') + '</span></div>';
+    function nowLabel() {
+      return new Intl.DateTimeFormat('es-MX', {
+        hour:'2-digit',
+        minute:'2-digit',
+        day:'2-digit',
+        month:'short'
+      }).format(new Date());
     }
 
-    function matchHTML(match, label, className) {
-      return '<article class="match-card ' + esc(className || '') + '">' +
-        '<div class="match-label"><span>' + esc(label) + '</span><span>VS</span></div>' +
-        teamHTML(match.af, match.a, match.as || '') +
-        teamHTML(match.bf, match.b, match.bs || '') +
-        '</article>';
+    function renderStats(qualified, matches) {
+      $('qualifiedCount').textContent = qualified;
+      $('matchCount').textContent = matches;
+      $('updatedAt').textContent = `Actualizado ${nowLabel()}`;
     }
 
-    function renderBracket() {
-      const target = document.getElementById('bracketScroll');
-      const empty = document.getElementById('emptyState');
-      if (!Array.isArray(OCTAVOS) || OCTAVOS.length === 0) {
-        target.innerHTML = '';
-        empty.style.display = 'block';
+    function renderMatches(matches, isFallback = false) {
+      if (!matches.length) {
+        $('bracket').innerHTML = `
+          <div class="friendly-error">
+            <strong>Aún no hay cruces proyectados.</strong>
+            Cuando existan suficientes resultados oficiales, PREDIKT™ mostrará aquí la eliminación directa.
+          </div>
+        `;
+        renderStats(0, 0);
         return;
       }
-      empty.style.display = 'none';
-      const left = OCTAVOS.slice(0, 4).map(function(m) { return matchHTML(m, 'Posible enfrentamiento'); }).join('');
-      const right = OCTAVOS.slice(4, 8).map(function(m) { return matchHTML(m, 'Posible enfrentamiento'); }).join('');
-      const qLeft = CUARTOS_IZQ.map(function(m) { return matchHTML(m, 'Cuartos'); }).join('');
-      const qRight = CUARTOS_DER.map(function(m) { return matchHTML(m, 'Cuartos'); }).join('');
-      const semiLeft = matchHTML(SEMIS[0], 'Semifinal', 'gold');
-      const semiRight = matchHTML(SEMIS[1], 'Semifinal', 'gold');
-      const final = matchHTML(FINAL, 'Final proyectada', 'gold');
 
-      target.innerHTML = '<div class="bracket-grid">' +
-        '<section class="round stack-4"><div class="round-title">Octavos</div>' + left + '</section>' +
-        '<section class="round stack-2"><div class="round-title">Cuartos</div>' + qLeft + '</section>' +
-        '<section class="round stack-1"><div class="round-title">Semifinal</div>' + semiLeft + '</section>' +
-        '<section class="cup-card"><div class="cup">🏆</div><h3>PREDIKT™</h3><p>Ruta viva al título</p>' + final + '</section>' +
-        '<section class="round stack-1"><div class="round-title">Semifinal</div>' + semiRight + '</section>' +
-        '<section class="round stack-2"><div class="round-title">Cuartos</div>' + qRight + '</section>' +
-        '<section class="round stack-4"><div class="round-title">Octavos</div>' + right + '</section>' +
-        '</div>';
-    }
+      $('bracket').innerHTML = matches.map((match, index) => {
+        const home = match.home || match[0] || 'Selección por definir';
+        const away = match.away || match[1] || 'Selección por definir';
+        const label = match.label || `Octavos ${index + 1}`;
+        const source = isFallback ? 'Proyección inicial' : 'Proyección actual';
 
-    function renderFeatured() {
-      document.getElementById('featuredRoutes').innerHTML = FEATURED.map(function(item) {
-        return '<article class="featured-card">' +
-          '<div class="featured-title"><span>' + esc(item.flag) + ' ' + esc(item.team) + '</span><span class="seed">Ruta</span></div>' +
-          '<div class="mini-path">' + item.steps.map(function(step) {
-            return '<div class="mini-node"><small>Camino proyectado</small>' + esc(step) + '</div>';
-          }).join('') + '</div>' +
-          '</article>';
+        return `
+          <article class="match">
+            <div class="match-head">
+              <span>${escapeHtml(label)}</span>
+              <em class="badge">${escapeHtml(source)}</em>
+            </div>
+            <div class="teams">
+              <div class="team">
+                <span>${escapeHtml(home)}</span>
+                <small>Clasificado</small>
+              </div>
+              <div class="team">
+                <span>${escapeHtml(away)}</span>
+                <small>Rival proyectado</small>
+              </div>
+            </div>
+          </article>
+        `;
       }).join('');
+
+      renderStats(matches.length * 2, matches.length);
     }
 
-    function renderFavorites() {
-      document.getElementById('favoritesGrid').innerHTML = FAVORITES.map(function(item) {
-        return '<div class="favorite-row">' +
-          '<span>#' + esc(item.rank) + '</span>' +
-          '<span>' + esc(item.team) + '<span class="favorite-bar"><span class="favorite-fill" style="width:' + esc(item.value) + '%"></span></span></span>' +
-          '<span>' + esc(item.value) + '%</span>' +
-          '</div>';
-      }).join('');
+    function friendlyFailure() {
+      renderMatches(fallbackMatches, true);
+      $('updatedAt').textContent = 'Proyección inicial';
     }
 
-    try {
-      renderBracket();
-      renderFeatured();
-      renderFavorites();
-    } catch (error) {
-      document.getElementById('emptyState').style.display = 'block';
+    function buildMatchesFromRows(rows) {
+      const normalized = (rows || []).map((row) => ({
+        home: row.home_team || row.home || row.team_a || row.participant_a || row.seed_a || row.first_team,
+        away: row.away_team || row.away || row.team_b || row.participant_b || row.seed_b || row.second_team,
+        label: row.round_label || row.match_label || row.bracket_label || row.name
+      })).filter((row) => row.home && row.away);
+
+      return normalized.slice(0, 8);
     }
+
+    async function tryLoadFromSupabase() {
+      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase) {
+        friendlyFailure();
+        return;
+      }
+
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const attempts = [
+        async () => client.schema('sports').rpc('get_projected_knockout_bracket'),
+        async () => client.schema('rankings').rpc('get_projected_knockout_bracket'),
+        async () => client.from('v_projected_knockout_bracket').select('*').limit(8),
+        async () => client.schema('sports').from('v_projected_knockout_bracket').select('*').limit(8)
+      ];
+
+      for (const attempt of attempts) {
+        try {
+          const { data, error } = await attempt();
+          if (error) continue;
+          const matches = buildMatchesFromRows(data);
+          if (matches.length) {
+            renderMatches(matches, false);
+            return;
+          }
+        } catch (_) {
+          continue;
+        }
+      }
+
+      friendlyFailure();
+    }
+
+    async function init() {
+      $('bracket').innerHTML = '<div class="loading">Calculando cruces proyectados...</div>';
+      try {
+        await tryLoadFromSupabase();
+      } catch (_) {
+        friendlyFailure();
+      }
+    }
+
+    $('refreshBtn').addEventListener('click', init);
+    document.addEventListener('DOMContentLoaded', init);
+    console.info('[PREDIKT]', PAGE_VERSION);
   </script>
 </body>
 </html>
-
-
-
-<!--
-  Fin de archivo: eliminacion.html
-  Versión: v2.6.1_MOTOR_Y_CAMINO_FAVORITA
-  Total líneas: 957
--->
