@@ -2,17 +2,19 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE
-Entrega: resultado-partido-admin_v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE.txt
+Versión: v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX
+Entrega: resultado-partido-admin_v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1371
+Total de líneas: 1392
 
 MOTIVO DE VERSIÓN
-- Rollback operativo seguro desde v3.0.5 porque v3.0.7 degradó lectura de resultados oficiales persistidos.
+- Corrección completa de lectura/visualización de marcadores oficiales en Historial.
+- Historial ordenado del resultado más reciente al más antiguo.
+- Guardado robusto sin depender exclusivamente de upsert/onConflict.
 - Restaurar el motor funcional certificado de resultado-partido-admin_v1.4.0_DAILY_OPERATOR_VIEW.
 - Conservar la identidad visual moderna lograda en v2.6.
 - Eliminar la regresión causada por clientes Supabase paralelos, URLs embebidas y reconstrucción del flujo de datos.
@@ -24,7 +26,7 @@ DECISIONES ARQUITECTÓNICAS CERRADAS
 - No se usan fallbacks, ladders, timeouts múltiples ni source chains.
 - El cliente Supabase debe provenir del bootstrap oficial assets/js/supabase.js.
 - Se conserva el flujo loadEvents(), loadResults(), saveResult().
-- Se conserva upsert en predictions.official_results.
+- Se conserva persistencia en predictions.official_results mediante update/insert seguro, evitando pérdida por onConflict.
 - Se conserva actualización de sports.events.event_status.
 
 VENTANA OFICIAL DE CARGA
@@ -60,7 +62,7 @@ CHECKLIST DE VALIDACIÓN
 [ ] Confirmar paginación 20 por página.
 [ ] Capturar resultado pendiente.
 [ ] Corregir resultado histórico.
-[ ] Confirmar upsert en predictions.official_results.
+[ ] Confirmar persistencia en predictions.official_results.
 [ ] Confirmar event_status actualizado en sports.events.
 [ ] Confirmar que Home, Ranking y Eliminación leen los cambios.
 ===============================================================================
@@ -740,7 +742,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE";
+    const VERSION = "v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -881,22 +883,26 @@ CHECKLIST DE VALIDACIÓN
     }
 
     async function loadResults() {
-      const eventIds = state.events.map((event) => event.id).filter(Boolean);
+      const eventIds = state.events.map((event) => event.id).filter(Boolean).map(String);
       state.results = new Map();
       if (!eventIds.length) return;
 
-      const query = state.supabase
-        .schema("predictions")
-        .from("official_results")
-        .select("*")
-        .in("event_id", eventIds);
+      const chunks = chunkArray(eventIds, 40);
+      for (const ids of chunks) {
+        const { data, error } = await state.supabase
+          .schema("predictions")
+          .from("official_results")
+          .select("*")
+          .in("event_id", ids);
 
-      const { data, error } = await query;
-      if (error) throw error;
+        if (error) throw error;
 
-      (data || []).forEach((result) => {
-        state.results.set(String(result.event_id), result);
-      });
+        (data || []).forEach((result) => {
+          const key = String(result.event_id || result.sport_event_id || result.match_id || result.event_uuid || "");
+          if (!key) return;
+          state.results.set(key, result);
+        });
+      }
     }
 
     async function saveResult(eventId) {
@@ -917,20 +923,7 @@ CHECKLIST DE VALIDACIÓN
       renderSavingButton(eventId, true);
 
       try {
-        const payload = buildOfficialResultPayload(event, homeScore, awayScore);
-
-        const { error: upsertError } = await state.supabase
-          .schema("predictions")
-          .from("official_results")
-          .upsert(payload, { onConflict: "event_id" });
-
-        if (upsertError) throw upsertError;
-
-        const officialResult = {
-          ...payload,
-          home_score: homeScore,
-          away_score: awayScore
-        };
+        const officialResult = await persistOfficialResult(event, homeScore, awayScore);
 
         state.results.set(String(event.id), officialResult);
         state.events = state.events.map((item) => {
@@ -975,7 +968,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX",
         recorded_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -1095,8 +1088,21 @@ CHECKLIST DE VALIDACIÓN
     function getScore(source, side) {
       if (!source) return null;
       const candidates = side === "home"
-        ? [source.home_score, source.home_goals, source.local_score, source.score_home]
-        : [source.away_score, source.away_goals, source.visitor_score, source.score_away];
+        ? [
+            source.home_score, source.home_goals, source.local_score, source.local_goals,
+            source.score_home, source.home_team_score, source.local_team_score,
+            source.team_home_score, source.goals_home, source.home_final_score,
+            source.local_final_score, source.official_home_score, source.result_home_score,
+            source.result_home_goals, source.home_result, source.local_result
+          ]
+        : [
+            source.away_score, source.away_goals, source.visitor_score, source.visitor_goals,
+            source.visitante_score, source.visitante_goals, source.score_away,
+            source.away_team_score, source.visitor_team_score, source.team_away_score,
+            source.goals_away, source.away_final_score, source.visitor_final_score,
+            source.official_away_score, source.result_away_score, source.result_away_goals,
+            source.away_result, source.visitor_result, source.visitante_result
+          ];
       for (const value of candidates) {
         if (isScoreValue(value)) return Number(value);
       }
@@ -1126,7 +1132,9 @@ CHECKLIST DE VALIDACIÓN
       }
 
       if (state.activeTab === "history") {
-        list = list.filter((event) => hasOfficialResult(event));
+        list = list
+          .filter((event) => hasOfficialResult(event))
+          .sort((a, b) => getHistorySortTime(b) - getHistorySortTime(a));
       }
 
       if (state.query) {
@@ -1137,6 +1145,13 @@ CHECKLIST DE VALIDACIÓN
       const totalPages = getTotalPages();
       if (state.page > totalPages) state.page = totalPages;
       if (state.page < 1) state.page = 1;
+    }
+
+    function getHistorySortTime(event) {
+      const result = event && event.official_result ? event.official_result : {};
+      const value = result.updated_at || result.recorded_at || result.created_at || event.updated_at || event.starts_at;
+      const time = value ? new Date(value).getTime() : 0;
+      return Number.isFinite(time) ? time : 0;
     }
 
     function buildSearchText(event) {
@@ -1277,10 +1292,7 @@ CHECKLIST DE VALIDACIÓN
 
     function hasOfficialResult(event) {
       if (!event) return false;
-      if (event.official_result) return true;
-      if (eventHasPersistedScore(event)) return true;
-      const status = String(event.event_status || event.status || "").toLowerCase();
-      return status.includes("complete") || status.includes("final");
+      return isScoreValue(event.home_score) && isScoreValue(event.away_score);
     }
 
     function getTotalPages() {
@@ -1323,6 +1335,14 @@ CHECKLIST DE VALIDACIÓN
       return new Intl.DateTimeFormat("es-MX", { hour: "2-digit", minute: "2-digit" }).format(date);
     }
 
+    function chunkArray(values, size) {
+      const chunks = [];
+      for (let index = 0; index < values.length; index += size) {
+        chunks.push(values.slice(index, index + size));
+      }
+      return chunks;
+    }
+
     function normalize(value) {
       return String(value || "")
         .toLowerCase()
@@ -1354,8 +1374,8 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE
-Total de líneas: 1371
+Versión: v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX
+Total de líneas: 1392
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
