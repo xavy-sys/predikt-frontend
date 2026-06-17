@@ -450,19 +450,24 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const PAGE_VERSION = 'resultado_partido_admin_v1.4.0_DAILY_OPERATOR_VIEW';
+    const PAGE_VERSION = 'resultado_partido_admin_v1.4.1_REUSE_HOME_SUPABASE_CONFIG';
 
     const SUPABASE_URL =
       window.PREDIKT_SUPABASE_URL ||
       window.SUPABASE_URL ||
+      window.supabaseUrl ||
       localStorage.getItem('PREDIKT_SUPABASE_URL') ||
-      '';
+      localStorage.getItem('SUPABASE_URL') ||
+      'https://bhsffngulgvwfzjhiyym.supabase.co';
 
     const SUPABASE_KEY =
       window.PREDIKT_SUPABASE_PUBLIC_KEY ||
       window.PREDIKT_SUPABASE_ANON_KEY ||
       window.SUPABASE_ANON_KEY ||
+      window.supabaseAnonKey ||
       localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') ||
+      localStorage.getItem('PREDIKT_SUPABASE_ANON_KEY') ||
+      localStorage.getItem('SUPABASE_ANON_KEY') ||
       '';
 
     const $ = (id) => document.getElementById(id);
@@ -523,7 +528,7 @@
 
     async function loadEvents() {
       if (!client) {
-        showMessage('Configura conexión de PREDIKT™ para cargar partidos.', 'warn');
+        showMessage('No se pudo conectar. Falta la llave pública de PREDIKT™ en esta pantalla.', 'warn');
         return;
       }
 
