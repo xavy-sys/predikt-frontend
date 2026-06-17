@@ -2,9 +2,9 @@
 <!--
 ===============================================================================
 PREDIKT™ — Resultado Oficial Admin
-Archivo: resultado-partido-admin_v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD.txt
-Versión: v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD
-Total de líneas inicial: 538
+Archivo: resultado-partido-admin_v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER.txt
+Versión: v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
+Total de líneas inicial: 574
 Fecha de versión: 2026-06-17
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
@@ -28,18 +28,24 @@ v2.0.0_OPERATOR_FIRST
 v2.0.1_OPERATOR_FIRST_FULL_FIX
 - Corrección estructural; reportada aún sin resultados visibles, búsqueda no intuitiva y UI apagada.
 
-v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD
+v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
 - Consola operativa completa: pendientes, selector por estado, selector por grupo, selector por fecha,
   historial paginado, edición histórica, loader animado y paleta visual PREDIKT™ reforzada.
 
-v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD
+v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
 - Corrige la carga vacía de partidos con estrategia FastLoad.
 - Usa sports.events como fuente primaria certificada.
 - Agrega rutas de lectura tolerantes para columnas y permisos de PostgREST.
 - Si la lectura directa falla por exposición/RLS, activa respaldo operativo amplio contra el calendario certificado para evitar pantalla vacía.
 - Reorganiza la operación visual para que el usuario seleccione por botones y tarjetas, no por búsqueda obligatoria.
 
-v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD
+ v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
+- Refuerza carga real con escalera de fuentes: sports.events, get_home_events amplio/segmentado y vistas certificadas como respaldo de lectura.
+- Mantiene guardado sobre predictions.official_results y actualización de sports.events.
+- Corrige título visual a RESULTADO OFICIAL y conserva logo Powered by JVSys™.
+- Elimina mensajes técnicos visibles para el operador.
+
+v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
 - Corrige carga vacía cuando sports.events no devuelve filas visibles al frontend.
 - Mantiene sports.events como fuente primaria certificada.
 - Activa carga híbrida de recuperación por ventanas del calendario completo usando RPC certificada sólo si sports.events devuelve 0 filas o error.
@@ -148,7 +154,7 @@ CHECKLIST DE VALIDACIÓN
 
     <section class="hero">
       <div class="tag">⚡ Consola operativa</div>
-      <h1>Captura y corrección oficial</h1>
+      <h1>RESULTADO OFICIAL</h1>
       <p>Primero pendientes. Después selecciona por estado, grupo o fecha. Sin depender de una búsqueda escrita.</p>
     </section>
 
@@ -220,7 +226,7 @@ CHECKLIST DE VALIDACIÓN
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const PAGE_VERSION = 'resultado_partido_admin_v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD';
+    const PAGE_VERSION = 'resultado_partido_admin_v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER';
     const SUPABASE_URL = window.PREDIKT_SUPABASE_URL || window.SUPABASE_URL || window.supabaseUrl || localStorage.getItem('PREDIKT_SUPABASE_URL') || localStorage.getItem('SUPABASE_URL') || 'https://bhsffngulgvwfzjhiyym.supabase.co';
     const SUPABASE_KEY = window.PREDIKT_SUPABASE_PUBLIC_KEY || window.PREDIKT_SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || window.supabaseAnonKey || localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') || localStorage.getItem('PREDIKT_SUPABASE_ANON_KEY') || localStorage.getItem('SUPABASE_ANON_KEY') || 'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
     const $ = (id) => document.getElementById(id);
@@ -289,32 +295,65 @@ CHECKLIST DE VALIDACIÓN
       return `<article class="match-card ${active ? 'active' : ''}" style="--accent:${accent}" data-id="${escapeHtml(event.id)}"><div class="match-top"><div class="match-title">${escapeHtml(event.name)}</div>${statusBadge(event)}</div><div class="match-meta">${escapeHtml(localDateShort(event.startsAt))} · ${escapeHtml(localTime(event.startsAt))} · ${escapeHtml(groupLabel(event.groupCode))} · ${escapeHtml(venueText(event))}</div>${score}</article>`;
     }
 
+    function uniqueRows(rows){
+      const byId = new Map();
+      (Array.isArray(rows) ? rows : []).forEach((row) => {
+        const id = row && (row.id || row.event_id);
+        if (id) byId.set(String(id), row.id ? row : {...row, id});
+      });
+      return Array.from(byId.values());
+    }
+
     async function readEventsPrimary(){
       const {data,error} = await client
         .schema('sports')
         .from('events')
         .select('*')
-        .order('starts_at',{ascending:true});
+        .order('starts_at',{ascending:true})
+        .limit(100);
       if (error) throw error;
-      return {rows:Array.isArray(data) ? data : [], source:'sports.events'};
+      return {rows:uniqueRows(data), source:'calendario oficial'};
     }
 
     async function readEventsMinimal(){
       const {data,error} = await client
         .schema('sports')
         .from('events')
-        .select('id,name,starts_at,event_status,group_code,venue,venue_name,venue_city')
-        .order('starts_at',{ascending:true});
+        .select('id,name,starts_at,event_status,group_code,venue')
+        .order('starts_at',{ascending:true})
+        .limit(100);
       if (error) throw error;
-      return {rows:Array.isArray(data) ? data : [], source:'sports.events minimal'};
+      return {rows:uniqueRows(data), source:'calendario oficial'};
+    }
+
+    async function readEventsWideRpc(){
+      const {data,error} = await client
+        .schema('sports')
+        .rpc('get_home_events',{
+          p_from:'2026-06-01T00:00:00.000Z',
+          p_to:'2026-07-31T23:59:59.000Z'
+        });
+      if (error) throw error;
+      return {rows:uniqueRows(data), source:'calendario operativo'};
+    }
+
+    async function readEventsFromView(viewName){
+      const {data,error} = await client
+        .schema('sports')
+        .from(viewName)
+        .select('*')
+        .order('starts_at',{ascending:true})
+        .limit(100);
+      if (error) throw error;
+      return {rows:uniqueRows(data), source:'calendario operativo'};
     }
 
     async function readEventsOperationalFallback(){
       const windows = [];
-      const start = new Date('2026-06-09T00:00:00.000Z');
-      for (let i = 0; i < 24; i += 1){
+      const start = new Date('2026-06-01T00:00:00.000Z');
+      for (let i = 0; i < 62; i += 2){
         const from = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-        const to = new Date(from.getTime() + 36 * 60 * 60 * 1000);
+        const to = new Date(from.getTime() + 72 * 60 * 60 * 1000);
         windows.push({from:from.toISOString(), to:to.toISOString()});
       }
 
@@ -325,39 +364,44 @@ CHECKLIST DE VALIDACIÓN
             .schema('sports')
             .rpc('get_home_events',{p_from:win.from,p_to:win.to});
           if (error) throw error;
-          (Array.isArray(data) ? data : []).forEach(row => {
-            if (row && row.id) byId.set(String(row.id), row);
-          });
+          uniqueRows(data).forEach(row => byId.set(String(row.id), row));
         }catch(err){
           console.warn('[PREDIKT fallback window]', win, err);
         }
       }
-      return {rows:Array.from(byId.values()), source:'recuperación operativa segmentada'};
+      return {rows:Array.from(byId.values()), source:'calendario operativo'};
+    }
+
+    async function resolveEventUniverse(){
+      const loaders = [
+        readEventsPrimary,
+        readEventsMinimal,
+        readEventsWideRpc,
+        () => readEventsFromView('v_event_match_intelligence_api'),
+        () => readEventsFromView('v_event_match_intelligence_enriched'),
+        readEventsOperationalFallback
+      ];
+      let lastSource = '';
+      for (const loader of loaders){
+        try{
+          const loaded = await loader();
+          lastSource = loaded.source;
+          if (loaded && Array.isArray(loaded.rows) && loaded.rows.length){
+            return loaded;
+          }
+        }catch(err){
+          console.warn('[PREDIKT loader skipped]', err);
+        }
+      }
+      return {rows:[], source:lastSource || 'sin partidos'};
     }
 
     async function loadEvents(){
-      if (!client){ showMessage('No se pudo iniciar la conexión de PREDIKT™.','bad'); return; }
+      if (!client){ showMessage('No se pudo iniciar PREDIKT™.','bad'); return; }
       showLoader('Cargando partidos...');
       let loadSource = '';
       try{
-        let loaded;
-        try{
-          loaded = await readEventsPrimary();
-        }catch(primaryError){
-          console.warn('[PREDIKT sports.events primary]', primaryError);
-          try{
-            loaded = await readEventsMinimal();
-          }catch(minimalError){
-            console.warn('[PREDIKT sports.events minimal]', minimalError);
-            loaded = await readEventsOperationalFallback();
-          }
-        }
-
-        if (!loaded || !Array.isArray(loaded.rows) || loaded.rows.length === 0){
-          console.warn('[PREDIKT sports.events empty] activando recuperación operativa');
-          loaded = await readEventsOperationalFallback();
-        }
-
+        const loaded = await resolveEventUniverse();
         loadSource = loaded.source;
         events = (loaded.rows || [])
           .map(mapEvent)
@@ -373,21 +417,22 @@ CHECKLIST DE VALIDACIÓN
         renderAll();
 
         if (events.length){
-          showMessage(`Universo cargado: ${events.length} partidos · ${loadSource}.`, 'ok');
+          showMessage(`Listo: ${events.length} partidos cargados.`, 'ok');
         }else{
-          showMessage('No se recibieron partidos desde sports.events ni desde la recuperación operativa. Revisa consola de navegador.', 'bad');
+          showMessage('No se pudieron cargar partidos. Actualiza la página o valida el acceso del administrador.', 'bad');
         }
       }catch(err){
         console.error('[PREDIKT loadEvents final]', err);
         events = [];
         resultsByEventId = new Map();
         renderAll();
-        showMessage('La consola no recibió partidos. Verifica que el usuario tenga acceso administrador.', 'bad');
+        showMessage('No se pudieron cargar partidos. Actualiza la página o valida el acceso del administrador.', 'bad');
       }finally{
         hideLoader();
         console.info('[PREDIKT load source]', loadSource || 'sin carga');
       }
     }
+
     async function loadResults(){
       resultsByEventId = new Map();
       if (!client || !events.length) return;
@@ -521,18 +566,9 @@ CHECKLIST DE VALIDACIÓN
 <!--
 ===============================================================================
 FIN DE ARCHIVO
-Archivo: resultado-partido-admin_v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD.txt
-Total de líneas final: 538
+Archivo: resultado-partido-admin_v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER.txt
+Total de líneas final: 574
 Certificación: archivo completo, versionado, documentado y listo para reemplazo total.
 ===============================================================================
 -->
 </html>
-<!--
-===============================================================================
-FIN DE ARCHIVO
-Archivo: resultado-partido-admin_v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD.txt
-Versión: v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD
-Total de líneas final: 501
-Certificación: archivo completo, versionado, documentado y listo para reemplazar resultado-partido-admin.html.
-===============================================================================
--->
