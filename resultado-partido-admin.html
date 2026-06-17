@@ -2,8 +2,8 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.16_OPERATOR_HISTORY_OK_RPC_ARRAY_FIX
-Entrega: resultado-partido-admin_v3.0.16_OPERATOR_HISTORY_OK_RPC_ARRAY_FIX.txt
+Versión: v3.0.17_OPERATOR_HISTORY_OK_RPC_UUID_CAST_FIX
+Entrega: resultado-partido-admin_v3.0.17_OPERATOR_HISTORY_OK_RPC_UUID_CAST_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
@@ -743,7 +743,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.16_OPERATOR_HISTORY_OK_RPC_ARRAY_FIX";
+    const VERSION = "v3.0.17_OPERATOR_HISTORY_OK_RPC_UUID_CAST_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -970,7 +970,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.16_OPERATOR_HISTORY_OK_RPC_ARRAY_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.17_OPERATOR_HISTORY_OK_RPC_UUID_CAST_FIX",
         recorded_at: now,
         updated_at: now
       };
@@ -992,7 +992,7 @@ CHECKLIST DE VALIDACIÓN
       const baseMeta = {
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.16_OPERATOR_HISTORY_OK_RPC_ARRAY_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.17_OPERATOR_HISTORY_OK_RPC_UUID_CAST_FIX",
         updated_at: now
       };
 
@@ -1133,7 +1133,7 @@ CHECKLIST DE VALIDACIÓN
 
     async function persistOfficialResult(event, homeScore, awayScore) {
       /*
-        v3.0.16 — Guardado oficial por RPC SECURITY DEFINER con SQL v1.0.1.
+        v3.0.17 — Guardado oficial por RPC SECURITY DEFINER con SQL v1.0.1.
         La consola confirmó 403 permission denied al intentar PATCH directo sobre
         predictions.official_results. Por eso el frontend deja de escribir directo
         y usa la función autorizada predictions.admin_save_official_result().
@@ -1707,7 +1707,7 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.16_OPERATOR_HISTORY_OK_RPC_ARRAY_FIX
+Versión: v3.0.17_OPERATOR_HISTORY_OK_RPC_UUID_CAST_FIX
 Total de líneas: 1725
 Certificación de entrega:
 - Archivo completo.
