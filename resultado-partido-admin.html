@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX
-Entrega: resultado-partido-admin_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX.txt
+Versión: v3.0.12_OPERATOR_HISTORY_OK_DYNAMIC_SAVE_SCHEMA_FIX
+Entrega: resultado-partido-admin_v3.0.12_OPERATOR_HISTORY_OK_DYNAMIC_SAVE_SCHEMA_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1576
+Total de líneas: 1536
 
 MOTIVO DE VERSIÓN
 - Corrección completa de lectura/visualización de marcadores oficiales en Historial.
@@ -743,7 +743,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX";
+    const VERSION = "v3.0.12_OPERATOR_HISTORY_OK_DYNAMIC_SAVE_SCHEMA_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -752,6 +752,7 @@ CHECKLIST DE VALIDACIÓN
       supabase: null,
       events: [],
       results: new Map(),
+      officialResultSchemaKeys: null,
       filtered: [],
       activeTab: "pending",
       query: "",
@@ -962,190 +963,148 @@ CHECKLIST DE VALIDACIÓN
       }
     }
 
-    function buildOfficialResultPayload(event, homeScore, awayScore) {
-      const now = new Date().toISOString();
-      return {
-        event_id: event.id,
-        home_score: homeScore,
-        away_score: awayScore,
-        result_status: "official",
-        source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX",
-        recorded_at: now,
-        updated_at: now
-      };
+    async function getOfficialResultsSchemaKeys() {
+      if (state.officialResultSchemaKeys && state.officialResultSchemaKeys.length) {
+        return state.officialResultSchemaKeys;
+      }
+
+      const loadedSample = state.results && state.results.size
+        ? Array.from(state.results.values()).find((item) => item && typeof item === "object")
+        : null;
+
+      if (loadedSample) {
+        state.officialResultSchemaKeys = Object.keys(loadedSample);
+        return state.officialResultSchemaKeys;
+      }
+
+      const { data, error } = await state.supabase
+        .schema("predictions")
+        .from("official_results")
+        .select("*")
+        .limit(1);
+
+      if (error) throw error;
+
+      const sample = Array.isArray(data) && data.length ? data[0] : null;
+      state.officialResultSchemaKeys = sample ? Object.keys(sample) : [];
+      return state.officialResultSchemaKeys;
     }
 
-    function buildOfficialResultPayloads(event, homeScore, awayScore) {
-      const now = new Date().toISOString();
-      const eventId = event.id;
-
-      /*
-        Persistencia v3.0.11
-        El error real detectado en producción fue:
-        PGRST204: Could not find the 'away_score' column of 'official_results'.
-
-        Por lo tanto, el guardado NO debe depender de away_score.
-        Se prueban combinaciones seguras, una por una, hasta encontrar la forma real
-        de la tabla predictions.official_results, conservando event_id como llave.
-      */
-      const baseMeta = {
-        result_status: "official",
-        source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX",
-        updated_at: now
-      };
-
-      return [
-        {
-          event_id: eventId,
-          home_score: homeScore,
-          visitor_score: awayScore,
-          ...baseMeta,
-          recorded_at: now
-        },
-        {
-          event_id: eventId,
-          local_score: homeScore,
-          visitor_score: awayScore,
-          ...baseMeta,
-          recorded_at: now
-        },
-        {
-          event_id: eventId,
-          home_goals: homeScore,
-          away_goals: awayScore,
-          ...baseMeta,
-          recorded_at: now
-        },
-        {
-          event_id: eventId,
-          local_goals: homeScore,
-          visitor_goals: awayScore,
-          ...baseMeta,
-          recorded_at: now
-        },
-        {
-          event_id: eventId,
-          score_home: homeScore,
-          score_away: awayScore,
-          ...baseMeta,
-          recorded_at: now
-        },
-        {
-          event_id: eventId,
-          home_result: homeScore,
-          away_result: awayScore,
-          ...baseMeta,
-          recorded_at: now
-        },
-        {
-          event_id: eventId,
-          result_home_score: homeScore,
-          result_away_score: awayScore,
-          ...baseMeta,
-          recorded_at: now
-        },
-        {
-          event_id: eventId,
-          home_score: homeScore,
-          visitor_score: awayScore,
-          result_status: "official"
-        },
-        {
-          event_id: eventId,
-          local_score: homeScore,
-          visitor_score: awayScore,
-          result_status: "official"
-        },
-        {
-          event_id: eventId,
-          home_score: homeScore,
-          visitor_score: awayScore
-        },
-        {
-          event_id: eventId,
-          local_score: homeScore,
-          visitor_score: awayScore
-        },
-        {
-          event_id: eventId,
-          home_goals: homeScore,
-          away_goals: awayScore
+    function findColumnFromKeys(keys, candidates) {
+      const keySet = new Set((keys || []).map((key) => String(key).toLowerCase()));
+      for (const candidate of candidates) {
+        if (keySet.has(String(candidate).toLowerCase())) {
+          return keys.find((key) => String(key).toLowerCase() === String(candidate).toLowerCase());
         }
+      }
+      return null;
+    }
+
+    function findScoreColumnFromSample(sample, side) {
+      if (!sample) return null;
+      const candidates = side === "home" ? HOME_SCORE_FIELDS : AWAY_SCORE_FIELDS;
+      for (const key of candidates) {
+        if (Object.prototype.hasOwnProperty.call(sample, key) && isScoreValue(sample[key])) {
+          return key;
+        }
+      }
+      const keys = Object.keys(sample);
+      const semanticKeys = side === "home"
+        ? ["home", "local", "host", "team_a", "equipo_local"]
+        : ["away", "visitor", "visitante", "team_b", "equipo_visitante"];
+      for (const key of keys) {
+        const lower = key.toLowerCase();
+        const looksLikeSide = semanticKeys.some((part) => lower.includes(part));
+        const looksLikeScore = lower.includes("score") || lower.includes("goal") || lower.includes("gol") || lower.includes("marcador") || lower.includes("result");
+        if (looksLikeSide && looksLikeScore && isScoreValue(sample[key])) {
+          return key;
+        }
+      }
+      return null;
+    }
+
+    function findWritableScoreColumns(keys, sample) {
+      const expandedHomeCandidates = [
+        "home_score", "local_score", "home_goals", "local_goals", "score_home", "home_result",
+        "result_home_score", "result_home_goals", "home_team_score", "local_team_score",
+        "team_home_score", "team_a_score", "team1_score", "score_local", "goals_home",
+        "marcador_local", "goles_local", "resultado_local", "local_result"
       ];
+
+      const expandedAwayCandidates = [
+        "away_score", "visitor_score", "visitante_score", "away_goals", "visitor_goals", "visitante_goals",
+        "score_away", "away_result", "visitor_result", "visitante_result", "result_away_score",
+        "result_away_goals", "away_team_score", "visitor_team_score", "visitante_team_score",
+        "team_away_score", "team_b_score", "team2_score", "score_visitor", "score_visitante",
+        "goals_away", "marcador_visitante", "goles_visitante", "resultado_visitante"
+      ];
+
+      const sampleHome = findScoreColumnFromSample(sample, "home");
+      const sampleAway = findScoreColumnFromSample(sample, "away");
+
+      return {
+        homeKey: sampleHome || findColumnFromKeys(keys, expandedHomeCandidates),
+        awayKey: sampleAway || findColumnFromKeys(keys, expandedAwayCandidates)
+      };
     }
 
     async function persistOfficialResult(event, homeScore, awayScore) {
-      const payloads = buildOfficialResultPayloads(event, homeScore, awayScore);
-      let lastError = null;
+      const keys = await getOfficialResultsSchemaKeys();
+      const loadedSample = state.results && state.results.size
+        ? Array.from(state.results.values()).find((item) => item && typeof item === "object")
+        : null;
 
-      for (const payload of payloads) {
-        try {
-          const saved = await persistOfficialResultPayload(payload);
-          return normalizeSavedOfficialResult(saved || payload, event.id, homeScore, awayScore);
-        } catch (error) {
-          lastError = error;
-          const message = `${error && error.message ? error.message : ""} ${error && error.details ? error.details : ""} ${error && error.hint ? error.hint : ""}`.toLowerCase();
-          const schemaRecoverable =
-            message.includes("column") ||
-            message.includes("schema cache") ||
-            message.includes("could not find") ||
-            message.includes("result_status") ||
-            message.includes("recorded_at") ||
-            message.includes("updated_at") ||
-            message.includes("source_version") ||
-            message.includes("source") ||
-            message.includes("away_score") ||
-            message.includes("visitor_score") ||
-            message.includes("local_score") ||
-            message.includes("home_goals") ||
-            message.includes("away_goals");
+      const idKey = findColumnFromKeys(keys, ["event_id", "sport_event_id", "match_id", "event_uuid"]);
+      const { homeKey, awayKey } = findWritableScoreColumns(keys, loadedSample);
 
-          if (!schemaRecoverable) {
-            break;
-          }
-        }
+      if (!idKey) {
+        throw new Error("No se encontró columna llave de evento en predictions.official_results.");
       }
 
-      throw lastError || new Error("No fue posible persistir el resultado oficial.");
-    }
+      if (!homeKey || !awayKey) {
+        throw new Error("No se encontraron columnas reales de marcador en predictions.official_results.");
+      }
 
-    async function persistOfficialResultPayload(payload) {
-      const eventId = payload.event_id;
-      const updatePayload = { ...payload };
-      delete updatePayload.event_id;
+      const now = new Date().toISOString();
+      const updatePayload = {};
+      updatePayload[homeKey] = homeScore;
+      updatePayload[awayKey] = awayScore;
+
+      if (keys.includes("result_status")) updatePayload.result_status = "official";
+      if (keys.includes("status")) updatePayload.status = "official";
+      if (keys.includes("is_official")) updatePayload.is_official = true;
+      if (keys.includes("source")) updatePayload.source = "operator_admin";
+      if (keys.includes("source_version")) updatePayload.source_version = "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.12_OPERATOR_HISTORY_OK_DYNAMIC_SAVE_SCHEMA_FIX";
+      if (keys.includes("recorded_at")) updatePayload.recorded_at = now;
+      if (keys.includes("updated_at")) updatePayload.updated_at = now;
+      if (keys.includes("created_at") && !keys.includes("id")) updatePayload.created_at = now;
 
       const updateResponse = await state.supabase
         .schema("predictions")
         .from("official_results")
         .update(updatePayload)
-        .eq("event_id", eventId)
+        .eq(idKey, event.id)
         .select("*");
 
-      if (updateResponse.error) {
-        throw updateResponse.error;
-      }
+      if (updateResponse.error) throw updateResponse.error;
 
       if (Array.isArray(updateResponse.data) && updateResponse.data.length > 0) {
-        return updateResponse.data[0];
+        return normalizeSavedOfficialResult(updateResponse.data[0], event.id, homeScore, awayScore);
       }
+
+      const insertPayload = { ...updatePayload };
+      insertPayload[idKey] = event.id;
 
       const insertResponse = await state.supabase
         .schema("predictions")
         .from("official_results")
-        .insert(payload)
+        .insert(insertPayload)
         .select("*");
 
-      if (insertResponse.error) {
-        throw insertResponse.error;
-      }
+      if (insertResponse.error) throw insertResponse.error;
 
-      if (Array.isArray(insertResponse.data) && insertResponse.data.length > 0) {
-        return insertResponse.data[0];
-      }
-
-      return payload;
+      const saved = Array.isArray(insertResponse.data) && insertResponse.data.length ? insertResponse.data[0] : insertPayload;
+      return normalizeSavedOfficialResult(saved, event.id, homeScore, awayScore);
     }
 
     function normalizeSavedOfficialResult(result, eventId, homeScore, awayScore) {
@@ -1559,8 +1518,8 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX
-Total de líneas: 1576
+Versión: v3.0.12_OPERATOR_HISTORY_OK_DYNAMIC_SAVE_SCHEMA_FIX
+Total de líneas: 1536
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
