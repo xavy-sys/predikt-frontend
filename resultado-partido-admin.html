@@ -450,7 +450,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const PAGE_VERSION = 'resultado_partido_admin_v1.4.1_REUSE_HOME_SUPABASE_CONFIG';
+    const PAGE_VERSION = 'resultado_partido_admin_v1.4.2_EMBED_PUBLIC_KEY_FIX';
 
     const SUPABASE_URL =
       window.PREDIKT_SUPABASE_URL ||
@@ -468,7 +468,7 @@
       localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') ||
       localStorage.getItem('PREDIKT_SUPABASE_ANON_KEY') ||
       localStorage.getItem('SUPABASE_ANON_KEY') ||
-      '';
+      'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
 
     const $ = (id) => document.getElementById(id);
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Mexico_City';
@@ -528,7 +528,7 @@
 
     async function loadEvents() {
       if (!client) {
-        showMessage('No se pudo conectar. Falta la llave pública de PREDIKT™ en esta pantalla.', 'warn');
+        showMessage('Conectando con PREDIKT™...', 'warn');
         return;
       }
 
@@ -742,7 +742,10 @@
     }
 
     function initSupabase() {
-      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase) return;
+      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase) {
+        showMessage('No se pudo iniciar la conexión de PREDIKT™.', 'warn');
+        return;
+      }
       client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
 
