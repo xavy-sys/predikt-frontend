@@ -2,16 +2,17 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.7_OPERATOR_RESTORE_SAVE_PERSISTENCE_FIX
-Entrega: resultado-partido-admin_v3.0.7_OPERATOR_RESTORE_SAVE_PERSISTENCE_FIX.txt
+Versión: v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE
+Entrega: resultado-partido-admin_v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1506
+Total de líneas: 1371
 
 MOTIVO DE VERSIÓN
+- Rollback operativo seguro desde v3.0.5 porque v3.0.7 degradó lectura de resultados oficiales persistidos.
 - Restaurar el motor funcional certificado de resultado-partido-admin_v1.4.0_DAILY_OPERATOR_VIEW.
 - Conservar la identidad visual moderna lograda en v2.6.
 - Eliminar la regresión causada por clientes Supabase paralelos, URLs embebidas y reconstrucción del flujo de datos.
@@ -739,7 +740,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.7_OPERATOR_RESTORE_SAVE_PERSISTENCE_FIX";
+    const VERSION = "v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -916,146 +917,68 @@ CHECKLIST DE VALIDACIÓN
       renderSavingButton(eventId, true);
 
       try {
-        const savedResult = await persistOfficialResult(event, homeScore, awayScore);
-        const officialResult = normalizeOfficialResult(savedResult, event.id, homeScore, awayScore);
+        const payload = buildOfficialResultPayload(event, homeScore, awayScore);
+
+        const { error: upsertError } = await state.supabase
+          .schema("predictions")
+          .from("official_results")
+          .upsert(payload, { onConflict: "event_id" });
+
+        if (upsertError) throw upsertError;
+
+        const officialResult = {
+          ...payload,
+          home_score: homeScore,
+          away_score: awayScore
+        };
 
         state.results.set(String(event.id), officialResult);
         state.events = state.events.map((item) => {
           if (String(item.id) !== String(event.id)) return item;
-          return applyResultToEvent(item, officialResult);
+          return {
+            ...item,
+            official_result: officialResult,
+            home_score: homeScore,
+            away_score: awayScore,
+            event_status: "completed"
+          };
         });
 
-        updateEventStatusInBackground(event.id);
-
-        await reloadResultsAndReclassify({ keepOptimisticResult: officialResult, eventId: event.id });
-
-        state.savingEventId = null;
         applyFilters();
         render();
+
+        const { error: eventError } = await state.supabase
+          .schema("sports")
+          .from("events")
+          .update({ event_status: "completed", updated_at: new Date().toISOString() })
+          .eq("id", event.id);
+
+        if (eventError) {
+          console.warn(`[${VERSION}] event_status update warning`, eventError);
+        }
+
         showNotice("Resultado oficial guardado. El partido pasó a Historial.", "ok");
+        await refreshAll(false);
       } catch (error) {
         console.error(`[${VERSION}] saveResult`, error);
-        const message = error && error.message ? error.message : "Verifica permisos de operador.";
-        showNotice(`No fue posible guardar el resultado oficial. ${message}`, "error");
+        showNotice("No fue posible guardar el resultado oficial. Verifica permisos de operador.", "error");
       } finally {
         state.savingEventId = null;
-        applyFilters();
-        render();
+        renderSavingButton(eventId, false);
       }
     }
 
-    async function persistOfficialResult(event, homeScore, awayScore) {
-      const attempts = buildOfficialResultPayloads(event, homeScore, awayScore);
-      let lastError = null;
-
-      for (const payload of attempts) {
-        const { data, error } = await state.supabase
-          .schema("predictions")
-          .from("official_results")
-          .upsert(payload, { onConflict: "event_id" })
-          .select("*");
-
-        if (!error) {
-          if (Array.isArray(data) && data.length) return data[0];
-          return payload;
-        }
-
-        lastError = error;
-        const text = `${error.message || ""} ${error.details || ""} ${error.hint || ""}`.toLowerCase();
-        const recoverableSchemaError =
-          text.includes("column") ||
-          text.includes("schema cache") ||
-          text.includes("could not find") ||
-          text.includes("result_status") ||
-          text.includes("recorded_at") ||
-          text.includes("updated_at") ||
-          text.includes("source_version") ||
-          text.includes("source");
-
-        if (!recoverableSchemaError) break;
-      }
-
-      throw lastError || new Error("Upsert oficial rechazado.");
-    }
-
-    async function reloadResultsAndReclassify(options) {
-      const safeOptions = options || {};
-      try {
-        await loadResults();
-        if (safeOptions.eventId && safeOptions.keepOptimisticResult && !state.results.has(String(safeOptions.eventId))) {
-          state.results.set(String(safeOptions.eventId), safeOptions.keepOptimisticResult);
-        }
-        mergeResultsIntoEvents();
-        applyFilters();
-        render();
-      } catch (error) {
-        console.warn(`[${VERSION}] reloadResultsAndReclassify warning`, error);
-        if (safeOptions.eventId && safeOptions.keepOptimisticResult) {
-          state.results.set(String(safeOptions.eventId), safeOptions.keepOptimisticResult);
-          state.events = state.events.map((item) => {
-            if (String(item.id) !== String(safeOptions.eventId)) return item;
-            return applyResultToEvent(item, safeOptions.keepOptimisticResult);
-          });
-          applyFilters();
-          render();
-        }
-      }
-    }
-
-    function updateEventStatusInBackground(eventId) {
-      state.supabase
-        .schema("sports")
-        .from("events")
-        .update({ event_status: "completed", updated_at: new Date().toISOString() })
-        .eq("id", eventId)
-        .then(({ error }) => {
-          if (error) console.warn(`[${VERSION}] event_status update warning`, error);
-        })
-        .catch((error) => console.warn(`[${VERSION}] event_status update failed`, error));
-    }
-
-    function buildOfficialResultPayloads(event, homeScore, awayScore) {
-      const now = new Date().toISOString();
-      const eventId = event.id;
-      return [
-        {
-          event_id: eventId,
-          home_score: homeScore,
-          away_score: awayScore,
-          result_status: "official"
-        },
-        {
-          event_id: eventId,
-          home_score: homeScore,
-          away_score: awayScore
-        },
-        {
-          event_id: eventId,
-          local_score: homeScore,
-          visitor_score: awayScore,
-          result_status: "official"
-        },
-        {
-          event_id: eventId,
-          local_score: homeScore,
-          visitor_score: awayScore
-        },
-        {
-          event_id: eventId,
-          home_goals: homeScore,
-          away_goals: awayScore,
-          result_status: "official"
-        },
-        {
-          event_id: eventId,
-          home_score: homeScore,
-          away_score: awayScore,
-          source: "operator_admin",
-          source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.7_OPERATOR_RESTORE_SAVE_PERSISTENCE_FIX",
-          recorded_at: now,
-          updated_at: now
-        }
-      ];
+    function buildOfficialResultPayload(event, homeScore, awayScore) {
+      return {
+        event_id: event.id,
+        home_score: homeScore,
+        away_score: awayScore,
+        result_status: "official",
+        source: "operator_admin",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE",
+        recorded_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
     }
 
     function normalizeEvents(rows) {
@@ -1159,60 +1082,21 @@ CHECKLIST DE VALIDACIÓN
     function mergeResultsIntoEvents() {
       state.events = state.events.map((event) => {
         const result = state.results.get(String(event.id));
-        if (result) return applyResultToEvent(event, result);
         return {
           ...event,
-          official_result: null,
-          home_score: getExistingScore(event, "home"),
-          away_score: getExistingScore(event, "away")
+          official_result: result || null,
+          home_score: result ? getScore(result, "home") : getExistingScore(event, "home"),
+          away_score: result ? getScore(result, "away") : getExistingScore(event, "away"),
+          event_status: result ? "completed" : event.event_status
         };
       });
-    }
-
-    function applyResultToEvent(event, result) {
-      const homeScore = getScore(result, "home");
-      const awayScore = getScore(result, "away");
-      const normalizedResult = normalizeOfficialResult(result, event.id, homeScore, awayScore);
-      return {
-        ...event,
-        official_result: normalizedResult,
-        home_score: homeScore,
-        away_score: awayScore,
-        event_status: hasValidOfficialScore(normalizedResult) ? "completed" : event.event_status
-      };
-    }
-
-    function normalizeOfficialResult(result, eventId, homeScore, awayScore) {
-      return {
-        ...(result || {}),
-        event_id: (result && result.event_id) || eventId,
-        home_score: isScoreValue(homeScore) ? Number(homeScore) : getScore(result, "home"),
-        away_score: isScoreValue(awayScore) ? Number(awayScore) : getScore(result, "away"),
-        result_status: (result && (result.result_status || result.status)) || "official"
-      };
     }
 
     function getScore(source, side) {
       if (!source) return null;
       const candidates = side === "home"
-        ? [
-            source.home_score, source.home_goals, source.local_score, source.local_goals,
-            source.home_team_goals, source.local_team_goals, source.team_home_goals,
-            source.team_a_goals, source.score_home, source.score_local,
-            source.home_team_score, source.local_team_score, source.team_home_score,
-            source.team_a_score, source.home_points, source.local_points,
-            source.home_result, source.local_result, source.result_home, source.result_local
-          ]
-        : [
-            source.away_score, source.away_goals, source.visitor_score, source.visitor_goals,
-            source.visitante_score, source.visitante_goals, source.away_team_goals,
-            source.visitor_team_goals, source.visitante_team_goals, source.team_away_goals,
-            source.team_b_goals, source.score_away, source.score_visitor,
-            source.score_visitante, source.away_team_score, source.visitor_team_score,
-            source.team_away_score, source.team_b_score, source.away_points,
-            source.visitor_points, source.away_result, source.visitor_result,
-            source.visitante_result, source.result_away, source.result_visitor
-          ];
+        ? [source.home_score, source.home_goals, source.local_score, source.score_home]
+        : [source.away_score, source.away_goals, source.visitor_score, source.score_away];
       for (const value of candidates) {
         if (isScoreValue(value)) return Number(value);
       }
@@ -1301,11 +1185,9 @@ CHECKLIST DE VALIDACIÓN
     function renderMatchCard(event) {
       const group = event.group_code || "-";
       const groupColor = groupColors[group] || "#1363df";
-      const homeDisplayScore = getDisplayScore(event, "home");
-      const awayDisplayScore = getDisplayScore(event, "away");
       const hasResult = hasOfficialResult(event);
-      const homeScore = isScoreValue(homeDisplayScore) ? Number(homeDisplayScore) : "";
-      const awayScore = isScoreValue(awayDisplayScore) ? Number(awayDisplayScore) : "";
+      const homeScore = isScoreValue(event.home_score) ? Number(event.home_score) : "";
+      const awayScore = isScoreValue(event.away_score) ? Number(event.away_score) : "";
       const scoreLabel = hasResult ? `${homeScore} - ${awayScore}` : "vs";
       const statusLabel = hasResult ? "Resultado oficial" : getStatusLabel(event.event_status);
       const safeId = escapeHtml(String(event.id));
@@ -1366,9 +1248,7 @@ CHECKLIST DE VALIDACIÓN
       const btn = document.getElementById(`saveBtn-${eventId}`);
       if (!btn) return;
       btn.disabled = loading;
-      if (loading) {
-        btn.innerHTML = `<span class="mini-loader">⚽</span> Guardando`;
-      }
+      btn.innerHTML = loading ? `<span class="mini-loader">⚽</span> Guardando` : btn.dataset.originalText || btn.textContent;
     }
 
     function resetInputs(eventId) {
@@ -1397,24 +1277,10 @@ CHECKLIST DE VALIDACIÓN
 
     function hasOfficialResult(event) {
       if (!event) return false;
-      return isScoreValue(getDisplayScore(event, "home")) && isScoreValue(getDisplayScore(event, "away"));
-    }
-
-    function getDisplayScore(event, side) {
-      if (!event) return null;
-      const fromOfficialResult = getScore(event.official_result, side);
-      if (isScoreValue(fromOfficialResult)) return Number(fromOfficialResult);
-      const fromResultMap = state.results.get(String(event.id));
-      const fromPersistedResult = getScore(fromResultMap, side);
-      if (isScoreValue(fromPersistedResult)) return Number(fromPersistedResult);
-      const fromEvent = side === "home" ? event.home_score : event.away_score;
-      if (isScoreValue(fromEvent)) return Number(fromEvent);
-      return null;
-    }
-
-    function hasValidOfficialScore(source) {
-      if (!source) return false;
-      return isScoreValue(getScore(source, "home")) && isScoreValue(getScore(source, "away"));
+      if (event.official_result) return true;
+      if (eventHasPersistedScore(event)) return true;
+      const status = String(event.event_status || event.status || "").toLowerCase();
+      return status.includes("complete") || status.includes("final");
     }
 
     function getTotalPages() {
@@ -1488,7 +1354,7 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.7_OPERATOR_RESTORE_SAVE_PERSISTENCE_FIX
+Versión: v3.0.8_OPERATOR_SAFE_ROLLBACK_RESULTS_RESTORE
 Total de líneas: 1371
 Certificación de entrega:
 - Archivo completo.
