@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX
-Entrega: resultado-partido-admin_v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX.txt
+Versión: v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX
+Entrega: resultado-partido-admin_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1501
+Total de líneas: 1576
 
 MOTIVO DE VERSIÓN
 - Corrección completa de lectura/visualización de marcadores oficiales en Historial.
@@ -27,7 +27,7 @@ DECISIONES ARQUITECTÓNICAS CERRADAS
 - El cliente Supabase debe provenir del bootstrap oficial assets/js/supabase.js.
 - Se conserva el flujo loadEvents(), loadResults(), saveResult().
 - Se conserva persistencia en predictions.official_results mediante update/insert seguro, evitando pérdida por onConflict.
-- Se restaura la función persistOfficialResult() faltante en v3.0.9, causa directa de que no guardara.
+- Se conserva el Historial funcional y se corrige el guardado para columnas reales de official_results, sin usar away_score cuando no existe.
 - Se conserva actualización de sports.events.event_status.
 
 VENTANA OFICIAL DE CARGA
@@ -743,7 +743,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX";
+    const VERSION = "v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -970,7 +970,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX",
         recorded_at: now,
         updated_at: now
       };
@@ -979,28 +979,99 @@ CHECKLIST DE VALIDACIÓN
     function buildOfficialResultPayloads(event, homeScore, awayScore) {
       const now = new Date().toISOString();
       const eventId = event.id;
+
+      /*
+        Persistencia v3.0.11
+        El error real detectado en producción fue:
+        PGRST204: Could not find the 'away_score' column of 'official_results'.
+
+        Por lo tanto, el guardado NO debe depender de away_score.
+        Se prueban combinaciones seguras, una por una, hasta encontrar la forma real
+        de la tabla predictions.official_results, conservando event_id como llave.
+      */
+      const baseMeta = {
+        result_status: "official",
+        source: "operator_admin",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX",
+        updated_at: now
+      };
+
       return [
         {
           event_id: eventId,
           home_score: homeScore,
-          away_score: awayScore,
-          result_status: "official",
-          source: "operator_admin",
-          source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX",
-          recorded_at: now,
-          updated_at: now
+          visitor_score: awayScore,
+          ...baseMeta,
+          recorded_at: now
+        },
+        {
+          event_id: eventId,
+          local_score: homeScore,
+          visitor_score: awayScore,
+          ...baseMeta,
+          recorded_at: now
+        },
+        {
+          event_id: eventId,
+          home_goals: homeScore,
+          away_goals: awayScore,
+          ...baseMeta,
+          recorded_at: now
+        },
+        {
+          event_id: eventId,
+          local_goals: homeScore,
+          visitor_goals: awayScore,
+          ...baseMeta,
+          recorded_at: now
+        },
+        {
+          event_id: eventId,
+          score_home: homeScore,
+          score_away: awayScore,
+          ...baseMeta,
+          recorded_at: now
+        },
+        {
+          event_id: eventId,
+          home_result: homeScore,
+          away_result: awayScore,
+          ...baseMeta,
+          recorded_at: now
+        },
+        {
+          event_id: eventId,
+          result_home_score: homeScore,
+          result_away_score: awayScore,
+          ...baseMeta,
+          recorded_at: now
         },
         {
           event_id: eventId,
           home_score: homeScore,
-          away_score: awayScore,
-          result_status: "official",
-          updated_at: now
+          visitor_score: awayScore,
+          result_status: "official"
+        },
+        {
+          event_id: eventId,
+          local_score: homeScore,
+          visitor_score: awayScore,
+          result_status: "official"
         },
         {
           event_id: eventId,
           home_score: homeScore,
-          away_score: awayScore
+          visitor_score: awayScore
+        },
+        {
+          event_id: eventId,
+          local_score: homeScore,
+          visitor_score: awayScore
+        },
+        {
+          event_id: eventId,
+          home_goals: homeScore,
+          away_goals: awayScore
         }
       ];
     }
@@ -1024,7 +1095,12 @@ CHECKLIST DE VALIDACIÓN
             message.includes("recorded_at") ||
             message.includes("updated_at") ||
             message.includes("source_version") ||
-            message.includes("source");
+            message.includes("source") ||
+            message.includes("away_score") ||
+            message.includes("visitor_score") ||
+            message.includes("local_score") ||
+            message.includes("home_goals") ||
+            message.includes("away_goals");
 
           if (!schemaRecoverable) {
             break;
@@ -1483,8 +1559,8 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX
-Total de líneas: 1501
+Versión: v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX
+Total de líneas: 1576
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
