@@ -2,9 +2,9 @@
 <!--
 ===============================================================================
 PREDIKT™ — Resultado Oficial Admin
-Archivo: resultado-partido-admin_v2.0.1_OPERATOR_FIRST_FULL_FIX.txt
-Versión: v2.0.1_OPERATOR_FIRST_FULL_FIX
-Total de líneas inicial: 779
+Archivo: resultado-partido-admin_v2.1.0_OPERATOR_CONSOLE.txt
+Versión: v2.1.0_OPERATOR_CONSOLE
+Total de líneas inicial: 435
 Fecha de versión: 2026-06-17
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
@@ -12,334 +12,186 @@ Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 
 MOTIVO DE LA NUEVA VERSIÓN
-- Corrección completa de la entrega v2.0.0 por falla visual-operativa reportada en producción.
-- Se corrige CSS visible en pantalla por riesgo de estructura HTML/CSS degradada.
-- Se corrige loader para que sea dinámico, no estático, con balón girando.
-- Se refuerza la carga directa desde sports.events como fuente maestra certificada.
-- Se refuerzan botones, listeners y estados visuales para operación real.
-
-FUENTE DE DATOS CERTIFICADA
-- Cargar universo completo de partidos desde: sports.events.
-- NO utilizar sports.get_home_events().
-- NO utilizar ventanas 48h atrás / 72h adelante.
-- NO utilizar filtros Today / Pending / Recent como arquitectura principal.
-- Las vistas sports.v_event_match_intelligence_api y
-  sports.v_event_match_intelligence_enriched quedan reservadas para Home,
-  Análisis PREDIKT™, Match Detail e Inteligencia Deportiva.
+- Se reemplaza la búsqueda central poco funcional por una consola operativa más intuitiva.
+- Se agregan filtros visuales por estado, grupo y fecha para localizar partidos sin depender de escribir.
+- Se recupera el estándar visual deportivo PREDIKT™: azul profundo, dorado y colores por grupo.
+- Se mantiene sports.events como fuente maestra certificada del universo completo de 72 partidos.
+- Se conserva el upsert contra predictions.official_results y la actualización de sports.events.event_status.
 
 HISTORIAL DE CAMBIOS
-- v1.4.2_EMBED_PUBLIC_KEY_FIX:
-  Fix de llave pública embebida y operación básica post-partido.
-- v2.0.0_OPERATOR_FIRST:
-  Nueva pantalla Operator First con pendientes, búsqueda, historial y corrección.
-- v2.0.1_OPERATOR_FIRST_FULL_FIX:
-  Reconstrucción completa estable para corregir loader, colores, botones y carga.
+v1.4.2_EMBED_PUBLIC_KEY_FIX
+- Versión base certificada con llave pública embebida y carga por sports.get_home_events().
+
+v2.0.0_OPERATOR_FIRST
+- Primer rediseño operator first; reportado con degradación visual y loader estático.
+
+v2.0.1_OPERATOR_FIRST_FULL_FIX
+- Corrección estructural; reportada aún sin resultados visibles, búsqueda no intuitiva y UI apagada.
+
+v2.1.0_OPERATOR_CONSOLE
+- Consola operativa completa: pendientes, selector por estado, selector por grupo, selector por fecha,
+  historial paginado, edición histórica, loader animado y paleta visual PREDIKT™ reforzada.
+
+FUENTE DE DATOS CERTIFICADA
+- Cargar universo completo desde sports.events.
+- No usar sports.get_home_events().
+- No usar ventanas 48h atrás / 72h adelante.
+- No usar filtros Today / Pending / Recent como arquitectura principal.
+- Las vistas de inteligencia quedan reservadas para Home, Match Detail e Inteligencia Deportiva.
 
 IMPACTO EN PRODUCCIÓN
-- Reemplaza resultado-partido-admin.html con esta versión completa.
-- No modifica backend.
-- No modifica tablas.
-- No modifica RPC.
-- No modifica RLS.
-- Conserva upsert sobre predictions.official_results.
-- Conserva actualización sports.events.event_status = FINISHED.
-- Compatible con rankings, grupos, eliminación automática y Home Dashboard.
+- Sustituye resultado-partido-admin.html completo.
+- No modifica backend, tablas, RPC, policies ni RLS.
+- Debe permitir ver y corregir cualquiera de los 72 partidos certificados.
+- Mejora captura de resultado oficial en menos de 10 segundos desde pendientes.
 
 CHECKLIST DE VALIDACIÓN
-[ ] Abrir /resultado-partido-admin.html con usuario administrador.
-[ ] Confirmar que no aparece CSS ni texto técnico visible en pantalla.
-[ ] Confirmar loader con balón girando y fondo visible oscurecido.
-[ ] Confirmar que Pendientes de Resultado muestra partidos sin resultado oficial.
-[ ] Confirmar búsqueda por selección, grupo, sede, fecha y nombre del partido.
-[ ] Confirmar Historial Completo con 20 partidos por página.
-[ ] Confirmar navegación Anterior / Siguiente sin scroll infinito.
-[ ] Confirmar captura de resultado nuevo.
-[ ] Confirmar corrección histórica de resultado existente.
-[ ] Confirmar que el registro existente se actualiza y no duplica resultados.
-[ ] Confirmar event_status = FINISHED al guardar.
+[ ] Reemplazar resultado-partido-admin.html con este contenido completo.
+[ ] Publicar en Vercel.
+[ ] Abrir /resultado-partido-admin.html.
+[ ] Validar que cargue el universo de partidos desde sports.events.
+[ ] Validar contadores: pendientes, finalizados, total.
+[ ] Seleccionar grupo A-L sin escribir búsqueda.
+[ ] Seleccionar fecha sin escribir búsqueda.
+[ ] Seleccionar un partido pendiente y guardar resultado.
+[ ] Reabrir el mismo partido y corregir marcador histórico.
+[ ] Confirmar actualización en predictions.official_results.
+[ ] Confirmar event_status = FINISHED en sports.events.
+[ ] Confirmar que el loader no tapa con pantalla blanca o negra.
+
 ===============================================================================
 -->
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>PREDIKT™ | Resultado Oficial Admin</title>
+  <title>PREDIKT™ | Resultado Oficial</title>
   <link rel="icon" href="./predikt-logo.png" />
   <style>
     :root{
       --bg:#061226;
-      --bg2:#0b1f3f;
-      --card:rgba(19,38,66,.94);
-      --card2:rgba(13,27,49,.96);
-      --line:rgba(255,255,255,.14);
+      --bg2:#0b2b57;
+      --navy:#071a35;
+      --card:rgba(16,35,66,.95);
+      --card2:rgba(9,22,44,.98);
+      --line:rgba(255,255,255,.15);
       --text:#ffffff;
-      --muted:#b7c8df;
+      --muted:#bed0e8;
       --gold:#ffd766;
       --gold2:#ffbf2e;
+      --blue:#39bdf8;
+      --cyan:#67e8f9;
       --green:#27d67b;
       --red:#ff4264;
-      --blue:#38bdf8;
-      --shadow:0 18px 50px rgba(0,0,0,.34);
+      --orange:#ff914d;
+      --purple:#b084ff;
+      --shadow:0 18px 55px rgba(0,0,0,.38);
       --radius:22px;
       --safe-bottom:env(safe-area-inset-bottom,0px);
     }
-
     *{box-sizing:border-box}
-
     html{min-height:100%;background:#061226}
-
     body{
       margin:0;
       min-height:100svh;
       color:var(--text);
       font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:
-        radial-gradient(circle at top right,rgba(22,88,166,.44),transparent 35%),
-        linear-gradient(180deg,#0d2b57 0%,#061226 54%,#030814 100%);
-      padding:18px 14px calc(96px + var(--safe-bottom));
-      overflow-x:hidden;
+        radial-gradient(circle at 15% 0%,rgba(57,189,248,.26),transparent 28%),
+        radial-gradient(circle at 100% 8%,rgba(255,215,102,.22),transparent 32%),
+        linear-gradient(180deg,#0e376e 0%,#071d3b 42%,#030814 100%);
+      padding:16px 12px calc(96px + var(--safe-bottom));
     }
-
     button,input{font:inherit}
-    button:disabled{opacity:.48;cursor:not-allowed}
-
-    .app{width:min(520px,100%);margin:0 auto}
-
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin:4px 0 14px;
-    }
-
+    button{touch-action:manipulation}
+    .app{width:min(540px,100%);margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 12px}
     .brand{display:flex;align-items:center;gap:10px}
-    .brand-mark{width:36px;height:36px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
-    .brand strong{display:block;font-weight:950;letter-spacing:.06em}
-    .brand small{display:block;color:var(--muted);font-size:11px;font-weight:800}
-
-    .pill{
-      border:1px solid rgba(255,215,102,.35);
-      background:rgba(255,215,102,.08);
-      color:var(--gold);
-      border-radius:999px;
-      padding:9px 12px;
-      font-size:11px;
-      font-weight:950;
-      text-decoration:none;
-      white-space:nowrap;
-    }
-
-    .hero{
-      border:1px solid rgba(255,255,255,.17);
-      border-radius:var(--radius);
-      background:
-        radial-gradient(circle at 100% 0%,rgba(255,215,102,.16),transparent 28%),
-        linear-gradient(135deg,rgba(26,55,95,.96),rgba(14,31,55,.96));
-      padding:17px;
-      box-shadow:var(--shadow);
-      margin-bottom:12px;
-    }
-
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      border:1px solid rgba(255,215,102,.35);
-      background:rgba(255,215,102,.08);
-      color:var(--gold);
-      border-radius:999px;
-      padding:7px 10px;
-      font-size:11px;
-      font-weight:950;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      margin-bottom:12px;
-    }
-
-    h1{margin:0;font-size:25px;line-height:1.02;letter-spacing:-.04em}
-    .hero p{margin:9px 0 0;color:#dbe7fb;font-size:13px;line-height:1.35;font-weight:750}
-
-    .admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
-    .stat{border:1px solid var(--line);background:rgba(255,255,255,.055);border-radius:17px;padding:12px;min-width:0}
-    .stat span{display:block;color:#9fb3cf;font-size:10px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
-    .stat strong{display:block;margin-top:6px;font-size:24px;line-height:1}
-
-    .panel{
-      border:1px solid var(--line);
-      background:rgba(14,27,49,.90);
-      border-radius:var(--radius);
-      padding:12px;
-      margin-bottom:12px;
-      box-shadow:0 10px 30px rgba(0,0,0,.16);
-    }
-
-    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-    .panel-head h2{margin:0;font-size:15px}
-    .panel-head small{color:var(--muted);font-size:11px;font-weight:850;text-align:right}
-
-    .search-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
-    .search{width:100%;border:1px solid var(--line);background:rgba(5,14,28,.72);color:#fff;border-radius:16px;padding:13px 14px;font-weight:850;outline:none}
-
-    .match-list{display:grid;gap:8px;max-height:360px;overflow:auto;padding-right:2px;scrollbar-width:thin}
-    .match-list.history{max-height:none;overflow:visible}
-
-    .match-card{
-      border:1px solid rgba(255,255,255,.11);
-      background:linear-gradient(180deg,rgba(29,49,80,.94),rgba(13,25,46,.96));
-      border-radius:16px;
-      padding:11px;
-      cursor:pointer;
-      position:relative;
-      overflow:hidden;
-      min-height:88px;
-    }
-    .match-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--gold),#ff7b4a)}
-    .match-card.active{border-color:rgba(255,215,102,.65);box-shadow:0 0 0 2px rgba(255,215,102,.14)}
-    .match-title{margin-left:6px;font-size:13px;font-weight:950;line-height:1.2}
-    .match-meta{margin:6px 0 0 6px;color:var(--muted);font-size:11px;font-weight:800;line-height:1.35}
-    .match-score{position:absolute;right:11px;top:11px;color:var(--gold);font-size:15px;font-weight:950;background:rgba(255,215,102,.10);border:1px solid rgba(255,215,102,.25);border-radius:999px;padding:4px 8px}
-
-    .badge{display:inline-flex;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:950;margin-left:6px;margin-top:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08)}
-    .badge.done{color:#83ffc0;background:rgba(39,214,123,.12);border-color:rgba(39,214,123,.28)}
-    .badge.pending{color:#ffe48a;background:rgba(255,215,102,.10);border-color:rgba(255,215,102,.28)}
-    .badge.future{color:#bdeeff;background:rgba(56,189,248,.10);border-color:rgba(56,189,248,.28)}
-
-    .form-grid{display:grid;gap:12px}
-    .selected-match{border:1px solid rgba(255,215,102,.25);background:rgba(255,215,102,.08);border-radius:17px;padding:12px;font-weight:950;line-height:1.3}
-    .selected-match small{display:block;margin-top:4px;color:#dbe7fb;font-size:11px;font-weight:800}
-    .score-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:10px}
-
-    label{display:grid;gap:6px;color:#dbe7fb;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
-    input[type="number"]{width:100%;border:1px solid var(--line);background:rgba(5,14,28,.76);color:#fff;border-radius:16px;padding:14px 10px;text-align:center;font-size:26px;font-weight:950;outline:none}
-    .vs{color:var(--gold);font-weight:950;padding-bottom:14px}
-
-    .primary,.secondary,.mini{
-      border-radius:17px;
-      font-weight:950;
-      cursor:pointer;
-      text-align:center;
-    }
-    .primary{border:0;padding:15px 16px;color:#08111f;background:linear-gradient(135deg,var(--gold2),#ffe98b);width:100%;font-size:14px}
-    .secondary{border:1px solid var(--line);padding:13px 14px;color:#fff;background:rgba(255,255,255,.06);width:100%;font-size:13px}
-    .mini{border:1px solid var(--line);padding:0 12px;color:#fff;background:rgba(255,255,255,.06);font-size:12px;min-height:46px}
-    .actions-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .pagination{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-top:10px}
-    .page-info{font-size:11px;font-weight:950;color:#dbe7fb;text-align:center;white-space:nowrap}
-
-    .hint{color:var(--muted);font-size:11px;line-height:1.35;font-weight:750}
-    .empty,.message{border:1px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.045);color:#d9e6f8;border-radius:17px;padding:18px 14px;text-align:center;font-weight:850;line-height:1.35}
-    .message.ok{border-color:rgba(39,214,123,.32);color:#a8ffd0;background:rgba(39,214,123,.08)}
-    .message.warn{border-color:rgba(255,215,102,.32);color:#ffe48a;background:rgba(255,215,102,.08)}
-
-    .loader-overlay{position:fixed;inset:0;background:rgba(3,8,20,.70);backdrop-filter:blur(2px);z-index:60;display:none;align-items:center;justify-content:center;padding:24px}
-    .loader-overlay.show{display:flex}
-    .loader-card{border:1px solid rgba(255,215,102,.28);background:rgba(10,24,46,.78);border-radius:24px;padding:22px 20px;text-align:center;box-shadow:var(--shadow);width:min(260px,92vw)}
-    .loader-ball{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;font-size:44px;animation:prediktSpin .88s linear infinite;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35))}
-    .loader-text{color:#fff;font-size:13px;font-weight:950}
-    @keyframes prediktSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-
-    .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);padding:10px 12px calc(10px + var(--safe-bottom));background:rgba(4,12,24,.92);border-top:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px);display:grid;grid-template-columns:repeat(5,1fr);gap:8px;z-index:20}
-    .nav-item{text-decoration:none;color:#9fb0c8;font-size:10px;font-weight:900;text-align:center;border-radius:14px;padding:8px 4px;display:grid;gap:3px}
-    .nav-item.active{color:#0b1322;background:linear-gradient(135deg,var(--gold2),#ffe98b)}
-    .nav-item b{font-size:17px;line-height:1}
-
-    @media(max-width:390px){body{padding-inline:10px}h1{font-size:23px}.admin-grid{gap:7px}.stat{padding:10px}.stat strong{font-size:21px}.score-row{gap:7px}input[type="number"]{font-size:23px;padding:13px 8px}.pagination{grid-template-columns:1fr}.page-info{order:-1}}
+    .logo-dot{width:38px;height:38px;border-radius:15px;background:linear-gradient(135deg,var(--gold2),#fff2a6);display:grid;place-items:center;box-shadow:0 10px 24px rgba(255,191,46,.22);font-size:20px}
+    .brand strong{display:block;font-weight:950;letter-spacing:.06em}.brand small{display:block;color:#d9e7fb;font-size:11px;font-weight:850}.pill{border:1px solid rgba(255,215,102,.38);background:rgba(255,215,102,.10);color:var(--gold);border-radius:999px;padding:9px 12px;font-size:11px;font-weight:950;text-decoration:none}
+    .hero{border:1px solid rgba(255,255,255,.18);border-radius:26px;background:radial-gradient(circle at 100% 0%,rgba(255,215,102,.20),transparent 26%),linear-gradient(135deg,rgba(28,73,128,.96),rgba(10,28,55,.97));padding:17px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;position:relative}.hero:after{content:"";position:absolute;right:-36px;bottom:-44px;width:145px;height:145px;border-radius:50%;border:18px solid rgba(255,255,255,.055)}
+    .tag{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,215,102,.40);background:rgba(255,215,102,.10);color:var(--gold);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:950;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}.hero h1{margin:0;font-size:25px;line-height:1.04;letter-spacing:-.04em}.hero p{margin:9px 0 0;color:#e5efff;font-size:13px;line-height:1.35;font-weight:760;max-width:420px}
+    .scoreboard{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}.stat{border:1px solid rgba(255,255,255,.16);background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border-radius:18px;padding:11px;box-shadow:0 10px 26px rgba(0,0,0,.15)}.stat span{display:block;color:#c7d8ef;font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}.stat strong{display:block;margin-top:5px;font-size:24px;line-height:1}.stat.pending strong{color:var(--gold)}.stat.done strong{color:#8affc7}.stat.total strong{color:#8bdcff}
+    .panel{border:1px solid var(--line);background:rgba(9,24,48,.88);border-radius:var(--radius);padding:12px;margin-bottom:10px;box-shadow:0 12px 34px rgba(0,0,0,.18)}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.panel-head h2{margin:0;font-size:15px}.panel-head small{color:#d7e4f7;font-size:11px;font-weight:900}
+    .status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.filter-btn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#eaf3ff;border-radius:16px;padding:11px 7px;font-size:11px;font-weight:950;cursor:pointer;text-align:center}.filter-btn.active{background:linear-gradient(135deg,var(--gold2),#ffe98b);border-color:transparent;color:#061226;box-shadow:0 10px 22px rgba(255,191,46,.18)}.filter-btn b{display:block;font-size:17px;margin-bottom:2px}
+    .group-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.group-btn{border:1px solid rgba(255,255,255,.16);color:#fff;border-radius:14px;padding:9px 0;font-size:12px;font-weight:950;cursor:pointer;background:linear-gradient(135deg,var(--g,#245b9b),rgba(255,255,255,.09))}.group-btn.active{outline:2px solid var(--gold);box-shadow:0 0 0 4px rgba(255,215,102,.12)}
+    .date-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scroll-snap-type:x mandatory}.date-btn{min-width:98px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.065);color:#eef6ff;border-radius:16px;padding:10px 8px;font-size:11px;font-weight:950;cursor:pointer;scroll-snap-align:start}.date-btn.active{background:linear-gradient(135deg,#38bdf8,#93e7ff);border-color:transparent;color:#061226}.date-btn span{display:block;font-size:10px;opacity:.85;margin-top:2px}
+    .search-row{display:grid;grid-template-columns:1fr auto;gap:8px}.search{width:100%;border:1px solid var(--line);background:rgba(3,12,26,.74);color:#fff;border-radius:17px;padding:13px 14px;font-weight:850;outline:none}.clear-btn{border:1px solid rgba(255,255,255,.16);border-radius:17px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:950;padding:0 13px;cursor:pointer}
+    .match-list{display:grid;gap:9px}.match-card{border:1px solid rgba(255,255,255,.13);background:linear-gradient(180deg,rgba(30,58,96,.97),rgba(11,27,53,.98));border-radius:18px;padding:12px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.17)}.match-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--accent,var(--gold))}.match-card.active{border-color:rgba(255,215,102,.70);box-shadow:0 0 0 2px rgba(255,215,102,.16),0 12px 28px rgba(0,0,0,.24)}.match-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-left:7px}.match-title{font-size:14px;font-weight:950;line-height:1.18}.match-meta{margin:7px 0 0 7px;color:#c8d8ec;font-size:11px;font-weight:820}.badge{white-space:nowrap;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.08)}.badge.done{color:#8affc7;background:rgba(39,214,123,.13);border-color:rgba(39,214,123,.32)}.badge.pending{color:#ffe48a;background:rgba(255,215,102,.12);border-color:rgba(255,215,102,.32)}.badge.future{color:#9fe8ff;background:rgba(56,189,248,.13);border-color:rgba(56,189,248,.32)}.score-line{margin:9px 0 0 7px;font-size:18px;font-weight:950;color:#fff}.score-line small{font-size:11px;color:#bdd0e9;font-weight:850}.quick-list{display:grid;gap:8px;max-height:340px;overflow:auto;padding-right:2px}.history-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}.pager{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}.pager button{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;border-radius:14px;padding:10px 8px;font-size:11px;font-weight:950;cursor:pointer}.pager button:disabled{opacity:.45;cursor:not-allowed}.pager span{text-align:center;font-size:11px;font-weight:950;color:#e8f2ff}
+    .selected-match{border:1px solid rgba(255,215,102,.32);background:linear-gradient(135deg,rgba(255,215,102,.14),rgba(56,189,248,.08));border-radius:18px;padding:13px;font-weight:950;line-height:1.25}.selected-match small{display:block;color:#d8e8ff;font-size:11px;margin-top:5px;font-weight:850}.score-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:10px;margin-top:12px}label{display:grid;gap:7px;color:#e3eeff;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}input[type="number"]{width:100%;border:1px solid rgba(255,255,255,.17);background:rgba(3,12,26,.82);color:#fff;border-radius:17px;padding:14px 10px;text-align:center;font-size:28px;font-weight:950;outline:none}.vs{color:var(--gold);font-weight:950;padding-bottom:15px}.primary,.secondary{border-radius:17px;padding:15px 16px;font-weight:950;cursor:pointer;width:100%;font-size:14px;margin-top:12px}.primary{border:0;color:#08111f;background:linear-gradient(135deg,var(--gold2),#ffe98b)}.primary:disabled{opacity:.45;cursor:not-allowed}.secondary{border:1px solid rgba(255,255,255,.16);color:#fff;background:rgba(255,255,255,.07)}.button-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hint,.empty,.message{border:1px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.045);color:#d9e6f8;border-radius:17px;padding:14px;text-align:center;font-size:12px;font-weight:850;line-height:1.35;margin-top:10px}.message.ok{border-style:solid;border-color:rgba(39,214,123,.34);color:#a8ffd0}.message.warn{border-style:solid;border-color:rgba(255,215,102,.36);color:#ffe48a}.message.bad{border-style:solid;border-color:rgba(255,66,100,.36);color:#ffb4c2}
+    .loader{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,10,22,.70);backdrop-filter:blur(3px);z-index:50}.loader.show{display:flex}.loader-card{border:1px solid rgba(255,255,255,.18);background:rgba(8,23,45,.72);border-radius:24px;padding:20px 24px;text-align:center;box-shadow:var(--shadow)}.ball{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;margin:0 auto 11px;background:radial-gradient(circle at 35% 30%,#fff 0 18%,#dbeafe 19% 34%,#111827 35% 42%,#fff 43% 56%,#111827 57% 64%,#fff 65%);animation:spinBall .85s linear infinite, bounceBall 1.05s ease-in-out infinite}.loader-text{color:#fff;font-size:13px;font-weight:950}@keyframes spinBall{to{transform:rotate(360deg)}}@keyframes bounceBall{0%,100%{translate:0 0}50%{translate:0 -7px}}
+    .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(540px,100%);padding:10px 12px calc(10px + var(--safe-bottom));background:rgba(4,12,24,.94);border-top:1px solid rgba(255,255,255,.13);backdrop-filter:blur(18px);display:grid;grid-template-columns:repeat(5,1fr);gap:8px;z-index:20}.nav-item{text-decoration:none;color:#9fb0c8;font-size:10px;font-weight:900;text-align:center;border-radius:14px;padding:8px 4px;display:grid;gap:3px}.nav-item.active{color:#0b1322;background:linear-gradient(135deg,var(--gold2),#ffe98b)}.nav-item b{font-size:17px;line-height:1}
+    @media(max-width:390px){body{padding-inline:10px}.hero h1{font-size:23px}.scoreboard{gap:7px}.status-grid{grid-template-columns:repeat(2,1fr)}.group-grid{grid-template-columns:repeat(4,1fr)}.score-row{gap:7px}input[type="number"]{font-size:24px;padding:13px 8px}.button-row{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <main class="app">
     <header>
-      <div class="brand">
-        <img class="brand-mark" src="./predikt-logo.png" alt="PREDIKT" />
-        <div>
-          <strong>PREDIKT™</strong>
-          <small>Resultado oficial</small>
-        </div>
-      </div>
+      <div class="brand"><div class="logo-dot">⚽</div><div><strong>PREDIKT™</strong><small>Resultado oficial admin</small></div></div>
       <a class="pill" href="./dashboard-admin.html">Admin</a>
     </header>
 
     <section class="hero">
-      <div class="tag">✅ Operación oficial</div>
-      <h1>Resultado oficial</h1>
-      <p>Primero captura pendientes. Después busca cualquier partido o corrige resultados históricos desde el universo completo certificado.</p>
+      <div class="tag">⚡ Consola operativa</div>
+      <h1>Captura y corrección oficial</h1>
+      <p>Primero pendientes. Después selecciona por estado, grupo o fecha. Sin depender de una búsqueda escrita.</p>
     </section>
 
-    <section class="admin-grid" aria-label="Resumen operativo">
-      <div class="stat"><span>Pendientes</span><strong id="pendingCount">—</strong></div>
-      <div class="stat"><span>Cerrados</span><strong id="doneCount">—</strong></div>
-      <div class="stat"><span>Total</span><strong id="totalCount">—</strong></div>
+    <section class="scoreboard">
+      <div class="stat pending"><span>Pendientes</span><strong id="pendingCount">—</strong></div>
+      <div class="stat done"><span>Finalizados</span><strong id="doneCount">—</strong></div>
+      <div class="stat total"><span>Total</span><strong id="totalCount">—</strong></div>
     </section>
 
-    <section id="pendingPanel" class="panel">
-      <div class="panel-head">
-        <h2>⚠️ Pendientes de Resultado</h2>
-        <small id="pendingListCount">Cargando...</small>
-      </div>
-      <div id="pendingList" class="match-list">
-        <div class="empty">Cargando partidos...</div>
+    <section class="panel">
+      <div class="panel-head"><h2>🎛️ Selección rápida</h2><small id="activeSummary">Cargando...</small></div>
+      <div class="status-grid" id="statusFilters">
+        <button class="filter-btn active" type="button" data-status="pending"><b>⚠️</b>Pendientes</button>
+        <button class="filter-btn" type="button" data-status="finished"><b>✅</b>Finalizados</button>
+        <button class="filter-btn" type="button" data-status="future"><b>🕒</b>Próximos</button>
+        <button class="filter-btn" type="button" data-status="all"><b>📚</b>Todos</button>
       </div>
     </section>
 
     <section class="panel">
-      <div class="panel-head">
-        <h2>🔎 Buscar Partido</h2>
-        <small id="searchCount">72 partidos</small>
-      </div>
-      <div class="search-row">
-        <input id="searchInput" class="search" type="search" placeholder="Buscar selección, grupo, sede, fecha o partido..." />
-        <button id="clearSearchBtn" class="mini" type="button">Limpiar</button>
-      </div>
-      <div id="searchList" class="match-list">
-        <div class="empty">Escribe para buscar cualquier partido.</div>
-      </div>
+      <div class="panel-head"><h2>🌈 Grupos</h2><small>Toque directo</small></div>
+      <div class="group-grid" id="groupFilters"></div>
     </section>
 
-    <section id="historyPanel" class="panel">
-      <div class="panel-head">
-        <h2>📚 Historial Completo</h2>
-        <small id="historyCount">0 partidos · 20 por página</small>
-      </div>
-      <div id="historyList" class="match-list history">
-        <div class="empty">Cargando historial...</div>
-      </div>
-      <div class="pagination">
-        <button id="prevPageBtn" class="secondary" type="button">← Anterior</button>
-        <div id="pageInfo" class="page-info">Página 1 de 1</div>
-        <button id="nextPageBtn" class="secondary" type="button">Siguiente →</button>
-      </div>
+    <section class="panel">
+      <div class="panel-head"><h2>📅 Fechas</h2><small id="dateCount">—</small></div>
+      <div class="date-strip" id="dateFilters"></div>
     </section>
 
-    <section id="editPanel" class="panel">
-      <div class="panel-head">
-        <h2>✏️ Corrección Histórica</h2>
-        <small id="selectedStatus">Selecciona partido</small>
+    <section class="panel">
+      <div class="panel-head"><h2>🔎 Búsqueda opcional</h2><small>Selección, sede, grupo</small></div>
+      <div class="search-row"><input id="searchInput" class="search" type="search" placeholder="Ej. México, Grupo A, Guadalajara..." /><button id="clearSearchBtn" class="clear-btn" type="button">Limpiar</button></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2 id="mainListTitle">⚠️ Pendientes de Resultado</h2><small id="mainListCount">Cargando...</small></div>
+      <div id="quickList" class="quick-list"><div class="empty">Cargando partidos...</div></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>📚 Historial Completo</h2><small>20 por página</small></div>
+      <div id="historyList" class="match-list"><div class="empty">Cargando historial...</div></div>
+      <div class="pager"><button id="prevPageBtn" type="button">← Anterior</button><span id="pageLabel">Página 1 de 1</span><button id="nextPageBtn" type="button">Siguiente →</button></div>
+    </section>
+
+    <section class="panel" id="capturePanel">
+      <div class="panel-head"><h2>✏️ Captura / Corrección Histórica</h2><small id="selectedStatus">Selecciona partido</small></div>
+      <div id="selectedMatch" class="selected-match">Selecciona un partido pendiente, finalizado o del historial completo.<small>El guardado usa upsert sobre el resultado oficial existente.</small></div>
+      <div class="score-row">
+        <label>Local<input id="homeScore" type="number" min="0" max="99" inputmode="numeric" value="0" /></label>
+        <div class="vs">VS</div>
+        <label>Visitante<input id="awayScore" type="number" min="0" max="99" inputmode="numeric" value="0" /></label>
       </div>
-      <div class="form-grid">
-        <div id="selectedMatch" class="selected-match">Selecciona un partido pendiente, buscado o del historial completo.<small>El guardado usa upsert sobre el resultado oficial existente.</small></div>
-        <div class="score-row">
-          <label>Local<input id="homeScore" type="number" min="0" max="99" inputmode="numeric" value="0" /></label>
-          <div class="vs">VS</div>
-          <label>Visitante<input id="awayScore" type="number" min="0" max="99" inputmode="numeric" value="0" /></label>
-        </div>
-        <button id="saveBtn" class="primary" type="button" disabled>Guardar resultado oficial</button>
-        <div class="actions-row">
-          <button id="scrollPendingBtn" class="secondary" type="button">Ver pendientes</button>
-          <button id="scrollHistoryBtn" class="secondary" type="button">Ver historial</button>
-        </div>
-        <button id="refreshBtn" class="secondary" type="button">Actualizar lista</button>
-        <div id="message" class="hint">Al guardar, PREDIKT™ marca el partido como finalizado y actualiza el resultado oficial.</div>
-      </div>
+      <button id="saveBtn" class="primary" type="button" disabled>Guardar resultado oficial</button>
+      <div class="button-row"><button id="refreshBtn" class="secondary" type="button">Actualizar partidos</button><button id="resetFiltersBtn" class="secondary" type="button">Ver todos</button></div>
+      <div id="message" class="hint">Al guardar, PREDIKT™ marca el partido como finalizado y actualiza el resultado oficial.</div>
     </section>
   </main>
-
-  <div id="loaderOverlay" class="loader-overlay" aria-hidden="true">
-    <div class="loader-card" role="status" aria-live="polite">
-      <div class="loader-ball">⚽</div>
-      <div id="loaderText" class="loader-text">Cargando partidos...</div>
-    </div>
-  </div>
 
   <nav class="bottom-nav">
     <a class="nav-item" href="./index.html"><b>🏠</b><span>Inicio</span></a>
@@ -349,431 +201,235 @@ CHECKLIST DE VALIDACIÓN
     <a class="nav-item" href="./perfil.html"><b>👤</b><span>Perfil</span></a>
   </nav>
 
+  <div id="loader" class="loader"><div class="loader-card"><div class="ball"></div><div id="loaderText" class="loader-text">Cargando partidos...</div></div></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const PAGE_VERSION = 'resultado_partido_admin_v2.0.1_OPERATOR_FIRST_FULL_FIX';
-    const PAGE_SIZE = 20;
-
-    const SUPABASE_URL =
-      window.PREDIKT_SUPABASE_URL ||
-      window.SUPABASE_URL ||
-      window.supabaseUrl ||
-      localStorage.getItem('PREDIKT_SUPABASE_URL') ||
-      localStorage.getItem('SUPABASE_URL') ||
-      'https://bhsffngulgvwfzjhiyym.supabase.co';
-
-    const SUPABASE_KEY =
-      window.PREDIKT_SUPABASE_PUBLIC_KEY ||
-      window.PREDIKT_SUPABASE_ANON_KEY ||
-      window.SUPABASE_ANON_KEY ||
-      window.supabaseAnonKey ||
-      localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') ||
-      localStorage.getItem('PREDIKT_SUPABASE_ANON_KEY') ||
-      localStorage.getItem('SUPABASE_ANON_KEY') ||
-      'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
-
+    const PAGE_VERSION = 'resultado_partido_admin_v2.1.0_OPERATOR_CONSOLE';
+    const SUPABASE_URL = window.PREDIKT_SUPABASE_URL || window.SUPABASE_URL || window.supabaseUrl || localStorage.getItem('PREDIKT_SUPABASE_URL') || localStorage.getItem('SUPABASE_URL') || 'https://bhsffngulgvwfzjhiyym.supabase.co';
+    const SUPABASE_KEY = window.PREDIKT_SUPABASE_PUBLIC_KEY || window.PREDIKT_SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || window.supabaseAnonKey || localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') || localStorage.getItem('PREDIKT_SUPABASE_ANON_KEY') || localStorage.getItem('SUPABASE_ANON_KEY') || 'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
     const $ = (id) => document.getElementById(id);
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Mexico_City';
-
+    const pageSize = 20;
+    const groupColors = { A:'#f59e0b', B:'#38bdf8', C:'#22c55e', D:'#ef4444', E:'#a78bfa', F:'#f472b6', G:'#14b8a6', H:'#fb7185', I:'#60a5fa', J:'#facc15', K:'#34d399', L:'#c084fc' };
     let client = null;
     let events = [];
     let resultsByEventId = new Map();
     let selectedEvent = null;
-    let historyPage = 1;
+    let statusFilter = 'pending';
+    let groupFilter = 'ALL';
+    let dateFilter = 'ALL';
+    let page = 1;
 
-    function parseDate(value) {
-      const raw = String(value || '').replace(/\+00$/, 'Z').replace(/\+00:00$/, 'Z');
-      return new Date(raw);
+    function parseDate(value){ const raw = String(value || '').replace(/\+00$/, 'Z').replace(/\+00:00$/, 'Z'); return new Date(raw); }
+    function localKey(date){ return new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(date); }
+    function localTime(date){ return new Intl.DateTimeFormat('es-MX',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(date); }
+    function localDateShort(date){ return new Intl.DateTimeFormat('es-MX',{timeZone:tz,weekday:'short',day:'2-digit',month:'short'}).format(date); }
+    function escapeHtml(value){ return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+    function normalize(value){ return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+    function groupCodeOf(row){ const raw = row.group_code || row.group || row.group_name || ''; const m = String(raw).match(/[A-L]/i); return m ? m[0].toUpperCase() : ''; }
+    function groupLabel(code){ return code ? `Grupo ${code}` : 'Grupo'; }
+    function venueText(event){ return [event.venueName, event.venueCity].filter(Boolean).join(' · ') || 'Sede por confirmar'; }
+    function showLoader(text){ $('loaderText').textContent = text || 'Cargando partidos...'; $('loader').classList.add('show'); }
+    function hideLoader(){ $('loader').classList.remove('show'); }
+    function showMessage(text,type=''){ const el=$('message'); el.className = type ? `message ${type}` : 'hint'; el.textContent = text; }
+    function scrollToCapture(){ $('capturePanel').scrollIntoView({behavior:'smooth', block:'start'}); }
+
+    function eventName(row){
+      return row.name || row.event_name || row.match_name || row.title || row.description || buildNameFromTeams(row) || 'Partido oficial';
+    }
+    function buildNameFromTeams(row){
+      const home = row.home_team_name || row.home_name || row.home_team || row.team_home || row.local_team_name || row.local_name;
+      const away = row.away_team_name || row.away_name || row.away_team || row.team_away || row.visitor_team_name || row.visitor_name;
+      return home && away ? `${home} vs ${away}` : '';
+    }
+    function mapEvent(row){
+      const startsAt = parseDate(row.starts_at || row.start_time || row.kickoff_at || row.event_date);
+      const groupCode = groupCodeOf(row);
+      return {
+        id: row.id,
+        name: eventName(row),
+        startsAt,
+        eventStatus: row.event_status || row.status || '',
+        groupCode,
+        venueName: row.venue_name || row.venue || row.stadium || row.location || 'Sede por confirmar',
+        venueCity: row.venue_city || row.city || '',
+        raw: row
+      };
+    }
+    function resultFor(event){ return resultsByEventId.get(String(event.id)); }
+    function isFinished(event){ return Boolean(resultFor(event)) || String(event.eventStatus || '').toUpperCase().includes('FINISH'); }
+    function isPending(event){ return !resultFor(event) && event.startsAt <= new Date(); }
+    function isFuture(event){ return !resultFor(event) && event.startsAt > new Date(); }
+    function statusBadge(event){
+      if (resultFor(event)) return '<span class="badge done">✅ Resultado</span>';
+      if (isPending(event)) return '<span class="badge pending">⚠️ Pendiente</span>';
+      return '<span class="badge future">🕒 Próximo</span>';
+    }
+    function matchCard(event){
+      const result = resultFor(event);
+      const active = selectedEvent && String(selectedEvent.id) === String(event.id);
+      const accent = groupColors[event.groupCode] || '#ffd766';
+      const score = result ? `<div class="score-line">${Number(result.official_home_score)} - ${Number(result.official_away_score)} <small>Oficial</small></div>` : '';
+      return `<article class="match-card ${active ? 'active' : ''}" style="--accent:${accent}" data-id="${escapeHtml(event.id)}"><div class="match-top"><div class="match-title">${escapeHtml(event.name)}</div>${statusBadge(event)}</div><div class="match-meta">${escapeHtml(localDateShort(event.startsAt))} · ${escapeHtml(localTime(event.startsAt))} · ${escapeHtml(groupLabel(event.groupCode))} · ${escapeHtml(venueText(event))}</div>${score}</article>`;
     }
 
-    function localKey(date) {
-      return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(date);
-    }
-
-    function localTime(date) {
-      return new Intl.DateTimeFormat('es-MX', { timeZone: tz, hour:'2-digit', minute:'2-digit', hour12:false }).format(date);
-    }
-
-    function localDateShort(date) {
-      return new Intl.DateTimeFormat('es-MX', { timeZone: tz, weekday:'short', day:'2-digit', month:'short' }).format(date);
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-    }
-
-    function normalizeText(value) {
-      return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-    }
-
-    function safeField(row, keys, fallback = '') {
-      for (const key of keys) {
-        if (row && row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
-      }
-      return fallback;
-    }
-
-    function groupLabel(groupCode) {
-      const value = String(groupCode || '').trim();
-      const match = value.match(/[A-L]$/i) || value.match(/[A-L]/i);
-      return match ? `Grupo ${match[0].toUpperCase()}` : 'Grupo';
-    }
-
-    function buildName(row) {
-      const direct = safeField(row, ['name','event_name','match_name','title'], '');
-      if (direct) return String(direct);
-      const home = safeField(row, ['home_team','home_team_name','team_home','home_name'], 'Local');
-      const away = safeField(row, ['away_team','away_team_name','team_away','away_name'], 'Visitante');
-      return `${home} vs ${away}`;
-    }
-
-    function splitName(name) {
-      const parts = String(name || '').split(/\s+vs\s+/i);
-      return { home: parts[0] || 'Local', away: parts[1] || 'Visitante' };
-    }
-
-    function venueText(row) {
-      const venue = safeField(row, ['venue_name','stadium_name','venue'], 'Sede por confirmar');
-      const city = safeField(row, ['venue_city','city'], '');
-      if (typeof venue === 'object' && venue !== null) {
-        const name = venue.name || venue.venue_name || venue.stadium || 'Sede por confirmar';
-        const venueCity = venue.city || venue.venue_city || '';
-        return venueCity ? `${name}, ${venueCity}` : name;
-      }
-      return city ? `${venue}, ${city}` : String(venue);
-    }
-
-    function eventSearchText(event) {
-      return normalizeText([
-        event.name,
-        event.groupCode,
-        groupLabel(event.groupCode),
-        event.venueText,
-        localKey(event.startsAt),
-        localDateShort(event.startsAt),
-        localTime(event.startsAt),
-        event.eventStatus,
-        JSON.stringify(event.raw || {})
-      ].join(' '));
-    }
-
-    function hasResult(event) {
-      return resultsByEventId.has(String(event.id));
-    }
-
-    function showLoader(text) {
-      $('loaderText').textContent = text || 'Cargando partidos...';
-      $('loaderOverlay').classList.add('show');
-      $('loaderOverlay').setAttribute('aria-hidden','false');
-    }
-
-    function hideLoader() {
-      $('loaderOverlay').classList.remove('show');
-      $('loaderOverlay').setAttribute('aria-hidden','true');
-    }
-
-    function showMessage(text, type = '') {
-      const el = $('message');
-      el.className = type ? `message ${type}` : 'hint';
-      el.textContent = text;
-    }
-
-    function scrollToPanel(id) {
-      const el = $(id);
-      if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
-    }
-
-    async function loadEvents() {
-      if (!client) {
-        showMessage('No se pudo iniciar la conexión de PREDIKT™.', 'warn');
-        return;
-      }
-
+    async function loadEvents(){
+      if (!client){ showMessage('No se pudo iniciar la conexión de PREDIKT™.','bad'); return; }
       showLoader('Cargando partidos...');
-
-      try {
-        const { data, error } = await client
-          .schema('sports')
-          .from('events')
-          .select('*')
-          .order('starts_at', { ascending:true });
-
+      try{
+        const {data,error} = await client.schema('sports').from('events').select('*').order('starts_at',{ascending:true});
         if (error) throw error;
-
-        events = (Array.isArray(data) ? data : [])
-          .map((row) => {
-            const startsAt = parseDate(safeField(row, ['starts_at','start_time','kickoff_at']));
-            return {
-              raw: row,
-              id: safeField(row, ['id','event_id']),
-              name: buildName(row),
-              startsAt,
-              eventStatus: safeField(row, ['event_status','status'], ''),
-              groupCode: safeField(row, ['group_code','group','group_name'], ''),
-              venueText: venueText(row)
-            };
-          })
-          .filter((event) => event.id && !Number.isNaN(event.startsAt.getTime()))
-          .sort((a, b) => a.startsAt - b.startsAt);
-
+        events = (Array.isArray(data) ? data : []).map(mapEvent).filter(e => e.id && !Number.isNaN(e.startsAt.getTime())).sort((a,b)=>a.startsAt-b.startsAt);
         await loadResults();
+        page = 1;
         renderAll();
-        showMessage('Partidos cargados correctamente.', 'ok');
-      } catch (error) {
+        showMessage(events.length ? `Universo cargado: ${events.length} partidos desde sports.events.` : 'No se encontraron partidos en sports.events.','ok');
+      }catch(err){
+        console.error('[PREDIKT loadEvents]', err);
         events = [];
         resultsByEventId = new Map();
         renderAll();
-        showMessage('No se pudo cargar el universo de partidos.', 'warn');
-        console.warn('[PREDIKT] loadEvents', error);
-      } finally {
-        hideLoader();
-      }
+        showMessage('No se pudo cargar el universo de partidos desde sports.events.','bad');
+      }finally{ hideLoader(); }
     }
-
-    async function loadResults() {
+    async function loadResults(){
       resultsByEventId = new Map();
       if (!client || !events.length) return;
+      const ids = events.map(e=>e.id);
+      const {data,error} = await client.schema('predictions').from('official_results').select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at').in('event_id', ids);
+      if (error){ console.warn('[PREDIKT loadResults]', error); return; }
+      (data || []).forEach(row => resultsByEventId.set(String(row.event_id), row));
+    }
 
-      const ids = events.map((event) => event.id);
-      const { data, error } = await client
-        .schema('predictions')
-        .from('official_results')
-        .select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at,updated_at')
-        .in('event_id', ids);
-
-      if (error) {
-        console.warn('[PREDIKT] loadResults', error);
-        return;
+    function baseFilteredEvents(){
+      let list = events.slice();
+      if (statusFilter === 'pending') list = list.filter(isPending);
+      if (statusFilter === 'finished') list = list.filter(isFinished);
+      if (statusFilter === 'future') list = list.filter(isFuture);
+      if (groupFilter !== 'ALL') list = list.filter(e => e.groupCode === groupFilter);
+      if (dateFilter !== 'ALL') list = list.filter(e => localKey(e.startsAt) === dateFilter);
+      const q = normalize($('searchInput').value.trim());
+      if (q){
+        list = list.filter(e => normalize(`${e.name} ${groupLabel(e.groupCode)} ${venueText(e)} ${localDateShort(e.startsAt)} ${localKey(e.startsAt)}`).includes(q));
       }
-
-      (data || []).forEach((row) => resultsByEventId.set(String(row.event_id), row));
+      if (statusFilter === 'pending' || statusFilter === 'finished') list.sort((a,b)=>b.startsAt-a.startsAt); else list.sort((a,b)=>a.startsAt-b.startsAt);
+      return list;
     }
-
-    function pendingEvents() {
-      const now = new Date();
-      return events.filter((event) => !hasResult(event) && event.startsAt <= now).sort((a, b) => b.startsAt - a.startsAt);
-    }
-
-    function searchedEvents() {
-      const search = normalizeText($('searchInput').value);
-      if (!search) return [];
-      return events.filter((event) => eventSearchText(event).includes(search)).sort((a, b) => a.startsAt - b.startsAt);
-    }
-
-    function historyEvents() {
-      return [...events].sort((a, b) => a.startsAt - b.startsAt);
-    }
-
-    function statusBadge(event) {
-      const result = resultsByEventId.get(String(event.id));
-      if (result) return '<span class="badge done">✅ Resultado guardado</span>';
-      if (event.startsAt > new Date()) return '<span class="badge future">🕒 Programado</span>';
-      return '<span class="badge pending">⚠️ Pendiente</span>';
-    }
-
-    function scoreLine(event) {
-      const result = resultsByEventId.get(String(event.id));
-      if (!result) return '';
-      return `<div class="match-score">${Number(result.official_home_score)} - ${Number(result.official_away_score)}</div>`;
-    }
-
-    function cardHtml(event) {
-      const active = selectedEvent && String(selectedEvent.id) === String(event.id);
-      return `
-        <article class="match-card ${active ? 'active' : ''}" data-id="${escapeHtml(event.id)}">
-          <div class="match-title">${escapeHtml(event.name)}</div>
-          <div class="match-meta">
-            ${escapeHtml(localDateShort(event.startsAt))} · ${escapeHtml(localTime(event.startsAt))} · ${escapeHtml(groupLabel(event.groupCode))}<br />
-            ${escapeHtml(event.venueText)}
-          </div>
-          ${scoreLine(event)}
-          ${statusBadge(event)}
-        </article>
-      `;
-    }
-
-    function bindCards(containerId) {
-      document.querySelectorAll(`#${containerId} .match-card`).forEach((card) => {
-        card.addEventListener('click', () => selectEvent(card.dataset.id));
-      });
-    }
-
-    function renderStats() {
-      const pending = pendingEvents().length;
-      const done = events.filter((event) => hasResult(event)).length;
+    function renderStats(){
+      const done = events.filter(isFinished).length;
+      const pending = events.filter(isPending).length;
       $('pendingCount').textContent = pending;
       $('doneCount').textContent = done;
       $('totalCount').textContent = events.length;
+      $('activeSummary').textContent = `${baseFilteredEvents().length} visibles`;
     }
-
-    function renderPending() {
-      const list = pendingEvents();
-      $('pendingListCount').textContent = `${list.length} pendiente${list.length === 1 ? '' : 's'}`;
-      if (!list.length) {
-        $('pendingList').innerHTML = '<div class="empty">No hay partidos pendientes de resultado.</div>';
-        return;
-      }
-      $('pendingList').innerHTML = list.slice(0, 20).map(cardHtml).join('');
-      bindCards('pendingList');
+    function renderGroups(){
+      const groups = ['ALL','A','B','C','D','E','F','G','H','I','J','K','L'];
+      $('groupFilters').innerHTML = groups.map(g => {
+        const label = g === 'ALL' ? 'Todos' : g;
+        const color = g === 'ALL' ? '#64748b' : groupColors[g];
+        return `<button type="button" class="group-btn ${groupFilter === g ? 'active' : ''}" data-group="${g}" style="--g:${color}">${label}</button>`;
+      }).join('');
+      document.querySelectorAll('.group-btn').forEach(btn => btn.addEventListener('click',()=>{ groupFilter = btn.dataset.group; page = 1; renderAll(); }));
     }
-
-    function renderSearch() {
-      const search = normalizeText($('searchInput').value);
-      const list = searchedEvents();
-      $('searchCount').textContent = search ? `${list.length} encontrado${list.length === 1 ? '' : 's'}` : `${events.length} partidos`;
-      if (!search) {
-        $('searchList').innerHTML = '<div class="empty">Escribe para buscar cualquier partido.</div>';
-        return;
-      }
-      if (!list.length) {
-        $('searchList').innerHTML = '<div class="empty">No se encontró ningún partido.</div>';
-        return;
-      }
-      $('searchList').innerHTML = list.slice(0, 20).map(cardHtml).join('');
-      bindCards('searchList');
+    function renderDates(){
+      const unique = [...new Set(events.map(e=>localKey(e.startsAt)))];
+      $('dateCount').textContent = `${unique.length} fechas`;
+      const allBtn = `<button type="button" class="date-btn ${dateFilter === 'ALL' ? 'active' : ''}" data-date="ALL">Todas<span>72 partidos</span></button>`;
+      const btns = unique.map(k => {
+        const sample = events.find(e=>localKey(e.startsAt)===k);
+        const count = events.filter(e=>localKey(e.startsAt)===k).length;
+        return `<button type="button" class="date-btn ${dateFilter === k ? 'active' : ''}" data-date="${k}">${escapeHtml(localDateShort(sample.startsAt))}<span>${count} partidos</span></button>`;
+      }).join('');
+      $('dateFilters').innerHTML = allBtn + btns;
+      document.querySelectorAll('.date-btn').forEach(btn => btn.addEventListener('click',()=>{ dateFilter = btn.dataset.date; page = 1; renderAll(); }));
     }
-
-    function renderHistory() {
-      const list = historyEvents();
-      const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
-      historyPage = Math.min(Math.max(1, historyPage), totalPages);
-      const start = (historyPage - 1) * PAGE_SIZE;
-      const pageRows = list.slice(start, start + PAGE_SIZE);
-
-      $('historyCount').textContent = `${list.length} partidos · 20 por página`;
-      $('pageInfo').textContent = `Página ${historyPage} de ${totalPages}`;
-      $('prevPageBtn').disabled = historyPage <= 1;
-      $('nextPageBtn').disabled = historyPage >= totalPages;
-
-      if (!pageRows.length) {
-        $('historyList').innerHTML = '<div class="empty">No hay partidos cargados.</div>';
-        return;
-      }
-      $('historyList').innerHTML = pageRows.map(cardHtml).join('');
-      bindCards('historyList');
+    function renderMainList(){
+      const title = {pending:'⚠️ Pendientes de Resultado', finished:'✅ Resultados Guardados', future:'🕒 Próximos Partidos', all:'📚 Universo Completo'}[statusFilter] || 'Partidos';
+      const list = baseFilteredEvents();
+      $('mainListTitle').textContent = title;
+      $('mainListCount').textContent = `${list.length} partido${list.length===1?'':'s'}`;
+      $('quickList').innerHTML = list.length ? list.slice(0,40).map(matchCard).join('') : '<div class="empty">No hay partidos con estos filtros. Toca “Ver todos” o cambia grupo/fecha.</div>';
+      document.querySelectorAll('#quickList .match-card').forEach(card => card.addEventListener('click',()=>selectEvent(card.dataset.id,true)));
     }
-
-    function renderAll() {
-      renderStats();
-      renderPending();
-      renderSearch();
-      renderHistory();
-      $('saveBtn').disabled = !selectedEvent;
+    function renderHistory(){
+      const all = events.slice().sort((a,b)=>a.startsAt-b.startsAt);
+      const totalPages = Math.max(1, Math.ceil(all.length / pageSize));
+      if (page > totalPages) page = totalPages;
+      const start = (page - 1) * pageSize;
+      const rows = all.slice(start, start + pageSize);
+      $('historyList').innerHTML = rows.length ? rows.map(matchCard).join('') : '<div class="empty">No hay partidos cargados.</div>';
+      $('pageLabel').textContent = `Página ${page} de ${totalPages}`;
+      $('prevPageBtn').disabled = page <= 1;
+      $('nextPageBtn').disabled = page >= totalPages;
+      document.querySelectorAll('#historyList .match-card').forEach(card => card.addEventListener('click',()=>selectEvent(card.dataset.id,true)));
     }
+    function renderAll(){ renderStats(); renderGroups(); renderDates(); renderMainList(); renderHistory(); }
 
-    function selectEvent(id) {
-      selectedEvent = events.find((event) => String(event.id) === String(id)) || null;
+    function selectEvent(id, jump){
+      selectedEvent = events.find(e => String(e.id) === String(id)) || null;
       if (!selectedEvent) return;
-
-      const teams = splitName(selectedEvent.name);
-      const result = resultsByEventId.get(String(selectedEvent.id));
-      const dateText = `${localDateShort(selectedEvent.startsAt)} · ${localTime(selectedEvent.startsAt)}`;
-
-      $('selectedMatch').innerHTML = `${escapeHtml(selectedEvent.name)}<small>${escapeHtml(groupLabel(selectedEvent.groupCode))} · ${escapeHtml(dateText)} · ${escapeHtml(selectedEvent.venueText)}</small>`;
-      $('selectedStatus').textContent = result ? 'Resultado existente' : 'Pendiente';
+      const result = resultFor(selectedEvent);
+      $('selectedStatus').textContent = result ? 'Corrección histórica' : 'Pendiente de resultado';
+      $('selectedMatch').innerHTML = `${escapeHtml(selectedEvent.name)}<small>${escapeHtml(groupLabel(selectedEvent.groupCode))} · ${escapeHtml(localDateShort(selectedEvent.startsAt))} · ${escapeHtml(localTime(selectedEvent.startsAt))} · ${escapeHtml(venueText(selectedEvent))}</small>`;
       $('homeScore').value = result ? Number(result.official_home_score || 0) : 0;
       $('awayScore').value = result ? Number(result.official_away_score || 0) : 0;
       $('saveBtn').disabled = false;
-      showMessage(`Local: ${teams.home} · Visitante: ${teams.away}`);
-      renderAll();
-      scrollToPanel('editPanel');
+      showMessage(result ? 'Edita el marcador y guarda para corregir el resultado oficial.' : 'Captura el marcador oficial y guarda.', 'ok');
+      renderMainList();
+      renderHistory();
+      if (jump) scrollToCapture();
     }
-
-    async function saveResult() {
-      if (!client) {
-        showMessage('No hay conexión activa para guardar.', 'warn');
-        return;
-      }
-      if (!selectedEvent) {
-        showMessage('Selecciona primero un partido.', 'warn');
-        return;
-      }
-
+    async function saveResult(){
+      if (!client){ showMessage('No hay conexión activa para guardar.','bad'); return; }
+      if (!selectedEvent){ showMessage('Selecciona primero un partido.','warn'); return; }
       const home = Number($('homeScore').value);
       const away = Number($('awayScore').value);
-      if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0 || home > 99 || away > 99) {
-        showMessage('Captura un marcador válido.', 'warn');
-        return;
-      }
-
+      if (!Number.isFinite(home) || !Number.isFinite(away) || home < 0 || away < 0){ showMessage('Captura un marcador válido.','warn'); return; }
       const winner = home > away ? 'HOME' : away > home ? 'AWAY' : 'DRAW';
-      const existing = resultsByEventId.get(String(selectedEvent.id));
-      const payload = {
-        event_id: selectedEvent.id,
-        official_home_score: home,
-        official_away_score: away,
-        official_winner: winner,
-        finalized_at: new Date().toISOString()
-      };
+      const existing = resultFor(selectedEvent);
+      const payload = { event_id:selectedEvent.id, official_home_score:home, official_away_score:away, official_winner:winner, finalized_at:new Date().toISOString() };
       if (existing && existing.id) payload.id = existing.id;
-
       showLoader('Guardando resultado oficial...');
-
-      try {
-        const { error } = await client.schema('predictions').from('official_results').upsert(payload);
+      try{
+        const {error} = await client.schema('predictions').from('official_results').upsert(payload);
         if (error) throw error;
-
-        await client.schema('sports').from('events').update({ event_status: 'FINISHED' }).eq('id', selectedEvent.id);
-        showLoader('Actualizando resultados...');
-        await loadResults();
-        showMessage('Resultado oficial guardado correctamente.', 'ok');
-        renderAll();
-        selectEvent(selectedEvent.id);
-      } catch (error) {
-        showMessage('No se pudo guardar. Verifica permisos de administrador.', 'warn');
-        console.warn('[PREDIKT] saveResult', error);
-      } finally {
-        hideLoader();
-      }
+        const {error:updateError} = await client.schema('sports').from('events').update({event_status:'FINISHED'}).eq('id', selectedEvent.id);
+        if (updateError) console.warn('[PREDIKT event_status]', updateError);
+        showMessage('Resultado oficial guardado correctamente.','ok');
+        await loadEvents();
+        selectEvent(selectedEvent.id,false);
+      }catch(err){
+        console.error('[PREDIKT saveResult]', err);
+        showMessage('No se pudo guardar. Verifica permisos de administrador.','bad');
+      }finally{ hideLoader(); }
     }
-
-    function setupEvents() {
-      $('searchInput').addEventListener('input', renderSearch);
-      $('clearSearchBtn').addEventListener('click', () => { $('searchInput').value = ''; renderSearch(); });
-      $('refreshBtn').addEventListener('click', loadEvents);
-      $('saveBtn').addEventListener('click', saveResult);
-      $('prevPageBtn').addEventListener('click', () => { historyPage -= 1; renderHistory(); scrollToPanel('historyPanel'); });
-      $('nextPageBtn').addEventListener('click', () => { historyPage += 1; renderHistory(); scrollToPanel('historyPanel'); });
-      $('scrollPendingBtn').addEventListener('click', () => scrollToPanel('pendingPanel'));
-      $('scrollHistoryBtn').addEventListener('click', () => scrollToPanel('historyPanel'));
+    function setupEvents(){
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click',()=>{ statusFilter = btn.dataset.status; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); page = 1; renderAll(); }));
+      $('searchInput').addEventListener('input',()=>{ page = 1; renderAll(); });
+      $('clearSearchBtn').addEventListener('click',()=>{ $('searchInput').value=''; renderAll(); });
+      $('prevPageBtn').addEventListener('click',()=>{ page = Math.max(1,page-1); renderHistory(); });
+      $('nextPageBtn').addEventListener('click',()=>{ page += 1; renderHistory(); });
+      $('saveBtn').addEventListener('click',saveResult);
+      $('refreshBtn').addEventListener('click',loadEvents);
+      $('resetFiltersBtn').addEventListener('click',()=>{ statusFilter='all'; groupFilter='ALL'; dateFilter='ALL'; $('searchInput').value=''; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='all')); page=1; renderAll(); });
     }
-
-    function initSupabase() {
-      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase) {
-        showMessage('No se pudo iniciar la conexión de PREDIKT™.', 'warn');
-        return;
-      }
+    function initSupabase(){
+      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase){ showMessage('No se pudo iniciar la conexión de PREDIKT™.','bad'); return; }
       client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
-
-    async function init() {
-      initSupabase();
-      setupEvents();
-      await loadEvents();
-      console.info('[PREDIKT]', PAGE_VERSION);
-    }
-
-    document.addEventListener('DOMContentLoaded', init);
+    async function init(){ initSupabase(); setupEvents(); await loadEvents(); console.info('[PREDIKT]', PAGE_VERSION); }
+    document.addEventListener('DOMContentLoaded',init);
   </script>
 </body>
 </html>
 <!--
 ===============================================================================
-PREDIKT™ — Resultado Oficial Admin
-Archivo: resultado-partido-admin_v2.0.1_OPERATOR_FIRST_FULL_FIX.txt
-Versión: v2.0.1_OPERATOR_FIRST_FULL_FIX
-Total de líneas final: 779
-Estado: LISTO PARA PRODUCCIÓN
-
-CERTIFICACIÓN DE ENTREGA
-- Archivo completo entregado.
-- No contiene fragmentos.
-- No contiene diffs.
-- No modifica backend.
-- Fuente oficial de datos: sports.events.
-- Upsert oficial conservado: predictions.official_results.
-- Actualización de estado conservada: sports.events.event_status = FINISHED.
-- Loader Oficial PREDIKT™ animado integrado.
-- Pendientes, búsqueda, historial paginado y corrección histórica integrados.
+FIN DE ARCHIVO
+Archivo: resultado-partido-admin_v2.1.0_OPERATOR_CONSOLE.txt
+Versión: v2.1.0_OPERATOR_CONSOLE
+Total de líneas final: 435
+Certificación: archivo completo, versionado, documentado y listo para reemplazar resultado-partido-admin.html.
 ===============================================================================
 -->
