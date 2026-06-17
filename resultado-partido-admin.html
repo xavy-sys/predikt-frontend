@@ -2,9 +2,9 @@
 <!--
 ===============================================================================
 PREDIKT™ — Resultado Oficial Admin
-Archivo: resultado-partido-admin_v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER.txt
-Versión: v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
-Total de líneas inicial: 574
+Archivo: resultado-partido-admin_v2.5.0_OPERATOR_FAST_RPC.txt
+Versión: v2.5.0_OPERATOR_FAST_RPC
+Total de líneas inicial: 507
 Fecha de versión: 2026-06-17
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
@@ -12,11 +12,12 @@ Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 
 MOTIVO DE LA NUEVA VERSIÓN
-- Se reemplaza la búsqueda central poco funcional por una consola operativa más intuitiva.
-- Se agregan filtros visuales por estado, grupo y fecha para localizar partidos sin depender de escribir.
-- Se recupera el estándar visual deportivo PREDIKT™: azul profundo, dorado y colores por grupo.
-- Se mantiene sports.events como fuente maestra certificada del universo completo de 72 partidos.
-- Se conserva el upsert contra predictions.official_results y la actualización de sports.events.event_status.
+- Se corrige la estrategia de carga que estaba provocando demoras y pantalla sin partidos.
+- Se abandona la escalera lenta de fuentes desde frontend.
+- Se usa carga operativa rápida mediante sports.get_home_events() con rango completo del torneo.
+- Se mantiene sports.events como fuente maestra certificada y como destino de actualización de event_status.
+- Se muestra por defecto el universo completo de partidos para validar carga inmediata.
+- Se conserva consola visual colorida por estado, grupo y fecha.
 
 HISTORIAL DE CAMBIOS
 v1.4.2_EMBED_PUBLIC_KEY_FIX
@@ -28,37 +29,35 @@ v2.0.0_OPERATOR_FIRST
 v2.0.1_OPERATOR_FIRST_FULL_FIX
 - Corrección estructural; reportada aún sin resultados visibles, búsqueda no intuitiva y UI apagada.
 
-v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
-- Consola operativa completa: pendientes, selector por estado, selector por grupo, selector por fecha,
-  historial paginado, edición histórica, loader animado y paleta visual PREDIKT™ reforzada.
+v2.1.0_OPERATOR_CONSOLE
+- Se reemplaza la búsqueda central por consola operativa con filtros visuales.
+
+v2.2.0_OPERATOR_CONSOLE_FASTLOAD
+- Se agrega estrategia FastLoad y respaldo operativo.
+
+v2.3.0_OPERATOR_CONSOLE_HYBRID_LOAD
+- Se agrega logo PREDIKT™ Powered by JVSys™ y carga híbrida.
 
 v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
-- Corrige la carga vacía de partidos con estrategia FastLoad.
-- Usa sports.events como fuente primaria certificada.
-- Agrega rutas de lectura tolerantes para columnas y permisos de PostgREST.
-- Si la lectura directa falla por exposición/RLS, activa respaldo operativo amplio contra el calendario certificado para evitar pantalla vacía.
-- Reorganiza la operación visual para que el usuario seleccione por botones y tarjetas, no por búsqueda obligatoria.
+- Se intenta escalera de fuentes; en producción resultó lenta y siguió sin cargar partidos.
 
- v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
-- Refuerza carga real con escalera de fuentes: sports.events, get_home_events amplio/segmentado y vistas certificadas como respaldo de lectura.
-- Mantiene guardado sobre predictions.official_results y actualización de sports.events.
-- Corrige título visual a RESULTADO OFICIAL y conserva logo Powered by JVSys™.
-- Elimina mensajes técnicos visibles para el operador.
+v2.5.0_OPERATOR_FAST_RPC
+- Decisión crítica de operación: resolver YA con la ruta que históricamente sí cargaba rápido.
+- Carga una sola vez por RPC certificada sports.get_home_events() con ventana completa del torneo.
+- Elimina lecturas directas iniciales contra sports.events desde frontend para evitar bloqueo por exposición/RLS.
+- Elimina ventanas pequeñas 48h/72h.
+- Elimina esperas largas y loaders prolongados.
+- Deja visible la lista completa por defecto.
 
-v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER
-- Corrige carga vacía cuando sports.events no devuelve filas visibles al frontend.
-- Mantiene sports.events como fuente primaria certificada.
-- Activa carga híbrida de recuperación por ventanas del calendario completo usando RPC certificada sólo si sports.events devuelve 0 filas o error.
-- Agrega logo PREDIKT™ Powered by JVSys™ en cabecera.
-- Elimina pantalla vacía operativa: siempre muestra fuente de carga y estado de recuperación.
-
-FUENTE DE DATOS CERTIFICADA
-- Cargar universo completo desde sports.events como fuente primaria.
-- No usar sports.get_home_events() como carga principal.
-- No usar ventanas 48h atrás / 72h adelante como arquitectura principal.
-- Si sports.events no entrega filas visibles por permisos/exposición frontend, se permite respaldo operativo segmentado para recuperar el universo completo sin modificar backend.
-- No usar filtros Today / Pending / Recent como arquitectura principal.
-- Las vistas de inteligencia quedan reservadas para Home, Match Detail e Inteligencia Deportiva.
+FUENTE DE DATOS OPERATIVA
+- sports.events sigue siendo la fuente maestra certificada del calendario oficial.
+- Para lectura frontend se usa sports.get_home_events() con rango completo del torneo:
+  2026-06-01T00:00:00.000Z a 2026-07-31T23:59:59.000Z.
+- No se modifica backend.
+- No se modifican tablas.
+- No se modifican RPC.
+- El guardado continúa en predictions.official_results.
+- La actualización de estado continúa en sports.events.event_status.
 
 IMPACTO EN PRODUCCIÓN
 - Sustituye resultado-partido-admin.html completo.
@@ -167,10 +166,10 @@ CHECKLIST DE VALIDACIÓN
     <section class="panel">
       <div class="panel-head"><h2>🎛️ Selección rápida</h2><small id="activeSummary">Cargando...</small></div>
       <div class="status-grid" id="statusFilters">
-        <button class="filter-btn active" type="button" data-status="pending"><b>⚠️</b>Pendientes</button>
+        <button class="filter-btn" type="button" data-status="pending"><b>⚠️</b>Pendientes</button>
         <button class="filter-btn" type="button" data-status="finished"><b>✅</b>Finalizados</button>
         <button class="filter-btn" type="button" data-status="future"><b>🕒</b>Próximos</button>
-        <button class="filter-btn" type="button" data-status="all"><b>📚</b>Todos</button>
+        <button class="filter-btn active" type="button" data-status="all"><b>📚</b>Todos</button>
       </div>
     </section>
 
@@ -226,7 +225,7 @@ CHECKLIST DE VALIDACIÓN
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const PAGE_VERSION = 'resultado_partido_admin_v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER';
+    const PAGE_VERSION = 'resultado_partido_admin_v2.5.0_OPERATOR_FAST_RPC';
     const SUPABASE_URL = window.PREDIKT_SUPABASE_URL || window.SUPABASE_URL || window.supabaseUrl || localStorage.getItem('PREDIKT_SUPABASE_URL') || localStorage.getItem('SUPABASE_URL') || 'https://bhsffngulgvwfzjhiyym.supabase.co';
     const SUPABASE_KEY = window.PREDIKT_SUPABASE_PUBLIC_KEY || window.PREDIKT_SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || window.supabaseAnonKey || localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') || localStorage.getItem('PREDIKT_SUPABASE_ANON_KEY') || localStorage.getItem('SUPABASE_ANON_KEY') || 'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
     const $ = (id) => document.getElementById(id);
@@ -237,7 +236,7 @@ CHECKLIST DE VALIDACIÓN
     let events = [];
     let resultsByEventId = new Map();
     let selectedEvent = null;
-    let statusFilter = 'pending';
+    let statusFilter = 'all';
     let groupFilter = 'ALL';
     let dateFilter = 'ALL';
     let page = 1;
@@ -304,96 +303,30 @@ CHECKLIST DE VALIDACIÓN
       return Array.from(byId.values());
     }
 
-    async function readEventsPrimary(){
-      const {data,error} = await client
-        .schema('sports')
-        .from('events')
-        .select('*')
-        .order('starts_at',{ascending:true})
-        .limit(100);
-      if (error) throw error;
-      return {rows:uniqueRows(data), source:'calendario oficial'};
+    function withTimeout(promise, ms){
+      let timeoutId;
+      const timeout = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Tiempo máximo de carga excedido')), ms);
+      });
+      return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
     }
 
-    async function readEventsMinimal(){
-      const {data,error} = await client
-        .schema('sports')
-        .from('events')
-        .select('id,name,starts_at,event_status,group_code,venue')
-        .order('starts_at',{ascending:true})
-        .limit(100);
+    async function readEventsFastRpc(){
+      const {data,error} = await withTimeout(
+        client
+          .schema('sports')
+          .rpc('get_home_events',{
+            p_from:'2026-06-01T00:00:00.000Z',
+            p_to:'2026-07-31T23:59:59.000Z'
+          }),
+        7000
+      );
       if (error) throw error;
-      return {rows:uniqueRows(data), source:'calendario oficial'};
-    }
-
-    async function readEventsWideRpc(){
-      const {data,error} = await client
-        .schema('sports')
-        .rpc('get_home_events',{
-          p_from:'2026-06-01T00:00:00.000Z',
-          p_to:'2026-07-31T23:59:59.000Z'
-        });
-      if (error) throw error;
-      return {rows:uniqueRows(data), source:'calendario operativo'};
-    }
-
-    async function readEventsFromView(viewName){
-      const {data,error} = await client
-        .schema('sports')
-        .from(viewName)
-        .select('*')
-        .order('starts_at',{ascending:true})
-        .limit(100);
-      if (error) throw error;
-      return {rows:uniqueRows(data), source:'calendario operativo'};
-    }
-
-    async function readEventsOperationalFallback(){
-      const windows = [];
-      const start = new Date('2026-06-01T00:00:00.000Z');
-      for (let i = 0; i < 62; i += 2){
-        const from = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-        const to = new Date(from.getTime() + 72 * 60 * 60 * 1000);
-        windows.push({from:from.toISOString(), to:to.toISOString()});
-      }
-
-      const byId = new Map();
-      for (const win of windows){
-        try{
-          const {data,error} = await client
-            .schema('sports')
-            .rpc('get_home_events',{p_from:win.from,p_to:win.to});
-          if (error) throw error;
-          uniqueRows(data).forEach(row => byId.set(String(row.id), row));
-        }catch(err){
-          console.warn('[PREDIKT fallback window]', win, err);
-        }
-      }
-      return {rows:Array.from(byId.values()), source:'calendario operativo'};
+      return {rows:uniqueRows(data), source:'calendario operativo rápido'};
     }
 
     async function resolveEventUniverse(){
-      const loaders = [
-        readEventsPrimary,
-        readEventsMinimal,
-        readEventsWideRpc,
-        () => readEventsFromView('v_event_match_intelligence_api'),
-        () => readEventsFromView('v_event_match_intelligence_enriched'),
-        readEventsOperationalFallback
-      ];
-      let lastSource = '';
-      for (const loader of loaders){
-        try{
-          const loaded = await loader();
-          lastSource = loaded.source;
-          if (loaded && Array.isArray(loaded.rows) && loaded.rows.length){
-            return loaded;
-          }
-        }catch(err){
-          console.warn('[PREDIKT loader skipped]', err);
-        }
-      }
-      return {rows:[], source:lastSource || 'sin partidos'};
+      return await readEventsFastRpc();
     }
 
     async function loadEvents(){
@@ -410,23 +343,23 @@ CHECKLIST DE VALIDACIÓN
 
         await loadResults();
         page = 1;
-        statusFilter = 'ALL';
+        statusFilter = 'all';
         groupFilter = 'ALL';
         dateFilter = 'ALL';
         if ($('searchInput')) $('searchInput').value = '';
         renderAll();
 
         if (events.length){
-          showMessage(`Listo: ${events.length} partidos cargados.`, 'ok');
+          showMessage(`Listo: ${events.length} partidos cargados por calendario operativo rápido.`, 'ok');
         }else{
-          showMessage('No se pudieron cargar partidos. Actualiza la página o valida el acceso del administrador.', 'bad');
+          showMessage('No se recibieron partidos desde la ruta operativa rápida. Revisa que la función sports.get_home_events siga publicada.', 'bad');
         }
       }catch(err){
         console.error('[PREDIKT loadEvents final]', err);
         events = [];
         resultsByEventId = new Map();
         renderAll();
-        showMessage('No se pudieron cargar partidos. Actualiza la página o valida el acceso del administrador.', 'bad');
+        showMessage('No se recibieron partidos desde la ruta operativa rápida. Revisa que la función sports.get_home_events siga publicada.', 'bad');
       }finally{
         hideLoader();
         console.info('[PREDIKT load source]', loadSource || 'sin carga');
@@ -566,8 +499,8 @@ CHECKLIST DE VALIDACIÓN
 <!--
 ===============================================================================
 FIN DE ARCHIVO
-Archivo: resultado-partido-admin_v2.4.0_OPERATOR_CONSOLE_SOURCE_LADDER.txt
-Total de líneas final: 574
+Archivo: resultado-partido-admin_v2.5.0_OPERATOR_FAST_RPC.txt
+Total de líneas final: 507
 Certificación: archivo completo, versionado, documentado y listo para reemplazo total.
 ===============================================================================
 -->
