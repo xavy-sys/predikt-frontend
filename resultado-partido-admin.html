@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX
-Entrega: resultado-partido-admin_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX.txt
+Versión: v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX
+Entrega: resultado-partido-admin_v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1576
+Total de líneas: 1641
 
 MOTIVO DE VERSIÓN
 - Corrección completa de lectura/visualización de marcadores oficiales en Historial.
@@ -743,7 +743,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX";
+    const VERSION = "v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -970,7 +970,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX",
         recorded_at: now,
         updated_at: now
       };
@@ -992,7 +992,7 @@ CHECKLIST DE VALIDACIÓN
       const baseMeta = {
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX",
         updated_at: now
       };
 
@@ -1070,6 +1070,61 @@ CHECKLIST DE VALIDACIÓN
         },
         {
           event_id: eventId,
+          home_team_score: homeScore,
+          away_team_score: awayScore
+        },
+        {
+          event_id: eventId,
+          team_home_score: homeScore,
+          team_away_score: awayScore
+        },
+        {
+          event_id: eventId,
+          home_final_score: homeScore,
+          away_final_score: awayScore
+        },
+        {
+          event_id: eventId,
+          local_final_score: homeScore,
+          visitor_final_score: awayScore
+        },
+        {
+          event_id: eventId,
+          goals_home: homeScore,
+          goals_away: awayScore
+        },
+        {
+          event_id: eventId,
+          result_home_goals: homeScore,
+          result_away_goals: awayScore
+        },
+        {
+          sport_event_id: eventId,
+          home_score: homeScore,
+          visitor_score: awayScore
+        },
+        {
+          sport_event_id: eventId,
+          local_score: homeScore,
+          visitor_score: awayScore
+        },
+        {
+          match_id: eventId,
+          home_score: homeScore,
+          visitor_score: awayScore
+        },
+        {
+          match_id: eventId,
+          local_score: homeScore,
+          visitor_score: awayScore
+        },
+        {
+          event_uuid: eventId,
+          home_score: homeScore,
+          visitor_score: awayScore
+        },
+        {
+          event_id: eventId,
           home_goals: homeScore,
           away_goals: awayScore
         }
@@ -1100,7 +1155,16 @@ CHECKLIST DE VALIDACIÓN
             message.includes("visitor_score") ||
             message.includes("local_score") ||
             message.includes("home_goals") ||
-            message.includes("away_goals");
+            message.includes("away_goals") ||
+            message.includes("home_team_score") ||
+            message.includes("away_team_score") ||
+            message.includes("team_home_score") ||
+            message.includes("team_away_score") ||
+            message.includes("home_final_score") ||
+            message.includes("away_final_score") ||
+            message.includes("sport_event_id") ||
+            message.includes("match_id") ||
+            message.includes("event_uuid");
 
           if (!schemaRecoverable) {
             break;
@@ -1559,8 +1623,8 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.11_OPERATOR_HISTORY_OK_SAVE_COLUMNS_FIX
-Total de líneas: 1576
+Versión: v3.0.13_OPERATOR_SAFE_ROLLBACK_HISTORY_SAVE_FIELD_MATRIX
+Total de líneas: 1641
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
