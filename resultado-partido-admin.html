@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX
-Entrega: resultado-partido-admin_v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX.txt
+Versión: v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX
+Entrega: resultado-partido-admin_v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1392
+Total de líneas: 1501
 
 MOTIVO DE VERSIÓN
 - Corrección completa de lectura/visualización de marcadores oficiales en Historial.
@@ -27,6 +27,7 @@ DECISIONES ARQUITECTÓNICAS CERRADAS
 - El cliente Supabase debe provenir del bootstrap oficial assets/js/supabase.js.
 - Se conserva el flujo loadEvents(), loadResults(), saveResult().
 - Se conserva persistencia en predictions.official_results mediante update/insert seguro, evitando pérdida por onConflict.
+- Se restaura la función persistOfficialResult() faltante en v3.0.9, causa directa de que no guardara.
 - Se conserva actualización de sports.events.event_status.
 
 VENTANA OFICIAL DE CARGA
@@ -742,7 +743,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX";
+    const VERSION = "v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -962,15 +963,123 @@ CHECKLIST DE VALIDACIÓN
     }
 
     function buildOfficialResultPayload(event, homeScore, awayScore) {
+      const now = new Date().toISOString();
       return {
         event_id: event.id,
         home_score: homeScore,
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX",
-        recorded_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX",
+        recorded_at: now,
+        updated_at: now
+      };
+    }
+
+    function buildOfficialResultPayloads(event, homeScore, awayScore) {
+      const now = new Date().toISOString();
+      const eventId = event.id;
+      return [
+        {
+          event_id: eventId,
+          home_score: homeScore,
+          away_score: awayScore,
+          result_status: "official",
+          source: "operator_admin",
+          source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX",
+          recorded_at: now,
+          updated_at: now
+        },
+        {
+          event_id: eventId,
+          home_score: homeScore,
+          away_score: awayScore,
+          result_status: "official",
+          updated_at: now
+        },
+        {
+          event_id: eventId,
+          home_score: homeScore,
+          away_score: awayScore
+        }
+      ];
+    }
+
+    async function persistOfficialResult(event, homeScore, awayScore) {
+      const payloads = buildOfficialResultPayloads(event, homeScore, awayScore);
+      let lastError = null;
+
+      for (const payload of payloads) {
+        try {
+          const saved = await persistOfficialResultPayload(payload);
+          return normalizeSavedOfficialResult(saved || payload, event.id, homeScore, awayScore);
+        } catch (error) {
+          lastError = error;
+          const message = `${error && error.message ? error.message : ""} ${error && error.details ? error.details : ""} ${error && error.hint ? error.hint : ""}`.toLowerCase();
+          const schemaRecoverable =
+            message.includes("column") ||
+            message.includes("schema cache") ||
+            message.includes("could not find") ||
+            message.includes("result_status") ||
+            message.includes("recorded_at") ||
+            message.includes("updated_at") ||
+            message.includes("source_version") ||
+            message.includes("source");
+
+          if (!schemaRecoverable) {
+            break;
+          }
+        }
+      }
+
+      throw lastError || new Error("No fue posible persistir el resultado oficial.");
+    }
+
+    async function persistOfficialResultPayload(payload) {
+      const eventId = payload.event_id;
+      const updatePayload = { ...payload };
+      delete updatePayload.event_id;
+
+      const updateResponse = await state.supabase
+        .schema("predictions")
+        .from("official_results")
+        .update(updatePayload)
+        .eq("event_id", eventId)
+        .select("*");
+
+      if (updateResponse.error) {
+        throw updateResponse.error;
+      }
+
+      if (Array.isArray(updateResponse.data) && updateResponse.data.length > 0) {
+        return updateResponse.data[0];
+      }
+
+      const insertResponse = await state.supabase
+        .schema("predictions")
+        .from("official_results")
+        .insert(payload)
+        .select("*");
+
+      if (insertResponse.error) {
+        throw insertResponse.error;
+      }
+
+      if (Array.isArray(insertResponse.data) && insertResponse.data.length > 0) {
+        return insertResponse.data[0];
+      }
+
+      return payload;
+    }
+
+    function normalizeSavedOfficialResult(result, eventId, homeScore, awayScore) {
+      return {
+        ...(result || {}),
+        event_id: (result && (result.event_id || result.sport_event_id || result.match_id || result.event_uuid)) || eventId,
+        home_score: isScoreValue(getScore(result, "home")) ? getScore(result, "home") : homeScore,
+        away_score: isScoreValue(getScore(result, "away")) ? getScore(result, "away") : awayScore,
+        result_status: (result && result.result_status) || "official",
+        updated_at: (result && result.updated_at) || new Date().toISOString()
       };
     }
 
@@ -1374,8 +1483,8 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.9_OPERATOR_HISTORY_SCORE_ORDER_SAVE_FIX
-Total de líneas: 1392
+Versión: v3.0.10_OPERATOR_HISTORY_OK_SAVE_FUNCTION_FIX
+Total de líneas: 1501
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
