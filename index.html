@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.3.4_TODAY_CAROUSEL_ARROWS_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.3.5_TODAY_CAROUSEL_ONE_CARD_STEP_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -776,6 +776,30 @@
       padding-right: 42px !important;
     }
 
+  
+    /* HOME v9.3.5 — Carrusel Jornada de hoy: 1 partido por click */
+    .today-list {
+      overflow-x: hidden !important;
+      scroll-snap-type: x mandatory !important;
+      padding-left: 42px !important;
+      padding-right: 42px !important;
+    }
+
+    .today-card {
+      min-width: calc(100% - 84px) !important;
+      max-width: calc(100% - 84px) !important;
+      flex: 0 0 calc(100% - 84px) !important;
+      scroll-snap-align: center !important;
+    }
+
+    @media (max-width: 420px) {
+      .today-card {
+        min-width: calc(100% - 84px) !important;
+        max-width: calc(100% - 84px) !important;
+        flex-basis: calc(100% - 84px) !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -903,7 +927,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.4_TODAY_CAROUSEL_ARROWS_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.5_TODAY_CAROUSEL_ONE_CARD_STEP_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -1078,11 +1102,23 @@
 
       const scrollStep = () => {
         const card = list.querySelector('.today-card');
-        return card ? Math.max(card.offsetWidth + 10, 240) : 260;
+        if (!card) return Math.max(list.clientWidth - 84, 240);
+        const styles = window.getComputedStyle(list);
+        const gap = Number.parseFloat(styles.columnGap || styles.gap || '10') || 10;
+        return card.getBoundingClientRect().width + gap;
       };
 
-      left.addEventListener('click', () => list.scrollBy({ left: -scrollStep(), behavior: 'smooth' }));
-      right.addEventListener('click', () => list.scrollBy({ left: scrollStep(), behavior: 'smooth' }));
+      const goToCard = (direction) => {
+        const cards = Array.from(list.querySelectorAll('.today-card'));
+        if (!cards.length) return;
+        const step = scrollStep();
+        const current = Math.round(list.scrollLeft / step);
+        const next = Math.min(Math.max(current + direction, 0), cards.length - 1);
+        list.scrollTo({ left: next * step, behavior: 'smooth' });
+      };
+
+      left.addEventListener('click', () => goToCard(-1));
+      right.addEventListener('click', () => goToCard(1));
 
       const updateButtons = () => {
         const maxScroll = Math.max(0, list.scrollWidth - list.clientWidth - 2);
