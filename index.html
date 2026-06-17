@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.3.2_REMOVE_OLD_RESULT_OVERRIDE_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.3.3_TODAY_CAROUSEL_DEDUPE_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -696,6 +696,46 @@
     .tomorrow-list a { min-height: 27px !important; padding: 5px 8px !important; }
     .tomorrow-name, .tomorrow-time { font-size: 11px !important; }
 
+  
+    /* HOME v9.3.3 — Jornada de hoy: carrusel real + sin duplicados visuales */
+    .today-list {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 10px !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scroll-snap-type: x mandatory !important;
+      -webkit-overflow-scrolling: touch !important;
+      padding: 4px 2px 10px !important;
+      scrollbar-width: thin !important;
+    }
+
+    .today-list::-webkit-scrollbar { height: 6px; }
+    .today-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 215, 102, .55);
+      border-radius: 999px;
+    }
+
+    .today-card {
+      min-width: 280px !important;
+      max-width: 280px !important;
+      flex: 0 0 280px !important;
+      scroll-snap-align: start !important;
+    }
+
+    .today-card h3 {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+    }
+
+    @media (max-width: 420px) {
+      .today-card {
+        min-width: 252px !important;
+        max-width: 252px !important;
+        flex-basis: 252px !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -823,7 +863,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.2_REMOVE_OLD_RESULT_OVERRIDE_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.3_TODAY_CAROUSEL_DEDUPE_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -1358,21 +1398,33 @@
       return match ? `GROUP_${match[1].toUpperCase()}` : raw;
     }
 
+    
     function dedupeEvents(events) {
-      const byCanonical = new Map();
-      for (const event of events) {
-        if (!event || !event.startsAtDate || Number.isNaN(event.startsAtDate.getTime())) continue;
-        const canonical = `${teamBaseName(event.homeLabel).toLowerCase()}|${teamBaseName(event.awayLabel).toLowerCase()}|${event.starts_at}`;
-        const existing = byCanonical.get(canonical);
-        if (!existing) {
-          byCanonical.set(canonical, event);
-          continue;
+      const byId = new Map();
+      const byKey = new Map();
+
+      (events || []).forEach((event) => {
+        if (!event || !event.startsAtDate || Number.isNaN(event.startsAtDate.getTime())) return;
+
+        const id = String(event.id || '');
+        const displayName = String(event.name || event.matchLabel || shortMatchLabel(event) || '').trim().toLowerCase();
+        const key = `${displayName}|${event.startsAtDate.toISOString()}`;
+
+        if (id && !id.startsWith('fifa-')) {
+          const merged = { ...(byId.get(id) || {}), ...event, id };
+          byId.set(id, merged);
+          byKey.set(key, merged);
+          return;
         }
-        // Prefer real Supabase rows with ids over static fallback rows without ids.
-        if (!existing.id && event.id) byCanonical.set(canonical, event);
-      }
-      return Array.from(byCanonical.values());
+
+        if (!byKey.has(key)) byKey.set(key, event);
+      });
+
+      return Array.from(new Set([...byId.values(), ...byKey.values()]))
+        .filter(Boolean)
+        .sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
+
 
     function selectHeroEvent() {
       const now = new Date();
@@ -1469,37 +1521,47 @@
 
 
 
+    
     function renderTodayList() {
       const list = $('todayList');
+      if (!list) return;
+
       const todayEvents = getTodayEvents();
-      const label = $('todayCountLabel');
-      if (label) label.textContent = todayEvents.length ? `${todayEvents.length} partido${todayEvents.length === 1 ? '' : 's'} hoy` : 'Sin jornada cargada';
+      const panel = list.closest('.panel');
+      const count = panel?.querySelector('.panel-count');
+      if (count) count.textContent = `${todayEvents.length} partido${todayEvents.length === 1 ? '' : 's'} hoy`;
 
       if (!todayEvents.length) {
-        list.innerHTML = '<p class="state-empty">No hay partidos programados para hoy.</p>';
+        list.innerHTML = '<p class="state-empty">Hoy no hay partidos programados.</p>';
         return;
       }
 
       list.innerHTML = todayEvents.map((event) => {
         const status = getCountdownStatus(event);
-        const disabledPrediction = ['live', 'final'].includes(status.key) && !state.predictions.has(String(event.id));
-        const predictionLabel = state.predictions.has(String(event.id)) ? 'Ver pronóstico' : (disabledPrediction ? 'Cerrado' : 'Pronosticar');
+        const predicted = state.predictions.has(String(event.id));
+        const canPredict = ['closing', 'soon', 'upcoming'].includes(status.key);
+        const buttonLabel = predicted ? 'Ver pronóstico' : (canPredict ? 'Pronosticar' : 'Cerrado');
+        const buttonHref = predicted || canPredict
+          ? `./pronostico.html?event_id=${encodeURIComponent(event.id || '')}`
+          : `./partido-detalle.html?event_id=${encodeURIComponent(event.id || '')}`;
+
         return `
-          <article class="today-card ${status.key}" style="--group-color:${getGroupColor(event.groupCode)}">
-            <div class="today-card-top">
+          <article class="today-card group-${escapeHtml(String(event.groupCode || '').toLowerCase())}">
+            <div class="today-card-head">
               <span>${escapeHtml(labelGroup(event.groupCode))}</span>
-              <span class="today-card-status">${escapeHtml(status.short)}</span>
+              <b>${escapeHtml(status.key === 'finished' ? 'FINALIZADO' : status.text)}</b>
             </div>
-            <div class="today-card-title">${escapeHtml(shortMatchLabel(event))}</div>
-            <div class="today-card-meta">⏰ ${escapeHtml(formatLocalTime(event.startsAtDate))}${event.venueName ? ' · 📍 ' + escapeHtml(event.venueName) : ''}</div>
-            <div class="today-card-actions">
-              <a class="tiny-action" href="./partido-detalle.html?event_id=${encodeURIComponent(event.id)}">Detalle</a>
-              <a class="tiny-action gold" href="./pronostico.html?event_id=${encodeURIComponent(event.id)}">${escapeHtml(predictionLabel)}</a>
+            <h3>${escapeHtml(shortMatchLabel(event))}</h3>
+            <p>⏰ ${escapeHtml(formatLocalTime(event.startsAtDate))} · 📍 ${escapeHtml(event.venueName || 'Sede por confirmar')}</p>
+            <div class="today-actions">
+              <a class="secondary-btn" href="./partido-detalle.html?event_id=${encodeURIComponent(event.id || '')}">Detalle</a>
+              <a class="primary-btn ${canPredict || predicted ? '' : 'disabled'}" href="${escapeHtml(buttonHref)}">${escapeHtml(buttonLabel)}</a>
             </div>
           </article>
         `;
       }).join('');
     }
+
 
     
     
@@ -1658,22 +1720,14 @@
       return { key: 'upcoming', label: 'Falta para el partido', text: `⏳ ${formatDuration(diffMs)}`, short: `⏳ ${formatDuration(diffMs)}`, eyebrow: '🟢 Tu próximo partido pendiente' };
     }
 
+    
     function getTodayEvents() {
-      const start = startOfLocalDay(new Date());
-      const end = addDays(start, 1);
-      const guardStart = new Date(start.getTime() - 6 * 60 * 60 * 1000);
-      const guardEnd = new Date(end.getTime() + 6 * 60 * 60 * 1000);
-
-      // Jornada operativa: partidos del día local, más margen para horarios FIFA en UTC.
-      // Después se filtra por la fecha local real para evitar mezclar demasiados días.
-      const localTodayKey = localDayKey(new Date());
-      const strict = state.events.filter((event) => localDayKey(event.startsAtDate) === localTodayKey);
-      if (strict.length >= 2) return strict.sort((a, b) => a.startsAtDate - b.startsAtDate);
-
-      return state.events
-        .filter((event) => event.startsAtDate >= guardStart && event.startsAtDate < guardEnd)
+      const todayKey = localDayKey(new Date());
+      return dedupeEvents(state.events)
+        .filter((event) => localDayKey(event.startsAtDate) === todayKey)
         .sort((a, b) => a.startsAtDate - b.startsAtDate);
     }
+
 
     
     
