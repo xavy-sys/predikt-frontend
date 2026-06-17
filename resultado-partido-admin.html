@@ -2,8 +2,8 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.0_OPERATOR_RESTORE
-Entrega: resultado-partido-admin_v3.0.0_OPERATOR_RESTORE.txt
+Versión: v3.0.1_OPERATOR_RESTORE_PATH_FIX
+Entrega: resultado-partido-admin_v3.0.1_OPERATOR_RESTORE_PATH_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
@@ -21,7 +21,7 @@ DECISIONES ARQUITECTÓNICAS CERRADAS
 - No se usa sports.events directo para cargar partidos.
 - No se crean clientes Supabase dentro de este archivo.
 - No se usan fallbacks, ladders, timeouts múltiples ni source chains.
-- El cliente Supabase debe provenir del bootstrap oficial supabase.js.
+- El cliente Supabase debe provenir del bootstrap oficial assets/js/supabase.js.
 - Se conserva el flujo loadEvents(), loadResults(), saveResult().
 - Se conserva upsert en predictions.official_results.
 - Se conserva actualización de sports.events.event_status.
@@ -74,9 +74,9 @@ CHECKLIST DE VALIDACIÓN
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>PREDIKT™ | Resultado Oficial Admin</title>
 
-  <link rel="icon" href="./predikt-logo.png" />
-  <link rel="apple-touch-icon" href="./predikt-logo.png" />
-  <script src="./supabase.js"></script>
+  <link rel="icon" href="./assets/predikt-logo.png" />
+  <link rel="apple-touch-icon" href="./assets/predikt-logo.png" />
+  <script src="./assets/js/supabase.js"></script>
 
   <style>
     :root {
@@ -675,7 +675,7 @@ CHECKLIST DE VALIDACIÓN
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./index.html" aria-label="Ir a Inicio PREDIKT">
-        <img class="brand-logo" src="./predikt-logo.png" alt="PREDIKT™" onerror="this.style.display='none'" />
+        <img class="brand-logo" src="./assets/predikt-logo.png" alt="PREDIKT™" onerror="this.style.display='none'" />
         <span class="brand-title">
           <strong>PREDIKT™</strong>
           <span>Predice • Compite • Gana · Powered by JVSys™</span>
@@ -781,7 +781,7 @@ CHECKLIST DE VALIDACIÓN
       bindEvents();
       state.supabase = resolveSupabaseClient();
       if (!state.supabase) {
-        showNotice("No se encontró el cliente Supabase oficial. Verifica que supabase.js esté cargando antes de este archivo.", "error");
+        showNotice("No se encontró el cliente Supabase oficial. Verifica que assets/js/supabase.js esté cargando antes de este archivo.", "error");
         render();
         return;
       }
@@ -1239,7 +1239,7 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.0_OPERATOR_RESTORE
+Versión: v3.0.1_OPERATOR_RESTORE_PATH_FIX
 Total de líneas: 1255
 Certificación de entrega:
 - Archivo completo.
