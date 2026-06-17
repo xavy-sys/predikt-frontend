@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX
-Entrega: resultado-partido-admin_v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX.txt
+Versión: v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX
+Entrega: resultado-partido-admin_v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1357
+Total de líneas: 1371
 
 MOTIVO DE VERSIÓN
 - Restaurar el motor funcional certificado de resultado-partido-admin_v1.4.0_DAILY_OPERATOR_VIEW.
@@ -739,7 +739,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX";
+    const VERSION = "v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -974,7 +974,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX",
         recorded_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -1097,9 +1097,20 @@ CHECKLIST DE VALIDACIÓN
         ? [source.home_score, source.home_goals, source.local_score, source.score_home]
         : [source.away_score, source.away_goals, source.visitor_score, source.score_away];
       for (const value of candidates) {
-        if (Number.isInteger(Number(value))) return Number(value);
+        if (isScoreValue(value)) return Number(value);
       }
       return null;
+    }
+
+    function isScoreValue(value) {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      const numberValue = Number(value);
+      return Number.isInteger(numberValue) && numberValue >= 0;
+    }
+
+    function eventHasPersistedScore(event) {
+      return isScoreValue(event.home_score) && isScoreValue(event.away_score);
     }
 
     function getExistingScore(event, side) {
@@ -1174,8 +1185,8 @@ CHECKLIST DE VALIDACIÓN
       const group = event.group_code || "-";
       const groupColor = groupColors[group] || "#1363df";
       const hasResult = hasOfficialResult(event);
-      const homeScore = Number.isInteger(Number(event.home_score)) ? Number(event.home_score) : "";
-      const awayScore = Number.isInteger(Number(event.away_score)) ? Number(event.away_score) : "";
+      const homeScore = isScoreValue(event.home_score) ? Number(event.home_score) : "";
+      const awayScore = isScoreValue(event.away_score) ? Number(event.away_score) : "";
       const scoreLabel = hasResult ? `${homeScore} - ${awayScore}` : "vs";
       const statusLabel = hasResult ? "Resultado oficial" : getStatusLabel(event.event_status);
       const safeId = escapeHtml(String(event.id));
@@ -1244,8 +1255,8 @@ CHECKLIST DE VALIDACIÓN
       if (!event) return;
       const homeInput = document.getElementById(`homeScore-${eventId}`);
       const awayInput = document.getElementById(`awayScore-${eventId}`);
-      if (homeInput) homeInput.value = Number.isInteger(Number(event.home_score)) ? Number(event.home_score) : "";
-      if (awayInput) awayInput.value = Number.isInteger(Number(event.away_score)) ? Number(event.away_score) : "";
+      if (homeInput) homeInput.value = isScoreValue(event.home_score) ? Number(event.home_score) : "";
+      if (awayInput) awayInput.value = isScoreValue(event.away_score) ? Number(event.away_score) : "";
     }
 
     function setRefreshLoading(loading) {
@@ -1264,8 +1275,11 @@ CHECKLIST DE VALIDACIÓN
     }
 
     function hasOfficialResult(event) {
+      if (!event) return false;
       if (event.official_result) return true;
-      return Number.isInteger(Number(event.home_score)) && Number.isInteger(Number(event.away_score)) && String(event.event_status).toLowerCase() === "completed";
+      if (eventHasPersistedScore(event)) return true;
+      const status = String(event.event_status || event.status || "").toLowerCase();
+      return status.includes("complete") || status.includes("final");
     }
 
     function getTotalPages() {
@@ -1339,8 +1353,8 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.4_OPERATOR_RESTORE_PENDING_SYNC_FIX
-Total de líneas: 1357
+Versión: v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX
+Total de líneas: 1371
 Certificación de entrega:
 - Archivo completo.
 - Sin fragmentos.
