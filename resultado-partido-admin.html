@@ -2,14 +2,14 @@
 ===============================================================================
 PREDIKT™ — RESULTADO OFICIAL ADMIN
 Archivo: resultado-partido-admin.html
-Versión: v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX
-Entrega: resultado-partido-admin_v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX.txt
+Versión: v3.0.6_OPERATOR_RESTORE_SAVE_REFRESH_HISTORY_FIX
+Entrega: resultado-partido-admin_v3.0.6_OPERATOR_RESTORE_SAVE_REFRESH_HISTORY_FIX.txt
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 Fecha de versión: 2026-06-17
-Total de líneas: 1371
+Total de líneas: 1418
 
 MOTIVO DE VERSIÓN
 - Restaurar el motor funcional certificado de resultado-partido-admin_v1.4.0_DAILY_OPERATOR_VIEW.
@@ -739,7 +739,7 @@ CHECKLIST DE VALIDACIÓN
   <script>
     "use strict";
 
-    const VERSION = "v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX";
+    const VERSION = "v3.0.6_OPERATOR_RESTORE_SAVE_REFRESH_HISTORY_FIX";
     const PAGE_SIZE = 20;
     const TOURNAMENT_FROM = "2026-06-01T00:00:00Z";
     const TOURNAMENT_TO = "2026-08-01T23:59:59Z";
@@ -918,53 +918,61 @@ CHECKLIST DE VALIDACIÓN
       try {
         const payload = buildOfficialResultPayload(event, homeScore, awayScore);
 
-        const { error: upsertError } = await state.supabase
+        const { data: savedRows, error: upsertError } = await state.supabase
           .schema("predictions")
           .from("official_results")
-          .upsert(payload, { onConflict: "event_id" });
+          .upsert(payload, { onConflict: "event_id" })
+          .select("*");
 
         if (upsertError) throw upsertError;
 
-        const officialResult = {
-          ...payload,
-          home_score: homeScore,
-          away_score: awayScore
-        };
+        const savedResult = Array.isArray(savedRows) && savedRows.length ? savedRows[0] : payload;
+        const officialResult = normalizeOfficialResult(savedResult, event.id, homeScore, awayScore);
 
         state.results.set(String(event.id), officialResult);
         state.events = state.events.map((item) => {
           if (String(item.id) !== String(event.id)) return item;
-          return {
-            ...item,
-            official_result: officialResult,
-            home_score: homeScore,
-            away_score: awayScore,
-            event_status: "completed"
-          };
+          return applyResultToEvent(item, officialResult);
         });
 
+        state.savingEventId = null;
         applyFilters();
         render();
-
-        const { error: eventError } = await state.supabase
-          .schema("sports")
-          .from("events")
-          .update({ event_status: "completed", updated_at: new Date().toISOString() })
-          .eq("id", event.id);
-
-        if (eventError) {
-          console.warn(`[${VERSION}] event_status update warning`, eventError);
-        }
-
         showNotice("Resultado oficial guardado. El partido pasó a Historial.", "ok");
-        await refreshAll(false);
+
+        updateEventStatusInBackground(event.id);
+        await reloadResultsAndReclassify();
       } catch (error) {
         console.error(`[${VERSION}] saveResult`, error);
         showNotice("No fue posible guardar el resultado oficial. Verifica permisos de operador.", "error");
       } finally {
         state.savingEventId = null;
-        renderSavingButton(eventId, false);
+        applyFilters();
+        render();
       }
+    }
+
+    async function reloadResultsAndReclassify() {
+      try {
+        await loadResults();
+        mergeResultsIntoEvents();
+        applyFilters();
+        render();
+      } catch (error) {
+        console.warn(`[${VERSION}] reloadResultsAndReclassify warning`, error);
+      }
+    }
+
+    function updateEventStatusInBackground(eventId) {
+      state.supabase
+        .schema("sports")
+        .from("events")
+        .update({ event_status: "completed", updated_at: new Date().toISOString() })
+        .eq("id", eventId)
+        .then(({ error }) => {
+          if (error) console.warn(`[${VERSION}] event_status update warning`, error);
+        })
+        .catch((error) => console.warn(`[${VERSION}] event_status update failed`, error));
     }
 
     function buildOfficialResultPayload(event, homeScore, awayScore) {
@@ -974,7 +982,7 @@ CHECKLIST DE VALIDACIÓN
         away_score: awayScore,
         result_status: "official",
         source: "operator_admin",
-        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX",
+        source_version: "PREDIKT_RESULTADO_OFICIAL_ADMIN_v3.0.6_OPERATOR_RESTORE_SAVE_REFRESH_HISTORY_FIX",
         recorded_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -1081,21 +1089,55 @@ CHECKLIST DE VALIDACIÓN
     function mergeResultsIntoEvents() {
       state.events = state.events.map((event) => {
         const result = state.results.get(String(event.id));
+        if (result) return applyResultToEvent(event, result);
         return {
           ...event,
-          official_result: result || null,
-          home_score: result ? getScore(result, "home") : getExistingScore(event, "home"),
-          away_score: result ? getScore(result, "away") : getExistingScore(event, "away"),
-          event_status: result ? "completed" : event.event_status
+          official_result: null,
+          home_score: getExistingScore(event, "home"),
+          away_score: getExistingScore(event, "away")
         };
       });
+    }
+
+    function applyResultToEvent(event, result) {
+      const homeScore = getScore(result, "home");
+      const awayScore = getScore(result, "away");
+      const normalizedResult = normalizeOfficialResult(result, event.id, homeScore, awayScore);
+      return {
+        ...event,
+        official_result: normalizedResult,
+        home_score: homeScore,
+        away_score: awayScore,
+        event_status: hasValidOfficialScore(normalizedResult) ? "completed" : event.event_status
+      };
+    }
+
+    function normalizeOfficialResult(result, eventId, homeScore, awayScore) {
+      return {
+        ...(result || {}),
+        event_id: (result && result.event_id) || eventId,
+        home_score: isScoreValue(homeScore) ? Number(homeScore) : getScore(result, "home"),
+        away_score: isScoreValue(awayScore) ? Number(awayScore) : getScore(result, "away"),
+        result_status: (result && (result.result_status || result.status)) || "official"
+      };
     }
 
     function getScore(source, side) {
       if (!source) return null;
       const candidates = side === "home"
-        ? [source.home_score, source.home_goals, source.local_score, source.score_home]
-        : [source.away_score, source.away_goals, source.visitor_score, source.score_away];
+        ? [
+            source.home_score, source.home_goals, source.local_score, source.local_goals,
+            source.score_home, source.score_local, source.home_team_score,
+            source.local_team_score, source.team_home_score, source.team_a_score,
+            source.home_points, source.local_points
+          ]
+        : [
+            source.away_score, source.away_goals, source.visitor_score, source.visitor_goals,
+            source.visitante_score, source.visitante_goals, source.score_away,
+            source.score_visitor, source.score_visitante, source.away_team_score,
+            source.visitor_team_score, source.team_away_score, source.team_b_score,
+            source.away_points, source.visitor_points
+          ];
       for (const value of candidates) {
         if (isScoreValue(value)) return Number(value);
       }
@@ -1247,7 +1289,9 @@ CHECKLIST DE VALIDACIÓN
       const btn = document.getElementById(`saveBtn-${eventId}`);
       if (!btn) return;
       btn.disabled = loading;
-      btn.innerHTML = loading ? `<span class="mini-loader">⚽</span> Guardando` : btn.dataset.originalText || btn.textContent;
+      if (loading) {
+        btn.innerHTML = `<span class="mini-loader">⚽</span> Guardando`;
+      }
     }
 
     function resetInputs(eventId) {
@@ -1276,10 +1320,13 @@ CHECKLIST DE VALIDACIÓN
 
     function hasOfficialResult(event) {
       if (!event) return false;
-      if (event.official_result) return true;
-      if (eventHasPersistedScore(event)) return true;
-      const status = String(event.event_status || event.status || "").toLowerCase();
-      return status.includes("complete") || status.includes("final");
+      if (event.official_result && hasValidOfficialScore(event.official_result)) return true;
+      return eventHasPersistedScore(event);
+    }
+
+    function hasValidOfficialScore(source) {
+      if (!source) return false;
+      return isScoreValue(getScore(source, "home")) && isScoreValue(getScore(source, "away"));
     }
 
     function getTotalPages() {
@@ -1353,7 +1400,7 @@ CHECKLIST DE VALIDACIÓN
 ===============================================================================
 FIN DE ARCHIVO
 Archivo: resultado-partido-admin.html
-Versión: v3.0.5_OPERATOR_RESTORE_OFFICIAL_RESULT_CLASSIFICATION_FIX
+Versión: v3.0.6_OPERATOR_RESTORE_SAVE_REFRESH_HISTORY_FIX
 Total de líneas: 1371
 Certificación de entrega:
 - Archivo completo.
