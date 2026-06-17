@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PREDIKT™ | Inicio</title>
-  <!-- version: index_HOME_DASHBOARD_v9.3.3_TODAY_CAROUSEL_DEDUPE_FIX -->
+  <!-- version: index_HOME_DASHBOARD_v9.3.4_TODAY_CAROUSEL_ARROWS_FIX -->
   <meta name="theme-color" content="#07162f" />
   <meta name="description" content="PREDIKT™ - Predice • Compite • Gana" />
   <link rel="icon" href="./predikt-logo.png" />
@@ -736,6 +736,46 @@
       }
     }
 
+  
+    /* HOME v9.3.4 — Flechas para carrusel Jornada de hoy */
+    .today-carousel-shell {
+      position: relative !important;
+    }
+
+    .today-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 44px;
+      border: 1px solid rgba(255, 215, 102, .38);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 191, 46, .96), rgba(255, 234, 141, .96));
+      color: #08111f;
+      font-weight: 950;
+      font-size: 20px;
+      display: grid;
+      place-items: center;
+      z-index: 8;
+      box-shadow: 0 10px 22px rgba(0,0,0,.32);
+      cursor: pointer;
+    }
+
+    .today-arrow.left { left: 5px; }
+    .today-arrow.right { right: 5px; }
+
+    .today-arrow:disabled {
+      opacity: .38;
+      cursor: default;
+      filter: grayscale(.2);
+    }
+
+    .today-list {
+      scroll-behavior: smooth !important;
+      padding-left: 42px !important;
+      padding-right: 42px !important;
+    }
+
   </style>
 </head>
 
@@ -863,7 +903,7 @@
      *****************************************************************/
 
 
-    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.3_TODAY_CAROUSEL_DEDUPE_FIX';
+    const HOME_BUILD_VERSION = 'index_HOME_DASHBOARD_v9.3.4_TODAY_CAROUSEL_ARROWS_FIX';
     window.HOME_BUILD_VERSION = HOME_BUILD_VERSION;
     console.info('[PREDIKT HOME]', HOME_BUILD_VERSION, 'booted - FIFA certified home dashboard');
 
@@ -1014,6 +1054,56 @@
       window.setTimeout(() => splash.remove(), 420);
     }
 
+
+    function setupTodayCarouselArrows() {
+      const list = $('todayList');
+      if (!list || list.dataset.arrowsReady === 'true') return;
+
+      const panel = list.closest('.panel') || list.parentElement;
+      if (!panel) return;
+
+      panel.classList.add('today-carousel-shell');
+
+      const left = document.createElement('button');
+      left.type = 'button';
+      left.className = 'today-arrow left';
+      left.setAttribute('aria-label', 'Partido anterior');
+      left.textContent = '‹';
+
+      const right = document.createElement('button');
+      right.type = 'button';
+      right.className = 'today-arrow right';
+      right.setAttribute('aria-label', 'Siguiente partido');
+      right.textContent = '›';
+
+      const scrollStep = () => {
+        const card = list.querySelector('.today-card');
+        return card ? Math.max(card.offsetWidth + 10, 240) : 260;
+      };
+
+      left.addEventListener('click', () => list.scrollBy({ left: -scrollStep(), behavior: 'smooth' }));
+      right.addEventListener('click', () => list.scrollBy({ left: scrollStep(), behavior: 'smooth' }));
+
+      const updateButtons = () => {
+        const maxScroll = Math.max(0, list.scrollWidth - list.clientWidth - 2);
+        left.disabled = list.scrollLeft <= 2;
+        right.disabled = list.scrollLeft >= maxScroll;
+        const hasOverflow = list.scrollWidth > list.clientWidth + 8;
+        left.style.display = hasOverflow ? 'grid' : 'none';
+        right.style.display = hasOverflow ? 'grid' : 'none';
+      };
+
+      list.addEventListener('scroll', updateButtons, { passive: true });
+      window.addEventListener('resize', updateButtons);
+
+      panel.appendChild(left);
+      panel.appendChild(right);
+      list.dataset.arrowsReady = 'true';
+      window.setTimeout(updateButtons, 80);
+      window.setTimeout(updateButtons, 600);
+    }
+
+
     async function initHome() {
       try {
         bindActions();
@@ -1054,6 +1144,7 @@
         window.setTimeout(forceCriticalHomeBindings, 1800);
         startCountdownEngine();
         safeRender('tomorrow-list-final', renderTomorrowList);
+        safeRender('today-carousel-arrows', setupTodayCarouselArrows);
         hideBootSplash();
       } catch (err) {
         console.error('[PREDIKT_HOME_INIT_ERROR]', err);
