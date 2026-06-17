@@ -1,36 +1,22 @@
 <!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>PREDIKT™ | Resultado Oficial</title>
-  <link rel="icon" href="./predikt-logo.png" />
-  <style>
-    :root{
-      --bg:#061226;
-      --bg2:#0b1f3f;
-      --card:rgba(19,38,66,.94);
-      --card2:rgba(13,27,49,.96);
-      --line:rgba(255,255,255,.13);
-      --text:#fff;<!doctype html>
 <!--
 ===============================================================================
 PREDIKT™ — Resultado Oficial Admin
-Archivo: resultado-partido-admin_v2.0.0_OPERATOR_FIRST.txt
-Versión: v2.0.0_OPERATOR_FIRST
-Total de líneas inicial: 1124
-Fecha de versión: 2026-06-16
+Archivo: resultado-partido-admin_v2.0.1_OPERATOR_FIRST_FULL_FIX.txt
+Versión: v2.0.1_OPERATOR_FIRST_FULL_FIX
+Total de líneas inicial: 779
+Fecha de versión: 2026-06-17
 Proyecto: PREDIKT™ — Predice • Compite • Gana
 Powered by: JVSys™
 Repositorio: xavy-sys/predikt-frontend
 Producción: https://predikt-frontend-three.vercel.app
 
 MOTIVO DE LA NUEVA VERSIÓN
-- Reconstrucción completa Operator First para captura oficial de resultados.
-- Eliminación definitiva de la regresión causada por filtros Today/Pending/Recent.
-- Eliminación definitiva de la ventana temporal 48h atrás / 72h adelante.
-- Carga del universo completo certificado desde sports.events.
-- Acceso operativo a los 72 partidos para captura, búsqueda, historial y corrección.
+- Corrección completa de la entrega v2.0.0 por falla visual-operativa reportada en producción.
+- Se corrige CSS visible en pantalla por riesgo de estructura HTML/CSS degradada.
+- Se corrige loader para que sea dinámico, no estático, con balón girando.
+- Se refuerza la carga directa desde sports.events como fuente maestra certificada.
+- Se refuerzan botones, listeners y estados visuales para operación real.
 
 FUENTE DE DATOS CERTIFICADA
 - Cargar universo completo de partidos desde: sports.events.
@@ -45,12 +31,9 @@ HISTORIAL DE CAMBIOS
 - v1.4.2_EMBED_PUBLIC_KEY_FIX:
   Fix de llave pública embebida y operación básica post-partido.
 - v2.0.0_OPERATOR_FIRST:
-  Nueva pantalla completa con cinco bloques operativos:
-  1) Pendientes de Resultado.
-  2) Buscar Partido.
-  3) Historial Completo paginado 20 por página.
-  4) Corrección Histórica mediante upsert sobre official_results.
-  5) Loader Oficial PREDIKT™ con overlay 70% y balón girando.
+  Nueva pantalla Operator First con pendientes, búsqueda, historial y corrección.
+- v2.0.1_OPERATOR_FIRST_FULL_FIX:
+  Reconstrucción completa estable para corregir loader, colores, botones y carga.
 
 IMPACTO EN PRODUCCIÓN
 - Reemplaza resultado-partido-admin.html con esta versión completa.
@@ -64,6 +47,8 @@ IMPACTO EN PRODUCCIÓN
 
 CHECKLIST DE VALIDACIÓN
 [ ] Abrir /resultado-partido-admin.html con usuario administrador.
+[ ] Confirmar que no aparece CSS ni texto técnico visible en pantalla.
+[ ] Confirmar loader con balón girando y fondo visible oscurecido.
 [ ] Confirmar que Pendientes de Resultado muestra partidos sin resultado oficial.
 [ ] Confirmar búsqueda por selección, grupo, sede, fecha y nombre del partido.
 [ ] Confirmar Historial Completo con 20 partidos por página.
@@ -72,7 +57,6 @@ CHECKLIST DE VALIDACIÓN
 [ ] Confirmar corrección histórica de resultado existente.
 [ ] Confirmar que el registro existente se actualiza y no duplica resultados.
 [ ] Confirmar event_status = FINISHED al guardar.
-[ ] Confirmar loader sin pantalla blanca, sin pantalla negra y sin mensajes técnicos.
 ===============================================================================
 -->
 <html lang="es">
@@ -87,15 +71,14 @@ CHECKLIST DE VALIDACIÓN
       --bg2:#0b1f3f;
       --card:rgba(19,38,66,.94);
       --card2:rgba(13,27,49,.96);
-      --line:rgba(255,255,255,.13);
-      --text:#fff;
+      --line:rgba(255,255,255,.14);
+      --text:#ffffff;
       --muted:#b7c8df;
       --gold:#ffd766;
       --gold2:#ffbf2e;
       --green:#27d67b;
       --red:#ff4264;
       --blue:#38bdf8;
-      --orange:#ff8a3d;
       --shadow:0 18px 50px rgba(0,0,0,.34);
       --radius:22px;
       --safe-bottom:env(safe-area-inset-bottom,0px);
@@ -103,7 +86,7 @@ CHECKLIST DE VALIDACIÓN
 
     *{box-sizing:border-box}
 
-    html{scroll-behavior:smooth}
+    html{min-height:100%;background:#061226}
 
     body{
       margin:0;
@@ -114,9 +97,11 @@ CHECKLIST DE VALIDACIÓN
         radial-gradient(circle at top right,rgba(22,88,166,.44),transparent 35%),
         linear-gradient(180deg,#0d2b57 0%,#061226 54%,#030814 100%);
       padding:18px 14px calc(96px + var(--safe-bottom));
+      overflow-x:hidden;
     }
 
     button,input{font:inherit}
+    button:disabled{opacity:.48;cursor:not-allowed}
 
     .app{width:min(520px,100%);margin:0 auto}
 
@@ -129,7 +114,7 @@ CHECKLIST DE VALIDACIÓN
     }
 
     .brand{display:flex;align-items:center;gap:10px}
-    .brand img{width:38px;height:38px;object-fit:contain;border-radius:10px}
+    .brand-mark{width:36px;height:36px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
     .brand strong{display:block;font-weight:950;letter-spacing:.06em}
     .brand small{display:block;color:var(--muted);font-size:11px;font-weight:800}
 
@@ -154,19 +139,6 @@ CHECKLIST DE VALIDACIÓN
       padding:17px;
       box-shadow:var(--shadow);
       margin-bottom:12px;
-      overflow:hidden;
-      position:relative;
-    }
-
-    .hero::after{
-      content:"";
-      position:absolute;
-      right:-38px;
-      bottom:-38px;
-      width:120px;
-      height:120px;
-      border-radius:999px;
-      border:18px solid rgba(255,255,255,.035);
     }
 
     .tag{
@@ -186,94 +158,31 @@ CHECKLIST DE VALIDACIÓN
     }
 
     h1{margin:0;font-size:25px;line-height:1.02;letter-spacing:-.04em}
-    .hero p{margin:9px 0 0;color:#dbe7fb;font-size:13px;line-height:1.35;font-weight:750;max-width:390px}
+    .hero p{margin:9px 0 0;color:#dbe7fb;font-size:13px;line-height:1.35;font-weight:750}
 
-    .admin-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:9px;
-      margin:12px 0;
-    }
-
-    .stat{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.055);
-      border-radius:17px;
-      padding:11px;
-      min-width:0;
-    }
-
-    .stat span{
-      display:block;
-      color:#9fb3cf;
-      font-size:9px;
-      font-weight:950;
-      letter-spacing:.07em;
-      text-transform:uppercase;
-      line-height:1.15;
-    }
-
-    .stat strong{display:block;margin-top:7px;font-size:22px;line-height:1}
+    .admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+    .stat{border:1px solid var(--line);background:rgba(255,255,255,.055);border-radius:17px;padding:12px;min-width:0}
+    .stat span{display:block;color:#9fb3cf;font-size:10px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+    .stat strong{display:block;margin-top:6px;font-size:24px;line-height:1}
 
     .panel{
       border:1px solid var(--line);
-      background:rgba(14,27,49,.88);
+      background:rgba(14,27,49,.90);
       border-radius:var(--radius);
       padding:12px;
       margin-bottom:12px;
-      box-shadow:0 12px 34px rgba(0,0,0,.16);
+      box-shadow:0 10px 30px rgba(0,0,0,.16);
     }
 
-    .panel-head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .panel-head h2{margin:0;font-size:15px;line-height:1.15}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .panel-head h2{margin:0;font-size:15px}
     .panel-head small{color:var(--muted);font-size:11px;font-weight:850;text-align:right}
 
-    .search{
-      width:100%;
-      border:1px solid var(--line);
-      background:rgba(5,14,28,.72);
-      color:#fff;
-      border-radius:16px;
-      padding:13px 14px;
-      font-weight:850;
-      outline:none;
-      margin-bottom:10px;
-    }
+    .search-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
+    .search{width:100%;border:1px solid var(--line);background:rgba(5,14,28,.72);color:#fff;border-radius:16px;padding:13px 14px;font-weight:850;outline:none}
 
-    .search::placeholder{color:#91a8c4}
-
-    .quick-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-bottom:10px;
-    }
-
-    .chip-btn{
-      border:1px solid rgba(255,255,255,.13);
-      background:rgba(255,255,255,.055);
-      color:#dbe7fb;
-      border-radius:999px;
-      padding:10px 10px;
-      font-size:11px;
-      font-weight:950;
-      cursor:pointer;
-    }
-
-    .chip-btn.active{
-      color:#08111f;
-      border-color:transparent;
-      background:linear-gradient(135deg,var(--gold2),#ffe98b);
-    }
-
-    .match-list{display:grid;gap:8px}
+    .match-list{display:grid;gap:8px;max-height:360px;overflow:auto;padding-right:2px;scrollbar-width:thin}
+    .match-list.history{max-height:none;overflow:visible}
 
     .match-card{
       border:1px solid rgba(255,255,255,.11);
@@ -283,294 +192,87 @@ CHECKLIST DE VALIDACIÓN
       cursor:pointer;
       position:relative;
       overflow:hidden;
-      min-height:83px;
+      min-height:88px;
     }
+    .match-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--gold),#ff7b4a)}
+    .match-card.active{border-color:rgba(255,215,102,.65);box-shadow:0 0 0 2px rgba(255,215,102,.14)}
+    .match-title{margin-left:6px;font-size:13px;font-weight:950;line-height:1.2}
+    .match-meta{margin:6px 0 0 6px;color:var(--muted);font-size:11px;font-weight:800;line-height:1.35}
+    .match-score{position:absolute;right:11px;top:11px;color:var(--gold);font-size:15px;font-weight:950;background:rgba(255,215,102,.10);border:1px solid rgba(255,215,102,.25);border-radius:999px;padding:4px 8px}
 
-    .match-card::before{
-      content:"";
-      position:absolute;
-      left:0;top:0;bottom:0;width:5px;
-      background:linear-gradient(180deg,var(--gold),#ff7b4a);
-    }
-
-    .match-card.active{
-      border-color:rgba(255,215,102,.65);
-      box-shadow:0 0 0 2px rgba(255,215,102,.14);
-    }
-
-    .match-title{
-      margin-left:6px;
-      font-size:13px;
-      font-weight:950;
-      line-height:1.2;
-    }
-
-    .match-meta{
-      margin:6px 0 0 6px;
-      color:var(--muted);
-      font-size:11px;
-      font-weight:800;
-      line-height:1.35;
-    }
-
-    .match-score{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      margin-left:6px;
-      margin-top:7px;
-      color:#fff;
-      font-size:12px;
-      font-weight:950;
-    }
-
-    .badge{
-      display:inline-flex;
-      border-radius:999px;
-      padding:4px 7px;
-      font-size:10px;
-      font-weight:950;
-      margin-left:6px;
-      margin-top:7px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-    }
-
+    .badge{display:inline-flex;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:950;margin-left:6px;margin-top:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08)}
     .badge.done{color:#83ffc0;background:rgba(39,214,123,.12);border-color:rgba(39,214,123,.28)}
     .badge.pending{color:#ffe48a;background:rgba(255,215,102,.10);border-color:rgba(255,215,102,.28)}
-    .badge.future{color:#b9eaff;background:rgba(56,189,248,.10);border-color:rgba(56,189,248,.28)}
+    .badge.future{color:#bdeeff;background:rgba(56,189,248,.10);border-color:rgba(56,189,248,.28)}
 
     .form-grid{display:grid;gap:12px}
+    .selected-match{border:1px solid rgba(255,215,102,.25);background:rgba(255,215,102,.08);border-radius:17px;padding:12px;font-weight:950;line-height:1.3}
+    .selected-match small{display:block;margin-top:4px;color:#dbe7fb;font-size:11px;font-weight:800}
+    .score-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:10px}
 
-    .selected-match{
-      border:1px solid rgba(255,215,102,.25);
-      background:rgba(255,215,102,.08);
-      border-radius:17px;
-      padding:12px;
-      font-weight:950;
-      line-height:1.3;
-    }
-
-    .selected-match small{display:block;color:#dbe7fb;font-size:11px;font-weight:800;margin-top:5px}
-
-    .score-row{
-      display:grid;
-      grid-template-columns:1fr auto 1fr;
-      align-items:end;
-      gap:10px;
-    }
-
-    label{
-      display:grid;
-      gap:6px;
-      color:#dbe7fb;
-      font-size:11px;
-      font-weight:950;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-    }
-
-    input[type="number"]{
-      width:100%;
-      border:1px solid var(--line);
-      background:rgba(5,14,28,.76);
-      color:#fff;
-      border-radius:16px;
-      padding:14px 10px;
-      text-align:center;
-      font-size:26px;
-      font-weight:950;
-      outline:none;
-    }
-
+    label{display:grid;gap:6px;color:#dbe7fb;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
+    input[type="number"]{width:100%;border:1px solid var(--line);background:rgba(5,14,28,.76);color:#fff;border-radius:16px;padding:14px 10px;text-align:center;font-size:26px;font-weight:950;outline:none}
     .vs{color:var(--gold);font-weight:950;padding-bottom:14px}
 
-    .primary{
-      border:0;
+    .primary,.secondary,.mini{
       border-radius:17px;
-      padding:15px 16px;
       font-weight:950;
-      color:#08111f;
-      background:linear-gradient(135deg,var(--gold2),#ffe98b);
       cursor:pointer;
-      width:100%;
-      font-size:14px;
-    }
-
-    .secondary{
-      border:1px solid var(--line);
-      border-radius:17px;
-      padding:13px 14px;
-      font-weight:950;
-      color:#fff;
-      background:rgba(255,255,255,.06);
-      cursor:pointer;
-      width:100%;
-      font-size:13px;
-    }
-
-    .button-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-
-    .hint{
-      color:var(--muted);
-      font-size:11px;
-      line-height:1.35;
-      font-weight:750;
-    }
-
-    .empty,.message{
-      border:1px dashed rgba(255,255,255,.22);
-      background:rgba(255,255,255,.045);
-      color:#d9e6f8;
-      border-radius:17px;
-      padding:18px 14px;
       text-align:center;
-      font-weight:850;
-      line-height:1.35;
     }
+    .primary{border:0;padding:15px 16px;color:#08111f;background:linear-gradient(135deg,var(--gold2),#ffe98b);width:100%;font-size:14px}
+    .secondary{border:1px solid var(--line);padding:13px 14px;color:#fff;background:rgba(255,255,255,.06);width:100%;font-size:13px}
+    .mini{border:1px solid var(--line);padding:0 12px;color:#fff;background:rgba(255,255,255,.06);font-size:12px;min-height:46px}
+    .actions-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .pagination{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-top:10px}
+    .page-info{font-size:11px;font-weight:950;color:#dbe7fb;text-align:center;white-space:nowrap}
 
-    .message.ok{border-color:rgba(39,214,123,.32);color:#a8ffd0}
-    .message.warn{border-color:rgba(255,215,102,.32);color:#ffe48a}
+    .hint{color:var(--muted);font-size:11px;line-height:1.35;font-weight:750}
+    .empty,.message{border:1px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.045);color:#d9e6f8;border-radius:17px;padding:18px 14px;text-align:center;font-weight:850;line-height:1.35}
+    .message.ok{border-color:rgba(39,214,123,.32);color:#a8ffd0;background:rgba(39,214,123,.08)}
+    .message.warn{border-color:rgba(255,215,102,.32);color:#ffe48a;background:rgba(255,215,102,.08)}
 
-    .pager{
-      display:grid;
-      grid-template-columns:1fr auto 1fr;
-      align-items:center;
-      gap:8px;
-      margin-top:10px;
-    }
-
-    .pager span{font-size:11px;color:#dbe7fb;font-weight:950;text-align:center}
-
-    .pager button{
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.065);
-      color:#fff;
-      border-radius:14px;
-      padding:10px 9px;
-      font-size:11px;
-      font-weight:950;
-      cursor:pointer;
-    }
-
-    .pager button:disabled{opacity:.38;cursor:not-allowed}
-
-    .loader-overlay{
-      position:fixed;
-      inset:0;
-      z-index:80;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(3,8,20,.70);
-      backdrop-filter:blur(3px);
-      padding:20px;
-    }
-
+    .loader-overlay{position:fixed;inset:0;background:rgba(3,8,20,.70);backdrop-filter:blur(2px);z-index:60;display:none;align-items:center;justify-content:center;padding:24px}
     .loader-overlay.show{display:flex}
+    .loader-card{border:1px solid rgba(255,215,102,.28);background:rgba(10,24,46,.78);border-radius:24px;padding:22px 20px;text-align:center;box-shadow:var(--shadow);width:min(260px,92vw)}
+    .loader-ball{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;font-size:44px;animation:prediktSpin .88s linear infinite;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35))}
+    .loader-text{color:#fff;font-size:13px;font-weight:950}
+    @keyframes prediktSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
-    .loader-card{
-      width:min(270px,88vw);
-      border:1px solid rgba(255,215,102,.26);
-      background:rgba(8,19,37,.55);
-      border-radius:24px;
-      padding:22px 18px;
-      text-align:center;
-      box-shadow:0 22px 60px rgba(0,0,0,.30);
-    }
-
-    .ball{
-      width:64px;
-      height:64px;
-      margin:0 auto 14px;
-      border-radius:999px;
-      display:grid;
-      place-items:center;
-      font-size:43px;
-      animation:spinBall 1.05s linear infinite;
-      filter:drop-shadow(0 10px 20px rgba(0,0,0,.24));
-    }
-
-    .loader-card strong{display:block;font-size:13px;font-weight:950;color:#fff}
-
-    @keyframes spinBall{to{transform:rotate(360deg)}}
-
-    .bottom-nav{
-      position:fixed;
-      left:50%;
-      bottom:0;
-      transform:translateX(-50%);
-      width:min(520px,100%);
-      padding:10px 12px calc(10px + var(--safe-bottom));
-      background:rgba(4,12,24,.92);
-      border-top:1px solid rgba(255,255,255,.12);
-      backdrop-filter:blur(18px);
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:8px;
-      z-index:20;
-    }
-
-    .nav-item{
-      text-decoration:none;
-      color:#9fb0c8;
-      font-size:10px;
-      font-weight:900;
-      text-align:center;
-      border-radius:14px;
-      padding:8px 4px;
-      display:grid;
-      gap:3px;
-    }
-
+    .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);padding:10px 12px calc(10px + var(--safe-bottom));background:rgba(4,12,24,.92);border-top:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px);display:grid;grid-template-columns:repeat(5,1fr);gap:8px;z-index:20}
+    .nav-item{text-decoration:none;color:#9fb0c8;font-size:10px;font-weight:900;text-align:center;border-radius:14px;padding:8px 4px;display:grid;gap:3px}
     .nav-item.active{color:#0b1322;background:linear-gradient(135deg,var(--gold2),#ffe98b)}
     .nav-item b{font-size:17px;line-height:1}
 
-    @media(max-width:390px){
-      body{padding-inline:10px}
-      h1{font-size:23px}
-      .score-row{gap:7px}
-      input[type="number"]{font-size:23px;padding:13px 8px}
-      .admin-grid{gap:7px}
-      .stat{padding:10px 9px}
-    }
+    @media(max-width:390px){body{padding-inline:10px}h1{font-size:23px}.admin-grid{gap:7px}.stat{padding:10px}.stat strong{font-size:21px}.score-row{gap:7px}input[type="number"]{font-size:23px;padding:13px 8px}.pagination{grid-template-columns:1fr}.page-info{order:-1}}
   </style>
 </head>
 <body>
-  <main class="app" aria-live="polite">
+  <main class="app">
     <header>
       <div class="brand">
-        <img src="./predikt-logo.png" alt="PREDIKT™" onerror="this.style.display='none'" />
+        <img class="brand-mark" src="./predikt-logo.png" alt="PREDIKT" />
         <div>
           <strong>PREDIKT™</strong>
-          <small>Captura oficial</small>
+          <small>Resultado oficial</small>
         </div>
       </div>
       <a class="pill" href="./dashboard-admin.html">Admin</a>
     </header>
 
     <section class="hero">
-      <div class="tag">⚽ Operator First</div>
+      <div class="tag">✅ Operación oficial</div>
       <h1>Resultado oficial</h1>
-      <p>Captura, busca y corrige resultados oficiales sobre el universo completo de partidos certificados.</p>
+      <p>Primero captura pendientes. Después busca cualquier partido o corrige resultados históricos desde el universo completo certificado.</p>
     </section>
 
-    <section class="admin-grid">
-      <div class="stat">
-        <span>Pendientes</span>
-        <strong id="pendingCount">—</strong>
-      </div>
-      <div class="stat">
-        <span>Guardados</span>
-        <strong id="doneCount">—</strong>
-      </div>
-      <div class="stat">
-        <span>Total</span>
-        <strong id="totalCount">—</strong>
-      </div>
+    <section class="admin-grid" aria-label="Resumen operativo">
+      <div class="stat"><span>Pendientes</span><strong id="pendingCount">—</strong></div>
+      <div class="stat"><span>Cerrados</span><strong id="doneCount">—</strong></div>
+      <div class="stat"><span>Total</span><strong id="totalCount">—</strong></div>
     </section>
 
-    <section class="panel" id="pendingPanel">
+    <section id="pendingPanel" class="panel">
       <div class="panel-head">
         <h2>⚠️ Pendientes de Resultado</h2>
         <small id="pendingListCount">Cargando...</small>
@@ -580,75 +282,62 @@ CHECKLIST DE VALIDACIÓN
       </div>
     </section>
 
-    <section class="panel" id="searchPanel">
+    <section class="panel">
       <div class="panel-head">
         <h2>🔎 Buscar Partido</h2>
         <small id="searchCount">72 partidos</small>
       </div>
-      <input id="searchInput" class="search" type="search" placeholder="Buscar selección, grupo, sede, fecha o partido..." autocomplete="off" />
-      <div class="quick-actions">
-        <button id="clearSearchBtn" class="chip-btn" type="button">Limpiar búsqueda</button>
-        <button id="refreshBtn" class="chip-btn" type="button">Actualizar datos</button>
+      <div class="search-row">
+        <input id="searchInput" class="search" type="search" placeholder="Buscar selección, grupo, sede, fecha o partido..." />
+        <button id="clearSearchBtn" class="mini" type="button">Limpiar</button>
       </div>
       <div id="searchList" class="match-list">
         <div class="empty">Escribe para buscar cualquier partido.</div>
       </div>
     </section>
 
-    <section class="panel" id="historyPanel">
+    <section id="historyPanel" class="panel">
       <div class="panel-head">
         <h2>📚 Historial Completo</h2>
-        <small id="historyCount">20 por página</small>
+        <small id="historyCount">0 partidos · 20 por página</small>
       </div>
-      <div id="historyList" class="match-list">
+      <div id="historyList" class="match-list history">
         <div class="empty">Cargando historial...</div>
       </div>
-      <div class="pager">
-        <button id="prevPageBtn" type="button">← Anterior</button>
-        <span id="pageInfo">Página —</span>
-        <button id="nextPageBtn" type="button">Siguiente →</button>
+      <div class="pagination">
+        <button id="prevPageBtn" class="secondary" type="button">← Anterior</button>
+        <div id="pageInfo" class="page-info">Página 1 de 1</div>
+        <button id="nextPageBtn" class="secondary" type="button">Siguiente →</button>
       </div>
     </section>
 
-    <section class="panel" id="editPanel">
+    <section id="editPanel" class="panel">
       <div class="panel-head">
         <h2>✏️ Corrección Histórica</h2>
         <small id="selectedStatus">Selecciona partido</small>
       </div>
-
       <div class="form-grid">
-        <div id="selectedMatch" class="selected-match">
-          Selecciona un partido pendiente, buscado o del historial completo.
-          <small>El guardado usa upsert sobre el resultado oficial existente.</small>
-        </div>
-
+        <div id="selectedMatch" class="selected-match">Selecciona un partido pendiente, buscado o del historial completo.<small>El guardado usa upsert sobre el resultado oficial existente.</small></div>
         <div class="score-row">
-          <label>
-            Local
-            <input id="homeScore" type="number" min="0" max="99" inputmode="numeric" value="0" />
-          </label>
+          <label>Local<input id="homeScore" type="number" min="0" max="99" inputmode="numeric" value="0" /></label>
           <div class="vs">VS</div>
-          <label>
-            Visitante
-            <input id="awayScore" type="number" min="0" max="99" inputmode="numeric" value="0" />
-          </label>
+          <label>Visitante<input id="awayScore" type="number" min="0" max="99" inputmode="numeric" value="0" /></label>
         </div>
-
-        <button id="saveBtn" class="primary" type="button">Guardar resultado oficial</button>
-        <div class="button-row">
+        <button id="saveBtn" class="primary" type="button" disabled>Guardar resultado oficial</button>
+        <div class="actions-row">
           <button id="scrollPendingBtn" class="secondary" type="button">Ver pendientes</button>
           <button id="scrollHistoryBtn" class="secondary" type="button">Ver historial</button>
         </div>
-
+        <button id="refreshBtn" class="secondary" type="button">Actualizar lista</button>
         <div id="message" class="hint">Al guardar, PREDIKT™ marca el partido como finalizado y actualiza el resultado oficial.</div>
       </div>
     </section>
   </main>
 
-  <div id="loaderOverlay" class="loader-overlay" role="status" aria-live="assertive" aria-hidden="true">
-    <div class="loader-card">
-      <div class="ball">⚽</div>
-      <strong id="loaderText">Cargando partidos...</strong>
+  <div id="loaderOverlay" class="loader-overlay" aria-hidden="true">
+    <div class="loader-card" role="status" aria-live="polite">
+      <div class="loader-ball">⚽</div>
+      <div id="loaderText" class="loader-text">Cargando partidos...</div>
     </div>
   </div>
 
@@ -662,7 +351,7 @@ CHECKLIST DE VALIDACIÓN
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const PAGE_VERSION = 'resultado_partido_admin_v2.0.0_OPERATOR_FIRST';
+    const PAGE_VERSION = 'resultado_partido_admin_v2.0.1_OPERATOR_FIRST_FULL_FIX';
     const PAGE_SIZE = 20;
 
     const SUPABASE_URL =
@@ -698,47 +387,30 @@ CHECKLIST DE VALIDACIÓN
     }
 
     function localKey(date) {
-      return new Intl.DateTimeFormat('en-CA', {
-        timeZone: tz,
-        year:'numeric',
-        month:'2-digit',
-        day:'2-digit'
-      }).format(date);
+      return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(date);
     }
 
     function localTime(date) {
-      return new Intl.DateTimeFormat('es-MX', {
-        timeZone: tz,
-        hour:'2-digit',
-        minute:'2-digit',
-        hour12:false
-      }).format(date);
+      return new Intl.DateTimeFormat('es-MX', { timeZone: tz, hour:'2-digit', minute:'2-digit', hour12:false }).format(date);
     }
 
     function localDateShort(date) {
-      return new Intl.DateTimeFormat('es-MX', {
-        timeZone: tz,
-        weekday:'short',
-        day:'2-digit',
-        month:'short'
-      }).format(date);
+      return new Intl.DateTimeFormat('es-MX', { timeZone: tz, weekday:'short', day:'2-digit', month:'short' }).format(date);
     }
 
     function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#039;');
+      return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
     }
 
     function normalizeText(value) {
-      return String(value ?? '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim();
+      return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
+
+    function safeField(row, keys, fallback = '') {
+      for (const key of keys) {
+        if (row && row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
+      }
+      return fallback;
     }
 
     function groupLabel(groupCode) {
@@ -747,16 +419,17 @@ CHECKLIST DE VALIDACIÓN
       return match ? `Grupo ${match[0].toUpperCase()}` : 'Grupo';
     }
 
+    function buildName(row) {
+      const direct = safeField(row, ['name','event_name','match_name','title'], '');
+      if (direct) return String(direct);
+      const home = safeField(row, ['home_team','home_team_name','team_home','home_name'], 'Local');
+      const away = safeField(row, ['away_team','away_team_name','team_away','away_name'], 'Visitante');
+      return `${home} vs ${away}`;
+    }
+
     function splitName(name) {
       const parts = String(name || '').split(/\s+vs\s+/i);
       return { home: parts[0] || 'Local', away: parts[1] || 'Visitante' };
-    }
-
-    function safeField(row, keys, fallback = '') {
-      for (const key of keys) {
-        if (row && row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
-      }
-      return fallback;
     }
 
     function venueText(row) {
@@ -779,7 +452,8 @@ CHECKLIST DE VALIDACIÓN
         localKey(event.startsAt),
         localDateShort(event.startsAt),
         localTime(event.startsAt),
-        event.eventStatus
+        event.eventStatus,
+        JSON.stringify(event.raw || {})
       ].join(' '));
     }
 
@@ -829,11 +503,10 @@ CHECKLIST DE VALIDACIÓN
         events = (Array.isArray(data) ? data : [])
           .map((row) => {
             const startsAt = parseDate(safeField(row, ['starts_at','start_time','kickoff_at']));
-            const name = safeField(row, ['name','event_name','match_name','title'], 'Partido');
             return {
               raw: row,
               id: safeField(row, ['id','event_id']),
-              name,
+              name: buildName(row),
               startsAt,
               eventStatus: safeField(row, ['event_status','status'], ''),
               groupCode: safeField(row, ['group_code','group','group_name'], ''),
@@ -846,11 +519,12 @@ CHECKLIST DE VALIDACIÓN
         await loadResults();
         renderAll();
         showMessage('Partidos cargados correctamente.', 'ok');
-      } catch (_) {
+      } catch (error) {
         events = [];
         resultsByEventId = new Map();
         renderAll();
         showMessage('No se pudo cargar el universo de partidos.', 'warn');
+        console.warn('[PREDIKT] loadEvents', error);
       } finally {
         hideLoader();
       }
@@ -867,24 +541,23 @@ CHECKLIST DE VALIDACIÓN
         .select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at,updated_at')
         .in('event_id', ids);
 
-      if (error) return;
+      if (error) {
+        console.warn('[PREDIKT] loadResults', error);
+        return;
+      }
 
       (data || []).forEach((row) => resultsByEventId.set(String(row.event_id), row));
     }
 
     function pendingEvents() {
       const now = new Date();
-      return events
-        .filter((event) => !hasResult(event) && event.startsAt <= now)
-        .sort((a, b) => b.startsAt - a.startsAt);
+      return events.filter((event) => !hasResult(event) && event.startsAt <= now).sort((a, b) => b.startsAt - a.startsAt);
     }
 
     function searchedEvents() {
       const search = normalizeText($('searchInput').value);
       if (!search) return [];
-      return events
-        .filter((event) => eventSearchText(event).includes(search))
-        .sort((a, b) => a.startsAt - b.startsAt);
+      return events.filter((event) => eventSearchText(event).includes(search)).sort((a, b) => a.startsAt - b.startsAt);
     }
 
     function historyEvents() {
@@ -936,12 +609,10 @@ CHECKLIST DE VALIDACIÓN
     function renderPending() {
       const list = pendingEvents();
       $('pendingListCount').textContent = `${list.length} pendiente${list.length === 1 ? '' : 's'}`;
-
       if (!list.length) {
         $('pendingList').innerHTML = '<div class="empty">No hay partidos pendientes de resultado.</div>';
         return;
       }
-
       $('pendingList').innerHTML = list.slice(0, 20).map(cardHtml).join('');
       bindCards('pendingList');
     }
@@ -950,17 +621,14 @@ CHECKLIST DE VALIDACIÓN
       const search = normalizeText($('searchInput').value);
       const list = searchedEvents();
       $('searchCount').textContent = search ? `${list.length} encontrado${list.length === 1 ? '' : 's'}` : `${events.length} partidos`;
-
       if (!search) {
         $('searchList').innerHTML = '<div class="empty">Escribe para buscar cualquier partido.</div>';
         return;
       }
-
       if (!list.length) {
         $('searchList').innerHTML = '<div class="empty">No se encontró ningún partido.</div>';
         return;
       }
-
       $('searchList').innerHTML = list.slice(0, 20).map(cardHtml).join('');
       bindCards('searchList');
     }
@@ -981,7 +649,6 @@ CHECKLIST DE VALIDACIÓN
         $('historyList').innerHTML = '<div class="empty">No hay partidos cargados.</div>';
         return;
       }
-
       $('historyList').innerHTML = pageRows.map(cardHtml).join('');
       bindCards('historyList');
     }
@@ -991,6 +658,7 @@ CHECKLIST DE VALIDACIÓN
       renderPending();
       renderSearch();
       renderHistory();
+      $('saveBtn').disabled = !selectedEvent;
     }
 
     function selectEvent(id) {
@@ -1001,15 +669,11 @@ CHECKLIST DE VALIDACIÓN
       const result = resultsByEventId.get(String(selectedEvent.id));
       const dateText = `${localDateShort(selectedEvent.startsAt)} · ${localTime(selectedEvent.startsAt)}`;
 
-      $('selectedMatch').innerHTML = `
-        ${escapeHtml(selectedEvent.name)}
-        <small>${escapeHtml(groupLabel(selectedEvent.groupCode))} · ${escapeHtml(dateText)} · ${escapeHtml(selectedEvent.venueText)}</small>
-      `;
-
+      $('selectedMatch').innerHTML = `${escapeHtml(selectedEvent.name)}<small>${escapeHtml(groupLabel(selectedEvent.groupCode))} · ${escapeHtml(dateText)} · ${escapeHtml(selectedEvent.venueText)}</small>`;
       $('selectedStatus').textContent = result ? 'Resultado existente' : 'Pendiente';
       $('homeScore').value = result ? Number(result.official_home_score || 0) : 0;
       $('awayScore').value = result ? Number(result.official_away_score || 0) : 0;
-
+      $('saveBtn').disabled = false;
       showMessage(`Local: ${teams.home} · Visitante: ${teams.away}`);
       renderAll();
       scrollToPanel('editPanel');
@@ -1020,7 +684,6 @@ CHECKLIST DE VALIDACIÓN
         showMessage('No hay conexión activa para guardar.', 'warn');
         return;
       }
-
       if (!selectedEvent) {
         showMessage('Selecciona primero un partido.', 'warn');
         return;
@@ -1028,7 +691,6 @@ CHECKLIST DE VALIDACIÓN
 
       const home = Number($('homeScore').value);
       const away = Number($('awayScore').value);
-
       if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0 || home > 99 || away > 99) {
         showMessage('Captura un marcador válido.', 'warn');
         return;
@@ -1036,7 +698,6 @@ CHECKLIST DE VALIDACIÓN
 
       const winner = home > away ? 'HOME' : away > home ? 'AWAY' : 'DRAW';
       const existing = resultsByEventId.get(String(selectedEvent.id));
-
       const payload = {
         event_id: selectedEvent.id,
         official_home_score: home,
@@ -1044,32 +705,23 @@ CHECKLIST DE VALIDACIÓN
         official_winner: winner,
         finalized_at: new Date().toISOString()
       };
-
       if (existing && existing.id) payload.id = existing.id;
 
       showLoader('Guardando resultado oficial...');
 
       try {
-        const { error } = await client
-          .schema('predictions')
-          .from('official_results')
-          .upsert(payload);
-
+        const { error } = await client.schema('predictions').from('official_results').upsert(payload);
         if (error) throw error;
 
-        await client
-          .schema('sports')
-          .from('events')
-          .update({ event_status: 'FINISHED' })
-          .eq('id', selectedEvent.id);
-
+        await client.schema('sports').from('events').update({ event_status: 'FINISHED' }).eq('id', selectedEvent.id);
         showLoader('Actualizando resultados...');
         await loadResults();
         showMessage('Resultado oficial guardado correctamente.', 'ok');
         renderAll();
         selectEvent(selectedEvent.id);
-      } catch (_) {
+      } catch (error) {
         showMessage('No se pudo guardar. Verifica permisos de administrador.', 'warn');
+        console.warn('[PREDIKT] saveResult', error);
       } finally {
         hideLoader();
       }
@@ -1077,22 +729,11 @@ CHECKLIST DE VALIDACIÓN
 
     function setupEvents() {
       $('searchInput').addEventListener('input', renderSearch);
-      $('clearSearchBtn').addEventListener('click', () => {
-        $('searchInput').value = '';
-        renderSearch();
-      });
+      $('clearSearchBtn').addEventListener('click', () => { $('searchInput').value = ''; renderSearch(); });
       $('refreshBtn').addEventListener('click', loadEvents);
       $('saveBtn').addEventListener('click', saveResult);
-      $('prevPageBtn').addEventListener('click', () => {
-        historyPage -= 1;
-        renderHistory();
-        scrollToPanel('historyPanel');
-      });
-      $('nextPageBtn').addEventListener('click', () => {
-        historyPage += 1;
-        renderHistory();
-        scrollToPanel('historyPanel');
-      });
+      $('prevPageBtn').addEventListener('click', () => { historyPage -= 1; renderHistory(); scrollToPanel('historyPanel'); });
+      $('nextPageBtn').addEventListener('click', () => { historyPage += 1; renderHistory(); scrollToPanel('historyPanel'); });
       $('scrollPendingBtn').addEventListener('click', () => scrollToPanel('pendingPanel'));
       $('scrollHistoryBtn').addEventListener('click', () => scrollToPanel('historyPanel'));
     }
@@ -1119,9 +760,9 @@ CHECKLIST DE VALIDACIÓN
 <!--
 ===============================================================================
 PREDIKT™ — Resultado Oficial Admin
-Archivo: resultado-partido-admin_v2.0.0_OPERATOR_FIRST.txt
-Versión: v2.0.0_OPERATOR_FIRST
-Total de líneas final: 1124
+Archivo: resultado-partido-admin_v2.0.1_OPERATOR_FIRST_FULL_FIX.txt
+Versión: v2.0.1_OPERATOR_FIRST_FULL_FIX
+Total de líneas final: 779
 Estado: LISTO PARA PRODUCCIÓN
 
 CERTIFICACIÓN DE ENTREGA
@@ -1132,758 +773,7 @@ CERTIFICACIÓN DE ENTREGA
 - Fuente oficial de datos: sports.events.
 - Upsert oficial conservado: predictions.official_results.
 - Actualización de estado conservada: sports.events.event_status = FINISHED.
-- Loader Oficial PREDIKT™ integrado.
+- Loader Oficial PREDIKT™ animado integrado.
 - Pendientes, búsqueda, historial paginado y corrección histórica integrados.
 ===============================================================================
 -->
-
-      --muted:#b7c8df;
-      --gold:#ffd766;
-      --gold2:#ffbf2e;
-      --green:#27d67b;
-      --red:#ff4264;
-      --blue:#38bdf8;
-      --shadow:0 18px 50px rgba(0,0,0,.34);
-      --radius:22px;
-      --safe-bottom:env(safe-area-inset-bottom,0px);
-    }
-
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100svh;
-      color:var(--text);
-      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:
-        radial-gradient(circle at top right,rgba(22,88,166,.44),transparent 35%),
-        linear-gradient(180deg,#0d2b57 0%,#061226 54%,#030814 100%);
-      padding:18px 14px calc(94px + var(--safe-bottom));
-    }
-
-    .app{width:min(520px,100%);margin:0 auto}
-
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin:4px 0 14px;
-    }
-
-    .brand strong{display:block;font-weight:950;letter-spacing:.06em}
-    .brand small{display:block;color:var(--muted);font-size:11px;font-weight:800}
-
-    .pill{
-      border:1px solid rgba(255,215,102,.35);
-      background:rgba(255,215,102,.08);
-      color:var(--gold);
-      border-radius:999px;
-      padding:9px 12px;
-      font-size:11px;
-      font-weight:950;
-      text-decoration:none;
-    }
-
-    .hero{
-      border:1px solid rgba(255,255,255,.17);
-      border-radius:var(--radius);
-      background:
-        radial-gradient(circle at 100% 0%,rgba(255,215,102,.16),transparent 28%),
-        linear-gradient(135deg,rgba(26,55,95,.96),rgba(14,31,55,.96));
-      padding:17px;
-      box-shadow:var(--shadow);
-      margin-bottom:12px;
-    }
-
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      border:1px solid rgba(255,215,102,.35);
-      background:rgba(255,215,102,.08);
-      color:var(--gold);
-      border-radius:999px;
-      padding:7px 10px;
-      font-size:11px;
-      font-weight:950;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      margin-bottom:12px;
-    }
-
-    h1{margin:0;font-size:25px;line-height:1.02;letter-spacing:-.04em}
-    .hero p{margin:9px 0 0;color:#dbe7fb;font-size:13px;line-height:1.35;font-weight:750}
-
-    .admin-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin:12px 0;
-    }
-
-    .stat{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.055);
-      border-radius:17px;
-      padding:12px;
-    }
-
-    .stat span{
-      display:block;
-      color:#9fb3cf;
-      font-size:10px;
-      font-weight:950;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-
-    .stat strong{display:block;margin-top:6px;font-size:24px;line-height:1}
-
-    .tabs{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-      margin:12px 0;
-    }
-
-    .tab{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      color:#dbe7fb;
-      border-radius:14px;
-      padding:10px 8px;
-      font-size:11px;
-      font-weight:950;
-      cursor:pointer;
-    }
-
-    .tab.active{
-      color:#08111f;
-      background:linear-gradient(135deg,var(--gold2),#ffe98b);
-      border-color:transparent;
-    }
-
-    .search{
-      width:100%;
-      border:1px solid var(--line);
-      background:rgba(5,14,28,.72);
-      color:#fff;
-      border-radius:16px;
-      padding:13px 14px;
-      font-weight:850;
-      outline:none;
-      margin-bottom:12px;
-    }
-
-    .panel{
-      border:1px solid var(--line);
-      background:rgba(14,27,49,.88);
-      border-radius:var(--radius);
-      padding:12px;
-      margin-bottom:12px;
-    }
-
-    .panel-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .panel-head h2{margin:0;font-size:15px}
-    .panel-head small{color:var(--muted);font-size:11px;font-weight:850}
-
-    .match-list{
-      display:grid;
-      gap:8px;
-      max-height:310px;
-      overflow:auto;
-      padding-right:2px;
-    }
-
-    .match-card{
-      border:1px solid rgba(255,255,255,.11);
-      background:linear-gradient(180deg,rgba(29,49,80,.94),rgba(13,25,46,.96));
-      border-radius:16px;
-      padding:11px;
-      cursor:pointer;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .match-card::before{
-      content:"";
-      position:absolute;
-      left:0;top:0;bottom:0;width:5px;
-      background:linear-gradient(180deg,var(--gold),#ff7b4a);
-    }
-
-    .match-card.active{
-      border-color:rgba(255,215,102,.65);
-      box-shadow:0 0 0 2px rgba(255,215,102,.14);
-    }
-
-    .match-title{
-      margin-left:6px;
-      font-size:13px;
-      font-weight:950;
-      line-height:1.2;
-    }
-
-    .match-meta{
-      margin:6px 0 0 6px;
-      color:var(--muted);
-      font-size:11px;
-      font-weight:800;
-    }
-
-    .badge{
-      display:inline-flex;
-      border-radius:999px;
-      padding:4px 7px;
-      font-size:10px;
-      font-weight:950;
-      margin-left:6px;
-      margin-top:7px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-    }
-
-    .badge.done{color:#83ffc0;background:rgba(39,214,123,.12);border-color:rgba(39,214,123,.28)}
-    .badge.pending{color:#ffe48a;background:rgba(255,215,102,.10);border-color:rgba(255,215,102,.28)}
-
-    .form-grid{
-      display:grid;
-      gap:12px;
-    }
-
-    .selected-match{
-      border:1px solid rgba(255,215,102,.25);
-      background:rgba(255,215,102,.08);
-      border-radius:17px;
-      padding:12px;
-      font-weight:950;
-    }
-
-    .score-row{
-      display:grid;
-      grid-template-columns:1fr auto 1fr;
-      align-items:end;
-      gap:10px;
-    }
-
-    label{
-      display:grid;
-      gap:6px;
-      color:#dbe7fb;
-      font-size:11px;
-      font-weight:950;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-    }
-
-    input[type="number"]{
-      width:100%;
-      border:1px solid var(--line);
-      background:rgba(5,14,28,.76);
-      color:#fff;
-      border-radius:16px;
-      padding:14px 10px;
-      text-align:center;
-      font-size:26px;
-      font-weight:950;
-      outline:none;
-    }
-
-    .vs{
-      color:var(--gold);
-      font-weight:950;
-      padding-bottom:14px;
-    }
-
-    .primary{
-      border:0;
-      border-radius:17px;
-      padding:15px 16px;
-      font-weight:950;
-      color:#08111f;
-      background:linear-gradient(135deg,var(--gold2),#ffe98b);
-      cursor:pointer;
-      width:100%;
-      font-size:14px;
-    }
-
-    .secondary{
-      border:1px solid var(--line);
-      border-radius:17px;
-      padding:13px 14px;
-      font-weight:950;
-      color:#fff;
-      background:rgba(255,255,255,.06);
-      cursor:pointer;
-      width:100%;
-      font-size:13px;
-    }
-
-    .hint{
-      color:var(--muted);
-      font-size:11px;
-      line-height:1.35;
-      font-weight:750;
-    }
-
-    .empty,.message{
-      border:1px dashed rgba(255,255,255,.22);
-      background:rgba(255,255,255,.045);
-      color:#d9e6f8;
-      border-radius:17px;
-      padding:18px 14px;
-      text-align:center;
-      font-weight:850;
-      line-height:1.35;
-    }
-
-    .message.ok{border-color:rgba(39,214,123,.32);color:#a8ffd0}
-    .message.warn{border-color:rgba(255,215,102,.32);color:#ffe48a}
-
-    .bottom-nav{
-      position:fixed;
-      left:50%;
-      bottom:0;
-      transform:translateX(-50%);
-      width:min(520px,100%);
-      padding:10px 12px calc(10px + var(--safe-bottom));
-      background:rgba(4,12,24,.92);
-      border-top:1px solid rgba(255,255,255,.12);
-      backdrop-filter:blur(18px);
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:8px;
-      z-index:20;
-    }
-
-    .nav-item{
-      text-decoration:none;
-      color:#9fb0c8;
-      font-size:10px;
-      font-weight:900;
-      text-align:center;
-      border-radius:14px;
-      padding:8px 4px;
-      display:grid;
-      gap:3px;
-    }
-
-    .nav-item.active{
-      color:#0b1322;
-      background:linear-gradient(135deg,var(--gold2),#ffe98b);
-    }
-
-    .nav-item b{font-size:17px;line-height:1}
-
-    @media(max-width:390px){
-      body{padding-inline:10px}
-      h1{font-size:23px}
-      .score-row{gap:7px}
-      input[type="number"]{font-size:23px;padding:13px 8px}
-    }
-  </style>
-</head>
-<body>
-  <main class="app">
-    <header>
-      <div class="brand">
-        <strong>PREDIKT™</strong>
-        <small>Captura oficial</small>
-      </div>
-      <a class="pill" href="./dashboard-admin.html">Admin</a>
-    </header>
-
-    <section class="hero">
-      <div class="tag">✅ Operación post-partido</div>
-      <h1>Resultado oficial</h1>
-      <p>Actualiza rápido los partidos recientes. La lista inicia con los partidos de hoy y los pendientes de resultado.</p>
-    </section>
-
-    <section class="admin-grid">
-      <div class="stat">
-        <span>Hoy pendientes</span>
-        <strong id="pendingTodayCount">—</strong>
-      </div>
-      <div class="stat">
-        <span>Hoy cerrados</span>
-        <strong id="doneTodayCount">—</strong>
-      </div>
-    </section>
-
-    <div class="tabs">
-      <button class="tab active" type="button" data-filter="today">Hoy</button>
-      <button class="tab" type="button" data-filter="pending">Pendientes</button>
-      <button class="tab" type="button" data-filter="recent">Recientes</button>
-    </div>
-
-    <input id="searchInput" class="search" type="search" placeholder="Buscar selección o partido..." />
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2 id="listTitle">Partidos de hoy</h2>
-        <small id="listCount">Cargando...</small>
-      </div>
-      <div id="matchList" class="match-list">
-        <div class="empty">Cargando partidos...</div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Capturar marcador</h2>
-        <small id="selectedStatus">Selecciona partido</small>
-      </div>
-
-      <div class="form-grid">
-        <div id="selectedMatch" class="selected-match">Selecciona un partido de la lista superior.</div>
-
-        <div class="score-row">
-          <label>
-            Local
-            <input id="homeScore" type="number" min="0" max="99" inputmode="numeric" value="0" />
-          </label>
-          <div class="vs">VS</div>
-          <label>
-            Visitante
-            <input id="awayScore" type="number" min="0" max="99" inputmode="numeric" value="0" />
-          </label>
-        </div>
-
-        <button id="saveBtn" class="primary" type="button">Guardar resultado oficial</button>
-        <button id="refreshBtn" class="secondary" type="button">Actualizar lista</button>
-
-        <div id="message" class="hint">Al guardar, PREDIKT™ marca el partido como finalizado y actualiza el resultado oficial.</div>
-      </div>
-    </section>
-  </main>
-
-  <nav class="bottom-nav">
-    <a class="nav-item" href="./index.html"><b>🏠</b><span>Inicio</span></a>
-    <a class="nav-item" href="./mi-quiniela.html"><b>⚽</b><span>Quiniela</span></a>
-    <a class="nav-item active" href="./pronostico.html"><b>🎯</b><span>Pronósticos</span></a>
-    <a class="nav-item" href="./ranking.html"><b>🏆</b><span>Ranking</span></a>
-    <a class="nav-item" href="./perfil.html"><b>👤</b><span>Perfil</span></a>
-  </nav>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const PAGE_VERSION = 'resultado_partido_admin_v1.4.2_EMBED_PUBLIC_KEY_FIX';
-
-    const SUPABASE_URL =
-      window.PREDIKT_SUPABASE_URL ||
-      window.SUPABASE_URL ||
-      window.supabaseUrl ||
-      localStorage.getItem('PREDIKT_SUPABASE_URL') ||
-      localStorage.getItem('SUPABASE_URL') ||
-      'https://bhsffngulgvwfzjhiyym.supabase.co';
-
-    const SUPABASE_KEY =
-      window.PREDIKT_SUPABASE_PUBLIC_KEY ||
-      window.PREDIKT_SUPABASE_ANON_KEY ||
-      window.SUPABASE_ANON_KEY ||
-      window.supabaseAnonKey ||
-      localStorage.getItem('PREDIKT_SUPABASE_PUBLIC_KEY') ||
-      localStorage.getItem('PREDIKT_SUPABASE_ANON_KEY') ||
-      localStorage.getItem('SUPABASE_ANON_KEY') ||
-      'sb_publishable_Qu_KGmlGUI_5sHjacGooDg_HlNqqaPJ';
-
-    const $ = (id) => document.getElementById(id);
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Mexico_City';
-
-    let client = null;
-    let events = [];
-    let resultsByEventId = new Map();
-    let selectedEvent = null;
-    let activeFilter = 'today';
-
-    function parseDate(value) {
-      const raw = String(value || '').replace(/\+00$/, 'Z').replace(/\+00:00$/, 'Z');
-      return new Date(raw);
-    }
-
-    function localKey(date) {
-      return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(date);
-    }
-
-    function localTime(date) {
-      return new Intl.DateTimeFormat('es-MX', { timeZone: tz, hour:'2-digit', minute:'2-digit', hour12:false }).format(date);
-    }
-
-    function localDateShort(date) {
-      return new Intl.DateTimeFormat('es-MX', { timeZone: tz, day:'2-digit', month:'short' }).format(date);
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#039;');
-    }
-
-    function groupLabel(groupCode) {
-      const match = String(groupCode || '').match(/[A-L]$/);
-      return match ? `Grupo ${match[0]}` : 'Grupo';
-    }
-
-    function splitName(name) {
-      const parts = String(name || '').split(/\s+vs\s+/i);
-      return { home: parts[0] || 'Local', away: parts[1] || 'Visitante' };
-    }
-
-    function showMessage(text, type = '') {
-      const el = $('message');
-      el.className = type ? `message ${type}` : 'hint';
-      el.textContent = text;
-    }
-
-    function startOfLocalToday() {
-      const now = new Date();
-      return localKey(now);
-    }
-
-    async function loadEvents() {
-      if (!client) {
-        showMessage('Conectando con PREDIKT™...', 'warn');
-        return;
-      }
-
-      const now = new Date();
-      const from = new Date(now.getTime() - 48 * 60 * 60 * 1000);
-      const to = new Date(now.getTime() + 72 * 60 * 60 * 1000);
-
-      let eventRows = [];
-      try {
-        const { data, error } = await client
-          .schema('sports')
-          .rpc('get_home_events', { p_from: from.toISOString(), p_to: to.toISOString() });
-
-        if (error) throw error;
-        eventRows = Array.isArray(data) ? data : [];
-      } catch (_) {
-        showMessage('No se pudo cargar la lista automática. Intenta actualizar en unos segundos.', 'warn');
-        eventRows = [];
-      }
-
-      events = eventRows.map((row) => ({
-        id: row.id,
-        name: row.name,
-        startsAt: parseDate(row.starts_at),
-        eventStatus: row.event_status,
-        groupCode: row.group_code,
-        venueName: row.venue_name || 'Sede por confirmar',
-        venueCity: row.venue_city || ''
-      })).filter((event) => event.id && !Number.isNaN(event.startsAt.getTime()))
-        .sort((a, b) => a.startsAt - b.startsAt);
-
-      await loadResults();
-      renderStats();
-      renderList();
-    }
-
-    async function loadResults() {
-      resultsByEventId = new Map();
-      if (!client || !events.length) return;
-
-      const ids = events.map((event) => event.id);
-      const { data, error } = await client
-        .schema('predictions')
-        .from('official_results')
-        .select('id,event_id,official_home_score,official_away_score,official_winner,finalized_at,created_at')
-        .in('event_id', ids);
-
-      if (error) return;
-
-      (data || []).forEach((row) => resultsByEventId.set(String(row.event_id), row));
-    }
-
-    function getFilteredEvents() {
-      const today = startOfLocalToday();
-      const search = $('searchInput').value.trim().toLowerCase();
-
-      let list = events.filter((event) => {
-        const hasResult = resultsByEventId.has(String(event.id));
-        const isToday = localKey(event.startsAt) === today;
-
-        if (activeFilter === 'today') return isToday;
-        if (activeFilter === 'pending') return !hasResult && event.startsAt <= new Date();
-        if (activeFilter === 'recent') return event.startsAt <= new Date();
-        return true;
-      });
-
-      if (search) {
-        list = list.filter((event) => event.name.toLowerCase().includes(search));
-      }
-
-      if (activeFilter === 'pending') {
-        list.sort((a, b) => b.startsAt - a.startsAt);
-      } else if (activeFilter === 'recent') {
-        list.sort((a, b) => b.startsAt - a.startsAt);
-      } else {
-        list.sort((a, b) => a.startsAt - b.startsAt);
-      }
-
-      return list;
-    }
-
-    function renderStats() {
-      const today = startOfLocalToday();
-      const todayEvents = events.filter((event) => localKey(event.startsAt) === today);
-      const done = todayEvents.filter((event) => resultsByEventId.has(String(event.id))).length;
-      const pending = todayEvents.filter((event) => !resultsByEventId.has(String(event.id)) && event.startsAt <= new Date()).length;
-
-      $('pendingTodayCount').textContent = pending;
-      $('doneTodayCount').textContent = done;
-    }
-
-    function renderList() {
-      const list = getFilteredEvents();
-      const titleMap = {
-        today: 'Partidos de hoy',
-        pending: 'Pendientes de resultado',
-        recent: 'Partidos recientes'
-      };
-
-      $('listTitle').textContent = titleMap[activeFilter] || 'Partidos';
-      $('listCount').textContent = `${list.length} partido${list.length === 1 ? '' : 's'}`;
-
-      if (!list.length) {
-        $('matchList').innerHTML = '<div class="empty">No hay partidos en esta vista.</div>';
-        return;
-      }
-
-      $('matchList').innerHTML = list.map((event) => {
-        const result = resultsByEventId.get(String(event.id));
-        const active = selectedEvent && selectedEvent.id === event.id;
-        const badge = result
-          ? '<span class="badge done">✅ Resultado guardado</span>'
-          : '<span class="badge pending">⚠️ Pendiente</span>';
-
-        return `
-          <article class="match-card ${active ? 'active' : ''}" data-id="${escapeHtml(event.id)}">
-            <div class="match-title">${escapeHtml(event.name)}</div>
-            <div class="match-meta">
-              ${escapeHtml(localDateShort(event.startsAt))} · ${escapeHtml(localTime(event.startsAt))} · ${escapeHtml(groupLabel(event.groupCode))} · ${escapeHtml(event.venueName)}
-            </div>
-            ${badge}
-          </article>
-        `;
-      }).join('');
-
-      document.querySelectorAll('.match-card').forEach((card) => {
-        card.addEventListener('click', () => selectEvent(card.dataset.id));
-      });
-    }
-
-    function selectEvent(id) {
-      selectedEvent = events.find((event) => String(event.id) === String(id)) || null;
-      if (!selectedEvent) return;
-
-      const teams = splitName(selectedEvent.name);
-      const result = resultsByEventId.get(String(selectedEvent.id));
-
-      $('selectedMatch').textContent = `${selectedEvent.name} · ${groupLabel(selectedEvent.groupCode)} · ${localTime(selectedEvent.startsAt)}`;
-      $('selectedStatus').textContent = result ? 'Resultado existente' : 'Pendiente';
-
-      $('homeScore').value = result ? Number(result.official_home_score || 0) : 0;
-      $('awayScore').value = result ? Number(result.official_away_score || 0) : 0;
-
-      showMessage(`Local: ${teams.home} · Visitante: ${teams.away}`);
-      renderList();
-    }
-
-    async function saveResult() {
-      if (!client) {
-        showMessage('No hay conexión activa para guardar.', 'warn');
-        return;
-      }
-
-      if (!selectedEvent) {
-        showMessage('Selecciona primero un partido.', 'warn');
-        return;
-      }
-
-      const home = Number($('homeScore').value);
-      const away = Number($('awayScore').value);
-
-      if (!Number.isFinite(home) || !Number.isFinite(away) || home < 0 || away < 0) {
-        showMessage('Captura un marcador válido.', 'warn');
-        return;
-      }
-
-      const winner = home > away ? 'HOME' : away > home ? 'AWAY' : 'DRAW';
-      const existing = resultsByEventId.get(String(selectedEvent.id));
-
-      const payload = {
-        event_id: selectedEvent.id,
-        official_home_score: home,
-        official_away_score: away,
-        official_winner: winner,
-        finalized_at: new Date().toISOString()
-      };
-
-      if (existing?.id) payload.id = existing.id;
-
-      try {
-        const { error } = await client
-          .schema('predictions')
-          .from('official_results')
-          .upsert(payload);
-
-        if (error) throw error;
-
-        await client
-          .schema('sports')
-          .from('events')
-          .update({ event_status: 'FINISHED' })
-          .eq('id', selectedEvent.id);
-
-        showMessage('Resultado oficial guardado correctamente.', 'ok');
-        await loadEvents();
-        selectEvent(selectedEvent.id);
-      } catch (_) {
-        showMessage('No se pudo guardar. Verifica permisos de administrador.', 'warn');
-      }
-    }
-
-    function setupTabs() {
-      document.querySelectorAll('.tab').forEach((tab) => {
-        tab.addEventListener('click', () => {
-          activeFilter = tab.dataset.filter;
-          document.querySelectorAll('.tab').forEach((item) => item.classList.remove('active'));
-          tab.classList.add('active');
-          renderList();
-        });
-      });
-    }
-
-    function initSupabase() {
-      if (!SUPABASE_URL || !SUPABASE_KEY || !window.supabase) {
-        showMessage('No se pudo iniciar la conexión de PREDIKT™.', 'warn');
-        return;
-      }
-      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
-
-    async function init() {
-      initSupabase();
-      setupTabs();
-      $('searchInput').addEventListener('input', renderList);
-      $('saveBtn').addEventListener('click', saveResult);
-      $('refreshBtn').addEventListener('click', loadEvents);
-      await loadEvents();
-      console.info('[PREDIKT]', PAGE_VERSION);
-    }
-
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
-</body>
-</html>
