@@ -3,20 +3,27 @@
 <head>
   <!--
     Nombre del archivo: grupos.html
-    Fecha: 2026-06-12
-    Versión: v1.1.0 MOTOR OFICIAL
+    Fecha: 2026-06-18
+    Versión: v2.0.0 GROUP NAVIGATOR EDITION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Descripción:
       Centro Oficial de Posiciones PREDIKT™ Mobile First.
-      Muestra tablas por grupo A-L para la Copa Internacional de Fútbol 2026.
+      Muestra una tabla por grupo con navegación híbrida: swipe móvil,
+      flechas visibles para PC/tablet y selector compacto A-L.
 
       FILOSOFÍA UX:
-      Abrir Grupos → entender quién lidera, quién clasifica y quién está en riesgo.
+      Abrir Grupos → entender rápido quién lidera, quién clasifica,
+      quién está en riesgo y avanzar grupo por grupo sin scroll excesivo.
+
+      CERTIFICACIÓN BACKEND:
+      Esta versión consume sports.v_group_standings_v2, vista certificada
+      para devolver 12 grupos, 48 selecciones y 4 equipos por grupo,
+      incluyendo equipos con PJ = 0.
 
       NOTA DE ARQUITECTURA:
-      Esta versión consume exclusivamente sports.v_group_standings.
-      No calcula PJ, G, E, P, GF, GC, DG, PTS ni posición en JavaScript.
+      El frontend NO calcula PJ, G, E, P, GF, GC, DG, PTS ni posición.
+      Sólo renderiza los datos oficiales entregados por Supabase.
   -->
 
   <meta charset="UTF-8" />
@@ -171,14 +178,78 @@
     }
     .legend-card strong { display: block; color: var(--text-main); font-size: 0.72rem; margin-bottom: 2px; }
 
-    .groups-wrap { display: grid; gap: 10px; }
+    .navigator-shell {
+      display: grid;
+      grid-template-columns: 48px 1fr 48px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .nav-arrow {
+      min-height: 48px;
+      border-radius: 18px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      font-size: 1.35rem;
+      font-weight: 980;
+      line-height: 1;
+    }
+
+    .nav-arrow:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+    }
+
+    .group-indicator {
+      min-height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      border: 1px solid rgba(245,185,66,0.22);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(245,185,66,0.18), transparent 34%),
+        rgba(15,39,64,0.90);
+      box-shadow: var(--shadow);
+      text-align: center;
+      user-select: none;
+    }
+
+    .group-indicator-title {
+      color: var(--gold);
+      font-size: 0.78rem;
+      font-weight: 980;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .group-indicator-sub {
+      margin-top: 4px;
+      color: var(--text-muted);
+      font-size: 0.58rem;
+      font-weight: 860;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .groups-wrap { display: grid; gap: 10px; touch-action: pan-y; }
     .group-card {
       border-radius: var(--radius-xl);
       overflow: hidden;
       border: 1px solid var(--border);
       background: rgba(15,39,64,0.82);
       box-shadow: var(--shadow);
+      animation: cardIn 0.18s ease-out;
     }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .group-head {
       display: flex;
       align-items: center;
@@ -304,6 +375,12 @@
       border: 1px solid rgba(245,185,66,0.22);
     }
 
+    @media (max-width: 420px) {
+      .navigator-shell { grid-template-columns: 44px 1fr 44px; gap: 7px; }
+      .nav-arrow { min-height: 44px; border-radius: 16px; }
+      .group-indicator { min-height: 44px; }
+    }
+
     @media (max-height: 760px) {
       .hero-copy, .status-legend { display: none; }
       th, td { padding-top: 7px; padding-bottom: 7px; }
@@ -326,20 +403,29 @@
     <section class="hero" aria-label="Tablas de grupos">
       <p class="hero-kicker">🌎 Centro Oficial de Posiciones</p>
       <h1 class="hero-title">Tablas de Grupos</h1>
-      <p class="hero-copy">Consulta quién lidera, quién clasifica y quién está en riesgo en cada grupo.</p>
+      <p class="hero-copy">Consulta quién lidera, quién clasifica y quién está en riesgo, grupo por grupo.</p>
     </section>
 
-    <nav class="group-tabs" id="groupTabs" aria-label="Navegación por grupos"></nav>
+    <nav class="group-tabs" id="groupTabs" aria-label="Selector rápido de grupos A-L"></nav>
 
     <section class="status-legend" aria-label="Leyenda de clasificación">
       <article class="legend-card"><strong>🥇🥈 Clasifica</strong>Primeros dos lugares del grupo.</article>
-      <article class="legend-card"><strong>❌ En riesgo</strong>Último lugar del grupo.</article>
+      <article class="legend-card"><strong>❌ En riesgo</strong>Tercer y cuarto lugar, pendientes de criterios posteriores.</article>
     </section>
 
-    <section class="groups-wrap" id="groupsWrap" aria-label="Tablas oficiales por grupo">
+    <section class="navigator-shell" aria-label="Navegador de grupos">
+      <button class="nav-arrow" id="prevGroup" type="button" aria-label="Grupo anterior">‹</button>
+      <div class="group-indicator" id="groupIndicator" role="status" aria-live="polite">
+        <strong class="group-indicator-title">Grupo A</strong>
+        <span class="group-indicator-sub">1 de 12</span>
+      </div>
+      <button class="nav-arrow" id="nextGroup" type="button" aria-label="Grupo siguiente">›</button>
+    </section>
+
+    <section class="groups-wrap" id="groupsWrap" aria-label="Tabla oficial del grupo seleccionado">
       <article class="group-card">
         <div class="group-head">
-          <h2 class="group-title">Cargando grupos</h2>
+          <h2 class="group-title">Cargando grupo</h2>
           <span class="group-badge">PREDIKT™ Data Flow</span>
         </div>
         <div class="empty-state">Conectando con Supabase...</div>
@@ -349,7 +435,7 @@
     <section class="future-card" aria-label="Evolución futura">
       <p class="future-kicker">🧠 Próxima evolución</p>
       <h2 class="future-title">Probabilidad de avanzar</h2>
-      <p class="future-copy">Este espacio queda preparado para clasificados, cruces de eliminación, Ranking FIFA, Ranking PREDIKT™ y sugerencias inteligentes.</p>
+      <p class="future-copy">Este espacio queda preparado para clasificados, mejores terceros, cruces de eliminación, Ranking FIFA, Ranking PREDIKT™ y sugerencias inteligentes.</p>
     </section>
   </main>
 
@@ -385,17 +471,38 @@
       GI: "Grupo I",
       GJ: "Grupo J",
       GK: "Grupo K",
-      GL: "Grupo L"
+      GL: "Grupo L",
+      GROUP_A: "Grupo A",
+      GROUP_B: "Grupo B",
+      GROUP_C: "Grupo C",
+      GROUP_D: "Grupo D",
+      GROUP_E: "Grupo E",
+      GROUP_F: "Grupo F",
+      GROUP_G: "Grupo G",
+      GROUP_H: "Grupo H",
+      GROUP_I: "Grupo I",
+      GROUP_J: "Grupo J",
+      GROUP_K: "Grupo K",
+      GROUP_L: "Grupo L"
     };
 
     const toast = document.getElementById("toast");
+    const groupsWrap = document.getElementById("groupsWrap");
+    const groupIndicator = document.getElementById("groupIndicator");
+    const prevGroupButton = document.getElementById("prevGroup");
+    const nextGroupButton = document.getElementById("nextGroup");
+
+    let currentGroupIndex = 0;
+    let currentGroupMap = buildEmptyGroups();
+    let touchStartX = 0;
+    let touchStartY = 0;
 
     function showToast(message) {
       if (!toast) return;
       toast.textContent = message;
       toast.classList.add("show");
       window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
     }
 
     function sportsHeaders() {
@@ -407,20 +514,30 @@
       };
     }
 
+    function buildEmptyGroups() {
+      return GROUP_ORDER.reduce((acc, groupName) => {
+        acc[groupName] = [];
+        return acc;
+      }, {});
+    }
+
     function renderTabs() {
       const tabs = document.getElementById("groupTabs");
       tabs.innerHTML = GROUP_ORDER.map((group, index) => {
         const letter = group.replace("Grupo ", "");
-        return `<button class="group-tab ${index === 0 ? "active" : ""}" type="button" data-target="${group.replace(" ", "-")}">${letter}</button>`;
+        return `<button class="group-tab ${index === currentGroupIndex ? "active" : ""}" type="button" data-index="${index}" aria-label="Ver ${group}">${letter}</button>`;
       }).join("");
 
       tabs.querySelectorAll(".group-tab").forEach((button) => {
         button.addEventListener("click", () => {
-          tabs.querySelectorAll(".group-tab").forEach((item) => item.classList.remove("active"));
-          button.classList.add("active");
-          const target = document.getElementById(button.dataset.target);
-          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+          setCurrentGroup(Number(button.dataset.index), true);
         });
+      });
+    }
+
+    function updateTabs() {
+      document.querySelectorAll(".group-tab").forEach((button) => {
+        button.classList.toggle("active", Number(button.dataset.index) === currentGroupIndex);
       });
     }
 
@@ -431,15 +548,22 @@
     }
 
     function groupDisplayName(groupCode) {
-      return GROUP_CODE_TO_NAME[groupCode] || `Grupo ${String(groupCode || "").replace("G", "")}`;
+      if (GROUP_CODE_TO_NAME[groupCode]) return GROUP_CODE_TO_NAME[groupCode];
+      const normalized = String(groupCode || "").replace("GROUP_", "").replace("G", "");
+      return `Grupo ${normalized}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     function buildGroupsFromStandings(rows) {
-      const groups = {};
-
-      GROUP_ORDER.forEach((groupName) => {
-        groups[groupName] = [];
-      });
+      const groups = buildEmptyGroups();
 
       rows.forEach((row) => {
         const groupName = groupDisplayName(row.group_code);
@@ -464,84 +588,136 @@
       return groups;
     }
 
-    function renderGroups(groupMap) {
-      const wrap = document.getElementById("groupsWrap");
+    function renderCurrentGroup() {
+      const groupName = GROUP_ORDER[currentGroupIndex];
+      const rows = (currentGroupMap[groupName] || [])
+        .slice()
+        .sort((a, b) => a.position - b.position);
 
-      const cards = GROUP_ORDER.map((groupName) => {
-        const rows = (groupMap[groupName] || [])
-          .slice()
-          .sort((a, b) => a.position - b.position);
+      const hasRows = rows.length > 0;
+      const title = escapeHtml(groupName);
+      const badge = hasRows ? `${rows.length} selecciones` : "Sin datos";
 
-        const id = groupName.replace(" ", "-");
-        const hasRows = rows.length > 0;
+      groupIndicator.innerHTML = `
+        <strong class="group-indicator-title">${title}</strong>
+        <span class="group-indicator-sub">${currentGroupIndex + 1} de ${GROUP_ORDER.length}</span>
+      `;
 
-        return `
-          <article class="group-card" id="${id}">
-            <div class="group-head">
-              <h2 class="group-title">${groupName}</h2>
-              <span class="group-badge">${hasRows ? `${rows.length} selecciones` : "Sin resultados"}</span>
-            </div>
-            ${hasRows ? `
-              <div class="table-scroll">
-                <table aria-label="Tabla ${groupName}">
-                  <thead>
-                    <tr>
-                      <th>Pos</th><th>Selección</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
+      prevGroupButton.disabled = currentGroupIndex === 0;
+      nextGroupButton.disabled = currentGroupIndex === GROUP_ORDER.length - 1;
+      updateTabs();
+
+      groupsWrap.innerHTML = `
+        <article class="group-card" id="${groupName.replace(" ", "-")}">
+          <div class="group-head">
+            <h2 class="group-title">${title}</h2>
+            <span class="group-badge">${badge}</span>
+          </div>
+          ${hasRows ? `
+            <div class="table-scroll">
+              <table aria-label="Tabla ${title}">
+                <thead>
+                  <tr>
+                    <th>Pos</th><th>Selección</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.map((row) => `
+                    <tr class="${rowClass(row)}">
+                      <td><span class="pos-pill">${row.position}</span></td>
+                      <td class="team-cell">${row.position === 1 ? "🥇 " : row.position === 2 ? "🥈 " : ""}${escapeHtml(row.team)}</td>
+                      <td>${row.pj}</td>
+                      <td>${row.g}</td>
+                      <td>${row.e}</td>
+                      <td>${row.p}</td>
+                      <td>${row.gf}</td>
+                      <td>${row.gc}</td>
+                      <td>${row.dg > 0 ? "+" : ""}${row.dg}</td>
+                      <td class="pts">${row.pts}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    ${rows.map((row) => `
-                      <tr class="${rowClass(row)}">
-                        <td><span class="pos-pill">${row.position}</span></td>
-                        <td class="team-cell">${row.position === 1 ? "🥇 " : row.position === 2 ? "🥈 " : ""}${row.team}</td>
-                        <td>${row.pj}</td>
-                        <td>${row.g}</td>
-                        <td>${row.e}</td>
-                        <td>${row.p}</td>
-                        <td>${row.gf}</td>
-                        <td>${row.gc}</td>
-                        <td>${row.dg > 0 ? "+" : ""}${row.dg}</td>
-                        <td class="pts">${row.pts}</td>
-                      </tr>
-                    `).join("")}
-                  </tbody>
-                </table>
-              </div>
-            ` : `
-              <div class="empty-state">Aún no hay resultados oficiales registrados para este grupo.</div>
-            `}
-          </article>
-        `;
-      }).join("");
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          ` : `
+            <div class="empty-state">Este grupo aún no tiene datos oficiales disponibles.</div>
+          `}
+        </article>
+      `;
+    }
 
-      wrap.innerHTML = cards;
+    function setCurrentGroup(index, announce = false) {
+      if (Number.isNaN(index)) return;
+      const nextIndex = Math.max(0, Math.min(index, GROUP_ORDER.length - 1));
+      if (nextIndex === currentGroupIndex && announce) return;
+      currentGroupIndex = nextIndex;
+      renderCurrentGroup();
+      if (announce) showToast(`${GROUP_ORDER[currentGroupIndex]} seleccionado.`);
+    }
+
+    function goPreviousGroup() {
+      setCurrentGroup(currentGroupIndex - 1, true);
+    }
+
+    function goNextGroup() {
+      setCurrentGroup(currentGroupIndex + 1, true);
     }
 
     async function loadGroupStandings() {
-      const url = `${PREDIKT_SUPABASE_REST_URL}/v_group_standings?select=*&order=group_code.asc,position.asc`;
+      const url = `${PREDIKT_SUPABASE_REST_URL}/v_group_standings_v2?select=*&order=group_code.asc,position.asc`;
       const response = await fetch(url, { method: "GET", headers: sportsHeaders() });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       return Array.isArray(data) ? data : [];
     }
 
+    function bindNavigatorEvents() {
+      prevGroupButton.addEventListener("click", goPreviousGroup);
+      nextGroupButton.addEventListener("click", goNextGroup);
+
+      groupsWrap.addEventListener("touchstart", (event) => {
+        const touch = event.changedTouches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      }, { passive: true });
+
+      groupsWrap.addEventListener("touchend", (event) => {
+        const touch = event.changedTouches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+        if (deltaX < 0) goNextGroup();
+        if (deltaX > 0) goPreviousGroup();
+      }, { passive: true });
+
+      window.addEventListener("keydown", (event) => {
+        const tag = String(document.activeElement?.tagName || "").toLowerCase();
+        if (["input", "textarea", "select"].includes(tag)) return;
+        if (event.key === "ArrowLeft") goPreviousGroup();
+        if (event.key === "ArrowRight") goNextGroup();
+      });
+    }
+
     async function init() {
       renderTabs();
+      bindNavigatorEvents();
+      renderCurrentGroup();
 
       try {
         const standings = await loadGroupStandings();
-        const groupMap = buildGroupsFromStandings(standings);
-        renderGroups(groupMap);
+        currentGroupMap = buildGroupsFromStandings(standings);
+        renderCurrentGroup();
 
-        if (!standings.length) {
-          showToast("Aún no hay posiciones oficiales disponibles.");
+        if (standings.length !== 48) {
+          showToast(`Vista cargada con ${standings.length} selecciones. Validar backend.`);
           return;
         }
 
-        showToast("Tablas oficiales actualizadas.");
+        showToast("Tablas oficiales actualizadas: 48 selecciones cargadas.");
       } catch (error) {
-        console.error("No se pudo cargar sports.v_group_standings.", error);
-        renderGroups(buildGroupsFromStandings([]));
+        console.error("No se pudo cargar sports.v_group_standings_v2.", error);
+        currentGroupMap = buildEmptyGroups();
+        renderCurrentGroup();
         showToast("No se pudieron cargar las tablas oficiales.");
       }
     }
@@ -553,8 +729,17 @@
 
 <!--
 Cierre de archivo
-Versión: v1.1.0 MOTOR OFICIAL
-Fecha: 2026-06-12
+Versión: v2.0.0 GROUP NAVIGATOR EDITION
+Fecha: 2026-06-18
 Elaborado por: JVSys™
-Acción: Guardar como grupos.html y enlazar desde index.html.
+Acción: Guardar como grupos.html y desplegar en predikt-frontend.
+Historial:
+- v1.1.0: Consumía sports.v_group_standings y apilaba 12 tablas.
+- v2.0.0: Migra a sports.v_group_standings_v2 certificada con 48 equipos.
+- v2.0.0: Implementa Group Navigator con flechas PC, swipe móvil, teclado y selector A-L.
+Certificación técnica:
+- No calcula standings en JavaScript.
+- Renderiza una sola tabla visible por grupo.
+- Mantiene equipos con PJ=0 entregados por backend.
+- Reduce scroll vertical y conserva filosofía Mobile First App.
 -->
