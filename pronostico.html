@@ -4,10 +4,16 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-18
-    Versión: v5.0.0 SCORELINE ENGINE FRONTEND INTEGRATION
+    Versión: v5.1.0 FAST CACHE FRONTEND INTEGRATION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
+
+    CAMBIOS v5.1.0:
+    1. Cambia consumo frontend a predictions.v_predikt_frontend_predictions_v2.
+    2. Evita timeout leyendo desde cache operacional indexada.
+    3. Mantiene todos los campos visuales del Entropy Engine v5.4.0.
+    4. No toca guardado de pronósticos ni resultados reales.
 
     CAMBIOS v5.0.0:
     1. Conecta Pronósticos a predictions.v_predikt_frontend_predictions_v1.
@@ -1450,13 +1456,13 @@
 
       const { data, error } = await client
         .schema("predictions")
-        .from("v_predikt_frontend_predictions_v1")
+        .from("v_predikt_frontend_predictions_v2")
         .select("*")
         .order("starts_at", { ascending: true })
         .limit(120);
 
       if (error) {
-        logSupabaseError("loadMatches frontend_predictions_v1 error", error);
+        logSupabaseError("loadMatches frontend_predictions_v2 error", error);
         throw error;
       }
 
@@ -1665,11 +1671,11 @@
 
 <!--
 Cierre de archivo
-Versión: v5.0.0 SCORELINE ENGINE FRONTEND INTEGRATION
+Versión: v5.1.0 FAST CACHE FRONTEND INTEGRATION
 Fecha: 2026-06-18
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
-Fuente oficial: predictions.v_predikt_frontend_predictions_v1.
+Fuente oficial: predictions.v_predikt_frontend_predictions_v2.
 Motor operativo: PREDIKT™ Scoreline Entropy Engine v5.4.0.
 Certificación técnica: elimina dependencias obsoletas sports.v_predikt_advisor_v3 y sports.v_event_match_intelligence_api.
 Compatibilidad: mantiene guardado real con predikt_submit_prediction, predikt_get_my_predictions y official_results.
