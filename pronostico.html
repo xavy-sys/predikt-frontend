@@ -3,18 +3,21 @@
 <head>
   <!--
     Nombre del archivo: pronostico.html
-    Fecha: 2026-06-17
-    Versión: v4.2.0 OPERATIONAL SCORELINE ENGINE
+    Fecha: 2026-06-18
+    Versión: v5.0.0 SCORELINE ENGINE FRONTEND INTEGRATION
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
 
-    CAMBIOS v4.2.0:
+    CAMBIOS v5.0.0:
     1. Conecta Pronósticos a predictions.v_predikt_frontend_predictions_v1.
-    2. Usa Scoreline Operational Current v5.4.0 como marcador sugerido oficial.
-    3. Elimina dependencia primaria de sports.v_predikt_advisor_v3.
-    4. Agrega Loader Global PREDIKT™ durante consultas Supabase.
-    5. Mantiene fallback seguro, pero la operación normal usa el motor operacional.
+    2. Elimina dependencias obsoletas sports.v_predikt_advisor_v3 y sports.v_event_match_intelligence_api.
+    3. Consume el motor operativo PREDIKT™ Scoreline Entropy Engine v5.4.0.
+    4. Muestra marcador sugerido, confianza, explicación IA, ritmo, volatilidad y versión del motor.
+    5. El score sugerido inicial usa predicted_home_goals y predicted_away_goals certificados.
+    6. Refuerza Loader Balón PREDIKT™ durante carga, actualización y guardado.
+    7. Mantiene regla permanente: un partido nunca desaparece el mismo día.
+    8. No usa fallbacks hacia vistas inexistentes ni vistas sin permisos.
 
     CAMBIOS v4.1.1:
     1. Corrige UX crítica: EN JUEGO aparece antes de Por Pronosticar.
@@ -434,6 +437,50 @@
       line-height: 1.1;
     }
 
+    .scoreline-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      max-width: 100%;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #061826;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      font-size: .76rem;
+      font-weight: 980;
+      letter-spacing: .02em;
+    }
+
+    .engine-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .engine-box {
+      border: 1px solid rgba(245,185,66,.16);
+      border-radius: 14px;
+      background: rgba(245,185,66,.055);
+      padding: 8px;
+    }
+
+    .engine-label {
+      color: var(--text-muted);
+      font-size: .54rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 3px;
+    }
+
+    .engine-value {
+      color: var(--gold-soft);
+      font-size: .68rem;
+      font-weight: 900;
+      line-height: 1.16;
+    }
+
     .prediction-box {
       display: grid;
       gap: 10px;
@@ -678,7 +725,7 @@
       .summary-grid .summary-card:last-child { grid-column: 1 / -1; }
       .toolbar { grid-template-columns: 1fr; }
       .match-head { grid-template-columns: 1fr; }
-      .prob-grid { grid-template-columns: 1fr; }
+      .prob-grid, .engine-grid { grid-template-columns: 1fr; }
       .score-row { grid-template-columns: 1fr; }
       .stepper { justify-content: space-between; width: 100%; }
       .step-btn { width: 40px; height: 40px; }
@@ -804,39 +851,35 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const PREDIKT_LOADER_MESSAGES = [
-      "⚽ Analizando estadísticas del torneo...",
-      "⚽ Calculando fuerza adaptativa...",
-      "⚽ Consultando Motor PREDIKT™...",
-      "⚽ Generando marcador inteligente...",
-      "⚽ Preparando tus partidos..."
-    ];
+    let prediktLoaderStartedAt = Date.now();
 
-    let prediktLoaderTimer = null;
-    let prediktLoaderIndex = 0;
-
-    function showPrediktLoader(message = "⚽ Consultando Motor PREDIKT™...") {
-      const loader = document.getElementById("prediktLoader");
+    function setPrediktLoaderMessage(message) {
       const copy = document.getElementById("prediktLoaderCopy");
-      if (!loader) return;
-      if (copy) copy.textContent = message;
-      loader.classList.remove("hide");
-      window.clearInterval(prediktLoaderTimer);
-      prediktLoaderTimer = window.setInterval(() => {
-        prediktLoaderIndex = (prediktLoaderIndex + 1) % PREDIKT_LOADER_MESSAGES.length;
-        const currentCopy = document.getElementById("prediktLoaderCopy");
-        if (currentCopy) currentCopy.textContent = PREDIKT_LOADER_MESSAGES[prediktLoaderIndex];
-      }, 1700);
+      if (copy && message) copy.textContent = message;
+    }
+
+    function showPrediktLoader(message = "Consultando Motor PREDIKT™...") {
+      const loader = document.getElementById("prediktLoader");
+      prediktLoaderStartedAt = Date.now();
+      setPrediktLoaderMessage(message);
+      if (loader) loader.classList.remove("hide");
     }
 
     function hidePrediktLoader() {
       const loader = document.getElementById("prediktLoader");
-      window.clearInterval(prediktLoaderTimer);
-      prediktLoaderTimer = null;
-      if (loader) loader.classList.add("hide");
+      if (!loader) return;
+      const elapsed = Date.now() - prediktLoaderStartedAt;
+      const minVisible = 600;
+      window.setTimeout(() => loader.classList.add("hide"), Math.max(0, minVisible - elapsed));
     }
 
-    showPrediktLoader("⚽ Preparando Pronósticos PREDIKT™...");
+    window.setTimeout(() => {
+      setPrediktLoaderMessage("Motor PREDIKT™ procesando estadísticas...");
+    }, 1800);
+
+    window.setTimeout(() => {
+      setPrediktLoaderMessage("Generando pronóstico inteligente...");
+    }, 3200);
   </script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/auth.js"></script>
@@ -1085,16 +1128,18 @@
         ai_explanation: row.ai_explanation || row.live_ai_explanation || "",
         recommendation: row.recommendation || "",
         user_factor: firstNumeric(row.user_factor),
-        confidence_stage: row.confidence_stage || row.scoreline_operational_status || "BASE",
+        confidence_stage: row.confidence_stage || "BASE",
 
-        predicted_home_goals: firstNumeric(row.predicted_home_goals, row.operational_predicted_home_goals),
-        predicted_away_goals: firstNumeric(row.predicted_away_goals, row.operational_predicted_away_goals),
-        predicted_scoreline: row.predicted_scoreline || row.operational_predicted_scoreline || "",
+        predicted_home_goals: firstNumeric(row.predicted_home_goals),
+        predicted_away_goals: firstNumeric(row.predicted_away_goals),
+        predicted_scoreline: row.predicted_scoreline || "",
         predicted_result_type: row.predicted_result_type || "",
+        predicted_goal_environment: row.predicted_goal_environment || "",
         match_tempo_label: row.match_tempo_label || "",
         goal_volatility_label: row.goal_volatility_label || "",
         entropy_decision_reason: row.entropy_decision_reason || "",
-        active_scoreline_model_version: row.active_scoreline_model_version || ""
+        active_scoreline_model_version: row.active_scoreline_model_version || "",
+        scoreline_operational_status: row.scoreline_operational_status || ""
       };
     }
 
@@ -1150,11 +1195,9 @@
     }
 
     function buildSuggestedScore(match) {
-      const operationalHome = firstNumeric(match.predicted_home_goals);
-      const operationalAway = firstNumeric(match.predicted_away_goals);
-      if (operationalHome !== null && operationalAway !== null) {
-        return { home: clampScore(operationalHome), away: clampScore(operationalAway) };
-      }
+      const home = firstNumeric(match.predicted_home_goals);
+      const away = firstNumeric(match.predicted_away_goals);
+      if (home !== null && away !== null) return { home, away };
 
       const rec = getRecommendation(match);
       if (rec === "Empate") return { home: 1, away: 1 };
@@ -1181,6 +1224,30 @@
       `;
     }
 
+
+    function renderScorelineEngine(match) {
+      const scoreline = safeText(match.predicted_scoreline) || `${clampScore(match.predicted_home_goals)}-${clampScore(match.predicted_away_goals)}`;
+      const model = safeText(match.active_scoreline_model_version) || "PREDIKT™ Scoreline Engine";
+      return `
+        <div class="scoreline-chip">Marcador PREDIKT™: ${match.home_team} ${scoreline} ${match.away_team}</div>
+        <div class="engine-grid">
+          <div class="engine-box">
+            <p class="engine-label">Ritmo</p>
+            <p class="engine-value">${safeText(match.match_tempo_label) || "En análisis"}</p>
+          </div>
+          <div class="engine-box">
+            <p class="engine-label">Volatilidad</p>
+            <p class="engine-value">${safeText(match.goal_volatility_label) || "En análisis"}</p>
+          </div>
+          <div class="engine-box">
+            <p class="engine-label">Entorno</p>
+            <p class="engine-value">${safeText(match.predicted_goal_environment) || "Normal"}</p>
+          </div>
+        </div>
+        <p class="advisor-copy"><strong>Motor activo:</strong> ${model}</p>
+      `;
+    }
+
     function renderMatchPredictionCard(match) {
       const existing = myPredictionsByEvent.get(match.event_id);
       const suggested = existing ? getPredictionScores(existing) : buildSuggestedScore(match);
@@ -1201,10 +1268,11 @@
           </div>
 
           <div class="advisor-lite">
-            <p class="advisor-title">PREDIKT™ recomienda: ${recommendation} · Marcador sugerido ${match.predicted_scoreline || "--"} · Confianza ${match.confidence_score ? match.confidence_score + "%" : "--"}</p>
+            <p class="advisor-title">PREDIKT™ recomienda: ${recommendation} · Confianza ${match.confidence_score ? match.confidence_score + "%" : "--"}</p>
+            ${renderScorelineEngine(match)}
             ${renderProbabilities(match)}
             <p class="advisor-copy">${match.ai_explanation || "Lectura PREDIKT™ en preparación."}</p>
-            <p class="advisor-copy"><strong>Motor:</strong> ${match.active_scoreline_model_version || match.confidence_stage || "OPERATIVO"} · Tempo ${match.match_tempo_label || "--"} · Volatilidad ${match.goal_volatility_label || "--"}</p>
+            <p class="advisor-copy"><strong>Factor dinámico:</strong> ${match.confidence_stage || "BASE"} · Participación ${((Number(match.user_factor || 0)) * 100).toFixed(1)}%</p>
           </div>
 
           <div class="prediction-box">
@@ -1259,7 +1327,8 @@
           </div>
 
           <div class="advisor-lite">
-            <p class="advisor-title">PREDIKT™ recomendaba: ${recommendation} · Marcador sugerido ${match.predicted_scoreline || "--"} · Confianza ${match.confidence_score ? match.confidence_score + "%" : "--"}</p>
+            <p class="advisor-title">PREDIKT™ recomendaba: ${recommendation} · Confianza ${match.confidence_score ? match.confidence_score + "%" : "--"}</p>
+            ${renderScorelineEngine(match)}
             ${renderProbabilities(match)}
             <p class="advisor-copy">${match.ai_explanation || "Lectura PREDIKT™ en preparación."}</p>
           </div>
@@ -1379,38 +1448,21 @@
     async function loadMatches() {
       const client = getSupabaseClient();
 
-      const operationalResponse = await client
+      const { data, error } = await client
         .schema("predictions")
         .from("v_predikt_frontend_predictions_v1")
         .select("*")
         .order("starts_at", { ascending: true })
         .limit(120);
 
-      if (!operationalResponse.error) {
-        allMatches = Array.isArray(operationalResponse.data)
-          ? operationalResponse.data.map(normalizeMatch).filter((match) => match && match.event_id)
-          : [];
-        return;
+      if (error) {
+        logSupabaseError("loadMatches frontend_predictions_v1 error", error);
+        throw error;
       }
 
-      logSupabaseError("loadMatches frontend_predictions_v1 error", operationalResponse.error);
-
-      const fallbackOperational = await client
-        .schema("predictions")
-        .from("v_predikt_scoreline_operational_current")
-        .select("*")
-        .order("starts_at", { ascending: true })
-        .limit(120);
-
-      if (!fallbackOperational.error) {
-        allMatches = Array.isArray(fallbackOperational.data)
-          ? fallbackOperational.data.map(normalizeMatch).filter((match) => match && match.event_id)
-          : [];
-        return;
-      }
-
-      logSupabaseError("loadMatches operational_current fallback error", fallbackOperational.error);
-      throw fallbackOperational.error;
+      allMatches = Array.isArray(data)
+        ? data.map(normalizeMatch).filter((match) => match && match.event_id)
+        : [];
     }
 
     async function loadMyPredictions() {
@@ -1478,6 +1530,7 @@
 
       saveButton.disabled = true;
       saveButton.textContent = "Guardando...";
+      showPrediktLoader("Guardando tu pronóstico...");
 
       try {
         const { data, error } = await client.rpc("predikt_submit_prediction", {
@@ -1506,13 +1559,14 @@
         console.error("PREDIKT™ savePrediction error:", error);
         showToast(`No se pudo guardar: ${error.message || "revisa permisos/RPC"}.`);
       } finally {
+        hidePrediktLoader();
         saveButton.disabled = false;
         saveButton.textContent = myPredictionsByEvent.has(eventId) ? "Actualizar pronóstico" : "Guardar pronóstico";
       }
     }
 
     async function refreshData() {
-      showPrediktLoader("⚽ Actualizando partidos y motor PREDIKT™...");
+      showPrediktLoader("Actualizando partidos y motor PREDIKT™...");
       showToast("Actualizando partidos...");
 
       try {
@@ -1607,58 +1661,16 @@
 </body>
 </html>
 
-<!--
-Cierre de archivo
-Versión: v4.1.1 EN JUEGO PRIMERO
-Fecha: 2026-06-12
-Elaborado por: JVSys™
-Acción: Sustituir pronostico.html completo.
--->
+
 
 <!--
 Cierre de archivo
-Versión: v4.1.1 EN JUEGO PRIMERO
-Fecha: 2026-06-12
+Versión: v5.0.0 SCORELINE ENGINE FRONTEND INTEGRATION
+Fecha: 2026-06-18
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
--->
-
-<!--
-Cierre de archivo
-Versión: v4.1.1 EN JUEGO PRIMERO
-Fecha: 2026-06-12
-Elaborado por: JVSys™
-Acción: Sustituir pronostico.html completo.
--->
-
-<!--
-Cierre de archivo
-Versión: v4.1.1 EN JUEGO PRIMERO
-Fecha: 2026-06-12
-Elaborado por: JVSys™
-Regla: Un partido nunca desaparece el mismo día.
-Acción: Sustituir pronostico.html completo.
--->
-
-<!--
-Cierre de archivo
-Versión: v4.1.1 EN JUEGO PRIMERO
-Fecha: 2026-06-12
-Elaborado por: JVSys™
-Regla: Los partidos en juego se muestran antes de la lista futura.
-Acción: Sustituir pronostico.html completo.
--->
-
-<!--
-===============================================================================
-CIERRE DE ARCHIVO
-Nombre: pronostico.html
-Versión: v4.2.0 OPERATIONAL SCORELINE ENGINE
-Fecha: 2026-06-17
-Elaborado por: JVSys™
-Proyecto: PREDIKT™
-Acción: Sustituir pronostico.html completo.
-Certificación: Conecta Pronósticos a predictions.v_predikt_frontend_predictions_v1 y usa Loader Global PREDIKT™.
-Compatibilidad: Mobile First, Supabase JS v2, Footer fijo 5 botones.
-===============================================================================
+Fuente oficial: predictions.v_predikt_frontend_predictions_v1.
+Motor operativo: PREDIKT™ Scoreline Entropy Engine v5.4.0.
+Certificación técnica: elimina dependencias obsoletas sports.v_predikt_advisor_v3 y sports.v_event_match_intelligence_api.
+Compatibilidad: mantiene guardado real con predikt_submit_prediction, predikt_get_my_predictions y official_results.
 -->
