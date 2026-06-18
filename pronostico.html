@@ -4,13 +4,13 @@
   <!--
     Nombre del archivo: pronostico.html
     Fecha: 2026-06-18
-    Versión: v5.1.0 FAST CACHE FRONTEND INTEGRATION
+    Versión: v5.2.0 REAL PARTICIPATION ENGINE
     Fabricante: JVSys™
     Proyecto: PREDIKT™
     Competencia: Copa Internacional de Fútbol 2026
 
     CAMBIOS v5.1.0:
-    1. Cambia consumo frontend a predictions.v_predikt_frontend_predictions_v2.
+    1. Cambia consumo frontend a predictions.v_predikt_frontend_predictions_v3.
     2. Evita timeout leyendo desde cache operacional indexada.
     3. Mantiene todos los campos visuales del Entropy Engine v5.4.0.
     4. No toca guardado de pronósticos ni resultados reales.
@@ -1134,6 +1134,9 @@
         ai_explanation: row.ai_explanation || row.live_ai_explanation || "",
         recommendation: row.recommendation || "",
         user_factor: firstNumeric(row.user_factor),
+        participation_count: firstNumeric(row.participation_count),
+        participation_percentage: firstNumeric(row.participation_percentage),
+        participation_label: row.participation_label || "",
         confidence_stage: row.confidence_stage || "BASE",
 
         predicted_home_goals: firstNumeric(row.predicted_home_goals),
@@ -1188,6 +1191,18 @@
       const numeric = Number(value);
       if (!Number.isFinite(numeric)) return "--";
       return `${numeric.toFixed(numeric >= 10 ? 1 : 2)}%`;
+    }
+
+    function renderParticipationLine(match) {
+      const count = Number(match.participation_count || 0);
+      const percentage = Number(match.participation_percentage || 0);
+      const stage = safeText(match.confidence_stage) || "BASE";
+
+      if (count > 0) {
+        return `<p class="advisor-copy"><strong>Factor dinámico:</strong> ${stage} · Participación real: ${count} pronóstico${count === 1 ? "" : "s"} registrado${count === 1 ? "" : "s"} · ${percentage.toFixed(1)}%</p>`;
+      }
+
+      return `<p class="advisor-copy"><strong>Factor dinámico:</strong> ${stage} · Participación real: esperando primeros pronósticos</p>`;
     }
 
     function getRecommendation(match) {
@@ -1278,7 +1293,7 @@
             ${renderScorelineEngine(match)}
             ${renderProbabilities(match)}
             <p class="advisor-copy">${match.ai_explanation || "Lectura PREDIKT™ en preparación."}</p>
-            <p class="advisor-copy"><strong>Factor dinámico:</strong> ${match.confidence_stage || "BASE"} · Participación ${((Number(match.user_factor || 0)) * 100).toFixed(1)}%</p>
+            ${renderParticipationLine(match)}
           </div>
 
           <div class="prediction-box">
@@ -1456,7 +1471,7 @@
 
       const { data, error } = await client
         .schema("predictions")
-        .from("v_predikt_frontend_predictions_v2")
+        .from("v_predikt_frontend_predictions_v3")
         .select("*")
         .order("starts_at", { ascending: true })
         .limit(120);
@@ -1671,11 +1686,11 @@
 
 <!--
 Cierre de archivo
-Versión: v5.1.0 FAST CACHE FRONTEND INTEGRATION
+Versión: v5.2.0 REAL PARTICIPATION ENGINE
 Fecha: 2026-06-18
 Elaborado por: JVSys™
 Acción: Sustituir pronostico.html completo.
-Fuente oficial: predictions.v_predikt_frontend_predictions_v2.
+Fuente oficial: predictions.v_predikt_frontend_predictions_v3.
 Motor operativo: PREDIKT™ Scoreline Entropy Engine v5.4.0.
 Certificación técnica: elimina dependencias obsoletas sports.v_predikt_advisor_v3 y sports.v_event_match_intelligence_api.
 Compatibilidad: mantiene guardado real con predikt_submit_prediction, predikt_get_my_predictions y official_results.
